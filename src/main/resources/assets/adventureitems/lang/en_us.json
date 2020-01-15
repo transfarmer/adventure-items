@@ -1,4 +1,9 @@
 {
     "item.adventureitems.soul_bigsword": "soul bigsword",
-    "itemGroup.adventureitems": "adventure items"
+    "item.adventureitems.soul_sword": "soul sword",
+    "item.adventureitems.soul_dagger": "soul dagger",
+    "itemGroup.adventureitems": "adventure items",
+    "key.attributes": "attribute menu",
+    "menu.adventureitems.weapons": "choose a weapon",
+    "menu.adventureitems.attributes": "attributes"
 }
