@@ -1,4 +1,4 @@
-package transfarmer.adventureitems.items;
+package transfarmer.adventureitems.item;
 
 public class SoulSword extends SoulWeapon {
     public SoulSword() {

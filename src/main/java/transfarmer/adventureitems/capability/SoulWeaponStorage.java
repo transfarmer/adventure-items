@@ -1,4 +1,4 @@
-package transfarmer.adventureitems.capabilities;
+package transfarmer.adventureitems.capability;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -7,17 +7,18 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
 
-public class Storage implements IStorage<ISoulWeapon> {
+public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
     public INBT writeNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, Direction side) {
         CompoundNBT tag = new CompoundNBT();
-        tag.putString("adventureitems.type", instance.getCurrentType().getName());
+        String weaponType = instance.getCurrentType() == null ? "null" : instance.getCurrentType().toString();
+        tag.putString("adventureitems.weaponType", weaponType);
         return tag;
     }
 
     @Override
     public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, Direction side, INBT nbt) {
         CompoundNBT tag = (CompoundNBT) nbt;
-        instance.setCurrentType(SoulWeapon.Type.get(tag.getString("type")));
+        instance.setCurrentType(SoulWeapon.WeaponType.get(tag.getString("adventureitems.weaponType")));
     }
 }

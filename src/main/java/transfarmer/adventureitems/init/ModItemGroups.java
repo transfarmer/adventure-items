@@ -2,7 +2,6 @@ package transfarmer.adventureitems.init;
 
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import transfarmer.adventureitems.Main;
 
 import java.util.function.Supplier;

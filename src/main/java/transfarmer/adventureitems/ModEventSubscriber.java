@@ -1,22 +1,19 @@
 package transfarmer.adventureitems;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.IForgeRegistryEntry;
-import transfarmer.adventureitems.capabilities.ISoulWeapon;
-import transfarmer.adventureitems.capabilities.Provider;
-import transfarmer.adventureitems.capabilities.SoulWeapon;
-import transfarmer.adventureitems.capabilities.Storage;
-import transfarmer.adventureitems.items.*;
+import transfarmer.adventureitems.capability.ISoulWeapon;
+import transfarmer.adventureitems.capability.SoulWeapon;
+import transfarmer.adventureitems.capability.SoulWeaponStorage;
+import transfarmer.adventureitems.item.*;
 
 
 @EventBusSubscriber(modid = Main.MODID, bus = EventBusSubscriber.Bus.MOD)
@@ -38,19 +35,13 @@ public class ModEventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof PlayerEntity) {
-            event.addCapability(new ResourceLocation(Main.MODID, "type"), new Provider());
-        }
+    public static void onCommonSetup(FMLCommonSetupEvent event) {
+        CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
     }
 
     @SubscribeEvent
-    public void onCommonSetup(FMLCommonSetupEvent event) {
-        CapabilityManager.INSTANCE.register(ISoulWeapon.class, new Storage(), SoulWeapon::new);
-    }
-
-    @SubscribeEvent
-    public void onClientSetup(FMLClientSetupEvent event) {
+    public static void onClientSetup(FMLClientSetupEvent event) {
         Keybindings.register();
+        MinecraftForge.EVENT_BUS.register(new Keybindings());
     }
 }

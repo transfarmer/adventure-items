@@ -1,4 +1,4 @@
-package transfarmer.adventureitems.capabilities;
+package transfarmer.adventureitems.capability;
 
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;
@@ -7,14 +7,17 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
+import javax.annotation.Nonnull;
 
-public class Provider implements ICapabilitySerializable<INBT> {
+
+public class SoulWeaponProvider implements ICapabilitySerializable<INBT> {
     @CapabilityInject(ISoulWeapon.class)
     public static Capability<ISoulWeapon> TYPE;
     private LazyOptional<ISoulWeapon> instance = LazyOptional.of(TYPE::getDefaultInstance);
 
+    @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, Direction side) {
         return capability == TYPE ? instance.cast() : LazyOptional.empty();
     }
 

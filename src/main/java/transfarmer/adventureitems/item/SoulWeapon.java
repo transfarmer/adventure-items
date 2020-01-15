@@ -1,11 +1,8 @@
-package transfarmer.adventureitems.items;
+package transfarmer.adventureitems.item;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.SwordItem;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import transfarmer.adventureitems.ModItemTier;

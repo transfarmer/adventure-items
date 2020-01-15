@@ -9,8 +9,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
-import transfarmer.adventureitems.capabilities.ISoulWeapon;
-import transfarmer.adventureitems.capabilities.Provider;
+import transfarmer.adventureitems.capability.ISoulWeapon;
+import transfarmer.adventureitems.capability.SoulWeaponProvider;
 
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = Main.MODID, bus = EventBusSubscriber.Bus.FORGE)
@@ -18,17 +18,15 @@ public class Keybindings {
     public static KeyBinding[] keybindings = new KeyBinding[1];
 
     @SubscribeEvent
-    public void onKeyPress(InputEvent.KeyInputEvent event) {
-        Minecraft.getInstance().player.sendChatMessage("key pressed");
+    public static void onKeyInput(InputEvent.KeyInputEvent event) {
         if (Keybindings.keybindings[0].isPressed()) {
-            Minecraft.getInstance().player.sendChatMessage("key pressed");
-            ISoulWeapon type = (ISoulWeapon) Minecraft.getInstance().player.getCapability(Provider.TYPE);
-
-            if (type.getCurrentType() != null) {
-                Minecraft.getInstance().displayGuiScreen(new AttributeScreen(new TranslationTextComponent("menu.adventureitems.attributes")));
-            } else {
-                Minecraft.getInstance().displayGuiScreen(new AttributeScreen(new TranslationTextComponent("menu.adventureitems.weapons")));
-            }
+            Minecraft.getInstance().player.getCapability(SoulWeaponProvider.TYPE).ifPresent((ISoulWeapon capability) -> {
+                if (capability.getCurrentType() != null) {
+                    Minecraft.getInstance().displayGuiScreen(new AttributeScreen(new TranslationTextComponent("menu.adventureitems.attributes"), capability));
+                } else {
+                    Minecraft.getInstance().displayGuiScreen(new AttributeScreen(new TranslationTextComponent("menu.adventureitems.weapons"), capability));
+                }
+            });
         }
     }
 

@@ -1,17 +1,17 @@
-package transfarmer.adventureitems.capabilities;
+package transfarmer.adventureitems.capability;
 
 
 public class SoulWeapon implements ISoulWeapon {
-    private Type current = null;
+    private WeaponType current = null;
 
-    public enum Type {
+    public enum WeaponType {
         BIGSWORD("BIGSWORD"),
         SWORD("SWORD"),
         DAGGER("DAGGER");
 
         private String name;
 
-        Type(String name) {
+        WeaponType(String name) {
             this.name = name;
         }
 
@@ -19,7 +19,7 @@ public class SoulWeapon implements ISoulWeapon {
             return this.name;
         }
 
-        public static Type get(String name) {
+        public static WeaponType get(String name) {
             switch (name) {
                 case "BIGSWORD":
                     return BIGSWORD;
@@ -34,12 +34,12 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public Type getCurrentType() {
+    public WeaponType getCurrentType() {
         return current;
     }
 
-    public void setCurrentType(Type type) {
-        current = type;
+    public void setCurrentType(WeaponType weaponType) {
+        current = weaponType;
     }
 
 }

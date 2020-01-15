@@ -5,19 +5,16 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import transfarmer.adventureitems.capabilities.ISoulWeapon;
-import transfarmer.adventureitems.capabilities.SoulWeapon;
-import transfarmer.adventureitems.capabilities.SoulWeapon.Type;
-import transfarmer.adventureitems.capabilities.Provider;
+import transfarmer.adventureitems.capability.ISoulWeapon;
+import transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
 
 
 public class AttributeScreen extends Screen {
-    private final ISoulWeapon capability = (ISoulWeapon) Minecraft.getInstance().player.getCapability(Provider.TYPE);
+    private ISoulWeapon capability;
 
-    public AttributeScreen(ITextComponent title) {
+    public AttributeScreen(ITextComponent title, ISoulWeapon capability) {
         super(title);
+        this.capability = capability;
     }
 
     public void init() {
@@ -45,9 +42,9 @@ public class AttributeScreen extends Screen {
         int buttonHeight = 20;
         int ySep = 32;
 
-        addButton(new Button(xCenter, height / 2 - ySep, buttonWidth, buttonHeight, "soul bigsword", (ignored) -> capability.setCurrentType(SoulWeapon.Type.BIGSWORD)));
-        addButton(new Button(xCenter, height / 2, buttonWidth, buttonHeight, "soul sword", (ignored) -> capability.setCurrentType(Type.SWORD)));
-        addButton(new Button(xCenter, height / 2 + ySep, buttonWidth, buttonHeight, "soul dagger", (ignored) -> capability.setCurrentType(Type.DAGGER)));
+        addButton(new Button(xCenter, height / 2 - ySep, buttonWidth, buttonHeight, "soul bigsword", (ignored) -> this.capability.setCurrentType(WeaponType.BIGSWORD)));
+        addButton(new Button(xCenter, height / 2, buttonWidth, buttonHeight, "soul sword", (ignored) -> this.capability.setCurrentType(WeaponType.SWORD)));
+        addButton(new Button(xCenter, height / 2 + ySep, buttonWidth, buttonHeight, "soul dagger", (ignored) -> this.capability.setCurrentType(WeaponType.DAGGER)));
 
     }
 }
