@@ -24,13 +24,11 @@ public class SoulWeaponProvider implements ICapabilitySerializable<INBT> {
 
     @Override
     public INBT serializeNBT() {
-        Main.LOGGER.info("serialize");
         return WEAPON_TYPE.getStorage().writeNBT(WEAPON_TYPE, instance.orElseThrow(() -> new IllegalArgumentException("LazyOptional is empty")), null);
     }
 
     @Override
     public void deserializeNBT(INBT nbt) {
-        Main.LOGGER.info("deserialize");
         WEAPON_TYPE.getStorage().readNBT(WEAPON_TYPE, instance.orElseThrow(() -> new IllegalArgumentException("LazyOptional is empty")), null, nbt);
     }
 }

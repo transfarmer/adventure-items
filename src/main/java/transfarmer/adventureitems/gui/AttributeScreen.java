@@ -1,19 +1,21 @@
 package transfarmer.adventureitems.gui;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
 import transfarmer.adventureitems.network.Packet;
 import transfarmer.adventureitems.network.PacketHandler;
 
+import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType.*;
 
 
+@OnlyIn(CLIENT)
 public class AttributeScreen extends Screen {
-    private WeaponType choice;
-
     public AttributeScreen(ITextComponent title) {
         super(title);
     }
@@ -45,6 +47,7 @@ public class AttributeScreen extends Screen {
 
     private void sendWeaponType(final WeaponType WEAPON_TYPE) {
         PacketHandler.INSTANCE.sendToServer(new Packet(WEAPON_TYPE));
+        this.minecraft.displayGuiScreen(null);
     }
 
     public void render(int p_render_1_, int p_render_2_, float p_render_3_) {

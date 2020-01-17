@@ -4,17 +4,24 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.network.PacketDistributor;
 import transfarmer.adventureitems.gui.AttributeScreen;
 import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponProvider;
+import transfarmer.adventureitems.network.Packet;
+import transfarmer.adventureitems.network.PacketHandler;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static net.minecraftforge.event.TickEvent.Phase.END;
@@ -30,6 +37,14 @@ public class ForgeEventSubscriber {
         }
     }
 
+    @SubscribeEvent
+    public static void onPlayerLoggedin(PlayerEvent.PlayerLoggedInEvent event) {
+        PlayerEntity player = event.getPlayer();
+        player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
+            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new Packet(capability.getCurrentType()));
+        });
+    }
+
     @OnlyIn(CLIENT)
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
@@ -37,10 +52,10 @@ public class ForgeEventSubscriber {
             Minecraft.getInstance().player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
                 Screen screen;
 
-                if (capability.getCurrentType() != null) {
-                    screen = new AttributeScreen(new TranslationTextComponent("menu.adventureitems.attributes"));
-                } else {
+                if (capability.getCurrentType() == null && Minecraft.getInstance().player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))) {
                     screen = new AttributeScreen(new TranslationTextComponent("menu.adventureitems.weapons"));
+                } else {
+                    screen = new AttributeScreen(new TranslationTextComponent("menu.adventureitems.attributes"));
                 }
 
                 Minecraft.getInstance().displayGuiScreen(screen);

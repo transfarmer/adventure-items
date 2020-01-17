@@ -1,12 +1,13 @@
 package transfarmer.adventureitems;
 
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+
+import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = Main.MODID, bus = EventBusSubscriber.Bus.FORGE)
+@OnlyIn(CLIENT)
 public class Keybindings {
     public static final KeyBinding[] KEYBINDINGS = new KeyBinding[1];
 
