@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -20,8 +21,9 @@ import transfarmer.adventureitems.gui.AttributeScreen;
 import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponProvider;
-import transfarmer.adventureitems.network.Packet;
+import transfarmer.adventureitems.network.WeaponTypePacket;
 import transfarmer.adventureitems.network.PacketHandler;
+import transfarmer.adventureitems.SoulWeapons;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static net.minecraftforge.event.TickEvent.Phase.END;
@@ -41,8 +43,17 @@ public class ForgeEventSubscriber {
     public static void onPlayerLoggedin(PlayerEvent.PlayerLoggedInEvent event) {
         PlayerEntity player = event.getPlayer();
         player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
-            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new Packet(capability.getCurrentType()));
+            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new WeaponTypePacket(capability.getCurrentType()));
         });
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.player.inventory.hasAny(SoulWeapons.getSoulWeapons()) && event.phase == END) {
+            PlayerEntity player = event.player;
+            PlayerInventory inventory = player.inventory;
+
+        }
     }
 
     @OnlyIn(CLIENT)
@@ -55,7 +66,7 @@ public class ForgeEventSubscriber {
 
                 if (player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))) {
                     screen = new AttributeScreen(new TranslationTextComponent("menu.adventureitems.weapons"));
-                } else if (capability.hasSoulWeapon(player)) {
+                } else if (capability.isSoulWeaponEquipped(player)) {
                     screen = new AttributeScreen(new TranslationTextComponent("menu.adventureitems.attributes"));
                 }
 

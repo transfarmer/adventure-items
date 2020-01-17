@@ -6,7 +6,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import transfarmer.adventureitems.SoulWeapons.WeaponType;
-import transfarmer.adventureitems.network.Packet;
+import transfarmer.adventureitems.network.WeaponTypePacket;
 import transfarmer.adventureitems.network.PacketHandler;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
@@ -45,7 +45,7 @@ public class AttributeScreen extends Screen {
     }
 
     private void sendWeaponType(final WeaponType WEAPON_TYPE) {
-        PacketHandler.INSTANCE.sendToServer(new Packet(WEAPON_TYPE));
+        PacketHandler.INSTANCE.sendToServer(new WeaponTypePacket(WEAPON_TYPE));
         this.minecraft.displayGuiScreen(null);
     }
 

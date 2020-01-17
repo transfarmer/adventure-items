@@ -16,7 +16,7 @@ import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponStorage;
 import transfarmer.adventureitems.item.*;
-import transfarmer.adventureitems.network.Packet;
+import transfarmer.adventureitems.network.WeaponTypePacket;
 import transfarmer.adventureitems.network.PacketHandler;
 
 
@@ -41,7 +41,8 @@ public class ModEventSubscriber {
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
-        PacketHandler.INSTANCE.registerMessage(PacketHandler.id++, Packet.class, Packet::encode, Packet::new, Packet::handle);
+        PacketHandler.INSTANCE.registerMessage(PacketHandler.id++, WeaponTypePacket.class,
+                WeaponTypePacket::encode, WeaponTypePacket::new, WeaponTypePacket::handle);
     }
 
     @SubscribeEvent

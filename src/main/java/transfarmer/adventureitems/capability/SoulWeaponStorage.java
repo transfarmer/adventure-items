@@ -21,7 +21,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
     public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, Direction side, INBT nbt) {
         CompoundNBT tag = (CompoundNBT) nbt;
-        instance.setCurrentType(SoulWeapons.WeaponType.get(tag.getString("adventureitems.weaponType")));
+        instance.setCurrentType(SoulWeapons.WeaponType.getItem(tag.getString("adventureitems.weaponType")));
         // Main.LOGGER.info(instance.getCurrentType());
     }
 }

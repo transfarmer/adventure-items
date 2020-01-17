@@ -9,4 +9,5 @@ public interface ISoulWeapon {
     WeaponType getCurrentType();
     void setCurrentType(WeaponType weaponType);
     boolean hasSoulWeapon(PlayerEntity player);
+    boolean isSoulWeaponEquipped(PlayerEntity player);
 }
