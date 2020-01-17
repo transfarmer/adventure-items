@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
@@ -20,11 +21,13 @@ import transfarmer.adventureitems.gui.AttributeScreen;
 import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponProvider;
+import transfarmer.adventureitems.item.SoulWeapon;
 import transfarmer.adventureitems.network.Packet;
 import transfarmer.adventureitems.network.PacketHandler;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static net.minecraftforge.event.TickEvent.Phase.END;
+import static transfarmer.adventureitems.init.ModItems.*;
 import static transfarmer.adventureitems.Keybindings.KEYBINDINGS;
 
 
@@ -49,10 +52,11 @@ public class ForgeEventSubscriber {
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (KEYBINDINGS[0].isKeyDown() && event.phase == END) {
-            Minecraft.getInstance().player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
+            PlayerEntity player = Minecraft.getInstance().player;
+            player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
                 Screen screen;
 
-                if (capability.getCurrentType() == null && Minecraft.getInstance().player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))) {
+                if (player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))) {
                     screen = new AttributeScreen(new TranslationTextComponent("menu.adventureitems.weapons"));
                 } else {
                     screen = new AttributeScreen(new TranslationTextComponent("menu.adventureitems.attributes"));

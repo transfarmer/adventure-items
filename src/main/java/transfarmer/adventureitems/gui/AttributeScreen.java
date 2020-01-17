@@ -48,6 +48,8 @@ public class AttributeScreen extends Screen {
     private void sendWeaponType(final WeaponType WEAPON_TYPE) {
         PacketHandler.INSTANCE.sendToServer(new Packet(WEAPON_TYPE));
         this.minecraft.displayGuiScreen(null);
+
+        if ()
     }
 
     public void render(int p_render_1_, int p_render_2_, float p_render_3_) {

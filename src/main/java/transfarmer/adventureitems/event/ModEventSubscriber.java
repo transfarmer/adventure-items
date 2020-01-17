@@ -25,8 +25,8 @@ public class ModEventSubscriber {
     @SubscribeEvent
     public static void onRegisterItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().registerAll(setup(new SoulBigsword(), "soul_bigsword"),
-                                        setup(new SoulSword(), "soul_sword"),
-                                        setup(new SoulDagger(), "soul_dagger"));
+                setup(new SoulSword(), "soul_sword"),
+                setup(new SoulDagger(), "soul_dagger"));
     }
 
     public static <T extends IForgeRegistryEntry<T>> T setup(final T entry, final String name) {
