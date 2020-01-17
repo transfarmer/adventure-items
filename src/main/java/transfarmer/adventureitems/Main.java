@@ -17,17 +17,4 @@ import static transfarmer.adventureitems.init.ModItems.SOUL_DAGGER;
 public class Main {
     public static final String MODID = "adventureitems";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
-    public static final HashSet<Item> items = new HashSet(3, 1);
-    static {
-        items.add(SOUL_BIGSWORD);
-        items.add(SOUL_SWORD);
-        items.add(SOUL_DAGGER);
-    }
-
-    public Main() {
-    }
-
-    public boolean isSoulWeaponPresent(PlayerEntity player) {
-        return !player.inventory.hasAny(items);
-    }
 }

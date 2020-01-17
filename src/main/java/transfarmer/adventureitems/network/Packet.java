@@ -1,14 +1,14 @@
 package transfarmer.adventureitems.network;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
-import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
-import transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
+import transfarmer.adventureitems.SoulWeapons.WeaponType;
 import transfarmer.adventureitems.capability.SoulWeaponProvider;
 
 import java.util.function.Supplier;
@@ -37,14 +37,15 @@ public class Packet {
         context.get().enqueueWork(() -> {
             if (FMLEnvironment.dist == DEDICATED_SERVER) {
                 // Main.LOGGER.info("enqueued");
-                ServerPlayerEntity sender = context.get().getSender();
-                sender.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
+                ServerPlayerEntity player = context.get().getSender();
+                player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
                     // Main.LOGGER.info("set");
                     capability.setCurrentType(weaponType);
                 });
-                PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new Packet(weaponType));
+                PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new Packet(weaponType));
             } else {
-                Minecraft.getInstance().player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
+                PlayerEntity player = Minecraft.getInstance().player;
+                player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
                     capability.setCurrentType(weaponType);
                 });
             }

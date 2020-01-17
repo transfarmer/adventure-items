@@ -5,7 +5,7 @@ import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
-import transfarmer.adventureitems.Main;
+import transfarmer.adventureitems.SoulWeapons;
 
 
 public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
@@ -21,7 +21,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
     public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, Direction side, INBT nbt) {
         CompoundNBT tag = (CompoundNBT) nbt;
-        instance.setCurrentType(SoulWeapon.WeaponType.get(tag.getString("adventureitems.weaponType")));
+        instance.setCurrentType(SoulWeapons.WeaponType.get(tag.getString("adventureitems.weaponType")));
         // Main.LOGGER.info(instance.getCurrentType());
     }
 }

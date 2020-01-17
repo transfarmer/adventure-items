@@ -1,8 +1,12 @@
 package transfarmer.adventureitems.capability;
 
-import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
+import net.minecraft.entity.player.PlayerEntity;
+
+import static transfarmer.adventureitems.SoulWeapons.WeaponType;
+
 
 public interface ISoulWeapon {
-    void setCurrentType(WeaponType weaponType);
     WeaponType getCurrentType();
+    void setCurrentType(WeaponType weaponType);
+    boolean hasSoulWeapon(PlayerEntity player);
 }
