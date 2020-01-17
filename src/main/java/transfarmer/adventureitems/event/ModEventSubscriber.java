@@ -1,4 +1,4 @@
-package transfarmer.adventureitems;
+package transfarmer.adventureitems.event;
 
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -10,10 +10,14 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import transfarmer.adventureitems.Keybindings;
+import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponStorage;
 import transfarmer.adventureitems.item.*;
+import transfarmer.adventureitems.network.Packet;
+import transfarmer.adventureitems.network.PacketHandler;
 
 
 @EventBusSubscriber(modid = Main.MODID, bus = EventBusSubscriber.Bus.MOD)
@@ -37,6 +41,7 @@ public class ModEventSubscriber {
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
+        PacketHandler.INSTANCE.registerMessage(PacketHandler.id++, Packet.class, Packet::encode, Packet::new, Packet::handle);
     }
 
     @SubscribeEvent

@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 public class ModItemGroups {
     public static final ItemGroup MOD_ITEM_GROUP = new ModItemGroup(Main.MODID,
-                                                                    () -> new ItemStack(ModItems.SOUL_BIGSWORD));
+            () -> new ItemStack(ModItems.SOUL_BIGSWORD));
 
     public static class ModItemGroup extends ItemGroup {
 
