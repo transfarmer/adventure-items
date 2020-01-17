@@ -20,7 +20,6 @@ public class SoulWeapon implements ISoulWeapon {
         SOUL_WEAPONS.add(SOUL_DAGGER);
     }
 
-
     @Override
     public SoulWeapons.WeaponType getCurrentType() {
         return current;
