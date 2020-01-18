@@ -6,6 +6,8 @@ import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import transfarmer.adventureitems.network.ApplyWeaponType;
+import transfarmer.adventureitems.network.RequestWeaponType;
 
 @Mod(Main.MODID)
 public class Main {
@@ -22,5 +24,20 @@ public class Main {
     public static int id;
 
     public Main() {
+        CHANNEL.registerMessage(
+                id++,
+                RequestWeaponType.class,
+                RequestWeaponType::encode,
+                RequestWeaponType::new,
+                RequestWeaponType::handle
+        );
+
+        CHANNEL.registerMessage(
+                id++,
+                ApplyWeaponType.class,
+                ApplyWeaponType::encode,
+                ApplyWeaponType::new,
+                ApplyWeaponType::handle
+        );
     }
 }

@@ -38,7 +38,7 @@ public class RequestWeaponType {
                 capability.setCurrentType(weaponType);
                 sender.inventory.setInventorySlotContents(sender.inventory.currentItem, new ItemStack(weaponType.getItem()));
             });
-            Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sender), weaponType);
+            Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sender), new ApplyWeaponType(weaponType));
         });
         context.setPacketHandled(true);
     }

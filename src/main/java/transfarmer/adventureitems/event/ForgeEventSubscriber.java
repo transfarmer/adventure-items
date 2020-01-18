@@ -21,8 +21,8 @@ import transfarmer.adventureitems.gui.AttributeScreen;
 import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponProvider;
-import transfarmer.adventureitems.network.RequestWeaponType;
 import transfarmer.adventureitems.SoulWeapons;
+import transfarmer.adventureitems.network.ApplyWeaponType;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static net.minecraftforge.event.TickEvent.Phase.END;
@@ -53,9 +53,12 @@ public class ForgeEventSubscriber {
     }
 
     private static <T extends PlayerEvent> void updateSoulWeapon(T event) {
-        PlayerEntity player = event.getPlayer();
+        ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
         player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
-            Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new RequestWeaponType(capability.getCurrentType()));
+            if (capability.getCurrentType() == null) return;
+
+            Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                new ApplyWeaponType(capability.getCurrentType()));
         });
     }
 

@@ -39,8 +39,6 @@ public class ModEventSubscriber {
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
-        Main.CHANNEL.registerMessage(Main.id++, RequestWeaponType.class,
-                RequestWeaponType::encode, RequestWeaponType::new, RequestWeaponType::handle);
     }
 
     @SubscribeEvent
