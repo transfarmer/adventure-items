@@ -5,7 +5,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import transfarmer.adventureitems.SoulWeapons;
 
-
 public class SoulWeapon implements ISoulWeapon {
     private SoulWeapons.WeaponType current = null;
 

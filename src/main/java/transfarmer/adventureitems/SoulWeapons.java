@@ -6,7 +6,6 @@ import java.util.HashSet;
 
 import static transfarmer.adventureitems.init.ModItems.*;
 
-
 public class SoulWeapons {
     private static final HashSet<Item> SOUL_WEAPONS = new HashSet<>(3, 1);
 

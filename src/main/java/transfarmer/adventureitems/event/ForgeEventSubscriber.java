@@ -21,14 +21,12 @@ import transfarmer.adventureitems.gui.AttributeScreen;
 import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponProvider;
-import transfarmer.adventureitems.network.WeaponTypePacket;
-import transfarmer.adventureitems.network.PacketHandler;
+import transfarmer.adventureitems.network.RequestWeaponType;
 import transfarmer.adventureitems.SoulWeapons;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static net.minecraftforge.event.TickEvent.Phase.END;
 import static transfarmer.adventureitems.Keybindings.KEYBINDINGS;
-
 
 @EventBusSubscriber(modid = Main.MODID, bus = EventBusSubscriber.Bus.FORGE)
 public class ForgeEventSubscriber {
@@ -41,9 +39,23 @@ public class ForgeEventSubscriber {
 
     @SubscribeEvent
     public static void onPlayerLoggedin(PlayerEvent.PlayerLoggedInEvent event) {
+        updateSoulWeapon(event);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        updateSoulWeapon(event);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        updateSoulWeapon(event);
+    }
+
+    private static <T extends PlayerEvent> void updateSoulWeapon(T event) {
         PlayerEntity player = event.getPlayer();
         player.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
-            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new WeaponTypePacket(capability.getCurrentType()));
+            Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new RequestWeaponType(capability.getCurrentType()));
         });
     }
 
