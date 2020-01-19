@@ -3,7 +3,6 @@ package transfarmer.adventureitems.capability;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.SoulWeapons;
 import transfarmer.adventureitems.SoulWeapons.WeaponType;
 
@@ -12,7 +11,7 @@ import java.util.Random;
 @SuppressWarnings("DuplicateBranchesInSwitch")
 public class SoulWeapon implements ISoulWeapon {
     private WeaponType weaponType;
-    private int level = 0;
+    private int level;
     private int points;
     private int special;
     private int maxSpecial;
