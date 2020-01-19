@@ -12,22 +12,22 @@ import javax.annotation.Nonnull;
 
 public class SoulWeaponProvider implements ICapabilitySerializable<INBT> {
     @CapabilityInject(ISoulWeapon.class)
-    public static Capability<ISoulWeapon> WEAPON_TYPE;
-    private LazyOptional<ISoulWeapon> instance = LazyOptional.of(WEAPON_TYPE::getDefaultInstance);
+    public static Capability<ISoulWeapon> SOUL_WEAPON;
+    private LazyOptional<ISoulWeapon> instance = LazyOptional.of(SOUL_WEAPON::getDefaultInstance);
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, Direction side) {
-        return capability == WEAPON_TYPE ? instance.cast() : LazyOptional.empty();
+        return capability == SOUL_WEAPON ? instance.cast() : LazyOptional.empty();
     }
 
     @Override
     public INBT serializeNBT() {
-        return WEAPON_TYPE.getStorage().writeNBT(WEAPON_TYPE, instance.orElseThrow(() -> new IllegalArgumentException("LazyOptional is empty")), null);
+        return SOUL_WEAPON.getStorage().writeNBT(SOUL_WEAPON, instance.orElseThrow(() -> new IllegalArgumentException("LazyOptional is empty")), null);
     }
 
     @Override
     public void deserializeNBT(INBT nbt) {
-        WEAPON_TYPE.getStorage().readNBT(WEAPON_TYPE, instance.orElseThrow(() -> new IllegalArgumentException("LazyOptional is empty")), null, nbt);
+        SOUL_WEAPON.getStorage().readNBT(SOUL_WEAPON, instance.orElseThrow(() -> new IllegalArgumentException("LazyOptional is empty")), null, nbt);
     }
 }

@@ -8,23 +8,30 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.SoulWeapons.WeaponType;
-import transfarmer.adventureitems.capability.SoulWeaponProvider;
 
 import java.util.function.Supplier;
 
+import static transfarmer.adventureitems.capability.SoulWeaponProvider.SOUL_WEAPON;
+
 public class RequestWeaponType {
-    private final WeaponType weaponType;
+    private final WeaponType WEAPON_TYPE;
+    private boolean changeType;
 
     public RequestWeaponType(PacketBuffer buffer) {
-        this.weaponType = buffer.readEnumValue(WeaponType.class);
+        this.WEAPON_TYPE = buffer.readEnumValue(WeaponType.class);
     }
 
-    public RequestWeaponType(WeaponType weaponType) {
-        this.weaponType = weaponType;
+    public RequestWeaponType(WeaponType WEAPON_TYPE) {
+        this.WEAPON_TYPE = WEAPON_TYPE;
+    }
+
+    public RequestWeaponType(WeaponType WEAPON_TYPE, boolean changeType) {
+        this.WEAPON_TYPE = WEAPON_TYPE;
+        this.changeType = changeType;
     }
 
     public void encode(PacketBuffer buffer) {
-        buffer.writeEnumValue(weaponType);
+        buffer.writeEnumValue(WEAPON_TYPE);
     }
 
     public void handle(Supplier<Context> contextSupplier) {
@@ -34,11 +41,11 @@ public class RequestWeaponType {
 
             if (sender == null) return;
 
-            sender.getCapability(SoulWeaponProvider.WEAPON_TYPE).ifPresent((ISoulWeapon capability) -> {
-                capability.setCurrentType(weaponType);
-                sender.inventory.setInventorySlotContents(sender.inventory.currentItem, new ItemStack(weaponType.getItem()));
+            sender.getCapability(SOUL_WEAPON).ifPresent((ISoulWeapon capability) -> {
+                capability.setWeaponType(WEAPON_TYPE);
+                sender.inventory.setInventorySlotContents(sender.inventory.currentItem, new ItemStack(WEAPON_TYPE.getItem()));
             });
-            Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sender), new ApplyWeaponType(weaponType));
+            Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sender), new ApplyWeaponType(WEAPON_TYPE, changeType));
         });
         context.setPacketHandled(true);
     }

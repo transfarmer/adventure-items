@@ -6,8 +6,11 @@ import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import transfarmer.adventureitems.network.ApplyWeaponLevelup;
 import transfarmer.adventureitems.network.ApplyWeaponType;
+import transfarmer.adventureitems.network.RequestWeaponLevelup;
 import transfarmer.adventureitems.network.RequestWeaponType;
+import transfarmer.adventureitems.network.UpdateWeaponData;
 
 @Mod(Main.MODID)
 public class Main {
@@ -24,20 +27,39 @@ public class Main {
     public static int id;
 
     public Main() {
-        CHANNEL.registerMessage(
-                id++,
+        CHANNEL.registerMessage(id++,
                 RequestWeaponType.class,
                 RequestWeaponType::encode,
                 RequestWeaponType::new,
                 RequestWeaponType::handle
         );
 
-        CHANNEL.registerMessage(
-                id++,
+        CHANNEL.registerMessage(id++,
                 ApplyWeaponType.class,
                 ApplyWeaponType::encode,
                 ApplyWeaponType::new,
                 ApplyWeaponType::handle
+        );
+
+        CHANNEL.registerMessage(id++,
+                RequestWeaponLevelup.class,
+                RequestWeaponLevelup::encode,
+                RequestWeaponLevelup::new,
+                RequestWeaponLevelup::handle
+        );
+
+        CHANNEL.registerMessage(id++,
+                ApplyWeaponLevelup.class,
+                ApplyWeaponLevelup::encode,
+                ApplyWeaponLevelup::new,
+                ApplyWeaponLevelup::handle
+        );
+
+        CHANNEL.registerMessage(id++,
+                UpdateWeaponData.class,
+                UpdateWeaponData::encode,
+                UpdateWeaponData::new,
+                UpdateWeaponData::handle
         );
     }
 }
