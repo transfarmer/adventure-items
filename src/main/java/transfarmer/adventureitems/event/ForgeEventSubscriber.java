@@ -39,7 +39,7 @@ public class ForgeEventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onPlayerLoggedin(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         updateSoulWeapon(event);
     }
 
@@ -75,6 +75,10 @@ public class ForgeEventSubscriber {
             )
         );
     }
+
+    /* PlayerEntity has a field WeaponType weaponType and 3 types exist: BIGSWORD, SWORD, and DAGGER.
+    * If event.player has items of any of these types that do not match their weaponType value, then
+    * they are removed. */
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
