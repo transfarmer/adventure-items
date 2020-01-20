@@ -13,10 +13,10 @@ import java.util.function.Supplier;
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ApplyWeaponLevelup {
-    public ApplyWeaponLevelup(PacketBuffer buffer) {}
+public class ClientWeaponLevelup {
+    public ClientWeaponLevelup(PacketBuffer buffer) {}
 
-    public ApplyWeaponLevelup() {}
+    public ClientWeaponLevelup() {}
 
     public void encode(PacketBuffer buffer) {}
 

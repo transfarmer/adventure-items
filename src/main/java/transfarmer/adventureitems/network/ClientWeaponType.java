@@ -14,14 +14,14 @@ import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static net.minecraftforge.fml.network.NetworkEvent.Context;
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ApplyWeaponType {
+public class ClientWeaponType {
     private final WeaponType weaponType;
 
-    public ApplyWeaponType(PacketBuffer buffer) {
+    public ClientWeaponType(PacketBuffer buffer) {
         this.weaponType = buffer.readEnumValue(WeaponType.class);
     }
 
-    public ApplyWeaponType(WeaponType weaponType) {
+    public ClientWeaponType(WeaponType weaponType) {
         this.weaponType = weaponType;
     }
 

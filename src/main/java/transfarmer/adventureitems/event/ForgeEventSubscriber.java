@@ -21,7 +21,7 @@ import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponProvider;
 import transfarmer.adventureitems.gui.SoulWeaponMenu;
-import transfarmer.adventureitems.network.UpdateWeaponData;
+import transfarmer.adventureitems.network.ClientWeaponData;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static net.minecraftforge.event.TickEvent.Phase.END;
@@ -50,31 +50,43 @@ public class ForgeEventSubscriber {
 
     private static <T extends PlayerEvent> void updateSoulWeapon(T event) {
         ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-        player.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) ->
+        player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) ->
                 Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
-                        new UpdateWeaponData(capability.getCurrentTypeIndex(), capability.getBigswordAttributes(),
-                                capability.getSwordAttributes(), capability.getDaggerAttributes())));
+                        new ClientWeaponData(instance.getCurrentTypeIndex(),
+                                instance.getBigswordAttributes(),
+                                instance.getSwordAttributes(),
+                                instance.getDaggerAttributes())));
     }
 
     @SubscribeEvent
-    public static void onPlayerClone(PlayerEvent.Clone event) {
-        PlayerEntity original = event.getOriginal();
-        original.getCapability(CAPABILITY).ifPresent((ISoulWeapon originalCapability) ->
-            event.getPlayer().getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) ->
-                new UpdateWeaponData(originalCapability.getCurrentTypeIndex(),
-                        originalCapability.getBigswordAttributes(),
-                        originalCapability.getSwordAttributes(),
-                        originalCapability.getDaggerAttributes())));
+    public static void onClone(PlayerEvent.Clone event) {
+        if (event.isWasDeath()) {
+            event.getOriginal().getCapability(CAPABILITY).ifPresent((ISoulWeapon originalInstance) -> {
+                ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+                player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) -> {
+                    Main.LOGGER.info("both capabilities are present on the server side");
+                    instance.setCurrentTypeIndex(originalInstance.getCurrentTypeIndex());
+                    instance.setAttributes(originalInstance.getBigswordAttributes(),
+                            originalInstance.getSwordAttributes(),
+                            originalInstance.getDaggerAttributes());
+                    Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                            new ClientWeaponData(originalInstance.getCurrentTypeIndex(),
+                            originalInstance.getBigswordAttributes(),
+                            originalInstance.getSwordAttributes(),
+                            originalInstance.getDaggerAttributes()));
+                });
+            });
+        }
     }
 
     // clear extraneous soul weapons in inventory
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.player.inventory.hasAny(getItems()) && event.phase == END) {
-            event.player.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) ->
+        if (!event.player.isCreative() && event.player.inventory.hasAny(getItems()) && event.phase == END) {
+            event.player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) ->
                 event.player.inventory.clearMatchingItems((ItemStack itemStack) -> {
-                    Item weapon = capability.getCurrentTypeIndex() == -1 ? null : capability.getItem();
+                    Item weapon = instance.getCurrentTypeIndex() == -1 ? null : instance.getItem();
                     return getItems().contains(itemStack.getItem())
                            && !itemStack.getItem().equals(weapon);
                 },
@@ -89,29 +101,19 @@ public class ForgeEventSubscriber {
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (KEYBINDINGS[0].isKeyDown() && event.phase == END) {
             PlayerEntity player = Minecraft.getInstance().player;
-            player.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) -> {
+            player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) -> {
                 Screen screen = null;
 
                 if (player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))
-                        || (ISoulWeapon.isSoulWeaponEquipped(player) && capability.getCurrentTypeIndex() == -1)) {
+                        || (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() == -1)) {
                     screen = new SoulWeaponMenu(new TranslationTextComponent("menu.adventureitems.weapons"));
-                } else if (ISoulWeapon.isSoulWeaponEquipped(player) && capability.getCurrentTypeIndex() != -1) {
+                } else if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() != -1) {
                     screen = new SoulWeaponMenu(new TranslationTextComponent("menu.adventureitems.attributes"),
-                            capability.getName());
+                            instance.getName());
                 }
 
                 Minecraft.getInstance().displayGuiScreen(screen);
             });
         }
-
-        PlayerEntity player = Minecraft.getInstance().player;
-        if (player == null) return;
-        player.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) -> {
-            for (int thing : capability.getBigswordAttributes()) {
-                System.out.printf("%d ", thing);
-            }
-
-            System.out.println();
-        });
     }
 }

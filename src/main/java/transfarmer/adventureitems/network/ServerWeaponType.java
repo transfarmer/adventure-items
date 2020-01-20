@@ -12,14 +12,14 @@ import java.util.function.Supplier;
 import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-public class RequestWeaponType {
+public class ServerWeaponType {
     private final WeaponType WEAPON_TYPE;
 
-    public RequestWeaponType(PacketBuffer buffer) {
+    public ServerWeaponType(PacketBuffer buffer) {
         this.WEAPON_TYPE = buffer.readEnumValue(WeaponType.class);
     }
 
-    public RequestWeaponType(WeaponType WEAPON_TYPE) {
+    public ServerWeaponType(WeaponType WEAPON_TYPE) {
         this.WEAPON_TYPE = WEAPON_TYPE;
     }
 
@@ -37,7 +37,7 @@ public class RequestWeaponType {
             sender.getCapability(CAPABILITY).ifPresent((transfarmer.adventureitems.capability.ISoulWeapon capability) -> {
                 capability.setCurrentTypeIndex(WEAPON_TYPE.getIndex());
                 sender.inventory.setInventorySlotContents(sender.inventory.currentItem, new ItemStack(WEAPON_TYPE.getItem()));
-                Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sender), new ApplyWeaponType(WEAPON_TYPE));
+                Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sender), new ClientWeaponType(WEAPON_TYPE));
             });
         });
         context.setPacketHandled(true);

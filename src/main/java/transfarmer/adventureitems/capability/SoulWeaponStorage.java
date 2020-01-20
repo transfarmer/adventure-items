@@ -21,8 +21,15 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, Direction side, INBT nbt) {
         CompoundNBT tag = (CompoundNBT) nbt;
         instance.setCurrentTypeIndex(tag.getInt("adventureitems.soulweapon.index"));
-        instance.setBigswordAttributes(tag.getIntArray("adventureitems.soulweapon.bigsword"));
-        instance.setSwordAttributes(tag.getIntArray("adventureitems.soulweapon.sword"));
-        instance.setDaggerAttributes(tag.getIntArray("adventureitems.soulweapon.dagger"));
+        int[] bigsword = tag.getIntArray("adventureitems.soulweapon.bigsword");
+        int[] sword = tag.getIntArray("adventureitems.soulweapon.sword");
+        int[] dagger = tag.getIntArray("adventureitems.soulweapon.dagger");
+
+        if (bigsword.length == 0 || sword.length == 0 || dagger.length == 0) {
+            instance.setAttributes(new int[8], new int[8], new int[8]);
+            return;
+        }
+
+        instance.setAttributes(bigsword, sword, dagger);
     }
 }

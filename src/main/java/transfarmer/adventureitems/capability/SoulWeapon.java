@@ -11,7 +11,7 @@ import static transfarmer.adventureitems.init.ModItems.SOUL_SWORD;
 
 public class SoulWeapon implements ISoulWeapon {
     private final String[] names = {"bigsword", "sword", "dagger"};
-    private int[][] attributes = new int[3][8];
+    private int[][] attributes = {new int[8], new int[8], new int[8]};
 
     private final int bigswordIndex = 0;
     private final int swordIndex = 1;
@@ -62,8 +62,46 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public void setAttributes(int[] bigsword, int[] sword, int[] dagger) {
+        if (bigsword.length == 0 || sword.length == 0 || dagger.length == 0) {
+            throw new IllegalArgumentException("length 0");
+        }
+
         this.attributes[bigswordIndex] = bigsword;
         this.attributes[swordIndex] = sword;
+        this.attributes[daggerIndex] = dagger;
+    }
+
+    @Override
+    public int[] getBigswordAttributes() {
+        return this.attributes[bigswordIndex];
+    }
+
+    @Override
+    public void setBigswordAttributes(int[] bigsword) {
+        if (bigsword.length == 0) {
+            throw new IllegalArgumentException("length 0");
+        }
+
+        this.attributes[bigswordIndex] = bigsword;
+    }
+
+    @Override
+    public int[] getSwordAttributes() {
+        return this.attributes[swordIndex];
+    }
+
+    @Override
+    public void setSwordAttributes(int[] sword) {
+        this.attributes[swordIndex] = sword;
+    }
+
+    @Override
+    public int[] getDaggerAttributes() {
+        return this.attributes[daggerIndex];
+    }
+
+    @Override
+    public void setDaggerAttributes(int[] dagger) {
         this.attributes[daggerIndex] = dagger;
     }
 
@@ -214,44 +252,7 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int[] getBigswordAttributes() {
-        return this.attributes[bigswordIndex];
-    }
-
-    @Override
-    public void setBigswordAttributes(int[] bigsword) {
-        this.attributes[bigswordIndex] = bigsword;
-    }
-
-    @Override
-    public int[] getSwordAttributes() {
-        return this.attributes[swordIndex];
-    }
-
-    @Override
-    public void setSwordAttributes(int[] sword) {
-        this.attributes[swordIndex] = sword;
-    }
-
-    @Override
-    public int[] getDaggerAttributes() {
-        return this.attributes[daggerIndex];
-    }
-
-    @Override
-    public void setDaggerAttributes(int[] dagger) {
-        this.attributes[daggerIndex] = dagger;
-    }
-
-    @Override
     public int getLevel() {
-        for (int[] thing : attributes) {
-            for (int thingg : thing) {
-                System.out.printf("%d ", thingg);
-            }
-
-            System.out.println();
-        }
         return this.attributes[currentTypeIndex][levelIndex];
     }
 

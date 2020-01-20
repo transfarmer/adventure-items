@@ -8,8 +8,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
-import transfarmer.adventureitems.network.RequestWeaponLevelup;
-import transfarmer.adventureitems.network.RequestWeaponType;
+import transfarmer.adventureitems.network.ServerWeaponLevelup;
+import transfarmer.adventureitems.network.ServerWeaponType;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
 import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
@@ -56,7 +56,7 @@ public class SoulWeaponMenu extends Screen {
         Button levelButton = addButton(new Button(xCenter, yCenter, buttonWidth, buttonHeight,
         String.format("increase soul %s level for %d experience level%s",
         weaponName.toLowerCase(), level, plural), (ignored) -> {
-            Main.CHANNEL.sendToServer(new RequestWeaponLevelup());
+            Main.CHANNEL.sendToServer(new ServerWeaponLevelup());
             this.minecraft.displayGuiScreen(null);
         }));
         player.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) ->
@@ -78,7 +78,7 @@ public class SoulWeaponMenu extends Screen {
     }
 
     private void requestWeaponType(final WeaponType WEAPON_TYPE) {
-        Main.CHANNEL.sendToServer(new RequestWeaponType(WEAPON_TYPE));
+        Main.CHANNEL.sendToServer(new ServerWeaponType(WEAPON_TYPE));
         this.minecraft.displayGuiScreen(null);
     }
 
