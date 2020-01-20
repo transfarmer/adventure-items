@@ -7,32 +7,34 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import transfarmer.adventureitems.Main;
-import transfarmer.adventureitems.SoulWeapons.WeaponType;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.network.RequestWeaponLevelup;
 import transfarmer.adventureitems.network.RequestWeaponType;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
-import static transfarmer.adventureitems.SoulWeapons.WeaponType.*;
-import static transfarmer.adventureitems.capability.SoulWeaponProvider.*;
+import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
+import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType.BIGSWORD;
+import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType.DAGGER;
+import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType.SWORD;
+import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
 @OnlyIn(CLIENT)
 public class SoulWeaponMenu extends Screen {
-    private WeaponType weaponType;
+    private String weaponName;
     private int level;
 
     public SoulWeaponMenu(ITextComponent title) {
         super(title);
     }
 
-    public SoulWeaponMenu(ITextComponent title, WeaponType weaponType) {
+    public SoulWeaponMenu(ITextComponent title, String weaponName) {
         super(title);
-        this.weaponType = weaponType;
+        this.weaponName = weaponName;
     }
 
     @Override
     public void init() {
-        if (weaponType == null) {
+        if (weaponName == null) {
             showWeapons();
             return;
         }
@@ -42,22 +44,22 @@ public class SoulWeaponMenu extends Screen {
 
     public void showAttributes() {
         PlayerEntity player = Minecraft.getInstance().player;
-        player.getCapability(SOUL_WEAPON).ifPresent((ISoulWeapon capability) ->
+        player.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) ->
                 level = capability.getLevel() + 1
         );
 
-        int buttonWidth = 288;
+        int buttonWidth = 272;
         int xCenter = (width - buttonWidth) / 2;
         int yCenter = height / 2;
         int buttonHeight = 20;
         String plural = level > 1 ? "s" : "";
         Button levelButton = addButton(new Button(xCenter, yCenter, buttonWidth, buttonHeight,
         String.format("increase soul %s level for %d experience level%s",
-        weaponType.toString().toLowerCase(), level, plural), (ignored) -> {
+        weaponName.toLowerCase(), level, plural), (ignored) -> {
             Main.CHANNEL.sendToServer(new RequestWeaponLevelup());
             this.minecraft.displayGuiScreen(null);
         }));
-        player.getCapability(SOUL_WEAPON).ifPresent((ISoulWeapon capability) ->
+        player.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) ->
                 levelButton.active = player.experienceLevel > capability.getLevel());
     }
 
@@ -76,7 +78,7 @@ public class SoulWeaponMenu extends Screen {
     }
 
     private void requestWeaponType(final WeaponType WEAPON_TYPE) {
-        Main.CHANNEL.sendToServer(new RequestWeaponType(WEAPON_TYPE, true));
+        Main.CHANNEL.sendToServer(new RequestWeaponType(WEAPON_TYPE));
         this.minecraft.displayGuiScreen(null);
     }
 

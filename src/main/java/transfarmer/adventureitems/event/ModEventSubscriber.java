@@ -15,14 +15,16 @@ import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponStorage;
-import transfarmer.adventureitems.item.*;
-import transfarmer.adventureitems.network.RequestWeaponType;
+import transfarmer.adventureitems.item.SoulBigsword;
+import transfarmer.adventureitems.item.SoulDagger;
+import transfarmer.adventureitems.item.SoulSword;
 
 @EventBusSubscriber(modid = Main.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class ModEventSubscriber {
     @SubscribeEvent
     public static void onRegisterItems(RegistryEvent.Register<Item> event) {
-        event.getRegistry().registerAll(setup(new SoulBigsword(), "soul_bigsword"),
+        event.getRegistry().registerAll(
+                setup(new SoulBigsword(),"soul_bigsword"),
                 setup(new SoulSword(), "soul_sword"),
                 setup(new SoulDagger(), "soul_dagger"));
     }

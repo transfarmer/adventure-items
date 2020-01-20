@@ -1,169 +1,82 @@
 package transfarmer.adventureitems.capability;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import transfarmer.adventureitems.SoulWeapons;
-import transfarmer.adventureitems.SoulWeapons.WeaponType;
 
+import java.util.HashSet;
 import java.util.Random;
 
-@SuppressWarnings("DuplicateBranchesInSwitch")
+import static transfarmer.adventureitems.init.ModItems.SOUL_BIGSWORD;
+import static transfarmer.adventureitems.init.ModItems.SOUL_DAGGER;
+import static transfarmer.adventureitems.init.ModItems.SOUL_SWORD;
+
 public class SoulWeapon implements ISoulWeapon {
-    private WeaponType weaponType;
-    private int level;
-    private int points;
-    private int special;
-    private int maxSpecial;
-    private int hardness;
-    private int knockback;
-    private int attackDamage;
-    private int critical;
+    private final String[] names = {"bigsword", "sword", "dagger"};
+    private int[][] attributes = new int[3][8];
 
-    @Override
-    public void setData(WeaponType weaponType, int level, int points, int special, int maxSpecial,
-                        int hardness, int knockback, int attackDamage, int critical) {
-        this.weaponType = weaponType;
-        this.level = level;
-        this.points = points;
-        this.special = special;
-        this.maxSpecial = maxSpecial;
-        this.hardness = hardness;
-        this.knockback = knockback;
-        this.attackDamage = attackDamage;
-        this.critical = critical;
+    private final int bigswordIndex = 0;
+    private final int swordIndex = 1;
+    private final int daggerIndex = 2;
+    private int currentTypeIndex = -1;
+
+    private final int levelIndex = 0;
+    private final int pointIndex = 1;
+    private final int specialIndex = 2;
+    private final int maxSpecialIndex = 3;
+    private final int hardnessIndex = 4;
+    private final int knockbackIndex = 5;
+    private final int attackDamageIndex = 6;
+    private final int criticalIndex = 7;
+
+    public enum WeaponType {
+        BIGSWORD(SOUL_BIGSWORD, 0),
+        SWORD(SOUL_SWORD, 1),
+        DAGGER(SOUL_DAGGER, 2);
+
+        private static final HashSet<Item> SOUL_WEAPONS = new HashSet<>(3, 1);
+        private Item item;
+        private int index;
+
+        WeaponType(Item item, int index) {
+            this.item = item;
+            this.index = index;
+        }
+
+        public Item getItem() {
+            return this.item;
+        }
+
+        public int getIndex() {
+            return this.index;
+        }
+
+        public static HashSet<Item> getItems() {
+            return SOUL_WEAPONS;
+        }
+
+        static {
+            SOUL_WEAPONS.add(SOUL_BIGSWORD);
+            SOUL_WEAPONS.add(SOUL_SWORD);
+            SOUL_WEAPONS.add(SOUL_DAGGER);
+        }
     }
 
     @Override
-    public WeaponType getWeaponType() {
-        return this.weaponType;
+    public void setAttributes(int[] bigsword, int[] sword, int[] dagger) {
+        this.attributes[bigswordIndex] = bigsword;
+        this.attributes[swordIndex] = sword;
+        this.attributes[daggerIndex] = dagger;
     }
 
     @Override
-    public void setWeaponType(WeaponType weaponType) {
-        this.weaponType = weaponType;
-    }
-
-    @Override
-    public int getLevel() {
-        return this.level;
-    }
-
-    @Override
-    public void setLevel(int level) {
-        this.level = level;
-    }
-
-    @Override
-    public void addLevel() {
-        increaseAttribute(this.level++ % 10);
-    }
-
-    @Override
-    public int getPoints() {
-        return this.points;
-    }
-
-    @Override
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
-    @Override
-    public void addPoint() {
-        this.points++;
-    }
-
-    @Override
-    public int getMaxSpecial() {
-        return this.maxSpecial;
-    }
-
-    @Override
-    public int getSpecial() {
-        return this.special;
-    }
-
-    @Override
-    public void setSpecial(int special) {
-        this.special = special;
-    }
-
-    @Override
-    public void addSpecial() {
-        this.special++;
-    }
-
-    @Override
-    public int getHardness() {
-        return this.hardness;
-    }
-
-    @Override
-    public void setHardness(int hardness) {
-        this.hardness = hardness;
-    }
-
-    @Override
-    public void addHardness(int amount) {
-        this.hardness += amount;
-    }
-
-    @Override
-    public int getKnockback() {
-        return this.knockback;
-    }
-
-    @Override
-    public void setKnockback(int knockback) {
-        this.knockback = knockback;
-    }
-
-    @Override
-    public void addKnockback(int amount) {
-        this.knockback += amount;
-    }
-
-    @Override
-    public int getAttackDamage() {
-        return this.attackDamage;
-    }
-
-    @Override
-    public void setAttackDamage(int attackDamage) {
-        this.attackDamage = attackDamage;
-    }
-
-    @Override
-    public void addAttackDamage(int amount) {
-        this.attackDamage += amount;
-    }
-
-    @Override
-    public int getCritical() {
-        return this.critical;
-    }
-
-    @Override
-    public void setCritical(int critical) {
-        this.critical = critical;
-    }
-
-    @Override
-    public void addCritical(int amount) {
-        this.critical += amount;
-    }
-
-    @Override
-    public void increaseAttribute(int attributeNumber) {
-        switch (this.weaponType) {
-            case BIGSWORD:
+    public void addAttribute(int attributeNumber) {
+        switch (currentTypeIndex) {
+            case bigswordIndex:
                 switch (attributeNumber) {
                     case 0:
                         addPoint();
                         break;
                     case 1:
-                        if (this.special > this.maxSpecial) {
+                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
                             addSpecial();
                             break;
                         }
@@ -177,7 +90,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.special > this.maxSpecial) {
+                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
                             addSpecial();
                             break;
                         }
@@ -194,15 +107,17 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     default:
-                        increaseAttribute(new Random().nextInt(10));
+                        this.addAttribute(new Random().nextInt(10));
                 }
-            case SWORD:
+
+                break;
+            case swordIndex:
                 switch (attributeNumber) {
                     case 0:
                         addPoint();
                         break;
                     case 1:
-                        if (this.special > this.maxSpecial) {
+                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
                             addSpecial();
                             break;
                         }
@@ -216,7 +131,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.special > this.maxSpecial) {
+                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
                             addSpecial();
                             break;
                         }
@@ -233,15 +148,17 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     default:
-                        increaseAttribute(new Random().nextInt(10));
+                        this.addAttribute(new Random().nextInt(10));
                 }
-            case DAGGER:
+
+                break;
+            case daggerIndex:
                 switch (attributeNumber) {
                     case 0:
                         addPoint();
                         break;
                     case 1:
-                        if (this.special > this.maxSpecial) {
+                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
                             addSpecial();
                             break;
                         }
@@ -255,7 +172,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.special > this.maxSpecial) {
+                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
                             addSpecial();
                             break;
                         }
@@ -272,24 +189,182 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     default:
-                        increaseAttribute(new Random().nextInt(10));
+                        this.addAttribute(new Random().nextInt(10));
                 }
         }
     }
 
     @Override
-    public boolean hasSoulWeapon(PlayerEntity player) {
-        return player.inventory.hasAny(SoulWeapons.getSoulWeapons());
+    public String getName() {
+        return this.names[currentTypeIndex];
     }
 
     @Override
-    public boolean isSoulWeaponEquipped(PlayerEntity player) {
-        for (final Item WEAPON : SoulWeapons.getSoulWeapons()) {
-            if (player.inventory.getCurrentItem().isItemEqual(new ItemStack(WEAPON))) {
-                return true;
-            }
+    public Item getItem() {
+        switch (currentTypeIndex) {
+            case bigswordIndex:
+                return SOUL_BIGSWORD;
+            case swordIndex:
+                return SOUL_SWORD;
+            case daggerIndex:
+                return SOUL_DAGGER;
+            default:
+                return null;
         }
+    }
 
-        return false;
+    @Override
+    public int[] getBigswordAttributes() {
+        return this.attributes[bigswordIndex];
+    }
+
+    @Override
+    public void setBigswordAttributes(int[] bigsword) {
+        this.attributes[bigswordIndex] = bigsword;
+    }
+
+    @Override
+    public int[] getSwordAttributes() {
+        return this.attributes[swordIndex];
+    }
+
+    @Override
+    public void setSwordAttributes(int[] sword) {
+        this.attributes[swordIndex] = sword;
+    }
+
+    @Override
+    public int[] getDaggerAttributes() {
+        return this.attributes[daggerIndex];
+    }
+
+    @Override
+    public void setDaggerAttributes(int[] dagger) {
+        this.attributes[daggerIndex] = dagger;
+    }
+
+    @Override
+    public int getLevel() {
+        for (int[] thing : attributes) {
+            for (int thingg : thing) {
+                System.out.printf("%d ", thingg);
+            }
+
+            System.out.println();
+        }
+        return this.attributes[currentTypeIndex][levelIndex];
+    }
+
+    @Override
+    public void setLevel(int level) {
+        this.attributes[currentTypeIndex][levelIndex] = level;
+    }
+
+    @Override
+    public void addLevel() {
+        addAttribute(this.attributes[currentTypeIndex][levelIndex]++ % 10);
+    }
+
+    @Override
+    public int getPoints() {
+        return this.attributes[currentTypeIndex][pointIndex];
+    }
+
+    @Override
+    public void setPoints(int points) {
+        this.attributes[currentTypeIndex][pointIndex] = points;
+    }
+
+    @Override
+    public void addPoint() {
+        this.attributes[currentTypeIndex][pointIndex]++;
+    }
+
+    @Override
+    public int getMaxSpecial() {
+        return this.attributes[currentTypeIndex][maxSpecialIndex];
+    }
+
+    @Override
+    public int getSpecial() {
+        return this.attributes[currentTypeIndex][specialIndex];
+    }
+
+    @Override
+    public void setSpecial(int special) {
+        this.attributes[currentTypeIndex][specialIndex] = special;
+    }
+
+    @Override
+    public void addSpecial() {
+        this.attributes[currentTypeIndex][specialIndex]++;
+    }
+
+    @Override
+    public int getHardness() {
+        return this.attributes[currentTypeIndex][hardnessIndex];
+    }
+
+    @Override
+    public void setHardness(int hardness) {
+        this.attributes[currentTypeIndex][hardnessIndex] = hardness;
+    }
+
+    @Override
+    public void addHardness(int amount) {
+        this.attributes[currentTypeIndex][hardnessIndex] += amount;
+    }
+
+    @Override
+    public int getKnockback() {
+        return this.attributes[currentTypeIndex][knockbackIndex];
+    }
+
+    @Override
+    public void setKnockback(int knockback) {
+        this.attributes[currentTypeIndex][knockbackIndex] = knockback;
+    }
+
+    @Override
+    public void addKnockback(int amount) {
+        this.attributes[currentTypeIndex][knockbackIndex] += amount;
+    }
+
+    @Override
+    public int getAttackDamage() {
+        return this.attributes[currentTypeIndex][attackDamageIndex];
+    }
+
+    @Override
+    public void setAttackDamage(int attackDamage) {
+        this.attributes[currentTypeIndex][attackDamageIndex] = attackDamage;
+    }
+
+    @Override
+    public void addAttackDamage(int amount) {
+        this.attributes[currentTypeIndex][attackDamageIndex] += amount;
+    }
+
+    @Override
+    public int getCritical() {
+        return this.attributes[currentTypeIndex][criticalIndex];
+    }
+
+    @Override
+    public void setCritical(int critical) {
+        this.attributes[currentTypeIndex][criticalIndex] = critical;
+    }
+
+    @Override
+    public void addCritical(int amount) {
+        this.attributes[currentTypeIndex][criticalIndex] += amount;
+    }
+
+    public int getCurrentTypeIndex() {
+        return this.currentTypeIndex;
+    }
+
+    public void setCurrentTypeIndex(int index) {
+        this.currentTypeIndex = index;
     }
 }

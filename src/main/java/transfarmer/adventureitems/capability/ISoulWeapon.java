@@ -1,16 +1,22 @@
 package transfarmer.adventureitems.capability;
 
-import net.minecraft.entity.player.PlayerEntity;
-
-import static transfarmer.adventureitems.SoulWeapons.WeaponType;
-
+import net.minecraft.entity.player.*;
+import net.minecraft.item.*;
 
 public interface ISoulWeapon {
-    void setData(WeaponType weaponType, int level, int special, int points, int maxSpecial,
-                 int hardness, int knockback, int attackDamage, int critical);
+    void setAttributes(int[] bigsword, int[] sword, int[] dagger);
+    void addAttribute(int attributeNumber);
 
-    WeaponType getWeaponType();
-    void setWeaponType(WeaponType weaponType);
+    String getName();
+
+    Item getItem();
+
+    int[] getBigswordAttributes();
+    void setBigswordAttributes(int[] bigsword);
+    int[] getSwordAttributes();
+    void setSwordAttributes(int[] sword);
+    int[] getDaggerAttributes();
+    void setDaggerAttributes(int[] dagger);
 
     int getLevel();
     void setLevel(int level);
@@ -24,7 +30,6 @@ public interface ISoulWeapon {
     int getSpecial();
     void setSpecial(int special);
     void addSpecial();
-
 
     int getHardness();
     void setHardness(int hardness);
@@ -42,7 +47,18 @@ public interface ISoulWeapon {
     void setCritical(int critical);
     void addCritical(int amount);
 
-    void increaseAttribute(int attributeNumber);
-    boolean hasSoulWeapon(PlayerEntity player);
-    boolean isSoulWeaponEquipped(PlayerEntity player);
+    int getCurrentTypeIndex();
+    void setCurrentTypeIndex(int index);
+
+    static boolean hasSoulWeapon(PlayerEntity player) {
+        return player.inventory.hasAny(SoulWeapon.WeaponType.getItems());
+    }
+
+    static boolean isSoulWeaponEquipped(PlayerEntity player) {
+        for (final Item WEAPON : SoulWeapon.WeaponType.getItems()) {
+            if (player.inventory.getCurrentItem().isItemEqual(new ItemStack(WEAPON))) return true;
+        }
+
+        return false;
+    }
 }

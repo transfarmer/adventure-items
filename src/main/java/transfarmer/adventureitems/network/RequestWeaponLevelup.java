@@ -9,7 +9,7 @@ import transfarmer.adventureitems.capability.ISoulWeapon;
 
 import java.util.function.Supplier;
 
-import static transfarmer.adventureitems.capability.SoulWeaponProvider.*;
+import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
 public class RequestWeaponLevelup {
     public RequestWeaponLevelup(PacketBuffer buffer) {}
@@ -24,7 +24,7 @@ public class RequestWeaponLevelup {
 
         if (sender == null) return;
 
-        context.enqueueWork(() -> sender.getCapability(SOUL_WEAPON).ifPresent((ISoulWeapon capability) -> {
+        context.enqueueWork(() -> sender.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) -> {
             if (sender.experienceLevel > capability.getLevel()) {
                 capability.addLevel();
                 sender.addExperienceLevel(-capability.getLevel() - 1);

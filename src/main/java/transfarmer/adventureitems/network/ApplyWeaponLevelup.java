@@ -11,7 +11,7 @@ import transfarmer.adventureitems.capability.ISoulWeapon;
 import java.util.function.Supplier;
 
 import static net.minecraftforge.api.distmarker.Dist.CLIENT;
-import static transfarmer.adventureitems.capability.SoulWeaponProvider.SOUL_WEAPON;
+import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ApplyWeaponLevelup {
     public ApplyWeaponLevelup(PacketBuffer buffer) {}
@@ -29,7 +29,7 @@ public class ApplyWeaponLevelup {
     @OnlyIn(CLIENT)
     private void clientHandle(Context context) {
         PlayerEntity player = Minecraft.getInstance().player;
-        context.enqueueWork(() -> player.getCapability(SOUL_WEAPON).ifPresent((ISoulWeapon capability) -> {
+        context.enqueueWork(() -> player.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) -> {
             capability.addLevel();
             player.addExperienceLevel(-capability.getLevel() - 1);
         }));
