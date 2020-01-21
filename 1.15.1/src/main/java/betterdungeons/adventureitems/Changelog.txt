@@ -1,0 +1,8 @@
+
+updated to 1.2
+
+Portal scroll function changed, now spawns lvl 3 portals for free, added a updated version wich spawns a new portal, with this you can set the destination position.
+Added hookshoot, replaces the old portal scroll function, its for free but with some limitations,decreased range(but can be upgraded) the hook will push you to the first place hitted, if its an entity will push the entity to you.
+Healing scroll now have a casting time, reduced hunger consumition to 1/2 for each 2 hearts, and gives a very slow health regeneration, same for the hunger scroll except it consumes 1 hearth for each 2 steaks restored.
+FireScroll/spellbook now fires flames like a flamethrower intead of fireballs.
+Added soul weapons, to get them press 'R' or the defined key holding a wooden sword, you can spend level on this weapons to upgrade them, they will increase their stats(damage, damage on blocks, critical, knockback), each five levels you can add them spend 1 enchantment point, and special habilities, at more level.
