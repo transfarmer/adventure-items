@@ -1,4 +1,4 @@
-package transfarmer.adventureitems.network;
+package transfarmer.soulweapons.network;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
+import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ClientWeaponType implements IMessage {
     private int currentTypeIndex;

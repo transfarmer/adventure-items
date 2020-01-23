@@ -1,4 +1,4 @@
-package transfarmer.adventureitems.capability;
+package transfarmer.soulweapons.capability;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.EnumFacing;

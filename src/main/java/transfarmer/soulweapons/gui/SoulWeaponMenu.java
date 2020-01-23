@@ -1,4 +1,4 @@
-package transfarmer.adventureitems.gui;
+package transfarmer.soulweapons.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -6,14 +6,14 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.adventureitems.Main;
-import transfarmer.adventureitems.network.ServerWeaponLevelup;
-import transfarmer.adventureitems.network.ServerWeaponType;
+import transfarmer.soulweapons.Main;
+import transfarmer.soulweapons.network.ServerWeaponLevelup;
+import transfarmer.soulweapons.network.ServerWeaponType;
 
 import java.io.IOException;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
+import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends GuiScreen {

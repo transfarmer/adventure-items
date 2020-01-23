@@ -1,12 +1,12 @@
-package transfarmer.adventureitems.capability;
+package transfarmer.soulweapons.capability;
 
 import net.minecraft.item.Item;
 
 import java.util.Random;
 
-import static transfarmer.adventureitems.init.ModItems.SOUL_BIGSWORD;
-import static transfarmer.adventureitems.init.ModItems.SOUL_DAGGER;
-import static transfarmer.adventureitems.init.ModItems.SOUL_SWORD;
+import static transfarmer.soulweapons.init.ModItems.SOUL_BIGSWORD;
+import static transfarmer.soulweapons.init.ModItems.SOUL_DAGGER;
+import static transfarmer.soulweapons.init.ModItems.SOUL_SWORD;
 
 public class SoulWeapon implements ISoulWeapon {
     private static final String[] weaponNames = {"bigsword", "sword", "dagger"};

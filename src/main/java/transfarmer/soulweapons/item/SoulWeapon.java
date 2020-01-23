@@ -1,4 +1,4 @@
-package transfarmer.adventureitems.item;
+package transfarmer.soulweapons.item;
 
 import com.google.common.collect.Multimap;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -7,7 +7,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 
-import static transfarmer.adventureitems.Main.SOUL_WEAPON_TAB;
+import static transfarmer.soulweapons.Main.SOUL_WEAPON_TAB;
 
 public class SoulWeapon extends ItemSword {
     private final float attackDamage;

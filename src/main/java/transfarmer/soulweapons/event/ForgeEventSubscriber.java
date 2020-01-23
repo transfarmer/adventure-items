@@ -1,4 +1,4 @@
-package transfarmer.adventureitems.event;
+package transfarmer.soulweapons.event;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -19,17 +19,17 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.adventureitems.Main;
-import transfarmer.adventureitems.capability.ISoulWeapon;
-import transfarmer.adventureitems.capability.SoulWeapon;
-import transfarmer.adventureitems.capability.SoulWeaponProvider;
-import transfarmer.adventureitems.gui.SoulWeaponMenu;
-import transfarmer.adventureitems.network.ClientWeaponData;
+import transfarmer.soulweapons.Main;
+import transfarmer.soulweapons.capability.ISoulWeapon;
+import transfarmer.soulweapons.capability.SoulWeapon;
+import transfarmer.soulweapons.capability.SoulWeaponProvider;
+import transfarmer.soulweapons.gui.SoulWeaponMenu;
+import transfarmer.soulweapons.network.ClientWeaponData;
 
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.adventureitems.Main.KEY_BINDING;
-import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
+import static transfarmer.soulweapons.Main.KEY_BINDING;
+import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 @EventBusSubscriber(modid = Main.MODID)
 public class ForgeEventSubscriber {
@@ -100,9 +100,9 @@ public class ForgeEventSubscriber {
 
             if (player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))
                     || (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() == -1)) {
-                screen = new SoulWeaponMenu(I18n.format("menu.adventureitems.weapons"));
+                screen = new SoulWeaponMenu(I18n.format("menu.soulweapons.weapons"));
             } else if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() != -1) {
-                screen = new SoulWeaponMenu(I18n.format("menu.adventureitems.attributes"), instance.getWeaponName());
+                screen = new SoulWeaponMenu(I18n.format("menu.soulweapons.attributes"), instance.getWeaponName());
             }
 
             Minecraft.getMinecraft().displayGuiScreen(screen);

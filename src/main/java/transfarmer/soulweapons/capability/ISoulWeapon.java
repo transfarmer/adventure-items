@@ -1,10 +1,10 @@
-package transfarmer.adventureitems.capability;
+package transfarmer.soulweapons.capability;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-import static transfarmer.adventureitems.capability.SoulWeapon.*;
+import static transfarmer.soulweapons.capability.SoulWeapon.*;
 
 public interface ISoulWeapon {
     void setAttributes(int[][] attributes);

@@ -1,4 +1,4 @@
-package transfarmer.adventureitems.network;
+package transfarmer.soulweapons.network;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -6,10 +6,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.adventureitems.Main;
-import transfarmer.adventureitems.capability.ISoulWeapon;
+import transfarmer.soulweapons.Main;
+import transfarmer.soulweapons.capability.ISoulWeapon;
 
-import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
+import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ServerWeaponType implements IMessage {
     private int currentWeaponIndex;
