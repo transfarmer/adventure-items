@@ -1,35 +1,47 @@
 package transfarmer.adventureitems.capability;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
 public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
-    public INBT writeNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, Direction side) {
-        CompoundNBT tag = new CompoundNBT();
-        tag.putInt("adventureitems.soulweapon.index", instance.getCurrentTypeIndex());
-        tag.putIntArray("adventureitems.soulweapon.bigsword", instance.getBigswordAttributes());
-        tag.putIntArray("adventureitems.soulweapon.sword", instance.getSwordAttributes());
-        tag.putIntArray("adventureitems.soulweapon.dagger", instance.getDaggerAttributes());
+    public NBTBase writeNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing) {
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setInteger("adventureitems.soulweapon.index", instance.getCurrentTypeIndex());
+        int[][] attributes = instance.getAttributes();
+
+        for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
+            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
+                tag.setInteger(String.format("adventureitems.soulweapon.%s.%s",
+                        instance.getWeaponName(weaponTypeIndex), instance.getAttributeName(valueIndex)),
+                        attributes[weaponTypeIndex][valueIndex]);
+            }
+        }
+
         return tag;
     }
 
     @Override
-    public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, Direction side, INBT nbt) {
-        CompoundNBT tag = (CompoundNBT) nbt;
-        instance.setCurrentTypeIndex(tag.getInt("adventureitems.soulweapon.index"));
-        int[] bigsword = tag.getIntArray("adventureitems.soulweapon.bigsword");
-        int[] sword = tag.getIntArray("adventureitems.soulweapon.sword");
-        int[] dagger = tag.getIntArray("adventureitems.soulweapon.dagger");
+    public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing, NBTBase nbt) {
+        NBTTagCompound tag = (NBTTagCompound) nbt;
+        instance.setCurrentTypeIndex(tag.getInteger("adventureitems.soulweapon.index"));
+        int[][] attributes = instance.getAttributes();
 
-        if (bigsword.length == 0 || sword.length == 0 || dagger.length == 0) {
-            instance.setAttributes(new int[8], new int[8], new int[8]);
+        for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
+            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
+                attributes[weaponTypeIndex][valueIndex] = tag.getInteger(String.format("adventureitems.soulweapon.%s.%s",
+                        instance.getWeaponName(weaponTypeIndex), instance.getAttributeName(valueIndex)));
+            }
+        }
+
+        if (attributes[0].length == 0 || attributes[1].length == 0 || attributes[2].length == 0) {
+            instance.setAttributes(new int[3][8]);
             return;
         }
 
-        instance.setAttributes(bigsword, sword, dagger);
+        instance.setAttributes(attributes);
     }
 }

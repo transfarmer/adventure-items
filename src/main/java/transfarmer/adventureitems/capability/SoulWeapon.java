@@ -2,7 +2,6 @@ package transfarmer.adventureitems.capability;
 
 import net.minecraft.item.Item;
 
-import java.util.HashSet;
 import java.util.Random;
 
 import static transfarmer.adventureitems.init.ModItems.SOUL_BIGSWORD;
@@ -10,7 +9,9 @@ import static transfarmer.adventureitems.init.ModItems.SOUL_DAGGER;
 import static transfarmer.adventureitems.init.ModItems.SOUL_SWORD;
 
 public class SoulWeapon implements ISoulWeapon {
-    private final String[] names = {"bigsword", "sword", "dagger"};
+    private static final String[] weaponNames = {"bigsword", "sword", "dagger"};
+    private static final String[] attributeNames = {"level", "points", "special", "maxSpecial",
+            "hardness", "knockback", "attackDamage", "critical"};
     private int[][] attributes = {new int[8], new int[8], new int[8]};
 
     private final int bigswordIndex = 0;
@@ -32,7 +33,7 @@ public class SoulWeapon implements ISoulWeapon {
         SWORD(SOUL_SWORD, 1),
         DAGGER(SOUL_DAGGER, 2);
 
-        private static final HashSet<Item> SOUL_WEAPONS = new HashSet<>(3, 1);
+        private static final Item[] SOUL_WEAPONS = {SOUL_BIGSWORD, SOUL_SWORD, SOUL_DAGGER};
         private Item item;
         private int index;
 
@@ -49,60 +50,19 @@ public class SoulWeapon implements ISoulWeapon {
             return this.index;
         }
 
-        public static HashSet<Item> getItems() {
+        public static Item[] getItems() {
             return SOUL_WEAPONS;
         }
-
-        static {
-            SOUL_WEAPONS.add(SOUL_BIGSWORD);
-            SOUL_WEAPONS.add(SOUL_SWORD);
-            SOUL_WEAPONS.add(SOUL_DAGGER);
-        }
     }
 
     @Override
-    public void setAttributes(int[] bigsword, int[] sword, int[] dagger) {
-        if (bigsword.length == 0 || sword.length == 0 || dagger.length == 0) {
-            throw new IllegalArgumentException("length 0");
-        }
-
-        this.attributes[bigswordIndex] = bigsword;
-        this.attributes[swordIndex] = sword;
-        this.attributes[daggerIndex] = dagger;
+    public void setAttributes(int[][] attributes) {
+        this.attributes = attributes;
     }
 
     @Override
-    public int[] getBigswordAttributes() {
-        return this.attributes[bigswordIndex];
-    }
-
-    @Override
-    public void setBigswordAttributes(int[] bigsword) {
-        if (bigsword.length == 0) {
-            throw new IllegalArgumentException("length 0");
-        }
-
-        this.attributes[bigswordIndex] = bigsword;
-    }
-
-    @Override
-    public int[] getSwordAttributes() {
-        return this.attributes[swordIndex];
-    }
-
-    @Override
-    public void setSwordAttributes(int[] sword) {
-        this.attributes[swordIndex] = sword;
-    }
-
-    @Override
-    public int[] getDaggerAttributes() {
-        return this.attributes[daggerIndex];
-    }
-
-    @Override
-    public void setDaggerAttributes(int[] dagger) {
-        this.attributes[daggerIndex] = dagger;
+    public int[][] getAttributes() {
+        return this.attributes;
     }
 
     @Override
@@ -233,8 +193,16 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public String getName() {
-        return this.names[currentTypeIndex];
+    public String getWeaponName() {
+        return weaponNames[currentTypeIndex];
+    }
+
+    public String getWeaponName(int index) {
+        return weaponNames[index];
+    }
+
+    public String getAttributeName(int index) {
+        return attributeNames[index];
     }
 
     @Override

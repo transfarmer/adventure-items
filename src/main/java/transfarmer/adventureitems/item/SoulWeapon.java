@@ -1,21 +1,46 @@
 package transfarmer.adventureitems.item;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import com.google.common.collect.Multimap;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.SwordItem;
-import transfarmer.adventureitems.ModItemTier;
-import transfarmer.adventureitems.init.ModItemGroups;
+import net.minecraft.item.ItemSword;
 
+import static transfarmer.adventureitems.Main.SOUL_WEAPON_TAB;
 
-public class SoulWeapon extends SwordItem {
-    public SoulWeapon(int attackDamage, float attackSpeed) {
-        super(ModItemTier.SOUL, attackDamage, attackSpeed, new Item.Properties().group(ItemGroup.COMBAT).group(ModItemGroups.MOD_ITEM_GROUP));
+public class SoulWeapon extends ItemSword {
+    private final float attackDamage;
+    private final float attackSpeed;
+
+    public SoulWeapon(final int attackDamage, final float attackSpeed) {
+        super(ToolMaterial.WOOD);
+        this.setMaxDamage(0).setNoRepair().setCreativeTab(SOUL_WEAPON_TAB);
+        this.attackDamage = attackDamage;
+        this.attackSpeed = attackSpeed;
+    }
+
+    public float getAttackDamage() {
+        return this.attackDamage;
+    }
+
+    public int getItemEnchantability() {
+        return 0;
+    }
+
+    public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+        return false;
     }
 
     @Override
-    public boolean hitEntity(ItemStack itemStack, LivingEntity target, LivingEntity atacker) {
-        return true;
+    public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot) {
+        Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
+
+        if (equipmentSlot == EntityEquipmentSlot.MAINHAND) {
+            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", this.attackDamage, 0));
+            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", -this.attackSpeed, 0));
+        }
+
+        return multimap;
     }
 }

@@ -1,39 +1,37 @@
 package transfarmer.adventureitems.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.adventureitems.Main;
-import transfarmer.adventureitems.capability.ISoulWeapon;
 import transfarmer.adventureitems.network.ServerWeaponLevelup;
 import transfarmer.adventureitems.network.ServerWeaponType;
 
-import static net.minecraftforge.api.distmarker.Dist.CLIENT;
-import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
-import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType.BIGSWORD;
-import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType.DAGGER;
-import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType.SWORD;
+import java.io.IOException;
+
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-@OnlyIn(CLIENT)
-public class SoulWeaponMenu extends Screen {
+@SideOnly(CLIENT)
+public class SoulWeaponMenu extends GuiScreen {
+    private String title;
     private String weaponName;
-    private int level;
+    int level;
 
-    public SoulWeaponMenu(ITextComponent title) {
-        super(title);
-    }
-
-    public SoulWeaponMenu(ITextComponent title, String weaponName) {
-        super(title);
+    public SoulWeaponMenu(String title, String weaponName) {
+        this.title = title;
         this.weaponName = weaponName;
     }
 
+    public SoulWeaponMenu(String title) {
+        this.title = title;
+    }
+
     @Override
-    public void init() {
+    public void initGui() {
         if (weaponName == null) {
             showWeapons();
             return;
@@ -43,8 +41,8 @@ public class SoulWeaponMenu extends Screen {
     }
 
     public void showAttributes() {
-        PlayerEntity player = Minecraft.getInstance().player;
-        player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) -> level = instance.getLevel() + 1);
+        EntityPlayer player = Minecraft.getMinecraft().player;
+        level = player.getCapability(CAPABILITY, null).getLevel() + 1;
 
         String plural = level > 1 ? "s" : "";
         String text = String.format("increase soul %s level for %d experience level%s", weaponName.toLowerCase(), level, plural);
@@ -52,11 +50,8 @@ public class SoulWeaponMenu extends Screen {
         int buttonHeight = 20;
         int xCenter = (width - buttonWidth) / 2;
         int yCenter = height / 2;
-        Button levelButton = addButton(new Button(xCenter, yCenter, buttonWidth, buttonHeight, text, (ignored) -> {
-            Main.CHANNEL.sendToServer(new ServerWeaponLevelup());
-            this.minecraft.displayGuiScreen(null);
-        }));
-        levelButton.active = player.experienceLevel > level;
+        GuiButton levelButton = addButton(new GuiButton(3, xCenter, yCenter, buttonWidth, buttonHeight, text));
+        levelButton.enabled = player.experienceLevel > level;
     }
 
     public void showWeapons() {
@@ -65,25 +60,27 @@ public class SoulWeaponMenu extends Screen {
         int xCenter = (width - buttonWidth) / 2;
         int ySep = 32;
 
-        addButton(new Button(xCenter, height / 2 - ySep, buttonWidth, buttonHeight, "soul bigsword",
-                (ignored) -> requestWeaponType(BIGSWORD)));
-        addButton(new Button(xCenter, height / 2, buttonWidth, buttonHeight, "soul sword",
-                (ignored) -> requestWeaponType(SWORD)));
-        addButton(new Button(xCenter, height / 2 + ySep, buttonWidth, buttonHeight, "soul dagger",
-                (ignored) -> requestWeaponType(DAGGER)));
+        addButton(new GuiButton(0, xCenter, height / 2 - ySep, buttonWidth, buttonHeight, "soul bigsword"));
+        addButton(new GuiButton(1, xCenter, height / 2, buttonWidth, buttonHeight, "soul sword"));
+        addButton(new GuiButton(2,xCenter, height / 2 + ySep, buttonWidth, buttonHeight, "soul dagger"));
     }
 
-    private void requestWeaponType(final WeaponType WEAPON_TYPE) {
-        Main.CHANNEL.sendToServer(new ServerWeaponType(WEAPON_TYPE));
-        this.minecraft.displayGuiScreen(null);
+    public void actionPerformed(GuiButton button) throws IOException {
+        if (button.id >= 0 && button.id <= 2) {
+            Main.CHANNEL.sendToServer(new ServerWeaponType(button.id));
+        } else {
+            Main.CHANNEL.sendToServer(new ServerWeaponLevelup());
+        }
+
+        this.mc.displayGuiScreen(null);
     }
 
     @Override
-    public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
-        this.renderBackground();
-        this.drawCenteredString(this.font, this.title.getFormattedText(), this.width / 2, 40, 16777215);
-        this.drawCenteredString(this.font, String.format("current level: %d", level - 1),
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        this.drawDefaultBackground();
+        this.drawCenteredString(this.fontRenderer, I18n.format(title), this.width / 2, 40, 16777215);
+        this.drawCenteredString(this.fontRenderer, String.format("current level: %d", level - 1),
                 this.width / 2, this.height / 2 - 24, Integer.parseInt("FFFFFF", 16));
-        super.render(p_render_1_, p_render_2_, p_render_3_);
+        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 }

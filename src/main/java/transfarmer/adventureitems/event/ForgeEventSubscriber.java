@@ -1,45 +1,47 @@
 package transfarmer.adventureitems.event;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
+import transfarmer.adventureitems.capability.SoulWeapon;
 import transfarmer.adventureitems.capability.SoulWeaponProvider;
 import transfarmer.adventureitems.gui.SoulWeaponMenu;
 import transfarmer.adventureitems.network.ClientWeaponData;
 
-import static net.minecraftforge.api.distmarker.Dist.CLIENT;
-import static net.minecraftforge.event.TickEvent.Phase.END;
-import static transfarmer.adventureitems.Keybindings.KEYBINDINGS;
-import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType.getItems;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.adventureitems.Main.KEY_BINDING;
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-@EventBusSubscriber(modid = Main.MODID, bus = EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Main.MODID)
 public class ForgeEventSubscriber {
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof PlayerEntity) {
+        if (event.getObject() instanceof EntityPlayer) {
             event.addCapability(new ResourceLocation(Main.MODID, "soulweapon"), new SoulWeaponProvider());
         }
     }
 
     @SubscribeEvent
-    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onPlayerLoggedIn(PlayerLoggedInEvent event) {
         updateSoulWeapon(event);
     }
 
@@ -54,63 +56,56 @@ public class ForgeEventSubscriber {
     }
 
     private static <T extends PlayerEvent> void updateSoulWeapon(T event) {
-        ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-        player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) ->
-                Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
-                        new ClientWeaponData(instance.getCurrentTypeIndex(),
-                                instance.getBigswordAttributes(),
-                                instance.getSwordAttributes(),
-                                instance.getDaggerAttributes())));
+        EntityPlayerMP player = (EntityPlayerMP) event.player;
+        ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+        Main.CHANNEL.sendTo(new ClientWeaponData(instance.getCurrentTypeIndex(), instance.getAttributes()), player);
     }
 
     @SubscribeEvent
-    public static void onClone(PlayerEvent.Clone event) {
+    public static void onClone(Clone event) {
         if (event.isWasDeath()) {
-            event.getOriginal().getCapability(CAPABILITY).ifPresent((ISoulWeapon originalInstance) -> {
-                ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-                player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) -> {
-                    Main.LOGGER.info("both capabilities are present on the server side");
-                    instance.setCurrentTypeIndex(originalInstance.getCurrentTypeIndex());
-                    instance.setAttributes(originalInstance.getBigswordAttributes(),
-                            originalInstance.getSwordAttributes(),
-                            originalInstance.getDaggerAttributes());
-                });
-            });
+            ISoulWeapon originalInstance = event.getOriginal().getCapability(CAPABILITY, null);
+            ISoulWeapon instance = event.getEntityPlayer().getCapability(CAPABILITY, null);
+            instance.setCurrentTypeIndex(originalInstance.getCurrentTypeIndex());
+            instance.setAttributes(originalInstance.getAttributes());
         }
     }
-
-    // clear extraneous soul weapons in inventory
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (!event.player.isCreative() && event.player.inventory.hasAny(getItems()) && event.phase == END) {
-            event.player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) ->
-                event.player.inventory.clearMatchingItems((ItemStack itemStack) -> {
-                    Item weapon = instance.getCurrentTypeIndex() == -1 ? null : instance.getItem();
-                    return getItems().contains(itemStack.getItem())
-                           && !itemStack.getItem().equals(weapon);
-                }, event.player.inventory.getSizeInventory()));
+        if (!event.player.isCreative() && ISoulWeapon.hasSoulWeapon(event.player) && event.phase == END) {
+            ISoulWeapon instance = event.player.getCapability(CAPABILITY, null);
+
+            if (instance.getCurrentTypeIndex() != -1) {
+                Item[] items = SoulWeapon.WeaponType.getItems();
+                items[instance.getCurrentTypeIndex()] = null;
+
+                for (Item item : items) {
+                    if (item != null) {
+                        event.player.inventory.clearMatchingItems(item, 0, event.player.inventory.getSizeInventory(),
+                                new NBTTagCompound());
+                    }
+                }
+            }
         }
     }
 
-    @OnlyIn(CLIENT)
+    @SideOnly(CLIENT)
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (KEYBINDINGS[0].isKeyDown() && event.phase == END) {
-            PlayerEntity player = Minecraft.getInstance().player;
-            player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) -> {
-                Screen screen = null;
+        if (KEY_BINDING.isKeyDown() && event.phase == END) {
+            EntityPlayer player = Minecraft.getMinecraft().player;
+            ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+            GuiScreen screen = null;
 
-                if (player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))
-                        || (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() == -1)) {
-                    screen = new SoulWeaponMenu(new TranslationTextComponent("menu.adventureitems.weapons"));
-                } else if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() != -1) {
-                    screen = new SoulWeaponMenu(new TranslationTextComponent("menu.adventureitems.attributes"),
-                            instance.getName());
-                }
+            if (player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))
+                    || (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() == -1)) {
+                screen = new SoulWeaponMenu(I18n.format("menu.adventureitems.weapons"));
+            } else if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() != -1) {
+                screen = new SoulWeaponMenu(I18n.format("menu.adventureitems.attributes"), instance.getWeaponName());
+            }
 
-                Minecraft.getInstance().displayGuiScreen(screen);
-            });
+            Minecraft.getMinecraft().displayGuiScreen(screen);
         }
     }
 }

@@ -1,45 +1,48 @@
 package transfarmer.adventureitems.network;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.adventureitems.Main;
+import transfarmer.adventureitems.capability.ISoulWeapon;
 
-import java.util.function.Supplier;
-
-import static transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ServerWeaponType {
-    private final WeaponType WEAPON_TYPE;
+public class ServerWeaponType implements IMessage {
+    private int currentWeaponIndex;
 
-    public ServerWeaponType(PacketBuffer buffer) {
-        this.WEAPON_TYPE = buffer.readEnumValue(WeaponType.class);
+    public ServerWeaponType() {
+        this.currentWeaponIndex = -1;
     }
 
-    public ServerWeaponType(WeaponType WEAPON_TYPE) {
-        this.WEAPON_TYPE = WEAPON_TYPE;
+    public ServerWeaponType(final int CURRENT_TYPE_INDEX) {
+        this.currentWeaponIndex = CURRENT_TYPE_INDEX;
     }
 
-    public void encode(PacketBuffer buffer) {
-        buffer.writeEnumValue(WEAPON_TYPE);
+    @Override
+    public void fromBytes(ByteBuf buf) {
+        this.currentWeaponIndex = buf.readInt();
     }
 
-    public void handle(Supplier<Context> contextSupplier) {
-        final Context context = contextSupplier.get();
-        context.enqueueWork(() -> {
-            ServerPlayerEntity sender = context.getSender();
+    @Override
+    public void toBytes(ByteBuf buf) {
+        buf.writeInt(currentWeaponIndex);
+    }
 
-            if (sender == null) return;
+    public static class Handler implements IMessageHandler<ServerWeaponType, IMessage> {
+        public IMessage onMessage(ServerWeaponType message, MessageContext context) {
+            final int CURRENT_TYPE_INDEX = message.currentWeaponIndex;
+            EntityPlayerMP player = context.getServerHandler().player;
+            ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
-            sender.getCapability(CAPABILITY).ifPresent((transfarmer.adventureitems.capability.ISoulWeapon capability) -> {
-                capability.setCurrentTypeIndex(WEAPON_TYPE.getIndex());
-                sender.inventory.setInventorySlotContents(sender.inventory.currentItem, new ItemStack(WEAPON_TYPE.getItem()));
-                Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sender), new ClientWeaponType(WEAPON_TYPE));
-            });
-        });
-        context.setPacketHandled(true);
+            instance.setCurrentTypeIndex(CURRENT_TYPE_INDEX);
+            player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(instance.getItem()));
+            Main.CHANNEL.sendTo(new ClientWeaponType(CURRENT_TYPE_INDEX), player);
+
+            return null;
+        }
     }
 }

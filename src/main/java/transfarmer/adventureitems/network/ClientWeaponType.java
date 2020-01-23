@@ -1,46 +1,45 @@
 package transfarmer.adventureitems.network;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.DistExecutor;
-import transfarmer.adventureitems.capability.SoulWeapon.WeaponType;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.function.Supplier;
-
-import static net.minecraftforge.api.distmarker.Dist.CLIENT;
-import static net.minecraftforge.fml.network.NetworkEvent.Context;
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ClientWeaponType {
-    private final WeaponType weaponType;
+public class ClientWeaponType implements IMessage {
+    private int currentTypeIndex;
 
-    public ClientWeaponType(PacketBuffer buffer) {
-        this.weaponType = buffer.readEnumValue(WeaponType.class);
+    public ClientWeaponType() {
+        this.currentTypeIndex = -1;
     }
 
-    public ClientWeaponType(WeaponType weaponType) {
-        this.weaponType = weaponType;
+    public ClientWeaponType(final int CURRENT_TYPE_INDEX) {
+        this.currentTypeIndex = CURRENT_TYPE_INDEX;
     }
 
-    public void encode(PacketBuffer buffer) {
-        buffer.writeEnumValue(this.weaponType);
+    public void fromBytes(ByteBuf buffer) {
+        currentTypeIndex = buffer.readInt();
     }
 
-    public void handle(Supplier<Context> contextSupplier) {
-        final Context context = contextSupplier.get();
-        context.enqueueWork(() -> DistExecutor.runWhenOn(CLIENT, () -> this::clientHandle));
-        context.setPacketHandled(true);
+    public void toBytes(ByteBuf buffer) {
+        buffer.writeInt(currentTypeIndex);
     }
 
-    @OnlyIn(CLIENT)
-    private void clientHandle() {
-        PlayerEntity player = Minecraft.getInstance().player;
-        player.getCapability(CAPABILITY).ifPresent((transfarmer.adventureitems.capability.ISoulWeapon capability) -> {
-            capability.setCurrentTypeIndex(weaponType.getIndex());
-            player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(weaponType.getItem()));
-        });
+    public static class Handler implements IMessageHandler<ClientWeaponType, IMessage> {
+        @SideOnly(CLIENT)
+        public IMessage onMessage(ClientWeaponType message, MessageContext context) {
+            EntityPlayer player = Minecraft.getMinecraft().player;
+            player.getCapability(CAPABILITY, null).setCurrentTypeIndex(message.currentTypeIndex);
+            player.inventory.setInventorySlotContents(player.inventory.currentItem,
+                    new ItemStack(player.getCapability(CAPABILITY, null).getItem()));
+
+            return null;
+        }
     }
 }

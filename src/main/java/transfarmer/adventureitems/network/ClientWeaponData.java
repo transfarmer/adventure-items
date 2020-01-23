@@ -1,62 +1,66 @@
 package transfarmer.adventureitems.network;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.DistExecutor;
-import transfarmer.adventureitems.Main;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 
-import java.util.function.Supplier;
-
-import static net.minecraftforge.api.distmarker.Dist.CLIENT;
-import static net.minecraftforge.fml.network.NetworkEvent.Context;
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ClientWeaponData {
+public class ClientWeaponData implements IMessage {
     private int currentTypeIndex;
-    private int[] bigsword, sword, dagger;
+    private final int[][] ATTRIBUTES;
 
-    public ClientWeaponData(PacketBuffer buffer) {
+    public ClientWeaponData() {
+        this.ATTRIBUTES = new int[3][8];
+        this.currentTypeIndex = -1;
+    }
+
+    public ClientWeaponData(final int CURRENT_TYPE_INDEX, final int[][] ATTRIBUTES) {
+        this.currentTypeIndex = CURRENT_TYPE_INDEX;
+
+        if (ATTRIBUTES[0].length == 0 || ATTRIBUTES[1].length == 0 || ATTRIBUTES[2].length == 0) {
+            this.ATTRIBUTES = new int[3][8];
+            return;
+        }
+
+        this.ATTRIBUTES = ATTRIBUTES;
+    }
+
+    public void fromBytes(ByteBuf buffer) {
         this.currentTypeIndex = buffer.readInt();
-        this.bigsword = buffer.readVarIntArray(8);
-        this.sword = buffer.readVarIntArray(8);
-        this.dagger = buffer.readVarIntArray(8);
-    }
 
-    public ClientWeaponData(final int currentTypeIndex, final int[] bigsword, final int[] sword, final int[] dagger) {
-        this.currentTypeIndex = currentTypeIndex;
-        this.bigsword = bigsword;
-        this.sword = sword;
-        this.dagger = dagger;
-    }
-
-    public void encode(PacketBuffer buffer) {
-        buffer.writeInt(this.currentTypeIndex);
-        buffer.writeVarIntArray(this.bigsword);
-        buffer.writeVarIntArray(this.sword);
-        buffer.writeVarIntArray(this.dagger);
-    }
-
-    public void handle(Supplier<Context> contextSupplier) {
-        Context context = contextSupplier.get();
-        DistExecutor.runWhenOn(CLIENT, () -> this::clientHandle);
-        context.setPacketHandled(true);
-    }
-
-    @OnlyIn(CLIENT)
-    public void clientHandle() {
-        Minecraft.getInstance().player.getCapability(CAPABILITY).ifPresent((ISoulWeapon instance) -> {
-            Main.LOGGER.info("capability is present");
-            instance.setCurrentTypeIndex(this.currentTypeIndex);
-
-            if (this.bigsword.length == 0 || this.sword.length == 0 || this.dagger.length == 0) {
-                instance.setAttributes(new int[8], new int[8], new int[8]);
-                return;
+        for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
+            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
+                this.ATTRIBUTES[weaponTypeIndex][valueIndex] = buffer.readInt();
             }
+        }
+    }
 
-            instance.setAttributes(this.bigsword, this.sword, this.dagger);
-        });
-        Minecraft.getInstance().player.getCapability(CAPABILITY).orElseThrow(() -> new IllegalStateException("capability does not exist"));
+    public void toBytes(ByteBuf buffer) {
+        buffer.writeInt(this.currentTypeIndex);
+
+        for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
+            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
+                buffer.writeInt(this.ATTRIBUTES[weaponTypeIndex][valueIndex]);
+            }
+        }
+    }
+
+    public static class Handler implements IMessageHandler<ClientWeaponData, IMessage> {
+        @SideOnly(CLIENT)
+        public IMessage onMessage(ClientWeaponData message, MessageContext context) {
+            EntityPlayer player = Minecraft.getMinecraft().player;
+            ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+            instance.setCurrentTypeIndex(message.currentTypeIndex);
+            instance.setAttributes(message.ATTRIBUTES);
+
+            return null;
+        }
     }
 }

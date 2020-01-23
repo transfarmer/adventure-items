@@ -1,7 +1,7 @@
 package transfarmer.adventureitems.init;
 
 import net.minecraft.item.Item;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import transfarmer.adventureitems.Main;
 
 

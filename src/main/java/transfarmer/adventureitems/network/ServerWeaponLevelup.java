@@ -1,36 +1,36 @@
 package transfarmer.adventureitems.network;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
-import net.minecraftforge.fml.network.PacketDistributor;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.adventureitems.Main;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 
-import java.util.function.Supplier;
-
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ServerWeaponLevelup {
-    public ServerWeaponLevelup(PacketBuffer buffer) {}
-
+public class ServerWeaponLevelup implements IMessage {
     public ServerWeaponLevelup() {}
 
-    public void encode(PacketBuffer buffer) {}
+    @Override
+    public void fromBytes(ByteBuf buf) {}
 
-    public void handle(Supplier<Context> contextSupplier) {
-        final Context context = contextSupplier.get();
-        ServerPlayerEntity sender = context.getSender();
+    @Override
+    public void toBytes(ByteBuf buf) {}
 
-        if (sender == null) return;
+    public static class Handler implements IMessageHandler<ServerWeaponLevelup, IMessage> {
+        public IMessage onMessage(ServerWeaponLevelup message, MessageContext context) {
+            EntityPlayerMP player = context.getServerHandler().player;
+            ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
-        context.enqueueWork(() -> sender.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) -> {
-            if (sender.experienceLevel > capability.getLevel()) {
-                capability.addLevel();
-                sender.addExperienceLevel(-capability.getLevel());
-                Main.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sender), new ClientWeaponLevelup());
+            if (player.experienceLevel > instance.getLevel()) {
+                instance.addLevel();
+                player.addExperienceLevel(-instance.getLevel());
+                Main.CHANNEL.sendTo(new ClientWeaponLevelup(), player);
             }
-        }));
-        context.setPacketHandled(true);
+
+            return null;
+        }
     }
 }

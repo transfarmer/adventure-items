@@ -1,37 +1,36 @@
 package transfarmer.adventureitems.network;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.adventureitems.capability.ISoulWeapon;
 
-import java.util.function.Supplier;
-
-import static net.minecraftforge.api.distmarker.Dist.CLIENT;
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.adventureitems.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ClientWeaponLevelup {
-    public ClientWeaponLevelup(PacketBuffer buffer) {}
-
+public class ClientWeaponLevelup implements IMessage {
     public ClientWeaponLevelup() {}
 
-    public void encode(PacketBuffer buffer) {}
+    @Override
+    public void fromBytes(ByteBuf buf) {}
 
-    public void handle(Supplier<Context> contextSupplier) {
-        final Context context = contextSupplier.get();
-        DistExecutor.runWhenOn(CLIENT, () -> () -> clientHandle(context));
-        context.setPacketHandled(true);
-    }
+    @Override
+    public void toBytes(ByteBuf buf) {}
 
-    @OnlyIn(CLIENT)
-    private void clientHandle(Context context) {
-        PlayerEntity player = Minecraft.getInstance().player;
-        context.enqueueWork(() -> player.getCapability(CAPABILITY).ifPresent((ISoulWeapon capability) -> {
-            capability.addLevel();
-            player.addExperienceLevel(-capability.getLevel() - 1);
-        }));
+    public static class Handler implements IMessageHandler<ClientWeaponLevelup, IMessage> {
+        @SideOnly(CLIENT)
+        public IMessage onMessage(ClientWeaponLevelup message, MessageContext context) {
+            EntityPlayer player = Minecraft.getMinecraft().player;
+            ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+
+            instance.addLevel();
+            player.addExperienceLevel(-instance.getLevel() - 1);
+
+            return null;
+        }
     }
 }
