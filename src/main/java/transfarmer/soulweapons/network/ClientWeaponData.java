@@ -22,15 +22,15 @@ public class ClientWeaponData implements IMessage {
         this.currentTypeIndex = 3;
     }
 
-    public ClientWeaponData(final WeaponType WEAPON_TYPE, final int[][] ATTRIBUTES) {
-        this.currentTypeIndex = WEAPON_TYPE.getIndex();
+    public ClientWeaponData(final WeaponType weaponType, final int[][] attributes) {
+        this.currentTypeIndex = weaponType.getIndex();
 
-        if (ATTRIBUTES[0].length == 0 || ATTRIBUTES[1].length == 0 || ATTRIBUTES[2].length == 0) {
+        if (attributes[0].length == 0 || attributes[1].length == 0 || attributes[2].length == 0) {
             this.ATTRIBUTES = new int[3][8];
             return;
         }
 
-        this.ATTRIBUTES = ATTRIBUTES;
+        this.ATTRIBUTES = attributes;
     }
 
     public void fromBytes(ByteBuf buffer) {
