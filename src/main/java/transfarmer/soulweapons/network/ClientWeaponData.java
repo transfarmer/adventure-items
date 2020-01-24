@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import transfarmer.soulweapons.WeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -18,11 +19,11 @@ public class ClientWeaponData implements IMessage {
 
     public ClientWeaponData() {
         this.ATTRIBUTES = new int[3][8];
-        this.currentTypeIndex = -1;
+        this.currentTypeIndex = 3;
     }
 
-    public ClientWeaponData(final int CURRENT_TYPE_INDEX, final int[][] ATTRIBUTES) {
-        this.currentTypeIndex = CURRENT_TYPE_INDEX;
+    public ClientWeaponData(final WeaponType WEAPON_TYPE, final int[][] ATTRIBUTES) {
+        this.currentTypeIndex = WEAPON_TYPE.getIndex();
 
         if (ATTRIBUTES[0].length == 0 || ATTRIBUTES[1].length == 0 || ATTRIBUTES[2].length == 0) {
             this.ATTRIBUTES = new int[3][8];
@@ -57,7 +58,7 @@ public class ClientWeaponData implements IMessage {
         public IMessage onMessage(ClientWeaponData message, MessageContext context) {
             EntityPlayer player = Minecraft.getMinecraft().player;
             ISoulWeapon instance = player.getCapability(CAPABILITY, null);
-            instance.setCurrentTypeIndex(message.currentTypeIndex);
+            instance.setCurrentType(WeaponType.getType(message.currentTypeIndex));
             instance.setAttributes(message.ATTRIBUTES);
 
             return null;

@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulweapons.Main;
+import transfarmer.soulweapons.WeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
@@ -15,11 +16,11 @@ public class ServerWeaponType implements IMessage {
     private int currentWeaponIndex;
 
     public ServerWeaponType() {
-        this.currentWeaponIndex = -1;
+        this.currentWeaponIndex = 3;
     }
 
-    public ServerWeaponType(final int CURRENT_TYPE_INDEX) {
-        this.currentWeaponIndex = CURRENT_TYPE_INDEX;
+    public ServerWeaponType(final WeaponType WEAPON_TYPE) {
+        this.currentWeaponIndex = WEAPON_TYPE.getIndex();
     }
 
     @Override
@@ -38,9 +39,9 @@ public class ServerWeaponType implements IMessage {
             EntityPlayerMP player = context.getServerHandler().player;
             ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
-            instance.setCurrentTypeIndex(CURRENT_TYPE_INDEX);
+            instance.setCurrentType(WeaponType.getType(CURRENT_TYPE_INDEX));
             player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(instance.getItem()));
-            Main.CHANNEL.sendTo(new ClientWeaponType(CURRENT_TYPE_INDEX), player);
+            Main.CHANNEL.sendTo(new ClientWeaponType(WeaponType.getType(CURRENT_TYPE_INDEX)), player);
 
             return null;
         }

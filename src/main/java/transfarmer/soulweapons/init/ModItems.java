@@ -47,7 +47,7 @@ public class ModItems {
         }
 
         @SideOnly(CLIENT)
-        public static void registerModel(Item item, int meta) {
+        private static void registerModel(Item item, int meta) {
             ModelLoader.setCustomModelResourceLocation(item, meta,
                 new ModelResourceLocation(item.getRegistryName(), "inventory"));
         }

@@ -16,10 +16,10 @@ public class ClientWeaponLevelup implements IMessage {
     public ClientWeaponLevelup() {}
 
     @Override
-    public void fromBytes(ByteBuf buf) {}
+    public void fromBytes(ByteBuf buffer) {}
 
     @Override
-    public void toBytes(ByteBuf buf) {}
+    public void toBytes(ByteBuf buffer) {}
 
     public static class Handler implements IMessageHandler<ClientWeaponLevelup, IMessage> {
         @SideOnly(CLIENT)
@@ -28,7 +28,7 @@ public class ClientWeaponLevelup implements IMessage {
             ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
             instance.addLevel();
-            player.addExperienceLevel(-instance.getLevel() - 1);
+            player.addExperienceLevel(-instance.getLevel());
 
             return null;
         }

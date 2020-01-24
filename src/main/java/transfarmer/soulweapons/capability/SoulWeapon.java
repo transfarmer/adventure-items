@@ -1,18 +1,19 @@
 package transfarmer.soulweapons.capability;
 
 import net.minecraft.item.Item;
+import transfarmer.soulweapons.WeaponType;
 
 import java.util.Random;
 
-import static transfarmer.soulweapons.init.ModItems.SOUL_BIGSWORD;
-import static transfarmer.soulweapons.init.ModItems.SOUL_DAGGER;
-import static transfarmer.soulweapons.init.ModItems.SOUL_SWORD;
+import static transfarmer.soulweapons.WeaponType.NONE;
 
+@SuppressWarnings("DuplicateBranchesInSwitch")
 public class SoulWeapon implements ISoulWeapon {
-    private static final String[] weaponNames = {"bigsword", "sword", "dagger"};
+    private static final String[] weaponNames = {"bigsword", "sword", "dagger", null};
     private static final String[] attributeNames = {"level", "points", "special", "maxSpecial",
             "hardness", "knockback", "attackDamage", "critical"};
-    private int[][] attributes = {new int[8], new int[8], new int[8]};
+    private WeaponType currentType = NONE;
+    private int[][] attributes = new int[3][8];
 
     private final int bigswordIndex = 0;
     private final int swordIndex = 1;
@@ -27,33 +28,6 @@ public class SoulWeapon implements ISoulWeapon {
     private final int knockbackIndex = 5;
     private final int attackDamageIndex = 6;
     private final int criticalIndex = 7;
-
-    public enum WeaponType {
-        BIGSWORD(SOUL_BIGSWORD, 0),
-        SWORD(SOUL_SWORD, 1),
-        DAGGER(SOUL_DAGGER, 2);
-
-        private static final Item[] SOUL_WEAPONS = {SOUL_BIGSWORD, SOUL_SWORD, SOUL_DAGGER};
-        private Item item;
-        private int index;
-
-        WeaponType(Item item, int index) {
-            this.item = item;
-            this.index = index;
-        }
-
-        public Item getItem() {
-            return this.item;
-        }
-
-        public int getIndex() {
-            return this.index;
-        }
-
-        public static Item[] getItems() {
-            return SOUL_WEAPONS;
-        }
-    }
 
     @Override
     public void setAttributes(int[][] attributes) {
@@ -197,31 +171,29 @@ public class SoulWeapon implements ISoulWeapon {
         return weaponNames[currentTypeIndex];
     }
 
+    @Override
     public String getWeaponName(int index) {
         return weaponNames[index];
     }
 
+    @Override
     public String getAttributeName(int index) {
         return attributeNames[index];
     }
 
     @Override
     public Item getItem() {
-        switch (currentTypeIndex) {
-            case bigswordIndex:
-                return SOUL_BIGSWORD;
-            case swordIndex:
-                return SOUL_SWORD;
-            case daggerIndex:
-                return SOUL_DAGGER;
-            default:
-                return null;
-        }
+        return currentType.getItem();
     }
 
     @Override
     public int getLevel() {
         return this.attributes[currentTypeIndex][levelIndex];
+    }
+
+    @Override
+    public int getLevel(int index) {
+        return this.attributes[index][levelIndex];
     }
 
     @Override
@@ -231,7 +203,12 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public void addLevel() {
-        addAttribute(this.attributes[currentTypeIndex][levelIndex]++ % 10);
+        addLevel(currentTypeIndex);
+    }
+
+    @Override
+    public void addLevel(int index) {
+        addAttribute(this.attributes[index][levelIndex]++ % 10);
     }
 
     @Override
@@ -329,11 +306,30 @@ public class SoulWeapon implements ISoulWeapon {
         this.attributes[currentTypeIndex][criticalIndex] += amount;
     }
 
+    @Override
     public int getCurrentTypeIndex() {
         return this.currentTypeIndex;
     }
 
-    public void setCurrentTypeIndex(int index) {
+    @Override
+    public void setCurrentType(int index) {
         this.currentTypeIndex = index;
+        this.currentType = WeaponType.getType(index);
+    }
+
+    @Override
+    public void setCurrentType(WeaponType type) {
+        this.currentType = type;
+        this.currentTypeIndex = type.getIndex();
+    }
+
+    @Override
+    public boolean hasAttributes() {
+        return this.attributes[0].length == 8 && this.attributes[1].length == 8 && this.attributes[2].length == 8;
+    }
+
+    @Override
+    public WeaponType getCurrentType() {
+        return this.currentType;
     }
 }

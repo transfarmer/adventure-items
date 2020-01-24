@@ -27,7 +27,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
     public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
-        instance.setCurrentTypeIndex(tag.getInteger("soulweapons.soulweapon.index"));
+        instance.setCurrentType(tag.getInteger("soulweapons.soulweapon.index"));
         int[][] attributes = instance.getAttributes();
 
         for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
@@ -37,7 +37,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
             }
         }
 
-        if (attributes[0].length == 0 || attributes[1].length == 0 || attributes[2].length == 0) {
+        if (!instance.hasAttributes()) {
             instance.setAttributes(new int[3][8]);
             return;
         }

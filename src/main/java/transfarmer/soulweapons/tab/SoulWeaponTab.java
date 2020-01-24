@@ -1,4 +1,4 @@
-package transfarmer.soulweapons.tabs;
+package transfarmer.soulweapons.tab;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;

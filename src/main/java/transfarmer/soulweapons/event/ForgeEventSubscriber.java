@@ -9,26 +9,28 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.Main;
+import transfarmer.soulweapons.WeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
-import transfarmer.soulweapons.capability.SoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponProvider;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
 import transfarmer.soulweapons.network.ClientWeaponData;
 
+import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
+import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulweapons.Main.KEY_BINDING;
+import static transfarmer.soulweapons.Main.KeyBindings.WEAPON_MENU;
+import static transfarmer.soulweapons.WeaponType.NONE;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 @EventBusSubscriber(modid = Main.MODID)
@@ -42,23 +44,30 @@ public class ForgeEventSubscriber {
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerLoggedInEvent event) {
-        updateSoulWeapon(event);
+        for (int[] weapon : event.player.getCapability(CAPABILITY, null).getAttributes()) {
+            if (weapon.length == 0) {
+                Main.CHANNEL.sendTo(new ClientWeaponData(), (EntityPlayerMP) event.player);
+                return;
+            }
+        }
+
+        updatePlayer(event.player);
     }
 
     @SubscribeEvent
-    public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        updateSoulWeapon(event);
+    public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
+        updatePlayer(event.player);
     }
 
     @SubscribeEvent
-    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
-        updateSoulWeapon(event);
+    public static void onPlayerRespawn(PlayerRespawnEvent event) {
+        updatePlayer(event.player);
     }
 
-    private static <T extends PlayerEvent> void updateSoulWeapon(T event) {
-        EntityPlayerMP player = (EntityPlayerMP) event.player;
+    private static void updatePlayer(EntityPlayer player) {
         ISoulWeapon instance = player.getCapability(CAPABILITY, null);
-        Main.CHANNEL.sendTo(new ClientWeaponData(instance.getCurrentTypeIndex(), instance.getAttributes()), player);
+        Main.CHANNEL.sendTo(new ClientWeaponData(instance.getCurrentType(), instance.getAttributes()),
+            (EntityPlayerMP) player);
     }
 
     @SubscribeEvent
@@ -66,24 +75,25 @@ public class ForgeEventSubscriber {
         if (event.isWasDeath()) {
             ISoulWeapon originalInstance = event.getOriginal().getCapability(CAPABILITY, null);
             ISoulWeapon instance = event.getEntityPlayer().getCapability(CAPABILITY, null);
-            instance.setCurrentTypeIndex(originalInstance.getCurrentTypeIndex());
+            instance.setCurrentType(originalInstance.getCurrentType());
             instance.setAttributes(originalInstance.getAttributes());
         }
     }
 
     @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (!event.player.isCreative() && ISoulWeapon.hasSoulWeapon(event.player) && event.phase == END) {
+    public static void onPlayerTick(PlayerTickEvent event) {
+        if (ISoulWeapon.hasSoulWeapon(event.player) && event.phase == END) {
             ISoulWeapon instance = event.player.getCapability(CAPABILITY, null);
 
-            if (instance.getCurrentTypeIndex() != -1) {
-                Item[] items = SoulWeapon.WeaponType.getItems();
-                items[instance.getCurrentTypeIndex()] = null;
+            if (ISoulWeapon.isSoulWeaponEquipped(event.player)) {
+                instance.setCurrentType(WeaponType.getType(event.player.inventory.getCurrentItem().getItem()));
+            }
 
-                for (Item item : items) {
-                    if (item != null) {
-                        event.player.inventory.clearMatchingItems(item, 0, event.player.inventory.getSizeInventory(),
-                                new NBTTagCompound());
+            if (!event.player.isCreative() && instance.getCurrentType() != NONE) {
+                for (Item item : WeaponType.getItems()) {
+                    if (item != instance.getItem()) {
+                        event.player.inventory.clearMatchingItems(item, 0,
+                            event.player.inventory.getSizeInventory(), null);
                     }
                 }
             }
@@ -92,17 +102,17 @@ public class ForgeEventSubscriber {
 
     @SideOnly(CLIENT)
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (KEY_BINDING.isKeyDown() && event.phase == END) {
+    public static void onClientTick(ClientTickEvent event) {
+        if (WEAPON_MENU.isKeyDown() && event.phase == END) {
             EntityPlayer player = Minecraft.getMinecraft().player;
             ISoulWeapon instance = player.getCapability(CAPABILITY, null);
             GuiScreen screen = null;
 
             if (player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))
-                    || (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() == -1)) {
+                    || (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() == NONE)) {
                 screen = new SoulWeaponMenu(I18n.format("menu.soulweapons.weapons"));
-            } else if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentTypeIndex() != -1) {
-                screen = new SoulWeaponMenu(I18n.format("menu.soulweapons.attributes"), instance.getWeaponName());
+            } else if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() != NONE) {
+                screen = new SoulWeaponMenu(I18n.format("menu.soulweapons.attributes"), instance.getCurrentType());
             }
 
             Minecraft.getMinecraft().displayGuiScreen(screen);

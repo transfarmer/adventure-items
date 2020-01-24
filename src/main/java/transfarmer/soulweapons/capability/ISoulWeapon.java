@@ -3,8 +3,7 @@ package transfarmer.soulweapons.capability;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-
-import static transfarmer.soulweapons.capability.SoulWeapon.*;
+import transfarmer.soulweapons.WeaponType;
 
 public interface ISoulWeapon {
     void setAttributes(int[][] attributes);
@@ -18,8 +17,10 @@ public interface ISoulWeapon {
     Item getItem();
 
     int getLevel();
+    int getLevel(int index);
     void setLevel(int level);
     void addLevel();
+    void addLevel(int index);
 
     int getPoints();
     void setPoints(int points);
@@ -47,11 +48,16 @@ public interface ISoulWeapon {
     void addCritical(int amount);
 
     int getCurrentTypeIndex();
-    void setCurrentTypeIndex(int index);
+    void setCurrentType(int index);
+
+    WeaponType getCurrentType();
+    void setCurrentType(WeaponType type);
+
+    boolean hasAttributes();
 
     static boolean hasSoulWeapon(EntityPlayer player) {
-        for (Item item : WeaponType.getItems()) {
-            if (player.inventory.hasItemStack(new ItemStack(item))) {
+        for (final Item WEAPON : WeaponType.getItems()) {
+            if (player.inventory.hasItemStack(new ItemStack(WEAPON))) {
                 return true;
             }
         }
