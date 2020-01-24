@@ -24,11 +24,6 @@ minecraft {
     version = "1.12.2-14.23.5.2847"
     runDir = "run"
     
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not always work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
     mappings = "stable_39"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
@@ -57,21 +52,32 @@ dependencies {
 
 }
 
-processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
 
-    // replace stuff in mcmod.info, nothing else
+build.dependsOn sourcesJar
+
+artifacts {
+    archives sourcesJar
+}
+
+processResources {
+    inputs.property 'version', project.version
+
     from(sourceSets.main.resources.srcDirs) {
+        expand 'version': project.version
         include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-        
-    // copy everything else except the mcmod.info
+
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
+    }
+}
+
+sourceSets {
+    main {
+        output.resourcesDir = output.classesDir
     }
 }

@@ -35,7 +35,8 @@ public class ModItems {
         }
 
         public static Item setup(Item item, String name) {
-            return item.setRegistryName(MODID, name).setCreativeTab(Main.SOUL_WEAPON_TAB);
+            return item.setRegistryName(MODID, name).setCreativeTab(Main.SOUL_WEAPON_TAB)
+                .setTranslationKey(String.format("%s.%s", MODID, name));
         }
 
         @SideOnly(CLIENT)

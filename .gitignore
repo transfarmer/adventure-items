@@ -12,8 +12,4 @@ build
 # other
 run
 
-# Files from Forge MDK
-forge*changelog.txt
-
 src/main/java/betterdungeons
-src/main/java/com

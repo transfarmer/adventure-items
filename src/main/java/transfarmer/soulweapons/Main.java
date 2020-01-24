@@ -50,11 +50,11 @@ public class Main {
 
     @SideOnly(CLIENT)
     public static class KeyBindings {
-        public static final KeyBinding WEAPON_MENU = new KeyBinding("key.soulweapons.attributes", Keyboard.KEY_R, "soul weapons");
+        public static final KeyBinding WEAPON_MENU = new KeyBinding("key.soulweapons.menu", Keyboard.KEY_R, "soul weapons");
 
         @EventHandler
         public static void preInit(FMLPreInitializationEvent event) {
-            ClientRegistry.registerKeyBinding(KeyBindings.WEAPON_MENU);
+            ClientRegistry.registerKeyBinding(WEAPON_MENU);
         }
     }
 }
