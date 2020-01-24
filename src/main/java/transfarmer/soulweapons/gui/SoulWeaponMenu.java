@@ -16,13 +16,13 @@ import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends GuiScreen {
-    final private String TITLE;
-    private WeaponType WEAPON_TYPE;
-    int level;
+    private final String TITLE;
+    private WeaponType weaponType;
+    private int level;
 
-    public SoulWeaponMenu(final String TITLE, final WeaponType WEAPON_TYPE) {
-        this.TITLE = TITLE;
-        this.WEAPON_TYPE = WEAPON_TYPE;
+    public SoulWeaponMenu(final String title, final WeaponType weaponType) {
+        this.TITLE = title;
+        this.weaponType = weaponType;
     }
 
     public SoulWeaponMenu(final String TITLE) {
@@ -31,7 +31,7 @@ public class SoulWeaponMenu extends GuiScreen {
 
     @Override
     public void initGui() {
-        if (WEAPON_TYPE == null) {
+        if (weaponType == null) {
             showWeapons();
             return;
         }
@@ -45,11 +45,11 @@ public class SoulWeaponMenu extends GuiScreen {
 
         String plural = level > 1 ? "s" : "";
         String text = String.format("increase soul %s level for %d experience level%s",
-            WEAPON_TYPE.getName(), level + 1, plural);
+            weaponType.getName(), level + 1, plural);
         int buttonWidth = (int) Math.round(text.length() * 5.25) + 4;
         int buttonHeight = 20;
         int xCenter = (width - buttonWidth) / 2;
-        int yCenter = height / 2;
+        int yCenter = (height - buttonHeight) / 2;
         GuiButton levelButton = addButton(new GuiButton(3, xCenter, yCenter, buttonWidth, buttonHeight, text));
         levelButton.enabled = player.experienceLevel > level + 1;
     }

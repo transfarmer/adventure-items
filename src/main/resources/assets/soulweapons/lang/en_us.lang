@@ -1,9 +1,9 @@
-{
-    "item.soulweapons.soul_bigsword": "soul bigsword",
-    "item.soulweapons.soul_sword": "soul sword",
-    "item.soulweapons.soul_dagger": "soul dagger",
-    "itemGroup.soulweapons": "adventure items",
-    "key.soulweapons.menu": "attribute menu",
-    "menu.soulweapons.weapons": "choose a weapon",
-    "menu.soulweapons.attributes": "attributes"
-}
+item.soulweapons.soul_bigsword.name=soul bigsword
+item.soulweapons.soul_sword.name=soul sword
+item.soulweapons.soul_dagger.name=soul dagger
+itemGroup.soulweapons=soul weapons
+key.categories.soulweapons=soul weapons
+key.soulweapons.menu=soul weapon menu
+menu.soulweapons.weapons=choose a weapon
+menu.soulweapons.attributes=attributes
+
