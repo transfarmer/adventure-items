@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.Main;
+import transfarmer.soulweapons.SoulAttributeModifier;
 import transfarmer.soulweapons.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponProvider;
@@ -27,6 +28,7 @@ import transfarmer.soulweapons.network.ClientWeaponData;
 
 import java.util.List;
 
+import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
@@ -86,9 +88,9 @@ public class ForgeEventSubscriber {
             if (ISoulWeapon.isSoulWeaponEquipped(event.player)) {
                 final SoulWeaponType heldItemType = SoulWeaponType.getType(inventory.getCurrentItem().getItem());
 
-                if (heldItemType == instance.getCurrentType()) return;
-
-                instance.setCurrentType(heldItemType);
+                if (heldItemType != instance.getCurrentType()) {
+                    instance.setCurrentType(heldItemType);
+                }
             }
 
             if (instance.getCurrentType() != NONE) {
@@ -100,12 +102,25 @@ public class ForgeEventSubscriber {
                     }
                 }
 
-                ItemStack newItemStack = instance.getItemStack();
 
                 for (final ItemStack itemStack : inventory.mainInventory) {
-                    if ((!event.player.isCreative() && SoulWeaponType.getItems().contains(itemStack.getItem())
-                        || itemStack.getItem().equals(instance.getItem())) && !itemStack.equals(newItemStack)) {
-                        inventory.setInventorySlotContents(inventory.getSlotFor(itemStack), newItemStack);
+                    // Main.LOGGER.info("is creative " + event.player.isCreative());
+                    // Main.LOGGER.warn("is soul weapon " + SoulWeaponType.isSoulWeapon(itemStack));
+                    // Main.LOGGER.error("item equals instance item " + itemStack.getItem().equals(instance.getItem()));
+                    // Main.LOGGER.error("are attributes equal " + itemStack.getAttributeModifiers(MAINHAND).equals(newItemStack.getAttributeModifiers(MAINHAND)));
+                    // Main.LOGGER.error(itemStack.getItem());
+                    // Main.LOGGER.error(instance.getItem());
+                    if (SoulWeaponType.isSoulWeapon(itemStack)) {
+                        ItemStack newItemStack = instance.getItemStack(itemStack);
+
+                        itemStack.getAttributeModifiers(MAINHAND).forEach((key, value) -> {
+                            newItemStack.getAttributeModifiers(MAINHAND).forEach((key1, value1) -> {
+                            });
+                        });
+
+                        if (!SoulAttributeModifier.areAttributesEqual(itemStack, newItemStack, MAINHAND)) {
+                            inventory.setInventorySlotContents(inventory.getSlotFor(itemStack), newItemStack);
+                        }
                     }
                 }
             }
@@ -121,7 +136,7 @@ public class ForgeEventSubscriber {
 
             if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() != NONE) {
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu(I18n.format("menu.soulweapons.attributes")));
-            } else if (player.getHeldItemMainhand().isItemEqual(new ItemStack(Items.WOODEN_SWORD))
+            } else if (player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)
                 || (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() == NONE)) {
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu(I18n.format("menu.soulweapons.weapons")));
             }
@@ -137,12 +152,13 @@ public class ForgeEventSubscriber {
 
         if (SoulWeaponType.getItems().contains(event.getItemStack().getItem())) {
             List<String> tooltip = event.getToolTip();
-            List<String> newTooltip = player.getCapability(CAPABILITY, null).getTooltip(event.getItemStack());
-
+            String[] newTooltip = player.getCapability(CAPABILITY, null).getTooltip(event.getItemStack());
             tooltip.remove(4);
             tooltip.remove(3);
-            tooltip.add(3, newTooltip.get(0));
-            tooltip.add(4, newTooltip.get(1));
+
+            for (int i = 0; i < newTooltip.length; i++) {
+                tooltip.add(3 + i, newTooltip[i]);
+            }
         }
     }
 }

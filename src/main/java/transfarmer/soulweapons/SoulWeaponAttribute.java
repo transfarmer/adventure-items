@@ -4,12 +4,11 @@ public enum SoulWeaponAttribute {
     LEVEL(0),
     POINTS(1),
     SPECIAL(2),
-    MAX_SPECIAL(3),
-    ATTACK_DAMAGE(4),
-    ATTACK_SPEED(5),
-    CRITICAL(6),
-    KNOCKBACK(7),
-    EFFICIENCY(8);
+    ATTACK_DAMAGE(3),
+    ATTACK_SPEED(4),
+    CRITICAL(5),
+    KNOCKBACK(6),
+    EFFICIENCY(7);
 
     public final int index;
 

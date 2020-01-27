@@ -16,7 +16,7 @@ import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ClientWeaponData implements IMessage {
     private SoulWeaponType weaponType = NONE;
-    private int[][] attributes = new int[3][9];
+    private int[][] attributes = new int[3][8];
 
     public ClientWeaponData() {}
 
@@ -32,7 +32,7 @@ public class ClientWeaponData implements IMessage {
         this.weaponType = SoulWeaponType.getType(buffer.readInt());
 
         for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
-            for (int valueIndex = 0; valueIndex <= 8; valueIndex++) {
+            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
                 this.attributes[weaponTypeIndex][valueIndex] = buffer.readInt();
             }
         }
@@ -42,7 +42,7 @@ public class ClientWeaponData implements IMessage {
         buffer.writeInt(this.weaponType.getIndex());
 
         for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
-            for (int valueIndex = 0; valueIndex <= 8; valueIndex++) {
+            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
                 buffer.writeInt(this.attributes[weaponTypeIndex][valueIndex]);
             }
         }

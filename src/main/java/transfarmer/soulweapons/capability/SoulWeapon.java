@@ -1,6 +1,6 @@
 package transfarmer.soulweapons.capability;
 
-import com.google.common.collect.Multimap;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
@@ -8,11 +8,8 @@ import net.minecraft.item.ItemStack;
 import transfarmer.soulweapons.SoulAttributeModifier;
 import transfarmer.soulweapons.SoulWeaponType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
-import static net.minecraft.client.resources.I18n.format;
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraft.item.ItemStack.DECIMALFORMAT;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
@@ -22,7 +19,6 @@ import static transfarmer.soulweapons.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulweapons.SoulWeaponAttribute.EFFICIENCY;
 import static transfarmer.soulweapons.SoulWeaponAttribute.KNOCKBACK;
 import static transfarmer.soulweapons.SoulWeaponAttribute.LEVEL;
-import static transfarmer.soulweapons.SoulWeaponAttribute.MAX_SPECIAL;
 import static transfarmer.soulweapons.SoulWeaponAttribute.POINTS;
 import static transfarmer.soulweapons.SoulWeaponAttribute.SPECIAL;
 import static transfarmer.soulweapons.SoulWeaponType.NONE;
@@ -32,8 +28,13 @@ public class SoulWeapon implements ISoulWeapon {
     private static final String[] weaponNames = {"bigsword", "sword", "dagger", null};
     private static final String[] attributeNames = {"level", "points", "special", "maxSpecial",
             "efficiency", "knockback", "attackDamage", "critical", "attackSpeed"};
+    public static final String[][] specialNames = {
+        {"charge"},
+        {"blocking", "blocking master"},
+        {"throwing", "perforation", "return", "sneak return"}};
+    private static final int[] maxSpecials = {1, 2, 4};
     private SoulWeaponType currentType = NONE;
-    private int[][] attributes = new int[3][9];
+    private int[][] attributes = new int[3][8];
 
     @Override
     public void setAttributes(int[][] attributes) {
@@ -54,7 +55,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addPoint();
                         break;
                     case 1:
-                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
+                        if (this.getSpecial() < this.getMaxSpecials()) {
                             addSpecial();
                             break;
                         }
@@ -68,7 +69,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
+                        if (this.getSpecial() < this.getMaxSpecials()) {
                             addSpecial();
                             break;
                         }
@@ -95,7 +96,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addPoint();
                         break;
                     case 1:
-                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
+                        if (this.getSpecial() < this.getMaxSpecials()) {
                             addSpecial();
                             break;
                         }
@@ -109,10 +110,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
-                            addSpecial();
-                            break;
-                        }
+                        addPoint();
                     case 6:
                         addEfficiency(3);
                         break;
@@ -136,7 +134,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addPoint();
                         break;
                     case 1:
-                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
+                        if (this.getSpecial() < this.getMaxSpecials()) {
                             addSpecial();
                             break;
                         }
@@ -150,7 +148,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
+                        if (this.getSpecial() < this.getMaxSpecials()) {
                             addSpecial();
                             break;
                         }
@@ -203,27 +201,33 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public ItemStack getItemStack(SoulWeaponType weaponType) {
-        final AttributeModifier[] ATTRIBUTE_MODIFIERS = {
-            new AttributeModifier(SoulAttributeModifier.ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttackDamage(weaponType), ADD),
-            new AttributeModifier(SoulAttributeModifier.ATTACK_SPEED_UUID, "generic.attackSpeed", getAttackSpeed(weaponType), ADD)
-        };
         final ItemStack itemStack = weaponType.getItemStack();
+        final AttributeModifier[] ATTRIBUTE_MODIFIERS = getAttributeModifiers(weaponType);
 
-        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), ATTRIBUTE_MODIFIERS[0], MAINHAND);
-        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), ATTRIBUTE_MODIFIERS[1], MAINHAND);
+        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), ATTRIBUTE_MODIFIERS[0], MAINHAND);
+        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), ATTRIBUTE_MODIFIERS[1], MAINHAND);
 
         return itemStack;
     }
 
     @Override
-    public List<String> getTooltip(ItemStack itemStack) {
-        Multimap<String, AttributeModifier> attributeModifiers = itemStack.getAttributeModifiers(MAINHAND);
-        List<String> tooltip = new ArrayList<>();
+    public AttributeModifier[] getAttributeModifiers(SoulWeaponType weaponType) {
+        return new AttributeModifier[]{
+            new AttributeModifier(SoulAttributeModifier.ATTACK_SPEED_UUID, "generic.attackSpeed", getAttackSpeed(weaponType), ADD),
+            new AttributeModifier(SoulAttributeModifier.ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttackDamage(weaponType), ADD)
+        };
+    }
 
-        attributeModifiers.forEach((String key, AttributeModifier value) -> {
-            tooltip.add(" " + format("attribute.modifier.equals." + value.getOperation(),
-                DECIMALFORMAT.format(4 + value.getAmount()), format("attribute.name." + key)));
-        });
+    @Override
+    public String[] getTooltip(ItemStack itemStack) {
+        final AttributeModifier[] attributeModifiers = getAttributeModifiers(SoulWeaponType.getType(itemStack));
+        final String[] tooltip = new String[attributeModifiers.length];
+
+        tooltip[0] = " " + I18n.format("attribute.modifier.equals.0",
+            DECIMALFORMAT.format(attributeModifiers[0].getAmount() + 4), I18n.format("attribute.name.generic.attackSpeed"));
+
+        tooltip[1] = " " + I18n.format("attribute.modifier.equals.0",
+            DECIMALFORMAT.format(attributeModifiers[1].getAmount() + 1), I18n.format("attribute.name.generic.attackDamage"));
 
         return tooltip;
     }
@@ -269,8 +273,8 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int getMaxSpecial() {
-        return this.attributes[currentType.getIndex()][MAX_SPECIAL.index];
+    public int getMaxSpecials() {
+        return maxSpecials[currentType.getIndex()];
     }
 
     @Override
@@ -325,7 +329,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getAttackDamage(SoulWeaponType weaponType) {
-        return this.attributes[currentType.getIndex()][ATTACK_DAMAGE.index] + (int) weaponType.getItem().getAttackDamage();
+        return this.attributes[weaponType.getIndex()][ATTACK_DAMAGE.index] + (int) weaponType.getItem().getAttackDamage();
     }
 
     @Override

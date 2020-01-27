@@ -12,27 +12,27 @@ import static transfarmer.soulweapons.init.ModItems.SOUL_DAGGER;
 import static transfarmer.soulweapons.init.ModItems.SOUL_SWORD;
 
 public enum SoulWeaponType {
-    BIGSWORD((ItemSoulWeapon) SOUL_BIGSWORD, 0),
-    SWORD((ItemSoulWeapon) SOUL_SWORD, 1),
-    DAGGER((ItemSoulWeapon) SOUL_DAGGER, 2),
-    NONE(null, 3);
+    BIGSWORD(SOUL_BIGSWORD, 0),
+    SWORD(SOUL_SWORD, 1),
+    DAGGER(SOUL_DAGGER, 2),
+    NONE(null, -1);
 
-    private static final List<ItemSoulWeapon> SOUL_WEAPONS = new ArrayList<>(3);
+    private static final List<Item> SOUL_WEAPONS = new ArrayList<>(3);
     static {
         SOUL_WEAPONS.add(BIGSWORD.getItem());
         SOUL_WEAPONS.add(SWORD.getItem());
         SOUL_WEAPONS.add(DAGGER.getItem());
     }
-    private ItemSoulWeapon item;
+    private Item item;
     private int index;
 
-    SoulWeaponType(ItemSoulWeapon item, int index) {
+    SoulWeaponType(Item item, int index) {
         this.item = item;
         this.index = index;
     }
 
     public ItemSoulWeapon getItem() {
-        return this.item;
+        return (ItemSoulWeapon) this.item;
     }
 
     public ItemStack getItemStack() {
@@ -68,7 +68,11 @@ public enum SoulWeaponType {
         return getType(itemStack.getItem());
     }
 
-    public static List<ItemSoulWeapon> getItems() {
+    public static boolean isSoulWeapon(ItemStack itemStack) {
+        return SOUL_WEAPONS.contains(itemStack.getItem());
+    }
+
+    public static List<Item> getItems() {
         return SOUL_WEAPONS;
     }
 }

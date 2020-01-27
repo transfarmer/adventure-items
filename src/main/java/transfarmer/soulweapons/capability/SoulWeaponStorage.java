@@ -14,7 +14,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
         int[][] attributes = instance.getAttributes();
 
         for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
-            for (int valueIndex = 0; valueIndex <= 8; valueIndex++) {
+            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
                 tag.setInteger(String.format("soulweapons.soulweapon.%s.%s",
                         instance.getWeaponName(weaponTypeIndex), instance.getAttributeName(valueIndex)),
                         attributes[weaponTypeIndex][valueIndex]);
@@ -28,10 +28,10 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soulweapons.soulweapon.index"));
-        int[][] attributes = new int[3][9];
+        int[][] attributes = new int[3][8];
 
         for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
-            for (int valueIndex = 0; valueIndex <= 8; valueIndex++) {
+            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
                 int value = tag.getInteger(String.format("soulweapons.soulweapon.%s.%s",
                         instance.getWeaponName(weaponTypeIndex), instance.getAttributeName(valueIndex)));
                 attributes[weaponTypeIndex][valueIndex] = value;

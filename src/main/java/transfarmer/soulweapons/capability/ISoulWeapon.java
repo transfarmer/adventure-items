@@ -1,11 +1,10 @@
 package transfarmer.soulweapons.capability;
 
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import transfarmer.soulweapons.SoulWeaponType;
-
-import java.util.List;
 
 public interface ISoulWeapon {
     void setAttributes(int[][] attributes);
@@ -21,7 +20,9 @@ public interface ISoulWeapon {
     ItemStack getItemStack(ItemStack itemStack);
     ItemStack getItemStack(SoulWeaponType weaponType);
 
-    List<String> getTooltip(ItemStack itemStack);
+    AttributeModifier[] getAttributeModifiers(SoulWeaponType weaponType);
+
+    String[] getTooltip(ItemStack itemStack);
 
     int getLevel();
     int getLevel(int index);
@@ -33,7 +34,7 @@ public interface ISoulWeapon {
     void setPoints(int points);
     void addPoint();
 
-    int getMaxSpecial();
+    int getMaxSpecials();
     int getSpecial();
     void setSpecial(int special);
     void addSpecial();
