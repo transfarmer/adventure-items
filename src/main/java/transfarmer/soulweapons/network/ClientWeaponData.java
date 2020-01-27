@@ -7,60 +7,57 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulweapons.WeaponType;
+import transfarmer.soulweapons.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulweapons.SoulWeaponType.NONE;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ClientWeaponData implements IMessage {
-    private int currentTypeIndex;
-    private final int[][] ATTRIBUTES;
+    private SoulWeaponType weaponType = NONE;
+    private int[][] attributes = new int[3][9];
 
-    public ClientWeaponData() {
-        this.ATTRIBUTES = new int[3][8];
-        this.currentTypeIndex = 3;
-    }
+    public ClientWeaponData() {}
 
-    public ClientWeaponData(final WeaponType weaponType, final int[][] attributes) {
-        this.currentTypeIndex = weaponType.getIndex();
+    public ClientWeaponData(final SoulWeaponType weaponType, final int[][] attributes) {
+        this.weaponType = weaponType;
 
-        if (attributes[0].length == 0 || attributes[1].length == 0 || attributes[2].length == 0) {
-            this.ATTRIBUTES = new int[3][8];
-            return;
-        }
+        if (attributes[0].length == 0 || attributes[1].length == 0 || attributes[2].length == 0) return;
 
-        this.ATTRIBUTES = attributes;
+        this.attributes = attributes;
     }
 
     public void fromBytes(ByteBuf buffer) {
-        this.currentTypeIndex = buffer.readInt();
+        this.weaponType = SoulWeaponType.getType(buffer.readInt());
 
         for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
-            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
-                this.ATTRIBUTES[weaponTypeIndex][valueIndex] = buffer.readInt();
+            for (int valueIndex = 0; valueIndex <= 8; valueIndex++) {
+                this.attributes[weaponTypeIndex][valueIndex] = buffer.readInt();
             }
         }
     }
 
     public void toBytes(ByteBuf buffer) {
-        buffer.writeInt(this.currentTypeIndex);
+        buffer.writeInt(this.weaponType.getIndex());
 
         for (int weaponTypeIndex = 0; weaponTypeIndex <= 2; weaponTypeIndex++) {
-            for (int valueIndex = 0; valueIndex <= 7; valueIndex++) {
-                buffer.writeInt(this.ATTRIBUTES[weaponTypeIndex][valueIndex]);
+            for (int valueIndex = 0; valueIndex <= 8; valueIndex++) {
+                buffer.writeInt(this.attributes[weaponTypeIndex][valueIndex]);
             }
         }
     }
 
-    public static class Handler implements IMessageHandler<ClientWeaponData, IMessage> {
+    public static final class Handler implements IMessageHandler<ClientWeaponData, IMessage> {
         @SideOnly(CLIENT)
         public IMessage onMessage(ClientWeaponData message, MessageContext context) {
-            EntityPlayer player = Minecraft.getMinecraft().player;
-            ISoulWeapon instance = player.getCapability(CAPABILITY, null);
-            instance.setCurrentType(WeaponType.getType(message.currentTypeIndex));
-            instance.setAttributes(message.ATTRIBUTES);
+            Minecraft.getMinecraft().addScheduledTask(() -> {
+                EntityPlayer player = Minecraft.getMinecraft().player;
+                ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
+                instance.setCurrentType(message.weaponType);
+                instance.setAttributes(message.attributes);
+            });
             return null;
         }
     }

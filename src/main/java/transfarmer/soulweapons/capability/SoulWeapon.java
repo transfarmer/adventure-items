@@ -1,33 +1,39 @@
 package transfarmer.soulweapons.capability;
 
+import com.google.common.collect.Multimap;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
-import transfarmer.soulweapons.WeaponType;
+import net.minecraft.item.ItemStack;
+import transfarmer.soulweapons.SoulAttributeModifier;
+import transfarmer.soulweapons.SoulWeaponType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-import static transfarmer.soulweapons.WeaponType.NONE;
+import static net.minecraft.client.resources.I18n.format;
+import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
+import static net.minecraft.item.ItemStack.DECIMALFORMAT;
+import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
+import static transfarmer.soulweapons.SoulWeaponAttribute.ATTACK_DAMAGE;
+import static transfarmer.soulweapons.SoulWeaponAttribute.ATTACK_SPEED;
+import static transfarmer.soulweapons.SoulWeaponAttribute.CRITICAL;
+import static transfarmer.soulweapons.SoulWeaponAttribute.EFFICIENCY;
+import static transfarmer.soulweapons.SoulWeaponAttribute.KNOCKBACK;
+import static transfarmer.soulweapons.SoulWeaponAttribute.LEVEL;
+import static transfarmer.soulweapons.SoulWeaponAttribute.MAX_SPECIAL;
+import static transfarmer.soulweapons.SoulWeaponAttribute.POINTS;
+import static transfarmer.soulweapons.SoulWeaponAttribute.SPECIAL;
+import static transfarmer.soulweapons.SoulWeaponType.NONE;
 
 @SuppressWarnings("DuplicateBranchesInSwitch")
 public class SoulWeapon implements ISoulWeapon {
     private static final String[] weaponNames = {"bigsword", "sword", "dagger", null};
     private static final String[] attributeNames = {"level", "points", "special", "maxSpecial",
-            "hardness", "knockback", "attackDamage", "critical"};
-    private WeaponType currentType = NONE;
-    private int[][] attributes = new int[3][8];
-
-    private final int bigswordIndex = 0;
-    private final int swordIndex = 1;
-    private final int daggerIndex = 2;
-    private int currentTypeIndex = -1;
-
-    private final int levelIndex = 0;
-    private final int pointIndex = 1;
-    private final int specialIndex = 2;
-    private final int maxSpecialIndex = 3;
-    private final int hardnessIndex = 4;
-    private final int knockbackIndex = 5;
-    private final int attackDamageIndex = 6;
-    private final int criticalIndex = 7;
+            "efficiency", "knockback", "attackDamage", "critical", "attackSpeed"};
+    private SoulWeaponType currentType = NONE;
+    private int[][] attributes = new int[3][9];
 
     @Override
     public void setAttributes(int[][] attributes) {
@@ -41,19 +47,19 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public void addAttribute(int attributeNumber) {
-        switch (currentTypeIndex) {
-            case bigswordIndex:
+        switch (currentType) {
+            case BIGSWORD:
                 switch (attributeNumber) {
                     case 0:
                         addPoint();
                         break;
                     case 1:
-                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
+                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
                             addSpecial();
                             break;
                         }
                     case 2:
-                        addHardness(5);
+                        addEfficiency(5);
                         break;
                     case 3:
                         addKnockback(1);
@@ -62,12 +68,12 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
+                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
                             addSpecial();
                             break;
                         }
                     case 6:
-                        addHardness(4);
+                        addEfficiency(4);
                         break;
                     case 7:
                         addKnockback(1);
@@ -83,18 +89,18 @@ public class SoulWeapon implements ISoulWeapon {
                 }
 
                 break;
-            case swordIndex:
+            case SWORD:
                 switch (attributeNumber) {
                     case 0:
                         addPoint();
                         break;
                     case 1:
-                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
+                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
                             addSpecial();
                             break;
                         }
                     case 2:
-                        addHardness(4);
+                        addEfficiency(4);
                         break;
                     case 3:
                         addKnockback(1);
@@ -103,12 +109,12 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
+                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
                             addSpecial();
                             break;
                         }
                     case 6:
-                        addHardness(3);
+                        addEfficiency(3);
                         break;
                     case 7:
                         addCritical(2);
@@ -124,18 +130,18 @@ public class SoulWeapon implements ISoulWeapon {
                 }
 
                 break;
-            case daggerIndex:
+            case DAGGER:
                 switch (attributeNumber) {
                     case 0:
                         addPoint();
                         break;
                     case 1:
-                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
+                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
                             addSpecial();
                             break;
                         }
                     case 2:
-                        addHardness(4);
+                        addEfficiency(4);
                         break;
                     case 3:
                         addCritical(2);
@@ -144,12 +150,12 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.attributes[currentTypeIndex][specialIndex] > this.attributes[currentTypeIndex][maxSpecialIndex]) {
+                        if (this.attributes[currentType.getIndex()][SPECIAL.index] < this.attributes[currentType.getIndex()][MAX_SPECIAL.index]) {
                             addSpecial();
                             break;
                         }
                     case 6:
-                        addHardness(3);
+                        addEfficiency(3);
                         break;
                     case 7:
                         addCritical(4);
@@ -168,7 +174,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public String getWeaponName() {
-        return weaponNames[currentTypeIndex];
+        return getWeaponName(this.currentType.getIndex());
     }
 
     @Override
@@ -187,149 +193,203 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
+    public ItemStack getItemStack() {
+        return getItemStack(currentType);
+    }
+
+    public ItemStack getItemStack(ItemStack itemStack) {
+        return getItemStack(SoulWeaponType.getType(itemStack));
+    }
+
+    @Override
+    public ItemStack getItemStack(SoulWeaponType weaponType) {
+        final AttributeModifier[] ATTRIBUTE_MODIFIERS = {
+            new AttributeModifier(SoulAttributeModifier.ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttackDamage(weaponType), ADD),
+            new AttributeModifier(SoulAttributeModifier.ATTACK_SPEED_UUID, "generic.attackSpeed", getAttackSpeed(weaponType), ADD)
+        };
+        final ItemStack itemStack = weaponType.getItemStack();
+
+        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), ATTRIBUTE_MODIFIERS[0], MAINHAND);
+        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), ATTRIBUTE_MODIFIERS[1], MAINHAND);
+
+        return itemStack;
+    }
+
+    @Override
+    public List<String> getTooltip(ItemStack itemStack) {
+        Multimap<String, AttributeModifier> attributeModifiers = itemStack.getAttributeModifiers(MAINHAND);
+        List<String> tooltip = new ArrayList<>();
+
+        attributeModifiers.forEach((String key, AttributeModifier value) -> {
+            tooltip.add(" " + format("attribute.modifier.equals." + value.getOperation(),
+                DECIMALFORMAT.format(4 + value.getAmount()), format("attribute.name." + key)));
+        });
+
+        return tooltip;
+    }
+
+    @Override
     public int getLevel() {
-        return this.attributes[currentTypeIndex][levelIndex];
+        return this.attributes[currentType.getIndex()][LEVEL.index];
     }
 
     @Override
     public int getLevel(int index) {
-        return this.attributes[index][levelIndex];
+        return this.attributes[index][LEVEL.index];
     }
 
     @Override
     public void setLevel(int level) {
-        this.attributes[currentTypeIndex][levelIndex] = level;
+        this.attributes[currentType.getIndex()][LEVEL.index] = level;
     }
 
     @Override
     public void addLevel() {
-        addLevel(currentTypeIndex);
+        addLevel(currentType.getIndex());
     }
 
     @Override
     public void addLevel(int index) {
-        addAttribute(this.attributes[index][levelIndex]++ % 10);
+        addAttribute(this.attributes[index][LEVEL.index]++ % 10);
     }
 
     @Override
     public int getPoints() {
-        return this.attributes[currentTypeIndex][pointIndex];
+        return this.attributes[currentType.getIndex()][POINTS.index];
     }
 
     @Override
     public void setPoints(int points) {
-        this.attributes[currentTypeIndex][pointIndex] = points;
+        this.attributes[currentType.getIndex()][POINTS.index] = points;
     }
 
     @Override
     public void addPoint() {
-        this.attributes[currentTypeIndex][pointIndex]++;
+        this.attributes[currentType.getIndex()][POINTS.index]++;
     }
 
     @Override
     public int getMaxSpecial() {
-        return this.attributes[currentTypeIndex][maxSpecialIndex];
+        return this.attributes[currentType.getIndex()][MAX_SPECIAL.index];
     }
 
     @Override
     public int getSpecial() {
-        return this.attributes[currentTypeIndex][specialIndex];
+        return this.attributes[currentType.getIndex()][SPECIAL.index];
     }
 
     @Override
     public void setSpecial(int special) {
-        this.attributes[currentTypeIndex][specialIndex] = special;
+        this.attributes[currentType.getIndex()][SPECIAL.index] = special;
     }
 
     @Override
     public void addSpecial() {
-        this.attributes[currentTypeIndex][specialIndex]++;
+        this.attributes[currentType.getIndex()][SPECIAL.index]++;
     }
 
     @Override
-    public int getHardness() {
-        return this.attributes[currentTypeIndex][hardnessIndex];
+    public int getEfficiency() {
+        return this.attributes[currentType.getIndex()][EFFICIENCY.index];
     }
 
     @Override
-    public void setHardness(int hardness) {
-        this.attributes[currentTypeIndex][hardnessIndex] = hardness;
+    public void setEfficiency(int efficiency) {
+        this.attributes[currentType.getIndex()][EFFICIENCY.index] = efficiency;
     }
 
     @Override
-    public void addHardness(int amount) {
-        this.attributes[currentTypeIndex][hardnessIndex] += amount;
+    public void addEfficiency(int amount) {
+        this.attributes[currentType.getIndex()][EFFICIENCY.index] += amount;
     }
 
     @Override
     public int getKnockback() {
-        return this.attributes[currentTypeIndex][knockbackIndex];
+        return this.attributes[currentType.getIndex()][KNOCKBACK.index];
     }
 
     @Override
     public void setKnockback(int knockback) {
-        this.attributes[currentTypeIndex][knockbackIndex] = knockback;
+        this.attributes[currentType.getIndex()][KNOCKBACK.index] = knockback;
     }
 
     @Override
     public void addKnockback(int amount) {
-        this.attributes[currentTypeIndex][knockbackIndex] += amount;
+        this.attributes[currentType.getIndex()][KNOCKBACK.index] += amount;
     }
 
     @Override
     public int getAttackDamage() {
-        return this.attributes[currentTypeIndex][attackDamageIndex];
+        return this.getAttackDamage(currentType);
+    }
+
+    @Override
+    public int getAttackDamage(SoulWeaponType weaponType) {
+        return this.attributes[currentType.getIndex()][ATTACK_DAMAGE.index] + (int) weaponType.getItem().getAttackDamage();
     }
 
     @Override
     public void setAttackDamage(int attackDamage) {
-        this.attributes[currentTypeIndex][attackDamageIndex] = attackDamage;
+        this.attributes[currentType.getIndex()][ATTACK_DAMAGE.index] = attackDamage;
     }
 
     @Override
     public void addAttackDamage(int amount) {
-        this.attributes[currentTypeIndex][attackDamageIndex] += amount;
+        this.attributes[currentType.getIndex()][ATTACK_DAMAGE.index] += amount;
     }
 
     @Override
     public int getCritical() {
-        return this.attributes[currentTypeIndex][criticalIndex];
+        return this.attributes[currentType.getIndex()][CRITICAL.index];
     }
 
     @Override
     public void setCritical(int critical) {
-        this.attributes[currentTypeIndex][criticalIndex] = critical;
+        this.attributes[currentType.getIndex()][CRITICAL.index] = critical;
     }
 
     @Override
     public void addCritical(int amount) {
-        this.attributes[currentTypeIndex][criticalIndex] += amount;
+        this.attributes[currentType.getIndex()][CRITICAL.index] += amount;
     }
 
     @Override
-    public int getCurrentTypeIndex() {
-        return this.currentTypeIndex;
+    public float getAttackSpeed() {
+        return this.attributes[currentType.getIndex()][ATTACK_SPEED.index] / 10F;
+    }
+
+    @Override
+    public float getAttackSpeed(SoulWeaponType weaponType) {
+        return this.attributes[weaponType.getIndex()][ATTACK_SPEED.index] + weaponType.getItem().getAttackSpeed();
+    }
+
+    @Override
+    public void setAttackSpeed(float attackSpeed) {
+        this.attributes[currentType.getIndex()][ATTACK_SPEED.index] = (int) attackSpeed * 10;
+    }
+
+    @Override
+    public void addAttackSpeed(float amount) {
+        this.attributes[currentType.getIndex()][ATTACK_SPEED.index] += amount * 10;
+    }
+
+    @Override
+    public void setCurrentType(SoulWeaponType type) {
+        this.currentType = type;
     }
 
     @Override
     public void setCurrentType(int index) {
-        this.currentTypeIndex = index;
-        this.currentType = WeaponType.getType(index);
-    }
-
-    @Override
-    public void setCurrentType(WeaponType type) {
-        this.currentType = type;
-        this.currentTypeIndex = type.getIndex();
+        this.currentType = SoulWeaponType.getType(index);
     }
 
     @Override
     public boolean hasAttributes() {
-        return this.attributes[0].length == 8 && this.attributes[1].length == 8 && this.attributes[2].length == 8;
+        return this.attributes[0].length != 0 && this.attributes[1].length != 0 && this.attributes[2].length != 0;
     }
 
     @Override
-    public WeaponType getCurrentType() {
+    public SoulWeaponType getCurrentType() {
         return this.currentType;
     }
 }

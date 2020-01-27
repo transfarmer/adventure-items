@@ -6,8 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulweapons.Main;
-import transfarmer.soulweapons.WeaponType;
+import transfarmer.soulweapons.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
@@ -19,8 +18,8 @@ public class ServerWeaponType implements IMessage {
         this.currentWeaponIndex = 3;
     }
 
-    public ServerWeaponType(final WeaponType WEAPON_TYPE) {
-        this.currentWeaponIndex = WEAPON_TYPE.getIndex();
+    public ServerWeaponType(final SoulWeaponType weaponType) {
+        this.currentWeaponIndex = weaponType.getIndex();
     }
 
     @Override
@@ -33,17 +32,16 @@ public class ServerWeaponType implements IMessage {
         buf.writeInt(currentWeaponIndex);
     }
 
-    public static class Handler implements IMessageHandler<ServerWeaponType, IMessage> {
+    public static final class Handler implements IMessageHandler<ServerWeaponType, IMessage> {
         public IMessage onMessage(ServerWeaponType message, MessageContext context) {
-            final int CURRENT_TYPE_INDEX = message.currentWeaponIndex;
+            final SoulWeaponType WEAPON_TYPE = SoulWeaponType.getType(message.currentWeaponIndex);
             EntityPlayerMP player = context.getServerHandler().player;
             ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
-            instance.setCurrentType(WeaponType.getType(CURRENT_TYPE_INDEX));
+            instance.setCurrentType(WEAPON_TYPE);
             player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(instance.getItem()));
-            Main.CHANNEL.sendTo(new ClientWeaponType(WeaponType.getType(CURRENT_TYPE_INDEX)), player);
 
-            return null;
+            return new ClientWeaponType(WEAPON_TYPE);
         }
     }
 }

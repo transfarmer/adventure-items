@@ -12,4 +12,6 @@ build
 # other
 run
 
-src/main/java/betterdungeons
+#custom
+betterdungeons
+src/main/java/transfarmer/util

@@ -8,14 +8,15 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulweapons.Main;
-import transfarmer.soulweapons.item.SoulBigsword;
-import transfarmer.soulweapons.item.SoulDagger;
-import transfarmer.soulweapons.item.SoulSword;
+import transfarmer.soulweapons.item.ItemSoulBigsword;
+import transfarmer.soulweapons.item.ItemSoulDagger;
+import transfarmer.soulweapons.item.ItemSoulSword;
 
+import static net.minecraft.creativetab.CreativeTabs.COMBAT;
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.Main.MODID;
+import static transfarmer.soulweapons.Main.SOUL_WEAPON_TAB;
 
 
 @ObjectHolder(MODID)
@@ -29,13 +30,13 @@ public class ModItems {
         @SubscribeEvent
         public static void onRegisterItems(RegistryEvent.Register<Item> event) {
             event.getRegistry().registerAll(
-                setup(new SoulBigsword(), "soul_bigsword"),
-                setup(new SoulSword(), "soul_sword"),
-                setup(new SoulDagger(), "soul_dagger"));
+                setup(new ItemSoulBigsword(), "soul_bigsword"),
+                setup(new ItemSoulSword(), "soul_sword"),
+                setup(new ItemSoulDagger(), "soul_dagger"));
         }
 
         public static Item setup(Item item, String name) {
-            return item.setRegistryName(MODID, name).setCreativeTab(Main.SOUL_WEAPON_TAB)
+            return item.setRegistryName(MODID, name).setCreativeTab(SOUL_WEAPON_TAB).setCreativeTab(COMBAT)
                 .setTranslationKey(String.format("%s.%s", MODID, name));
         }
 

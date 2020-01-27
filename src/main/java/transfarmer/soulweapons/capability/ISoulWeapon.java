@@ -3,7 +3,9 @@ package transfarmer.soulweapons.capability;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulweapons.WeaponType;
+import transfarmer.soulweapons.SoulWeaponType;
+
+import java.util.List;
 
 public interface ISoulWeapon {
     void setAttributes(int[][] attributes);
@@ -15,6 +17,11 @@ public interface ISoulWeapon {
     String getAttributeName(int index);
 
     Item getItem();
+    ItemStack getItemStack();
+    ItemStack getItemStack(ItemStack itemStack);
+    ItemStack getItemStack(SoulWeaponType weaponType);
+
+    List<String> getTooltip(ItemStack itemStack);
 
     int getLevel();
     int getLevel(int index);
@@ -31,15 +38,16 @@ public interface ISoulWeapon {
     void setSpecial(int special);
     void addSpecial();
 
-    int getHardness();
-    void setHardness(int hardness);
-    void addHardness(int amount);
+    int getEfficiency();
+    void setEfficiency(int efficiency);
+    void addEfficiency(int amount);
 
     int getKnockback();
     void setKnockback(int knockback);
     void addKnockback(int amount);
 
     int getAttackDamage();
+    int getAttackDamage(SoulWeaponType type);
     void setAttackDamage(int attackDamage);
     void addAttackDamage(int amount);
 
@@ -47,16 +55,19 @@ public interface ISoulWeapon {
     void setCritical(int critical);
     void addCritical(int amount);
 
-    int getCurrentTypeIndex();
-    void setCurrentType(int index);
+    float getAttackSpeed();
+    float getAttackSpeed(SoulWeaponType type);
+    void setAttackSpeed(float attackSpeed);
+    void addAttackSpeed(float amount);
 
-    WeaponType getCurrentType();
-    void setCurrentType(WeaponType type);
+    SoulWeaponType getCurrentType();
+    void setCurrentType(SoulWeaponType type);
+    void setCurrentType(int index);
 
     boolean hasAttributes();
 
     static boolean hasSoulWeapon(EntityPlayer player) {
-        for (final Item WEAPON : WeaponType.getItems()) {
+        for (final Item WEAPON : SoulWeaponType.getItems()) {
             if (player.inventory.hasItemStack(new ItemStack(WEAPON))) {
                 return true;
             }
@@ -66,7 +77,7 @@ public interface ISoulWeapon {
     }
 
     static boolean isSoulWeaponEquipped(EntityPlayer player) {
-        for (final Item WEAPON : WeaponType.getItems()) {
+        for (final Item WEAPON : SoulWeaponType.getItems()) {
             if (player.inventory.getCurrentItem().isItemEqual(new ItemStack(WEAPON))) return true;
         }
 

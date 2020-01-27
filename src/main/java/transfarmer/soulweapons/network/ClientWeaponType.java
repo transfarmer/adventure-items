@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulweapons.WeaponType;
+import transfarmer.soulweapons.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
@@ -20,7 +20,7 @@ public class ClientWeaponType implements IMessage {
         this.currentTypeIndex = 3;
     }
 
-    public ClientWeaponType(final WeaponType WEAPON_TYPE) {
+    public ClientWeaponType(final SoulWeaponType WEAPON_TYPE) {
         this.currentTypeIndex = WEAPON_TYPE.getIndex();
     }
 
@@ -32,13 +32,16 @@ public class ClientWeaponType implements IMessage {
         buffer.writeInt(currentTypeIndex);
     }
 
-    public static class Handler implements IMessageHandler<ClientWeaponType, IMessage> {
+    public static final class Handler implements IMessageHandler<ClientWeaponType, IMessage> {
         @SideOnly(CLIENT)
         public IMessage onMessage(ClientWeaponType message, MessageContext context) {
-            EntityPlayer player = Minecraft.getMinecraft().player;
-            player.getCapability(CAPABILITY, null).setCurrentType(message.currentTypeIndex);
-            player.inventory.setInventorySlotContents(player.inventory.currentItem,
+            Minecraft.getMinecraft().addScheduledTask(() -> {
+                EntityPlayer player = Minecraft.getMinecraft().player;
+
+                player.getCapability(CAPABILITY, null).setCurrentType(message.currentTypeIndex);
+                player.inventory.setInventorySlotContents(player.inventory.currentItem,
                     new ItemStack(player.getCapability(CAPABILITY, null).getItem()));
+            });
 
             return null;
         }
