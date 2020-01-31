@@ -31,7 +31,7 @@ import static transfarmer.soulweapons.KeyBindings.WEAPON_MENU;
 public class Main {
     public static final String MODID = "soulweapons";
     public static final String NAME = "soul weapons";
-    public static final String VERSION = "1.1.1-beta";
+    public static final String VERSION = "1.1.2-beta";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public static final CreativeTabs SOUL_WEAPON_TAB = new SoulWeaponTab();

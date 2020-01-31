@@ -141,7 +141,7 @@ public class ForgeEventSubscriber {
 
         Main.CHANNEL.sendTo(new ClientWeaponXP(xp), (EntityPlayerMP) source);
 
-        if (instance.addXP(event.getEntityLiving().getMaxHealth())) {
+        if (instance.addXP(xp)) {
             source.sendMessage(new TextComponentString(String.format("Your soul %s leveled up to level %d.",
                 instance.getCurrentType().getName(), instance.getLevel())));
         }
