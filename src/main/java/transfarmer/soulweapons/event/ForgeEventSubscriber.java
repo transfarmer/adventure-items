@@ -2,6 +2,9 @@ package transfarmer.soulweapons.event;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -119,12 +122,24 @@ public class ForgeEventSubscriber {
 
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
+        EntityLivingBase entity = event.getEntityLiving();
         Entity source = event.getSource().getTrueSource();
+        IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
 
-        if (event.getEntity().getEntityWorld().isRemote || !(source instanceof EntityPlayer)) return;
+        if (event.getEntity().getEntityWorld().isRemote || attackDamage == null || !(source instanceof EntityPlayer)) return;
+        if (attackDamage.getAttributeValue() == 0) return;
 
         ISoulWeapon instance = source.getCapability(CAPABILITY, null);
-        Main.CHANNEL.sendTo(new ClientWeaponXP(event.getEntityLiving().getMaxHealth()), (EntityPlayerMP) source);
+
+        if (!ISoulWeapon.isSoulWeaponEquipped((EntityPlayer) source)) return;
+
+        float xp = (float) (entity.getMaxHealth() * attackDamage.getAttributeValue() / 3 * source.world.getDifficulty().getId() / 2);
+
+        if (!entity.isNonBoss()) {
+            xp *= 2;
+        }
+
+        Main.CHANNEL.sendTo(new ClientWeaponXP(xp), (EntityPlayerMP) source);
 
         if (instance.addXP(event.getEntityLiving().getMaxHealth())) {
             source.sendMessage(new TextComponentString(String.format("Your soul %s leveled up to level %d.",
