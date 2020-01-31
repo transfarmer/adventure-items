@@ -20,8 +20,8 @@ public class ClientWeaponType implements IMessage {
         this.currentTypeIndex = 3;
     }
 
-    public ClientWeaponType(final SoulWeaponType WEAPON_TYPE) {
-        this.currentTypeIndex = WEAPON_TYPE.getIndex();
+    public ClientWeaponType(final SoulWeaponType weaponType) {
+        this.currentTypeIndex = weaponType.index;
     }
 
     public void fromBytes(ByteBuf buffer) {

@@ -1,7 +1,6 @@
 package transfarmer.soulweapons.event;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -10,7 +9,9 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -25,6 +26,7 @@ import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponProvider;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
 import transfarmer.soulweapons.network.ClientWeaponData;
+import transfarmer.soulweapons.network.ClientWeaponXP;
 
 import java.util.List;
 
@@ -81,49 +83,52 @@ public class ForgeEventSubscriber {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent event) {
-        if (ISoulWeapon.hasSoulWeapon(event.player) && event.phase == END) {
-            ISoulWeapon instance = event.player.getCapability(CAPABILITY, null);
-            InventoryPlayer inventory = event.player.inventory;
+        if (!ISoulWeapon.hasSoulWeapon(event.player) || event.phase != END) return;
 
-            if (ISoulWeapon.isSoulWeaponEquipped(event.player)) {
-                final SoulWeaponType heldItemType = SoulWeaponType.getType(inventory.getCurrentItem().getItem());
+        ISoulWeapon instance = event.player.getCapability(CAPABILITY, null);
+        InventoryPlayer inventory = event.player.inventory;
 
-                if (heldItemType != instance.getCurrentType()) {
-                    instance.setCurrentType(heldItemType);
-                }
+        if (ISoulWeapon.isSoulWeaponEquipped(event.player)) {
+            final SoulWeaponType heldItemType = SoulWeaponType.getType(inventory.getCurrentItem().getItem());
+
+            if (heldItemType != instance.getCurrentType()) {
+                instance.setCurrentType(heldItemType);
             }
+        }
 
-            if (instance.getCurrentType() != NONE) {
-                if (!event.player.isCreative()) {
-                    for (final Item item : SoulWeaponType.getItems()) {
-                        if (item != instance.getItem()) {
-                            inventory.clearMatchingItems(item, 0, inventory.getSizeInventory(), null);
-                        }
-                    }
-                }
-
-
-                for (final ItemStack itemStack : inventory.mainInventory) {
-                    // Main.LOGGER.info("is creative " + event.player.isCreative());
-                    // Main.LOGGER.warn("is soul weapon " + SoulWeaponType.isSoulWeapon(itemStack));
-                    // Main.LOGGER.error("item equals instance item " + itemStack.getItem().equals(instance.getItem()));
-                    // Main.LOGGER.error("are attributes equal " + itemStack.getAttributeModifiers(MAINHAND).equals(newItemStack.getAttributeModifiers(MAINHAND)));
-                    // Main.LOGGER.error(itemStack.getItem());
-                    // Main.LOGGER.error(instance.getItem());
-                    if (SoulWeaponType.isSoulWeapon(itemStack)) {
-                        ItemStack newItemStack = instance.getItemStack(itemStack);
-
-                        itemStack.getAttributeModifiers(MAINHAND).forEach((key, value) -> {
-                            newItemStack.getAttributeModifiers(MAINHAND).forEach((key1, value1) -> {
-                            });
-                        });
-
-                        if (!SoulAttributeModifier.areAttributesEqual(itemStack, newItemStack, MAINHAND)) {
-                            inventory.setInventorySlotContents(inventory.getSlotFor(itemStack), newItemStack);
-                        }
+        if (instance.getCurrentType() != NONE) {
+            if (!event.player.isCreative()) {
+                for (final Item item : SoulWeaponType.getItems()) {
+                    if (item != instance.getItem()) {
+                        inventory.clearMatchingItems(item, 0, inventory.getSizeInventory(), null);
                     }
                 }
             }
+
+            for (final ItemStack itemStack : inventory.mainInventory) {
+                if (!SoulWeaponType.isSoulWeapon(itemStack)) return;
+
+                ItemStack newItemStack = instance.getItemStack(itemStack);
+
+                if (SoulAttributeModifier.areAttributesEqual(itemStack, newItemStack, MAINHAND)) return;
+
+                inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingDeath(LivingDeathEvent event) {
+        Entity source = event.getSource().getTrueSource();
+
+        if (event.getEntity().getEntityWorld().isRemote || !(source instanceof EntityPlayer)) return;
+
+        ISoulWeapon instance = source.getCapability(CAPABILITY, null);
+        Main.CHANNEL.sendTo(new ClientWeaponXP(event.getEntityLiving().getMaxHealth()), (EntityPlayerMP) source);
+
+        if (instance.addXP(event.getEntityLiving().getMaxHealth())) {
+            source.sendMessage(new TextComponentString(String.format("Your soul %s leveled up to level %d.",
+                instance.getCurrentType().getName(), instance.getLevel())));
         }
     }
 
@@ -134,11 +139,10 @@ public class ForgeEventSubscriber {
             EntityPlayer player = Minecraft.getMinecraft().player;
             ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
-            if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() != NONE) {
-                Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu(I18n.format("menu.soulweapons.attributes")));
-            } else if (player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)
-                || (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() == NONE)) {
-                Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu(I18n.format("menu.soulweapons.weapons")));
+            if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() != NONE
+                || player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)
+                || ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() == NONE) {
+                Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
             }
         }
     }

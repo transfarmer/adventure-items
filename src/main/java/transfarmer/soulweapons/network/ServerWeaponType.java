@@ -19,7 +19,7 @@ public class ServerWeaponType implements IMessage {
     }
 
     public ServerWeaponType(final SoulWeaponType weaponType) {
-        this.currentWeaponIndex = weaponType.getIndex();
+        this.currentWeaponIndex = weaponType.index;
     }
 
     @Override

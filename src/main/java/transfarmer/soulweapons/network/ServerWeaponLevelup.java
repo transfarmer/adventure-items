@@ -27,7 +27,7 @@ public class ServerWeaponLevelup implements IMessage {
             if (player.experienceLevel > instance.getLevel()) {
                 instance.addLevel();
                 player.addExperienceLevel(-instance.getLevel());
-                return new ClientWeaponLevelup();
+                return new ClientWeaponXP();
             }
 
             return null;

@@ -12,7 +12,6 @@ import transfarmer.soulweapons.item.ItemSoulBigsword;
 import transfarmer.soulweapons.item.ItemSoulDagger;
 import transfarmer.soulweapons.item.ItemSoulSword;
 
-import static net.minecraft.creativetab.CreativeTabs.COMBAT;
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.Main.MODID;
@@ -36,7 +35,7 @@ public class ModItems {
         }
 
         public static Item setup(Item item, String name) {
-            return item.setRegistryName(MODID, name).setCreativeTab(SOUL_WEAPON_TAB).setCreativeTab(COMBAT)
+            return item.setRegistryName(MODID, name).setCreativeTab(SOUL_WEAPON_TAB)
                 .setTranslationKey(String.format("%s.%s", MODID, name));
         }
 

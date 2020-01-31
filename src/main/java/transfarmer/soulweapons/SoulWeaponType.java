@@ -19,28 +19,20 @@ public enum SoulWeaponType {
 
     private static final List<Item> SOUL_WEAPONS = new ArrayList<>(3);
     static {
-        SOUL_WEAPONS.add(BIGSWORD.getItem());
-        SOUL_WEAPONS.add(SWORD.getItem());
-        SOUL_WEAPONS.add(DAGGER.getItem());
+        SOUL_WEAPONS.add(BIGSWORD.item);
+        SOUL_WEAPONS.add(SWORD.item);
+        SOUL_WEAPONS.add(DAGGER.item);
     }
-    private Item item;
-    private int index;
+    public ItemSoulWeapon item;
+    public int index;
 
     SoulWeaponType(Item item, int index) {
-        this.item = item;
+        this.item = (ItemSoulWeapon) item;
         this.index = index;
     }
 
-    public ItemSoulWeapon getItem() {
-        return (ItemSoulWeapon) this.item;
-    }
-
     public ItemStack getItemStack() {
-        return new ItemStack(this.getItem());
-    }
-
-    public int getIndex() {
-        return this.index;
+        return new ItemStack(this.item);
     }
 
     public String getName() {
