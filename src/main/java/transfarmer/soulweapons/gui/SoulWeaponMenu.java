@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
 import transfarmer.soulweapons.weapon.SoulWeaponType;
@@ -108,44 +109,32 @@ public class SoulWeaponMenu extends GuiScreen {
                 width - 100, (i + 2) * height / 16, white);
         }
 
-        this.renderXPBar();
-    }
-
-    public void renderXPBar() {
         this.mc.getTextureManager().bindTexture(Gui.ICONS);
         int level = this.instance.getLevel();
 
-        int y0 = height / 2 - 2;
-        int x0 = (width - 182) / 2;
-        this.drawTexturedModalRect(x0, y0, 0, 74, 182, 5);
-        this.drawTexturedModalRect(x0, y0, 0, 79, Math.round((float) instance.getXP() / instance.getNextLevelXP() * 182), 5);
+        int barLeftX = (width - 182) / 2;
+        int barTopY = (height - 4) / 2;
+        this.drawTexturedModalRect(barLeftX, barTopY, 0, 74, 182, 5);
+        this.drawTexturedModalRect(barLeftX, barTopY, 0, 79, Math.round((float) instance.getXP() / instance.getNextLevelXP() * 182), 5);
 
         String levelString = String.format("%d", level);
-        int x1 = Math.round((width - this.fontRenderer.getStringWidth(levelString)) / 2F) + 1;
-        int y1 = height / 2 - 8;
-        this.fontRenderer.drawString(levelString, x1 + 1, y1, 0);
-        this.fontRenderer.drawString(levelString, x1 - 1, y1, 0);
-        this.fontRenderer.drawString(levelString, x1, y1 + 1, 0);
-        this.fontRenderer.drawString(levelString, x1, y1 - 1, 0);
-        this.fontRenderer.drawString(levelString, x1, y1, Integer.parseInt("EC33B8", 16));
+        int levelLeftX = Math.round((width - this.fontRenderer.getStringWidth(levelString)) / 2F) + 1;
+        int levelTopY = height / 2 - 8;
+        this.fontRenderer.drawString(levelString, levelLeftX + 1, levelTopY, 0);
+        this.fontRenderer.drawString(levelString, levelLeftX - 1, levelTopY, 0);
+        this.fontRenderer.drawString(levelString, levelLeftX, levelTopY + 1, 0);
+        this.fontRenderer.drawString(levelString, levelLeftX, levelTopY - 1, 0);
+        this.fontRenderer.drawString(levelString, levelLeftX, levelTopY, Integer.parseInt("EC33B8", 16));
+
+        if (mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
+            && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT) {
+            this.drawHoveringText(String.format("%d/%d", instance.getLevel(), Configuration.maxLevel), mouseX, mouseY);
+        } else if (mouseX >= (width - 182) / 2 && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4) {
+            this.drawHoveringText(String.format("%d/%d", instance.getXP(), instance.getNextLevelXP()), mouseX, mouseY);
+        }
     }
 
     public class GUIFactory {
-        public GuiButton autoCenteredButton(int id, String text) {
-            int y = (height - 20) / 2;
-            return autoCenteredButton(id, y, text);
-        }
-
-        public GuiButton autoCenteredButton(int id, int y, String text) {
-            int buttonWidth = (int) Math.floor(text.length() * 5.5) + 8;
-            int x = (width - buttonWidth) / 2;
-            return new GuiButton(id, x, y, buttonWidth, 20, text);
-        }
-
-        public GuiButton centeredButton(int id, int buttonWidth, String text) {
-            return centeredButton(id, (width - 20) / 2, buttonWidth, text);
-        }
-
         public GuiButton centeredButton(int id, int y, int buttonWidth, String text) {
             return new GuiButton(id, (width - buttonWidth) / 2, y, buttonWidth, 20, text);
         }

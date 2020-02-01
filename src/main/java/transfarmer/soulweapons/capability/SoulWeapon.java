@@ -66,7 +66,7 @@ public class SoulWeapon implements ISoulWeapon {
                             this.addAttribute(new Random().nextInt(10));
                         }
                     case 2:
-                        addEfficiency(5);
+                        addEfficiency(0.5F);
                         break;
                     case 3:
                         addKnockback(1);
@@ -82,7 +82,7 @@ public class SoulWeapon implements ISoulWeapon {
                             this.addAttribute(new Random().nextInt(10));
                         }
                     case 6:
-                        addEfficiency(4);
+                        addEfficiency(0.4F);
                         break;
                     case 7:
                         addKnockback(1);
@@ -107,7 +107,7 @@ public class SoulWeapon implements ISoulWeapon {
                             break;
                         }
                     case 2:
-                        addEfficiency(4);
+                        addEfficiency(0.4F);
                         break;
                     case 3:
                         addKnockback(1);
@@ -118,7 +118,7 @@ public class SoulWeapon implements ISoulWeapon {
                     case 5:
                         addPoint();
                     case 6:
-                        addEfficiency(3);
+                        addEfficiency(0.3F);
                         break;
                     case 7:
                         addCritical(2);
@@ -145,7 +145,7 @@ public class SoulWeapon implements ISoulWeapon {
                             break;
                         }
                     case 2:
-                        addEfficiency(4);
+                        addEfficiency(0.4F);
                         break;
                     case 3:
                         addCritical(2);
@@ -159,7 +159,7 @@ public class SoulWeapon implements ISoulWeapon {
                             break;
                         }
                     case 6:
-                        addEfficiency(3);
+                        addEfficiency(0.3F);
                         break;
                     case 7:
                         addCritical(4);
@@ -180,19 +180,19 @@ public class SoulWeapon implements ISoulWeapon {
     public void addAttribute(SoulWeaponAttribute attribute) {
         switch (attribute) {
             case ATTACK_SPEED:
-                this.addAttackSpeed(0.1F);
+                this.addAttackSpeed(0.2F);
                 break;
             case ATTACK_DAMAGE:
                 this.addAttackDamage(1);
                 break;
             case CRITICAL:
-                this.addCritical(1);
+                this.addCritical(3);
                 break;
             case KNOCKBACK:
                 this.addKnockback(1);
                 break;
             case EFFICIENCY:
-                this.addEfficiency(5);
+                this.addEfficiency(0.5F);
         }
 
         this.attributes[currentType.index][POINTS.index] -= 1;
@@ -260,7 +260,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getNextLevelXP(SoulWeaponType weaponType) {
-        return 32 + 4 * (int) Math.round(Math.pow(this.getLevel(weaponType), 1.2));
+        return 32 + 4 * (int) Math.round(Math.pow(this.getLevel(weaponType), 1.5));
     }
 
     @Override
@@ -367,18 +367,18 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int getEfficiency() {
-        return this.attributes[getIndex()][EFFICIENCY.index];
+    public float getEfficiency() {
+        return this.attributes[getIndex()][EFFICIENCY.index] / 10F;
     }
 
     @Override
     public void setEfficiency(int efficiency) {
-        this.attributes[getIndex()][EFFICIENCY.index] = efficiency;
+        this.attributes[getIndex()][EFFICIENCY.index] = efficiency * 10;
     }
 
     @Override
-    public void addEfficiency(int amount) {
-        this.attributes[getIndex()][EFFICIENCY.index] += amount;
+    public void addEfficiency(float amount) {
+        this.attributes[getIndex()][EFFICIENCY.index] += amount * 10;
     }
 
     @Override

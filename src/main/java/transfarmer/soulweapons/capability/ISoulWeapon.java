@@ -50,9 +50,9 @@ public interface ISoulWeapon {
     void setSpecial(int special);
     void addSpecial();
 
-    int getEfficiency();
+    float getEfficiency();
     void setEfficiency(int efficiency);
-    void addEfficiency(int amount);
+    void addEfficiency(float amount);
 
     int getKnockback();
     void setKnockback(int knockback);
