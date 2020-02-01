@@ -247,12 +247,22 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getNextLevelXP() {
-        return 32 + 4 * (int) Math.round(Math.pow(this.getLevel(), 1.2));
+        return getNextLevelXP(this.currentType);
+    }
+
+    @Override
+    public int getNextLevelXP(SoulWeaponType weaponType) {
+        return 32 + 4 * (int) Math.round(Math.pow(this.getLevel(weaponType), 1.2));
     }
 
     @Override
     public int getXP() {
         return getXP(this.getIndex());
+    }
+
+    @Override
+    public int getXP(SoulWeaponType weaponType) {
+        return getXP(weaponType.index);
     }
 
     @Override

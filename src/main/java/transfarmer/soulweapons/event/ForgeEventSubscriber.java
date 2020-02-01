@@ -50,7 +50,7 @@ import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 @EventBusSubscriber(modid = Main.MODID)
 public class ForgeEventSubscriber {
-    public static boolean tooltipViewed;
+    public static SoulWeaponType tooltipWeapon = NONE;
 
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
@@ -194,7 +194,7 @@ public class ForgeEventSubscriber {
 
         if (instance.getCurrentType() == NONE || !SoulWeaponType.getItems().contains(event.getItemStack().getItem())) return;
 
-        tooltipViewed = true;
+        tooltipWeapon = SoulWeaponType.getType(event.getItemStack());
 
         List<String> tooltip = event.getToolTip();
         String[] newTooltip = instance.getTooltip(event.getItemStack());
@@ -209,10 +209,10 @@ public class ForgeEventSubscriber {
     @SideOnly(CLIENT)
     @SubscribeEvent
     public static void onDrawScreen(GuiScreenEvent.DrawScreenEvent.Post event) {
-        if (!tooltipViewed) return;
+        if (tooltipWeapon == NONE) return;
 
-        new TooltipXPBar();
+        new TooltipXPBar(tooltipWeapon);
 
-        tooltipViewed = false;
+        tooltipWeapon = NONE;
     }
 }

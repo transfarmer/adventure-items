@@ -26,7 +26,9 @@ public interface ISoulWeapon {
     String[] getTooltip(ItemStack itemStack);
 
     int getNextLevelXP();
+    int getNextLevelXP(SoulWeaponType weaponType);
     int getXP();
+    int getXP(SoulWeaponType weaponType);
     int getXP(int index);
     void setXP(int xp);
     boolean addXP(int xp);

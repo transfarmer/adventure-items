@@ -105,7 +105,7 @@ public class SoulWeaponMenu extends GuiScreen {
 
         for (int i = 0; i < instance.getSpecial(); i++) {
             this.drawCenteredString(this.fontRenderer, SoulWeapon.specialNames[instance.getCurrentType().index][i],
-                width - 100, (i + 1) * height / 8, white);
+                width - 100, (i + 2) * height / 16, white);
         }
 
         this.renderXPBar();
