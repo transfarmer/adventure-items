@@ -4,6 +4,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.weapon.SoulAttributeModifier;
 import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
 import transfarmer.soulweapons.weapon.SoulWeaponType;
@@ -45,10 +46,15 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public void addAttribute(int attributeNumber) {
+    public void addAttribute(int number) {
+        if (Configuration.onlyPoints) {
+            addPoint();
+            return;
+        }
+
         switch (currentType) {
             case GREATSWORD:
-                switch (attributeNumber) {
+                switch (number) {
                     case 0:
                         addPoint();
                         break;
@@ -56,6 +62,8 @@ public class SoulWeapon implements ISoulWeapon {
                         if (this.getSpecial() < this.getMaxSpecials()) {
                             addSpecial();
                             break;
+                        } else {
+                            this.addAttribute(new Random().nextInt(10));
                         }
                     case 2:
                         addEfficiency(5);
@@ -70,6 +78,8 @@ public class SoulWeapon implements ISoulWeapon {
                         if (this.getSpecial() < this.getMaxSpecials()) {
                             addSpecial();
                             break;
+                        } else {
+                            this.addAttribute(new Random().nextInt(10));
                         }
                     case 6:
                         addEfficiency(4);
@@ -83,13 +93,11 @@ public class SoulWeapon implements ISoulWeapon {
                     case 9:
                         addAttackDamage(1);
                         break;
-                    default:
-                        this.addAttribute(new Random().nextInt(10));
                 }
 
                 break;
             case SWORD:
-                switch (attributeNumber) {
+                switch (number) {
                     case 0:
                         addPoint();
                         break;
@@ -127,7 +135,7 @@ public class SoulWeapon implements ISoulWeapon {
 
                 break;
             case DAGGER:
-                switch (attributeNumber) {
+                switch (number) {
                     case 0:
                         addPoint();
                         break;
@@ -279,7 +287,7 @@ public class SoulWeapon implements ISoulWeapon {
     public boolean addXP(int xp) {
         this.attributes[this.getIndex()][XP.index] += xp;
 
-        if (this.getXP() >= this.getNextLevelXP()) {
+        if (this.getXP() >= this.getNextLevelXP() && Configuration.maxLevel > this.getLevel()) {
             this.addXP(-this.getNextLevelXP());
             this.addLevel();
             return true;

@@ -122,7 +122,8 @@ public class ForgeEventSubscriber {
 
                 if (SoulAttributeModifier.areAttributesEqual(itemStack, newItemStack, MAINHAND)) return;
 
-                inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
+                inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack),
+                    newItemStack.setStackDisplayName(itemStack.getDisplayName()));
             }
         }
     }
@@ -165,8 +166,14 @@ public class ForgeEventSubscriber {
         Main.CHANNEL.sendTo(new ClientWeaponXP(xp), (EntityPlayerMP) source);
 
         if (instance.addXP(xp)) {
-            source.sendMessage(new TextComponentString(String.format("Your soul %s leveled up to level %d.",
-                instance.getCurrentType().getName(), instance.getLevel())));
+            if (Configuration.levelupNotifications) {
+                source.sendMessage(new TextComponentString(String.format("Your %s leveled up to level %d.",
+                    ((EntityPlayerMP) source).getHeldItemMainhand().getDisplayName(), instance.getLevel())));
+            }
+
+            if (Configuration.levelupPointNotifications && (instance.getLevel() % 10 == 1 || Configuration.onlyPoints)) {
+                source.sendMessage(new TextComponentString("You earned an attribute point."));
+            }
         }
     }
 

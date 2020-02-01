@@ -8,8 +8,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulweapons.Main;
-import transfarmer.soulweapons.weapon.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
+import transfarmer.soulweapons.weapon.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
@@ -26,7 +26,7 @@ public class TooltipXPBar extends Gui {
         float widthScaleFactor = (float) scaledResolution.getScaledWidth() / mc.displayWidth;
         float heightScaleFactor = (float) scaledResolution.getScaledHeight() / mc.displayHeight;
 
-        this.zLevel = 1000F;
+        this.zLevel = 200;
 
         int x0 = 56 + (int) (Mouse.getX() * widthScaleFactor);
         int y0 = 50 + (int) (scaledResolution.getScaledHeight() - Mouse.getY() * heightScaleFactor);
@@ -36,7 +36,8 @@ public class TooltipXPBar extends Gui {
         int level = instance.getLevel(weaponType);
 
         this.drawTexturedModalRect(x0 - length / 2, y0, 0, 0, length, 5);
-        this.drawTexturedModalRect(x0 - length / 2, y0, 0, 5, Math.round((float) instance.getXP(weaponType) / instance.getNextLevelXP(weaponType) * length), 5);
+        this.drawTexturedModalRect(x0 - length / 2, y0, 0, 5,
+            Math.round((float) instance.getXP(weaponType) / instance.getNextLevelXP(weaponType) * length), 5);
 
         String levelString = String.format("%d", level);
         int x1 = x0 - fontRenderer.getStringWidth(levelString) / 2;
