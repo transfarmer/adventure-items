@@ -8,15 +8,15 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.Main;
-import transfarmer.soulweapons.SoulWeaponAttribute;
-import transfarmer.soulweapons.SoulWeaponType;
+import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
+import transfarmer.soulweapons.weapon.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeapon;
 import transfarmer.soulweapons.network.ServerAddAttribute;
 import transfarmer.soulweapons.network.ServerWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulweapons.SoulWeaponType.NONE;
+import static transfarmer.soulweapons.weapon.SoulWeaponType.NONE;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 @SideOnly(CLIENT)

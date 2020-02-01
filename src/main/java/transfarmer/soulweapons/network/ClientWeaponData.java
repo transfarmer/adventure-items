@@ -7,11 +7,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulweapons.SoulWeaponType;
+import transfarmer.soulweapons.weapon.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulweapons.SoulWeaponType.NONE;
+import static transfarmer.soulweapons.weapon.SoulWeaponType.NONE;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ClientWeaponData implements IMessage {

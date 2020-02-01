@@ -1,4 +1,4 @@
-package transfarmer.soulweapons;
+package transfarmer.soulweapons.weapon;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

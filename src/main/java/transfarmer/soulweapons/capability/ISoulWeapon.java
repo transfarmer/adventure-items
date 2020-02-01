@@ -4,8 +4,8 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulweapons.SoulWeaponAttribute;
-import transfarmer.soulweapons.SoulWeaponType;
+import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
+import transfarmer.soulweapons.weapon.SoulWeaponType;
 
 public interface ISoulWeapon {
     void setAttributes(int[][] attributes);

@@ -8,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulweapons.Main;
-import transfarmer.soulweapons.SoulWeaponType;
+import transfarmer.soulweapons.weapon.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;

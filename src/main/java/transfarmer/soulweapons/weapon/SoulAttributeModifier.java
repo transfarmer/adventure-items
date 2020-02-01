@@ -1,4 +1,4 @@
-package transfarmer.soulweapons;
+package transfarmer.soulweapons.weapon;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.inventory.EntityEquipmentSlot;

@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulweapons.SoulWeaponType;
+import transfarmer.soulweapons.weapon.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;

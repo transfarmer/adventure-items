@@ -26,8 +26,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
-import transfarmer.soulweapons.SoulAttributeModifier;
-import transfarmer.soulweapons.SoulWeaponType;
+import transfarmer.soulweapons.weapon.SoulAttributeModifier;
+import transfarmer.soulweapons.weapon.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponProvider;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
@@ -44,8 +44,8 @@ import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnE
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulweapons.KeyBindings.WEAPON_MENU;
-import static transfarmer.soulweapons.SoulWeaponType.NONE;
+import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
+import static transfarmer.soulweapons.weapon.SoulWeaponType.NONE;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 @EventBusSubscriber(modid = Main.MODID)

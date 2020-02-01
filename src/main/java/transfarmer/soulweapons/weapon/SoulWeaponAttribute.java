@@ -1,4 +1,4 @@
-package transfarmer.soulweapons;
+package transfarmer.soulweapons.weapon;
 
 public enum SoulWeaponAttribute {
     XP(0, "xp"),

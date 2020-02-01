@@ -23,7 +23,7 @@ import transfarmer.soulweapons.network.ServerWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
-import static transfarmer.soulweapons.KeyBindings.WEAPON_MENU;
+import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
 
 @Mod(modid = Main.MODID, name = Main.NAME, version = Main.VERSION)
 public class Main {

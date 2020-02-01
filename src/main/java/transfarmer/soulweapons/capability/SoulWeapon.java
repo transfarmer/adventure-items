@@ -4,24 +4,24 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulweapons.SoulAttributeModifier;
-import transfarmer.soulweapons.SoulWeaponAttribute;
-import transfarmer.soulweapons.SoulWeaponType;
+import transfarmer.soulweapons.weapon.SoulAttributeModifier;
+import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
+import transfarmer.soulweapons.weapon.SoulWeaponType;
 
 import java.util.Random;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
-import static transfarmer.soulweapons.SoulWeaponAttribute.ATTACK_DAMAGE;
-import static transfarmer.soulweapons.SoulWeaponAttribute.ATTACK_SPEED;
-import static transfarmer.soulweapons.SoulWeaponAttribute.CRITICAL;
-import static transfarmer.soulweapons.SoulWeaponAttribute.EFFICIENCY;
-import static transfarmer.soulweapons.SoulWeaponAttribute.KNOCKBACK;
-import static transfarmer.soulweapons.SoulWeaponAttribute.LEVEL;
-import static transfarmer.soulweapons.SoulWeaponAttribute.POINTS;
-import static transfarmer.soulweapons.SoulWeaponAttribute.SPECIAL;
-import static transfarmer.soulweapons.SoulWeaponAttribute.XP;
-import static transfarmer.soulweapons.SoulWeaponType.NONE;
+import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.ATTACK_DAMAGE;
+import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.ATTACK_SPEED;
+import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.CRITICAL;
+import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.EFFICIENCY;
+import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.KNOCKBACK;
+import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.LEVEL;
+import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.POINTS;
+import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.SPECIAL;
+import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.XP;
+import static transfarmer.soulweapons.weapon.SoulWeaponType.NONE;
 
 @SuppressWarnings("DuplicateBranchesInSwitch")
 public class SoulWeapon implements ISoulWeapon {

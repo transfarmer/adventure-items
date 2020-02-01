@@ -1,4 +1,4 @@
-package transfarmer.soulweapons;
+package transfarmer.soulweapons.client;
 
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.relauncher.SideOnly;

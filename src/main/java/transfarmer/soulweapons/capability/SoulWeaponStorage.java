@@ -5,7 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
-import transfarmer.soulweapons.SoulWeaponAttribute;
+import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
 
 public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override

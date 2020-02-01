@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulweapons.SoulWeaponAttribute;
+import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
