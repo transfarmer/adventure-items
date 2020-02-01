@@ -13,8 +13,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -22,16 +24,19 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.SoulAttributeModifier;
 import transfarmer.soulweapons.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponProvider;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
+import transfarmer.soulweapons.gui.TooltipXPBar;
 import transfarmer.soulweapons.network.ClientWeaponData;
 import transfarmer.soulweapons.network.ClientWeaponXP;
 
 import java.util.List;
+import java.util.Random;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
@@ -45,6 +50,8 @@ import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 @EventBusSubscriber(modid = Main.MODID)
 public class ForgeEventSubscriber {
+    public static boolean tooltipViewed;
+
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof EntityPlayer) {
@@ -121,19 +128,35 @@ public class ForgeEventSubscriber {
     }
 
     @SubscribeEvent
+    public static void onLivingHurt(LivingHurtEvent event) {
+        EntityLivingBase entity = event.getEntityLiving();
+        Entity source = event.getSource().getTrueSource();
+
+        if (entity.getEntityWorld().isRemote || !(source instanceof EntityPlayer)) return;
+
+        ISoulWeapon instance = source.getCapability(CAPABILITY, null);
+
+        if (!ISoulWeapon.isSoulWeaponEquipped((EntityPlayer) source) || new Random().nextInt(100) >= instance.getCritical()) return;
+
+        event.setAmount(2 * event.getAmount());
+    }
+
+    @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
         EntityLivingBase entity = event.getEntityLiving();
         Entity source = event.getSource().getTrueSource();
         IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
 
-        if (event.getEntity().getEntityWorld().isRemote || attackDamage == null || !(source instanceof EntityPlayer)) return;
+        if (entity.getEntityWorld().isRemote || attackDamage == null || !(source instanceof EntityPlayer)) return;
         if (attackDamage.getAttributeValue() == 0) return;
 
         ISoulWeapon instance = source.getCapability(CAPABILITY, null);
 
         if (!ISoulWeapon.isSoulWeaponEquipped((EntityPlayer) source)) return;
 
-        float xp = (float) (entity.getMaxHealth() * attackDamage.getAttributeValue() / 3 * source.world.getDifficulty().getId() / 2);
+        float xp = (float) Math.round(entity.getMaxHealth()
+            * source.world.getDifficulty().getId() * Configuration.difficultyMultiplier
+            * attackDamage.getAttributeValue() * Configuration.attackDamageMultiplier);
 
         if (!entity.isNonBoss()) {
             xp *= 2;
@@ -154,9 +177,7 @@ public class ForgeEventSubscriber {
             EntityPlayer player = Minecraft.getMinecraft().player;
             ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
-            if (ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() != NONE
-                || player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)
-                || ISoulWeapon.isSoulWeaponEquipped(player) && instance.getCurrentType() == NONE) {
+            if (player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD) || ISoulWeapon.isSoulWeaponEquipped(player)) {
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
             }
         }
@@ -169,15 +190,29 @@ public class ForgeEventSubscriber {
 
         if (player == null) return;
 
-        if (SoulWeaponType.getItems().contains(event.getItemStack().getItem())) {
-            List<String> tooltip = event.getToolTip();
-            String[] newTooltip = player.getCapability(CAPABILITY, null).getTooltip(event.getItemStack());
-            tooltip.remove(4);
-            tooltip.remove(3);
+        ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
-            for (int i = 0; i < newTooltip.length; i++) {
-                tooltip.add(3 + i, newTooltip[i]);
-            }
+        if (instance.getCurrentType() == NONE || !SoulWeaponType.getItems().contains(event.getItemStack().getItem())) return;
+
+        tooltipViewed = true;
+
+        List<String> tooltip = event.getToolTip();
+        String[] newTooltip = instance.getTooltip(event.getItemStack());
+        tooltip.remove(4);
+        tooltip.remove(3);
+
+        for (int i = 0; i < newTooltip.length; i++) {
+            tooltip.add(3 + i, newTooltip[i]);
         }
+    }
+
+    @SideOnly(CLIENT)
+    @SubscribeEvent
+    public static void onDrawScreen(GuiScreenEvent.DrawScreenEvent.Post event) {
+        if (!tooltipViewed) return;
+
+        new TooltipXPBar();
+
+        tooltipViewed = false;
     }
 }

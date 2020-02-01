@@ -1,14 +1,6 @@
 package transfarmer.soulweapons.tab;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulweapons.Main;
-import transfarmer.soulweapons.init.ModItems;
-
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-
-
+/*
 public class SoulWeaponTab extends CreativeTabs {
     public SoulWeaponTab() {
         super(Main.MODID);
@@ -20,3 +12,4 @@ public class SoulWeaponTab extends CreativeTabs {
         return new ItemStack(ModItems.SOUL_BIGSWORD);
     }
 }
+*/

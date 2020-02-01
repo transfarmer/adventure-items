@@ -5,6 +5,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.SoulWeaponAttribute;
@@ -22,13 +23,15 @@ import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 public class SoulWeaponMenu extends GuiScreen {
     private final GUIFactory guiFactory = new GUIFactory();
     private final ISoulWeapon instance = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
+    private final boolean newWeapon = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)
+        || instance.getCurrentType() == NONE;
     private String title;
 
     public SoulWeaponMenu() {}
 
     @Override
     public void initGui() {
-        if (instance.getCurrentType() == NONE) {
+        if (newWeapon) {
             this.title = I18n.format("menu.soulweapons.weapons");
             showWeapons();
             return;
@@ -91,7 +94,7 @@ public class SoulWeaponMenu extends GuiScreen {
         this.drawCenteredString(this.fontRenderer, I18n.format(title), this.width / 2, height / 18, white);
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        if (instance.getCurrentType() == NONE) return;
+        if (newWeapon) return;
 
         this.drawString(this.fontRenderer, String.format("attack speed: %.1f", instance.getAttackSpeed() + 4), width / 16, height / 8, white);
         this.drawString(this.fontRenderer, "damage: " + (instance.getAttackDamage() + 1), width / 16, 3 * height / 16, white);

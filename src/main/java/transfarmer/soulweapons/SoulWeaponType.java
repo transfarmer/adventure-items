@@ -7,19 +7,19 @@ import transfarmer.soulweapons.item.ItemSoulWeapon;
 import java.util.ArrayList;
 import java.util.List;
 
-import static transfarmer.soulweapons.init.ModItems.SOUL_BIGSWORD;
+import static transfarmer.soulweapons.init.ModItems.SOUL_GREATSWORD;
 import static transfarmer.soulweapons.init.ModItems.SOUL_DAGGER;
 import static transfarmer.soulweapons.init.ModItems.SOUL_SWORD;
 
 public enum SoulWeaponType {
-    BIGSWORD(SOUL_BIGSWORD, 0),
+    GREATSWORD(SOUL_GREATSWORD, 0),
     SWORD(SOUL_SWORD, 1),
     DAGGER(SOUL_DAGGER, 2),
     NONE(null, -1);
 
     private static final List<Item> SOUL_WEAPONS = new ArrayList<>(3);
     static {
-        SOUL_WEAPONS.add(BIGSWORD.item);
+        SOUL_WEAPONS.add(GREATSWORD.item);
         SOUL_WEAPONS.add(SWORD.item);
         SOUL_WEAPONS.add(DAGGER.item);
     }
@@ -42,7 +42,7 @@ public enum SoulWeaponType {
     public static SoulWeaponType getType(int index) {
         switch (index) {
             case 0:
-                return BIGSWORD;
+                return GREATSWORD;
             case 1:
                 return SWORD;
             case 2:

@@ -34,6 +34,7 @@ public interface ISoulWeapon {
 
     int getLevel();
     int getLevel(int index);
+    int getLevel(SoulWeaponType weaponType);
     void setLevel(int level);
     void addLevel();
     void addLevel(int index);

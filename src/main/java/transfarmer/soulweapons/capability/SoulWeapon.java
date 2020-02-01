@@ -1,6 +1,5 @@
 package transfarmer.soulweapons.capability;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
@@ -12,7 +11,6 @@ import transfarmer.soulweapons.SoulWeaponType;
 import java.util.Random;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
-import static net.minecraft.item.ItemStack.DECIMALFORMAT;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static transfarmer.soulweapons.SoulWeaponAttribute.ATTACK_DAMAGE;
 import static transfarmer.soulweapons.SoulWeaponAttribute.ATTACK_SPEED;
@@ -49,7 +47,7 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public void addAttribute(int attributeNumber) {
         switch (currentType) {
-            case BIGSWORD:
+            case GREATSWORD:
                 switch (attributeNumber) {
                     case 0:
                         addPoint();
@@ -237,21 +235,19 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public String[] getTooltip(ItemStack itemStack) {
-        final AttributeModifier[] attributeModifiers = getAttributeModifiers(SoulWeaponType.getType(itemStack));
-        final String[] tooltip = new String[attributeModifiers.length];
+        SoulWeaponType weaponType = SoulWeaponType.getType(itemStack);
 
-        tooltip[0] = " " + I18n.format("attribute.modifier.equals.0",
-            DECIMALFORMAT.format(attributeModifiers[0].getAmount() + 4), I18n.format("attribute.name.generic.attackSpeed"));
-
-        tooltip[1] = " " + I18n.format("attribute.modifier.equals.0",
-            DECIMALFORMAT.format(attributeModifiers[1].getAmount() + 1), I18n.format("attribute.name.generic.attackDamage"));
-
-        return tooltip;
+        return new String[]{
+            String.format(" %.1f attack speed", this.getAttackSpeed(weaponType) + 4),
+            String.format(" %d attack damage", this.getAttackDamage(weaponType) + 1),
+            "",
+            ""
+        };
     }
 
     @Override
     public int getNextLevelXP() {
-        return 30 + 6 * this.getLevel();
+        return 32 + 4 * (int) Math.round(Math.pow(this.getLevel(), 1.2));
     }
 
     @Override
@@ -290,6 +286,11 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public int getLevel() {
         return this.getLevel(this.getIndex());
+    }
+
+    @Override
+    public int getLevel(SoulWeaponType weaponType) {
+        return this.getLevel(weaponType.index);
     }
 
     @Override

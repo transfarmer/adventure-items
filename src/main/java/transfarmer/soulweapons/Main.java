@@ -1,6 +1,5 @@
 package transfarmer.soulweapons;
 
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -21,7 +20,6 @@ import transfarmer.soulweapons.network.ClientWeaponXP;
 import transfarmer.soulweapons.network.ServerAddAttribute;
 import transfarmer.soulweapons.network.ServerWeaponLevelup;
 import transfarmer.soulweapons.network.ServerWeaponType;
-import transfarmer.soulweapons.tab.SoulWeaponTab;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
@@ -31,10 +29,9 @@ import static transfarmer.soulweapons.KeyBindings.WEAPON_MENU;
 public class Main {
     public static final String MODID = "soulweapons";
     public static final String NAME = "soul weapons";
-    public static final String VERSION = "1.1.2-beta";
+    public static final String VERSION = "1.3.1-beta";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
-    public static final CreativeTabs SOUL_WEAPON_TAB = new SoulWeaponTab();
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
     public static int id;
 

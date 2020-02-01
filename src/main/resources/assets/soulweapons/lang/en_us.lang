@@ -1,6 +1,7 @@
-item.soulweapons.soul_bigsword.name=soul bigsword
+item.soulweapons.soul_greatsword.name=soul great sword
 item.soulweapons.soul_sword.name=soul sword
 item.soulweapons.soul_dagger.name=soul dagger
+item.soulweapons.soul_staff.name=soul staff
 itemGroup.soulweapons=soul weapons
 key.categories.soulweapons=soul weapons
 key.soulweapons.menu=soul weapon menu
