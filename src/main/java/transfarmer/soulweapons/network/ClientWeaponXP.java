@@ -13,22 +13,22 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ClientWeaponXP implements IMessage {
-    private float xp;
+    private int xp;
 
     public ClientWeaponXP() {}
 
-    public ClientWeaponXP(float xp) {
+    public ClientWeaponXP(int xp) {
         this.xp = xp;
     }
 
     @Override
     public void fromBytes(ByteBuf buffer) {
-        this.xp = buffer.readFloat();
+        this.xp = buffer.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buffer) {
-        buffer.writeFloat(this.xp);
+        buffer.writeInt(this.xp);
     }
 
     public static final class Handler implements IMessageHandler<ClientWeaponXP, IMessage> {

@@ -90,7 +90,7 @@ public class ForgeEventSubscriber {
 
     private static void updatePlayer(EntityPlayer player) {
         ISoulWeapon instance = player.getCapability(CAPABILITY, null);
-        Main.CHANNEL.sendTo(new ClientWeaponData(instance.getCurrentType(), instance.getAttributes()),
+        Main.CHANNEL.sendTo(new ClientWeaponData(instance.getCurrentType(), instance.getData(), instance.getAttributes()),
             (EntityPlayerMP) player);
     }
 
@@ -190,7 +190,7 @@ public class ForgeEventSubscriber {
 
         if (!ISoulWeapon.isSoulWeaponEquipped((EntityPlayer) source)) return;
 
-        float xp = (float) Math.round(entity.getMaxHealth()
+        int xp = (int) Math.round(entity.getMaxHealth()
             * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
             * (1 + attackDamage.getAttributeValue() * multipliers.attackDamageMultiplier)
             * (1 + armor.getAttributeValue() * multipliers.armorMultiplier));

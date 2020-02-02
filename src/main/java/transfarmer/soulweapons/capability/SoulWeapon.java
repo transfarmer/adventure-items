@@ -9,6 +9,8 @@ import transfarmer.soulweapons.weapon.SoulAttributeModifier;
 import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
 import transfarmer.soulweapons.weapon.SoulWeaponType;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Random;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
@@ -18,31 +20,42 @@ import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.ATTACK_SPEED;
 import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.EFFICIENCY;
 import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.KNOCKBACK;
-import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.LEVEL;
-import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.POINTS;
-import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.SPECIAL;
-import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.XP;
+import static transfarmer.soulweapons.weapon.SoulWeaponDatum.LEVEL;
+import static transfarmer.soulweapons.weapon.SoulWeaponDatum.POINTS;
+import static transfarmer.soulweapons.weapon.SoulWeaponDatum.SKILL;
+import static transfarmer.soulweapons.weapon.SoulWeaponDatum.XP;
 import static transfarmer.soulweapons.weapon.SoulWeaponType.NONE;
 
 @SuppressWarnings("DuplicateBranchesInSwitch")
 public class SoulWeapon implements ISoulWeapon {
     private static final String[] weaponNames = {"bigsword", "sword", "dagger"};
-    public static final String[][] specialNames = {
+    public static final String[][] skillNames = {
         {"charge"},
-        {"blocking", "blocking master"},
+        {}, // lifesteal?
         {"throwing", "perforation", "return", "sneak return"}
     };
     private SoulWeaponType currentType = NONE;
-    private int[][] attributes = new int[3][9];
+    private int[][] data = new int[3][4];
+    private float[][] attributes = new float[3][5];
 
     @Override
-    public void setAttributes(int[][] attributes) {
+    public float[][] getAttributes() {
+        return this.attributes;
+    }
+
+    @Override
+    public void setAttributes(float[][] attributes) {
         this.attributes = attributes;
     }
 
     @Override
-    public int[][] getAttributes() {
-        return this.attributes;
+    public int[][] getData() {
+        return this.data;
+    }
+
+    @Override
+    public void setData(int[][] data) {
+        this.data = data;
     }
 
     @Override
@@ -59,7 +72,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addPoint();
                         break;
                     case 1:
-                        if (this.getSpecial() < this.getMaxSpecials()) {
+                        if (this.getSkills() < this.getMaxSkills()) {
                             addSpecial();
                             break;
                         } else {
@@ -75,7 +88,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.getSpecial() < this.getMaxSpecials()) {
+                        if (this.getSkills() < this.getMaxSkills()) {
                             addSpecial();
                             break;
                         } else {
@@ -102,7 +115,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addPoint();
                         break;
                     case 1:
-                        if (this.getSpecial() < this.getMaxSpecials()) {
+                        if (this.getSkills() < this.getMaxSkills()) {
                             addSpecial();
                             break;
                         }
@@ -140,7 +153,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addPoint();
                         break;
                     case 1:
-                        if (this.getSpecial() < this.getMaxSpecials()) {
+                        if (this.getSkills() < this.getMaxSkills()) {
                             addSpecial();
                             break;
                         }
@@ -154,7 +167,7 @@ public class SoulWeapon implements ISoulWeapon {
                         addAttackDamage(1);
                         break;
                     case 5:
-                        if (this.getSpecial() < this.getMaxSpecials()) {
+                        if (this.getSkills() < this.getMaxSkills()) {
                             addSpecial();
                             break;
                         }
@@ -195,7 +208,7 @@ public class SoulWeapon implements ISoulWeapon {
                 this.addEfficiency(0.5F);
         }
 
-        this.attributes[currentType.index][POINTS.index] -= 1;
+        this.data[currentType.index][POINTS.index] -= 1;
     }
 
     @Override
@@ -243,11 +256,12 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public String[] getTooltip(ItemStack itemStack) {
-        SoulWeaponType weaponType = SoulWeaponType.getType(itemStack);
+        final SoulWeaponType WEAPON_TYPE = SoulWeaponType.getType(itemStack);
+        final NumberFormat FORMAT = DecimalFormat.getInstance();
 
         return new String[]{
-            String.format(" %.1f attack speed", this.getAttackSpeed(weaponType) + 4),
-            String.format(" %d attack damage", this.getAttackDamage(weaponType) + 1),
+            String.format(" %s attack speed", FORMAT.format(this.getAttackSpeed(WEAPON_TYPE) + 4)),
+            String.format(" %s attack damage", FORMAT.format(this.getAttackDamage(WEAPON_TYPE) + 1)),
             "",
             ""
         };
@@ -275,17 +289,12 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getXP(int index) {
-        return this.attributes[index][XP.index];
-    }
-
-    @Override
-    public void setXP(int xp) {
-        this.attributes[this.getIndex()][XP.index] = xp;
+        return this.data[index][XP.index];
     }
 
     @Override
     public boolean addXP(int xp) {
-        this.attributes[this.getIndex()][XP.index] += xp;
+        this.data[this.getIndex()][XP.index] += xp;
 
         if (this.getXP() >= this.getNextLevelXP() && Configuration.maxLevel > this.getLevel()) {
             this.addXP(-this.getNextLevelXP());
@@ -294,11 +303,6 @@ public class SoulWeapon implements ISoulWeapon {
         }
 
         return false;
-    }
-
-    @Override
-    public boolean addXP(float xp) {
-        return addXP(Math.round(xp));
     }
 
     @Override
@@ -313,12 +317,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getLevel(int index) {
-        return this.attributes[index][LEVEL.index];
-    }
-
-    @Override
-    public void setLevel(int level) {
-        this.attributes[getIndex()][LEVEL.index] = level;
+        return this.data[index][LEVEL.index];
     }
 
     @Override
@@ -328,107 +327,67 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public void addLevel(int index) {
-        this.addAttribute(this.attributes[index][LEVEL.index]++ % 10);
+        this.addAttribute(this.data[index][LEVEL.index]++ % 10);
     }
 
     @Override
     public int getPoints() {
-        return this.attributes[getIndex()][POINTS.index];
-    }
-
-    @Override
-    public void setPoints(int points) {
-        this.attributes[getIndex()][POINTS.index] = points;
+        return this.data[getIndex()][POINTS.index];
     }
 
     @Override
     public void addPoint() {
-        this.attributes[getIndex()][POINTS.index]++;
+        this.data[getIndex()][POINTS.index]++;
     }
 
     @Override
-    public int getMaxSpecials() {
-        return specialNames[getIndex()].length;
+    public int getMaxSkills() {
+        return skillNames[getIndex()].length;
     }
 
     @Override
-    public int getSpecial() {
-        return this.attributes[getIndex()][SPECIAL.index];
-    }
-
-    @Override
-    public void setSpecial(int special) {
-        this.attributes[getIndex()][SPECIAL.index] = special;
+    public int getSkills() {
+        return this.data[getIndex()][SKILL.index];
     }
 
     @Override
     public void addSpecial() {
-        this.attributes[getIndex()][SPECIAL.index]++;
+        this.data[getIndex()][SKILL.index]++;
     }
 
     @Override
     public float getEfficiency() {
-        return this.attributes[getIndex()][EFFICIENCY.index] / 10F;
-    }
-
-    @Override
-    public void setEfficiency(int efficiency) {
-        this.attributes[getIndex()][EFFICIENCY.index] = efficiency * 10;
+        return this.attributes[getIndex()][EFFICIENCY.index];
     }
 
     @Override
     public void addEfficiency(float amount) {
-        this.attributes[getIndex()][EFFICIENCY.index] += amount * 10;
+        this.attributes[getIndex()][EFFICIENCY.index] += amount;
     }
 
     @Override
-    public int getKnockback() {
+    public float getKnockback() {
         return this.attributes[getIndex()][KNOCKBACK.index];
     }
 
     @Override
-    public void setKnockback(int knockback) {
-        this.attributes[getIndex()][KNOCKBACK.index] = knockback;
-    }
-
-    @Override
-    public void addKnockback(int amount) {
+    public void addKnockback(float amount) {
         this.attributes[getIndex()][KNOCKBACK.index] += amount;
     }
 
     @Override
-    public int getAttackDamage() {
+    public float getAttackDamage() {
         return this.getAttackDamage(currentType);
     }
 
     @Override
-    public int getAttackDamage(SoulWeaponType weaponType) {
-        return this.attributes[weaponType.index][ATTACK_DAMAGE.index] + (int) weaponType.item.getAttackDamage();
+    public float getAttackDamage(SoulWeaponType weaponType) {
+        return this.attributes[weaponType.index][ATTACK_DAMAGE.index] + weaponType.item.getAttackDamage();
     }
 
     @Override
-    public void setAttackDamage(int attackDamage) {
-        this.attributes[getIndex()][ATTACK_DAMAGE.index] = attackDamage;
-    }
-
-    @Override
-    public void addAttackDamage(int amount) {
+    public void addAttackDamage(float amount) {
         this.attributes[getIndex()][ATTACK_DAMAGE.index] += amount;
-    }
-
-    @Override
-    public int getCritical() {
-        return this.attributes[getIndex()][CRITICAL.index];
-    }
-
-    @Override
-    public void setCritical(int critical) {
-        this.attributes[getIndex()][CRITICAL.index] = critical;
-    }
-
-    @Override
-    public void addCritical(int amount) {
-        this.attributes[getIndex()][CRITICAL.index] += amount;
     }
 
     @Override
@@ -438,17 +397,22 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public float getAttackSpeed(SoulWeaponType weaponType) {
-        return this.attributes[weaponType.index][ATTACK_SPEED.index] / 10F + weaponType.item.getAttackSpeed();
-    }
-
-    @Override
-    public void setAttackSpeed(float attackSpeed) {
-        this.attributes[getIndex()][ATTACK_SPEED.index] = (int) attackSpeed * 10;
+        return this.attributes[weaponType.index][ATTACK_SPEED.index] + weaponType.item.getAttackSpeed();
     }
 
     @Override
     public void addAttackSpeed(float amount) {
-        this.attributes[getIndex()][ATTACK_SPEED.index] += amount * 10;
+        this.attributes[getIndex()][ATTACK_SPEED.index] += amount;
+    }
+
+    @Override
+    public float getCritical() {
+        return this.attributes[getIndex()][CRITICAL.index];
+    }
+
+    @Override
+    public void addCritical(float amount) {
+        this.attributes[getIndex()][CRITICAL.index] += amount;
     }
 
     @Override
@@ -467,8 +431,9 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public boolean hasAttributes() {
-        return this.attributes[0].length != 0 && this.attributes[1].length != 0 && this.attributes[2].length != 0;
+    public boolean hasAttributesAndData() {
+        return this.attributes[0].length != 0 && this.attributes[1].length != 0 && this.attributes[2].length != 0
+            && this.data[0].length != 0 && this.data[1].length != 0 && this.data[2].length != 0;
     }
 
     @Override

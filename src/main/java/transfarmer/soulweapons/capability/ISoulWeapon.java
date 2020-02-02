@@ -8,8 +8,12 @@ import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
 import transfarmer.soulweapons.weapon.SoulWeaponType;
 
 public interface ISoulWeapon {
-    void setAttributes(int[][] attributes);
-    int[][] getAttributes();
+    float[][] getAttributes();
+    void setAttributes(float[][] attributes);
+
+    int[][] getData();
+    void setData(int[][] data);
+
     void addAttribute(int attributeNumber);
     void addAttribute(SoulWeaponAttribute attribute);
 
@@ -30,47 +34,37 @@ public interface ISoulWeapon {
     int getXP();
     int getXP(SoulWeaponType weaponType);
     int getXP(int index);
-    void setXP(int xp);
     boolean addXP(int xp);
-    boolean addXP(float xp);
 
     int getLevel();
     int getLevel(int index);
     int getLevel(SoulWeaponType weaponType);
-    void setLevel(int level);
     void addLevel();
     void addLevel(int index);
 
     int getPoints();
-    void setPoints(int points);
     void addPoint();
 
-    int getMaxSpecials();
-    int getSpecial();
-    void setSpecial(int special);
+    int getMaxSkills();
+    int getSkills();
     void addSpecial();
 
     float getEfficiency();
-    void setEfficiency(int efficiency);
     void addEfficiency(float amount);
 
-    int getKnockback();
-    void setKnockback(int knockback);
-    void addKnockback(int amount);
+    float getKnockback();
+    void addKnockback(float amount);
 
-    int getAttackDamage();
-    int getAttackDamage(SoulWeaponType type);
-    void setAttackDamage(int attackDamage);
-    void addAttackDamage(int amount);
+    float getAttackDamage();
+    float getAttackDamage(SoulWeaponType type);
+    void addAttackDamage(float amount);
 
     float getAttackSpeed();
     float getAttackSpeed(SoulWeaponType type);
-    void setAttackSpeed(float attackSpeed);
     void addAttackSpeed(float amount);
 
-    int getCritical();
-    void setCritical(int critical);
-    void addCritical(int amount);
+    float getCritical();
+    void addCritical(float amount);
 
     SoulWeaponType getCurrentType();
     void setCurrentType(SoulWeaponType type);
@@ -78,7 +72,7 @@ public interface ISoulWeapon {
 
     int getIndex();
 
-    boolean hasAttributes();
+    boolean hasAttributesAndData();
 
     static boolean hasSoulWeapon(EntityPlayer player) {
         for (final Item WEAPON : SoulWeaponType.getItems()) {

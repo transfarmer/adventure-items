@@ -34,10 +34,12 @@ public class ServerAddAttribute implements IMessage {
             ISoulWeapon instance = context.getServerHandler().player.getCapability(CAPABILITY, null);
             SoulWeaponAttribute attribute = SoulWeaponAttribute.getAttribute(message.index);
 
-            if (instance.getPoints() == 0 ) return null;
+            if (instance.getPoints() > 0 ) {
+                instance.addAttribute(attribute);
+                return new ClientAddAttribute(attribute);
+            }
 
-            instance.addAttribute(attribute);
-            return new ClientAddAttribute(attribute);
+            return null;
         }
     }
 }

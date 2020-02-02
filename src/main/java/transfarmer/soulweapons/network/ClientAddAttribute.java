@@ -36,7 +36,6 @@ public class ClientAddAttribute implements IMessage {
         @Override
         public IMessage onMessage(ClientAddAttribute message, MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
-                SoulWeaponAttribute attribute = SoulWeaponAttribute.getAttribute(message.index);
                 Minecraft.getMinecraft().player.getCapability(CAPABILITY, null)
                     .addAttribute(SoulWeaponAttribute.getAttribute(message.index));
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
