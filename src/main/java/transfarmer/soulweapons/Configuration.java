@@ -5,7 +5,11 @@ import net.minecraftforge.common.config.Config.Comment;
 
 @Config(modid = Main.MODID)
 public class Configuration {
+    @Comment("experience point multipliers")
     public static Multipliers multipliers = new Multipliers();
+
+    @Comment("the number of levels per enchantment point")
+    public static int enchantmentLevels = 5;
 
     @Comment("whether levelup notifications should be sent to players or not")
     public static boolean levelupNotifications = true;
@@ -16,18 +20,24 @@ public class Configuration {
     @Comment("whether every level should award only an attribute point or not")
     public static boolean onlyPoints = false;
 
-    @Comment("max level")
+    @Comment("maximum soul weapon level")
     public static int maxLevel = 100;
 
     @Comment("minimum level for soul weapons to be preserved after death")
     public static int preservationLevel = 10;
+
+    @Comment("the offset for soul weapon menu entries from the top multiplied by (the height of the Minecraft window / 16)")
+    public static int menuOffset = 1;
 
     public static class Multipliers {
         @Comment("armor XP multiplier = 1 + (armorMultiplier * armor)")
         public float armorMultiplier = 0.05F;
 
         @Comment("attack damage XP multiplier = 1 + (attackDamageMultiplier * damage)")
-        public float attackDamageMultiplier = 0.333F;
+        public float attackDamageMultiplier = 1F / 3;
+
+        @Comment("boss XP multiplier")
+        public float bossMultiplier = 3;
 
         @Comment({
             "the XP multiplier for game difficulty. (Difficulty ranges from 0 to 3.)",
@@ -35,5 +45,7 @@ public class Configuration {
         })
         public float difficultyMultiplier = 0.5F;
 
+        @Comment("hardcore mode XP multiplier")
+        public float hardcoreMultiplier = 2;
     }
 }

@@ -1,51 +1,55 @@
 package transfarmer.soulweapons.capability;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import transfarmer.soulweapons.Configuration;
-import transfarmer.soulweapons.weapon.SoulAttributeModifier;
-import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
-import transfarmer.soulweapons.weapon.SoulWeaponType;
+import transfarmer.soulweapons.data.SoulWeaponAttribute;
+import transfarmer.soulweapons.data.SoulWeaponDatum;
+import transfarmer.soulweapons.data.SoulWeaponEnchantment;
+import transfarmer.soulweapons.data.SoulWeaponType;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
-import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.ATTACK_DAMAGE;
-import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.ATTACK_SPEED;
-import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.CRITICAL;
-import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.EFFICIENCY;
-import static transfarmer.soulweapons.weapon.SoulWeaponAttribute.KNOCKBACK;
-import static transfarmer.soulweapons.weapon.SoulWeaponDatum.LEVEL;
-import static transfarmer.soulweapons.weapon.SoulWeaponDatum.POINTS;
-import static transfarmer.soulweapons.weapon.SoulWeaponDatum.SKILL;
-import static transfarmer.soulweapons.weapon.SoulWeaponDatum.XP;
-import static transfarmer.soulweapons.weapon.SoulWeaponType.NONE;
+import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_DAMAGE;
+import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_SPEED;
+import static transfarmer.soulweapons.data.SoulWeaponAttribute.CRITICAL;
+import static transfarmer.soulweapons.data.SoulWeaponAttribute.EFFICIENCY;
+import static transfarmer.soulweapons.data.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.LEVEL;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.POINTS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.SKILLS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
+import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SHARPNESS;
 
 @SuppressWarnings("DuplicateBranchesInSwitch")
 public class SoulWeapon implements ISoulWeapon {
-    private static final String[] weaponNames = {"bigsword", "sword", "dagger"};
-    public static final String[][] skillNames = {
+    private static final String[][] skillNames = {
         {"charge"},
         {}, // lifesteal?
         {"throwing", "perforation", "return", "sneak return"}
     };
-    private SoulWeaponType currentType = NONE;
-    private int[][] data = new int[3][4];
+    private SoulWeaponType currentType;
+    private int[][] data = new int[3][5];
     private float[][] attributes = new float[3][5];
+    private int[][] enchantments = new int[3][7];
+    private int currentTab = 0;
 
     @Override
-    public float[][] getAttributes() {
-        return this.attributes;
-    }
-
-    @Override
-    public void setAttributes(float[][] attributes) {
+    public void set(int[][] data, float[][] attributes, int[][] enchantments) {
+        this.data = data;
         this.attributes = attributes;
+        this.enchantments = enchantments;
     }
 
     @Override
@@ -54,181 +58,53 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public void setData(int[][] data) {
-        this.data = data;
+    public float[][] getAttributes() {
+        return this.attributes;
     }
 
     @Override
-    public void addAttribute(int number) {
-        if (Configuration.onlyPoints) {
-            addPoint();
-            return;
-        }
-
-        switch (currentType) {
-            case GREATSWORD:
-                switch (number) {
-                    case 0:
-                        addPoint();
-                        break;
-                    case 1:
-                        if (this.getSkills() < this.getMaxSkills()) {
-                            addSpecial();
-                            break;
-                        } else {
-                            this.addAttribute(new Random().nextInt(10));
-                        }
-                    case 2:
-                        addEfficiency(0.5F);
-                        break;
-                    case 3:
-                        addKnockback(1);
-                        break;
-                    case 4:
-                        addAttackDamage(1);
-                        break;
-                    case 5:
-                        if (this.getSkills() < this.getMaxSkills()) {
-                            addSpecial();
-                            break;
-                        } else {
-                            this.addAttribute(new Random().nextInt(10));
-                        }
-                    case 6:
-                        addEfficiency(0.4F);
-                        break;
-                    case 7:
-                        addKnockback(1);
-                        break;
-                    case 8:
-                        addCritical(2);
-                        break;
-                    case 9:
-                        addAttackDamage(1);
-                        break;
-                }
-
-                break;
-            case SWORD:
-                switch (number) {
-                    case 0:
-                        addPoint();
-                        break;
-                    case 1:
-                        if (this.getSkills() < this.getMaxSkills()) {
-                            addSpecial();
-                            break;
-                        }
-                    case 2:
-                        addEfficiency(0.4F);
-                        break;
-                    case 3:
-                        addKnockback(1);
-                        break;
-                    case 4:
-                        addAttackDamage(1);
-                        break;
-                    case 5:
-                        addPoint();
-                    case 6:
-                        addEfficiency(0.3F);
-                        break;
-                    case 7:
-                        addCritical(2);
-                        break;
-                    case 8:
-                        addCritical(2);
-                        break;
-                    case 9:
-                        addAttackDamage(1);
-                        break;
-                    default:
-                        this.addAttribute(new Random().nextInt(10));
-                }
-
-                break;
-            case DAGGER:
-                switch (number) {
-                    case 0:
-                        addPoint();
-                        break;
-                    case 1:
-                        if (this.getSkills() < this.getMaxSkills()) {
-                            addSpecial();
-                            break;
-                        }
-                    case 2:
-                        addEfficiency(0.4F);
-                        break;
-                    case 3:
-                        addCritical(2);
-                        break;
-                    case 4:
-                        addAttackDamage(1);
-                        break;
-                    case 5:
-                        if (this.getSkills() < this.getMaxSkills()) {
-                            addSpecial();
-                            break;
-                        }
-                    case 6:
-                        addEfficiency(0.3F);
-                        break;
-                    case 7:
-                        addCritical(4);
-                        break;
-                    case 8:
-                        addKnockback(1);
-                        break;
-                    case 9:
-                        addAttackDamage(1);
-                        break;
-                    default:
-                        this.addAttribute(new Random().nextInt(10));
-                }
-        }
+    public int[][] getEnchantments() {
+        return this.enchantments;
     }
 
     @Override
-    public void addAttribute(SoulWeaponAttribute attribute) {
+    public float getAttribute(final SoulWeaponAttribute attribute, final SoulWeaponType type) {
         switch (attribute) {
             case ATTACK_SPEED:
-                this.addAttackSpeed(0.2F);
+                return this.attributes[type.index][ATTACK_SPEED.index] + type.item.getAttackSpeed();
+            case ATTACK_DAMAGE:
+                return this.attributes[type.index][ATTACK_DAMAGE.index] + type.item.getAttackDamage();
+            default:
+                return this.attributes[type.index][attribute.index];
+        }
+    }
+
+    @Override
+    public void addAttribute(final float amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
+        this.attributes[type.index][attribute.index] += amount;
+    }
+
+    @Override
+    public void addAttribute(SoulWeaponAttribute attribute, SoulWeaponType type) {
+        switch (attribute) {
+            case ATTACK_SPEED:
+                this.addAttribute(0.2F, attribute, type);
                 break;
             case ATTACK_DAMAGE:
-                this.addAttackDamage(1);
+                this.addAttribute(1, attribute, type);
                 break;
             case CRITICAL:
-                this.addCritical(3);
+                this.addAttribute(3, attribute, type);
                 break;
-            case KNOCKBACK:
-                this.addKnockback(1);
+            case KNOCKBACK_ATTRIBUTE:
+                this.addAttribute(1, attribute, type);
                 break;
             case EFFICIENCY:
-                this.addEfficiency(0.5F);
+                this.addAttribute(0.5F, attribute, type);
+                break;
         }
 
-        this.data[currentType.index][POINTS.index] -= 1;
-    }
-
-    @Override
-    public String getWeaponName() {
-        return getWeaponName(this.getIndex());
-    }
-
-    @Override
-    public String getWeaponName(int index) {
-        return weaponNames[index];
-    }
-
-    @Override
-    public Item getItem() {
-        return currentType.item;
-    }
-
-    @Override
-    public ItemStack getItemStack() {
-        return getItemStack(currentType);
+        this.data[type.index][POINTS.index]--;
     }
 
     public ItemStack getItemStack(ItemStack itemStack) {
@@ -236,208 +112,295 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public ItemStack getItemStack(SoulWeaponType weaponType) {
-        final ItemStack itemStack = weaponType.getItemStack();
-        final AttributeModifier[] ATTRIBUTE_MODIFIERS = getAttributeModifiers(weaponType);
+    public ItemStack getItemStack(SoulWeaponType type) {
+        final ItemStack itemStack = type.getItemStack();
+        final AttributeModifier[] attributeModifiers = getAttributeModifiers(type);
+        final SortedMap<SoulWeaponEnchantment, Integer> enchantments = this.getEnchantments(type);
 
-        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), ATTRIBUTE_MODIFIERS[0], MAINHAND);
-        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), ATTRIBUTE_MODIFIERS[1], MAINHAND);
+        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), attributeModifiers[0], MAINHAND);
+        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), attributeModifiers[1], MAINHAND);
+
+        enchantments.forEach((SoulWeaponEnchantment enchantment, Integer level) -> itemStack.addEnchantment(enchantment.enchantment, level));
 
         return itemStack;
     }
 
     @Override
-    public AttributeModifier[] getAttributeModifiers(SoulWeaponType weaponType) {
+    public AttributeModifier[] getAttributeModifiers(SoulWeaponType type) {
         return new AttributeModifier[]{
-            new AttributeModifier(SoulAttributeModifier.ATTACK_SPEED_UUID, "generic.attackSpeed", getAttackSpeed(weaponType), ADD),
-            new AttributeModifier(SoulAttributeModifier.ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttackDamage(weaponType), ADD)
+            new AttributeModifier(SoulWeaponHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", getAttribute(ATTACK_SPEED, type), ADD),
+            new AttributeModifier(SoulWeaponHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttribute(ATTACK_DAMAGE, type), ADD)
         };
     }
 
     @Override
-    public String[] getTooltip(ItemStack itemStack) {
-        final SoulWeaponType WEAPON_TYPE = SoulWeaponType.getType(itemStack);
+    public SortedMap<SoulWeaponEnchantment, Integer> getEnchantments(SoulWeaponType type) {
+        SortedMap<SoulWeaponEnchantment, Integer> enchantments = new TreeMap<>();
+
+        for (SoulWeaponEnchantment enchantment : SoulWeaponEnchantment.enchantments) {
+            final int level = this.getEnchantment(enchantment, type);
+
+            if (level > 0) {
+                enchantments.put(enchantment, level);
+            }
+        }
+
+        return enchantments;
+    }
+
+    @Override
+    public String[] getTooltip(final SoulWeaponType type) {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
+        final List<String> tooltip = new ArrayList<>(7);
+        final Map<SoulWeaponEnchantment, Integer> enchantments = this.getEnchantments(type);
 
-        return new String[]{
-            String.format(" %s attack speed", FORMAT.format(this.getAttackSpeed(WEAPON_TYPE) + 4)),
-            String.format(" %s attack damage", FORMAT.format(this.getAttackDamage(WEAPON_TYPE) + 1)),
-            "",
-            ""
-        };
+        float attackDamage = this.getAttribute(ATTACK_DAMAGE, type) + 1;
+
+        if (enchantments.containsKey(SHARPNESS)) {
+            attackDamage += 1 + (enchantments.get(SHARPNESS) - 1) / 2F;
+        }
+
+        tooltip.add(String.format(" %s%s %s", I18n.format("format.soulweapons.attackSpeed"), FORMAT.format(this.getAttribute(ATTACK_SPEED, type) + 4), I18n.format("attribute.soulweapons.attackSpeed")));
+        tooltip.add(String.format(" %s%s %s", I18n.format("format.soulweapons.attackDamage"), FORMAT.format(attackDamage), I18n.format("attribute.soulweapons.attackDamage")));
+
+        tooltip.add("");
+        tooltip.add("");
+
+        if (this.getAttribute(CRITICAL, type) > 0) {
+            tooltip.add(String.format(" %s%s%% %s", I18n.format("format.soulweapons.critical"), FORMAT.format(this.getAttribute(CRITICAL, type)), I18n.format("attribute.soulweapons.critical")));
+        }
+        if (this.getAttribute(KNOCKBACK_ATTRIBUTE, type) > 0) {
+            tooltip.add(String.format(" %s%s %s", I18n.format("format.soulweapons.knockback"), FORMAT.format(this.getAttribute(KNOCKBACK_ATTRIBUTE, type)), I18n.format("attribute.soulweapons.knockback")));
+        }
+        if (this.getAttribute(EFFICIENCY, type) > 0) {
+            tooltip.add(String.format(" %s%s %s", I18n.format("format.soulweapons.efficiency"), FORMAT.format(this.getAttribute(EFFICIENCY, type)), I18n.format("attribute.soulweapons.efficiency")));
+        }
+
+        return tooltip.toArray(new String[0]);
     }
 
     @Override
-    public int getNextLevelXP() {
-        return getNextLevelXP(this.currentType);
+    public int getNextLevelXP(SoulWeaponType type) {
+        return 32 + 4 * (int) Math.round(Math.pow(this.getDatum(LEVEL, type), 1.5));
     }
 
     @Override
-    public int getNextLevelXP(SoulWeaponType weaponType) {
-        return 32 + 4 * (int) Math.round(Math.pow(this.getLevel(weaponType), 1.5));
+    public int getDatum(SoulWeaponDatum datum, SoulWeaponType type) {
+        return this.data[type.index][datum.index];
     }
 
     @Override
-    public int getXP() {
-        return getXP(this.getIndex());
-    }
+    public boolean addDatum(int amount, SoulWeaponDatum datum, SoulWeaponType type) {
+        switch (datum) {
+            case XP:
+                this.data[type.index][XP.index] += amount;
 
-    @Override
-    public int getXP(SoulWeaponType weaponType) {
-        return getXP(weaponType.index);
-    }
+                if (this.getDatum(XP, type) >= this.getNextLevelXP(type) && this.getDatum(LEVEL, type) < Configuration.maxLevel) {
+                    this.addDatum(-this.getNextLevelXP(type), XP, type);
+                    this.addDatum(1, LEVEL, type);
+                    return true;
+                }
 
-    @Override
-    public int getXP(int index) {
-        return this.data[index][XP.index];
-    }
+                return false;
+            case LEVEL:
+                final int number = this.data[type.index][LEVEL.index] % 10;
 
-    @Override
-    public boolean addXP(int xp) {
-        this.data[this.getIndex()][XP.index] += xp;
+                if (number % (Configuration.enchantmentLevels - 1) == 0 && this.getDatum(LEVEL, type) != 0) {
+                    this.addDatum(1, ENCHANTMENT_POINTS, type);
+                }
+                if (Configuration.onlyPoints) {
+                    this.addDatum(1, POINTS, type);
+                    return false;
+                }
 
-        if (this.getXP() >= this.getNextLevelXP() && Configuration.maxLevel > this.getLevel()) {
-            this.addXP(-this.getNextLevelXP());
-            this.addLevel();
-            return true;
+                switch (currentType) {
+                    case GREATSWORD:
+                        switch (number) {
+                            case 0:
+                                this.addDatum(1, POINTS, type);
+                                break;
+                            case 1:
+                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
+                                    addDatum(1, SKILLS, type);
+                                } else {
+                                    this.addDatum(1, POINTS, type);
+                                }
+
+                                break;
+                            case 2:
+                                addAttribute(0.5F, EFFICIENCY, type);
+                                break;
+                            case 3:
+                                addAttribute(1, KNOCKBACK_ATTRIBUTE, type);
+                                break;
+                            case 4:
+                                addAttribute(1, ATTACK_DAMAGE, type);
+                                break;
+                            case 5:
+                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
+                                    addDatum(1, SKILLS, type);
+                                } else {
+                                    this.addDatum(1, POINTS, type);
+                                }
+
+                                break;
+                            case 6:
+                                addAttribute(0.4F, EFFICIENCY, type);
+                                break;
+                            case 7:
+                                addAttribute(1, KNOCKBACK_ATTRIBUTE, type);
+                                break;
+                            case 8:
+                                addAttribute(2, CRITICAL, type);
+                                break;
+                            case 9:
+                                addAttribute(1, ATTACK_DAMAGE, type);
+                                break;
+                        }
+
+                        break;
+                    case SWORD:
+                        switch (number) {
+                            case 0:
+                                this.addDatum(1, POINTS, type);
+                                break;
+                            case 1:
+                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
+                                    addDatum(1, SKILLS, type);
+                                } else {
+                                    this.addDatum(1, POINTS, type);
+                                }
+
+                                break;
+                            case 2:
+                                addAttribute(0.4F, EFFICIENCY, type);
+                                break;
+                            case 3:
+                                addAttribute(1, KNOCKBACK_ATTRIBUTE, type);
+                                break;
+                            case 4:
+                                addAttribute(1, ATTACK_DAMAGE, type);
+                                break;
+                            case 5:
+                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
+                                    addDatum(1, SKILLS, type);
+                                } else {
+                                    this.addDatum(1, POINTS, type);
+                                }
+
+                                break;
+                            case 6:
+                                addAttribute(0.3F, EFFICIENCY, type);
+                                break;
+                            case 7:
+                                addAttribute(2, CRITICAL, type);
+                                break;
+                            case 8:
+                                addAttribute(2, CRITICAL, type);
+                                break;
+                            case 9:
+                                addAttribute(1, ATTACK_DAMAGE, type);
+                                break;
+                        }
+
+                        break;
+                    case DAGGER:
+                        switch (number) {
+                            case 0:
+                                this.addDatum(1, POINTS, type);
+                                break;
+                            case 1:
+                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
+                                    this.addDatum(1, SKILLS, type);
+                                } else {
+                                    this.addDatum(1, POINTS, type);
+                                }
+
+                                break;
+                            case 2:
+                                addAttribute(0.4F, EFFICIENCY, type);
+                                break;
+                            case 3:
+                                addAttribute(2, CRITICAL, type);
+                                break;
+                            case 4:
+                                addAttribute(1, ATTACK_DAMAGE, type);
+                                break;
+                            case 5:
+                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
+                                    addDatum(1, SKILLS, type);
+                                } else {
+                                    this.addDatum(1, POINTS, type);
+                                }
+
+                                break;
+                            case 6:
+                                addAttribute(0.3F, EFFICIENCY, type);
+                                break;
+                            case 7:
+                                addAttribute(4, CRITICAL, type);
+                                break;
+                            case 8:
+                                addAttribute(1, KNOCKBACK_ATTRIBUTE, type);
+                                break;
+                            case 9:
+                                addAttribute(1, ATTACK_DAMAGE, type);
+                                break;
+
+                        }
+                }
+            case POINTS:
+            case ENCHANTMENT_POINTS:
+            case SKILLS:
+                this.data[type.index][datum.index]++;
         }
 
         return false;
     }
 
+
     @Override
-    public int getLevel() {
-        return this.getLevel(this.getIndex());
+    public int getMaxSkills(SoulWeaponType type) {
+        return skillNames[type.index].length;
     }
 
     @Override
-    public int getLevel(SoulWeaponType weaponType) {
-        return this.getLevel(weaponType.index);
+    public int getEnchantment(final SoulWeaponEnchantment enchantment, SoulWeaponType type) {
+        return this.enchantments[type.index][enchantment.index];
     }
 
     @Override
-    public int getLevel(int index) {
-        return this.data[index][LEVEL.index];
+    public void addEnchantment(final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
+        this.enchantments[type.index][enchantment.index]++;
+        this.data[type.index][ENCHANTMENT_POINTS.index]--;
     }
 
     @Override
-    public void addLevel() {
-        this.addLevel(getIndex());
+    public void setCurrentTab(final int tab) {
+        this.currentTab = tab;
     }
 
     @Override
-    public void addLevel(int index) {
-        this.addAttribute(this.data[index][LEVEL.index]++ % 10);
-    }
-
-    @Override
-    public int getPoints() {
-        return this.data[getIndex()][POINTS.index];
-    }
-
-    @Override
-    public void addPoint() {
-        this.data[getIndex()][POINTS.index]++;
-    }
-
-    @Override
-    public int getMaxSkills() {
-        return skillNames[getIndex()].length;
-    }
-
-    @Override
-    public int getSkills() {
-        return this.data[getIndex()][SKILL.index];
-    }
-
-    @Override
-    public void addSpecial() {
-        this.data[getIndex()][SKILL.index]++;
-    }
-
-    @Override
-    public float getEfficiency() {
-        return this.attributes[getIndex()][EFFICIENCY.index];
-    }
-
-    @Override
-    public void addEfficiency(float amount) {
-        this.attributes[getIndex()][EFFICIENCY.index] += amount;
-    }
-
-    @Override
-    public float getKnockback() {
-        return this.attributes[getIndex()][KNOCKBACK.index];
-    }
-
-    @Override
-    public void addKnockback(float amount) {
-        this.attributes[getIndex()][KNOCKBACK.index] += amount;
-    }
-
-    @Override
-    public float getAttackDamage() {
-        return this.getAttackDamage(currentType);
-    }
-
-    @Override
-    public float getAttackDamage(SoulWeaponType weaponType) {
-        return this.attributes[weaponType.index][ATTACK_DAMAGE.index] + weaponType.item.getAttackDamage();
-    }
-
-    @Override
-    public void addAttackDamage(float amount) {
-        this.attributes[getIndex()][ATTACK_DAMAGE.index] += amount;
-    }
-
-    @Override
-    public float getAttackSpeed() {
-        return getAttackSpeed(this.currentType);
-    }
-
-    @Override
-    public float getAttackSpeed(SoulWeaponType weaponType) {
-        return this.attributes[weaponType.index][ATTACK_SPEED.index] + weaponType.item.getAttackSpeed();
-    }
-
-    @Override
-    public void addAttackSpeed(float amount) {
-        this.attributes[getIndex()][ATTACK_SPEED.index] += amount;
-    }
-
-    @Override
-    public float getCritical() {
-        return this.attributes[getIndex()][CRITICAL.index];
-    }
-
-    @Override
-    public void addCritical(float amount) {
-        this.attributes[getIndex()][CRITICAL.index] += amount;
-    }
-
-    @Override
-    public void setCurrentType(SoulWeaponType type) {
-        this.currentType = type;
-    }
-
-    @Override
-    public void setCurrentType(int index) {
-        this.currentType = SoulWeaponType.getType(index);
-    }
-
-    @Override
-    public int getIndex() {
-        return this.currentType.index;
-    }
-
-    @Override
-    public boolean hasAttributesAndData() {
-        return this.attributes[0].length != 0 && this.attributes[1].length != 0 && this.attributes[2].length != 0
-            && this.data[0].length != 0 && this.data[1].length != 0 && this.data[2].length != 0;
+    public int getCurrentTab() {
+        return this.currentTab;
     }
 
     @Override
     public SoulWeaponType getCurrentType() {
         return this.currentType;
+    }
+
+    @Override
+    public void setCurrentType(final SoulWeaponType type) {
+        this.currentType = type;
+    }
+
+    @Override
+    public void setCurrentType(final int index) {
+        this.currentType = SoulWeaponType.getType(index);
+    }
+
+    public static String[][] getSkillNames() {
+        return skillNames;
     }
 }

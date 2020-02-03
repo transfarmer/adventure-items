@@ -5,26 +5,38 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
-import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
-import transfarmer.soulweapons.weapon.SoulWeaponDatum;
+import transfarmer.soulweapons.data.SoulWeaponAttribute;
+import transfarmer.soulweapons.data.SoulWeaponDatum;
+import transfarmer.soulweapons.data.SoulWeaponEnchantment;
+import transfarmer.soulweapons.data.SoulWeaponType;
 
 public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
     public NBTBase writeNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing) {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("soulweapons.soulweapon.index", instance.getIndex());
-        int[][] data = instance.getData();
-        float[][] attributes = instance.getAttributes();
+        tag.setInteger("soulweapons.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().index);
+        tag.setInteger("soulweapons.capability.tab", instance.getCurrentTab());
+        final int[][] data = instance.getData();
+        final float[][] attributes = instance.getAttributes();
+        final int[][] enchantments = instance.getEnchantments();
 
-        SoulWeaponHelper.forEachDatumAndAttribute((Integer weaponIndex, Integer valueIndex) -> {
-            tag.setInteger(String.format("soulweapons.soulweapon.%s.%s",
-                instance.getWeaponName(weaponIndex), SoulWeaponDatum.getName(valueIndex)),
-                data[weaponIndex][valueIndex]);
-        }, (Integer weaponIndex, Integer valueIndex) -> {
-            tag.setFloat(String.format("soulweapons.soulweapon.%s.%s",
-                instance.getWeaponName(weaponIndex), SoulWeaponAttribute.getName(valueIndex)),
-                attributes[weaponIndex][valueIndex]);
-        });
+        SoulWeaponHelper.forEach(
+            (Integer weaponIndex, Integer valueIndex) ->
+                tag.setInteger(String.format("soulweapons.datum.%s.%s",
+                    SoulWeaponType.getType(weaponIndex),
+                    SoulWeaponDatum.getName(valueIndex)),
+                    data[weaponIndex][valueIndex]),
+            (Integer weaponIndex, Integer valueIndex) ->
+                tag.setFloat(String.format("soulweapons.attribute.%s.%s",
+                    SoulWeaponType.getType(weaponIndex),
+                    SoulWeaponAttribute.getName(valueIndex)),
+                    attributes[weaponIndex][valueIndex]),
+            (Integer weaponIndex, Integer valueIndex) ->
+                tag.setInteger(String.format("soulweapons.enchantment.%s.%s",
+                    SoulWeaponType.getType(weaponIndex),
+                    SoulWeaponEnchantment.getName(valueIndex)),
+                    enchantments[weaponIndex][valueIndex])
+        );
 
         return tag;
     }
@@ -33,18 +45,28 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soulweapons.soulweapon.index"));
-        int[][] data = new int[3][4];
-        float[][] attributes = new float[3][5];
+        final int[][] data = new int[3][5];
+        final float[][] attributes = new float[3][5];
+        final int[][] enchantments = new int[3][7];
 
-        SoulWeaponHelper.forEachDatumAndAttribute((Integer weaponIndex, Integer valueIndex) -> {
-            data[weaponIndex][valueIndex] = tag.getInteger(String.format("soulweapons.soulweapon.%s.%s",
-                instance.getWeaponName(weaponIndex), SoulWeaponDatum.getName(valueIndex)));
-        }, (Integer weaponIndex, Integer valueIndex) -> {
-            attributes[weaponIndex][valueIndex] = tag.getFloat(String.format("soulweapons.soulweapon.%s.%s",
-                instance.getWeaponName(weaponIndex), SoulWeaponAttribute.getName(valueIndex)));
-        });
+        SoulWeaponHelper.forEach(
+            (Integer weaponIndex, Integer valueIndex) ->
+                data[weaponIndex][valueIndex] = tag.getInteger(String.format("soulweapons.datum.%s.%s",
+                    SoulWeaponType.getType(weaponIndex),
+                    SoulWeaponDatum.getName(valueIndex)
+                )),
+            (Integer weaponIndex, Integer valueIndex) ->
+                attributes[weaponIndex][valueIndex] = tag.getFloat(String.format("soulweapons.attribute.%s.%s",
+                        SoulWeaponType.getType(weaponIndex),
+                        SoulWeaponAttribute.getName(valueIndex)
+                )),
+            (Integer weaponIndex, Integer valueIndex) ->
+                enchantments[weaponIndex][valueIndex] = tag.getInteger(String.format("soulweapons.enchantment.%s.%s",
+                        SoulWeaponType.getType(weaponIndex),
+                        SoulWeaponEnchantment.getName(valueIndex)
+                ))
+        );
 
-        instance.setData(data);
-        instance.setAttributes(attributes);
+        instance.set(data, attributes, enchantments);
     }
 }

@@ -7,19 +7,19 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.capability.ISoulWeapon;
-import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
+import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ClientAddAttribute implements IMessage {
+public class ClientAddEnchantment implements IMessage {
     private int index;
 
-    public ClientAddAttribute() {}
+    public ClientAddEnchantment() {}
 
-    public ClientAddAttribute(SoulWeaponAttribute attribute) {
-        this.index = attribute.index;
+    public ClientAddEnchantment(final SoulWeaponEnchantment enchantment) {
+        this.index = enchantment.index;
     }
 
     @Override
@@ -32,15 +32,15 @@ public class ClientAddAttribute implements IMessage {
         buffer.writeInt(this.index);
     }
 
-    public static final class Handler implements IMessageHandler<ClientAddAttribute, IMessage> {
+    public static final class Handler implements IMessageHandler<ClientAddEnchantment, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(ClientAddAttribute message, MessageContext context) {
+        public IMessage onMessage(final ClientAddEnchantment message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final ISoulWeapon instance = minecraft.player.getCapability(CAPABILITY, null);
 
             minecraft.addScheduledTask(() -> {
-                instance.addAttribute(SoulWeaponAttribute.getAttribute(message.index), instance.getCurrentType());
+                instance.addEnchantment(SoulWeaponEnchantment.getEnchantment(message.index), instance.getCurrentType());
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
             });
 

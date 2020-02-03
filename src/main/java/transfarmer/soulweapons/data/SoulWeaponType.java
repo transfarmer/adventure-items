@@ -1,4 +1,4 @@
-package transfarmer.soulweapons.weapon;
+package transfarmer.soulweapons.data;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,8 +14,7 @@ import static transfarmer.soulweapons.init.ModItems.SOUL_SWORD;
 public enum SoulWeaponType {
     GREATSWORD(SOUL_GREATSWORD, 0),
     SWORD(SOUL_SWORD, 1),
-    DAGGER(SOUL_DAGGER, 2),
-    NONE(null, -1);
+    DAGGER(SOUL_DAGGER, 2);
 
     private static final List<Item> SOUL_WEAPONS = new ArrayList<>(3);
     static {
@@ -31,12 +30,17 @@ public enum SoulWeaponType {
         this.index = index;
     }
 
+    public Item getItem() {
+        return this.item;
+    }
+
     public ItemStack getItemStack() {
         return new ItemStack(this.item);
     }
 
-    public String getName() {
-        return this.toString().toLowerCase();
+    @Override
+    public String toString() {
+        return super.toString().toLowerCase();
     }
 
     public static SoulWeaponType getType(int index) {
@@ -48,7 +52,7 @@ public enum SoulWeaponType {
             case 2:
                 return DAGGER;
             default:
-                return NONE;
+                return null;
         }
     }
 

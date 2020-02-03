@@ -4,10 +4,11 @@ import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulweapons.weapon.SoulWeaponAttribute;
+import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.POINTS;
 
 public class ServerAddAttribute implements IMessage {
     private int index;
@@ -31,11 +32,12 @@ public class ServerAddAttribute implements IMessage {
     public static final class Handler implements IMessageHandler<ServerAddAttribute, IMessage> {
         @Override
         public IMessage onMessage(ServerAddAttribute message, MessageContext context) {
-            ISoulWeapon instance = context.getServerHandler().player.getCapability(CAPABILITY, null);
-            SoulWeaponAttribute attribute = SoulWeaponAttribute.getAttribute(message.index);
+            final ISoulWeapon instance = context.getServerHandler().player.getCapability(CAPABILITY, null);
+            final SoulWeaponAttribute attribute = SoulWeaponAttribute.getAttribute(message.index);
 
-            if (instance.getPoints() > 0 ) {
-                instance.addAttribute(attribute);
+            if (instance.getDatum(POINTS, instance.getCurrentType()) > 0 ) {
+                instance.addAttribute(attribute, instance.getCurrentType());
+
                 return new ClientAddAttribute(attribute);
             }
 

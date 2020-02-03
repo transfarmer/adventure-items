@@ -11,6 +11,7 @@ import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
 
 public class ClientWeaponXP implements IMessage {
     private int xp;
@@ -36,10 +37,10 @@ public class ClientWeaponXP implements IMessage {
         @Override
         public IMessage onMessage(ClientWeaponXP message, MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
-                EntityPlayer player = Minecraft.getMinecraft().player;
-                ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+                final EntityPlayer player = Minecraft.getMinecraft().player;
+                final ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
-                instance.addXP(message.xp);
+                instance.addDatum(message.xp, XP, instance.getCurrentType());
             });
 
             return null;

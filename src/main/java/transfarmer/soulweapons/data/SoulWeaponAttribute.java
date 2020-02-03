@@ -1,10 +1,10 @@
-package transfarmer.soulweapons.weapon;
+package transfarmer.soulweapons.data;
 
 public enum SoulWeaponAttribute {
     ATTACK_SPEED(0),
     ATTACK_DAMAGE(1),
     CRITICAL(2),
-    KNOCKBACK(3),
+    KNOCKBACK_ATTRIBUTE(3),
     EFFICIENCY(4);
 
     public final int index;
@@ -22,7 +22,7 @@ public enum SoulWeaponAttribute {
             case 2:
                 return CRITICAL;
             case 3:
-                return KNOCKBACK;
+                return KNOCKBACK_ATTRIBUTE;
             case 4:
                 return EFFICIENCY;
             default:

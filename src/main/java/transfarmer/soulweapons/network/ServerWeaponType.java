@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulweapons.weapon.SoulWeaponType;
+import transfarmer.soulweapons.data.SoulWeaponType;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
@@ -39,7 +39,7 @@ public class ServerWeaponType implements IMessage {
             ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
             instance.setCurrentType(WEAPON_TYPE);
-            player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(instance.getItem()));
+            player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(instance.getCurrentType().getItem()));
 
             return new ClientWeaponType(WEAPON_TYPE);
         }
