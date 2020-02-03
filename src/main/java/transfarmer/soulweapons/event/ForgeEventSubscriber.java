@@ -84,29 +84,29 @@ public class ForgeEventSubscriber {
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerRespawnEvent event) {
         updatePlayer(event.player);
+
+        final ISoulWeapon capability = event.player.getCapability(CAPABILITY, null);
+
+        if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel) {
+            event.player.addItemStackToInventory(capability.getItemStack(capability.getCurrentType()));
+        }
     }
 
     private static void updatePlayer(EntityPlayer player) {
-        ISoulWeapon instance = player.getCapability(CAPABILITY, null);
-        Main.CHANNEL.sendTo(new ClientWeaponData(instance.getCurrentType(), instance.getCurrentTab(),
-            instance.getData(), instance.getAttributes(), instance.getEnchantments()), (EntityPlayerMP) player);
+        ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+        Main.CHANNEL.sendTo(new ClientWeaponData(capability.getCurrentType(), capability.getCurrentTab(),
+            capability.getData(), capability.getAttributes(), capability.getEnchantments()), (EntityPlayerMP) player);
     }
 
     @SubscribeEvent
     public static void onPlayerDrops(PlayerDropsEvent event) {
         EntityPlayer player = event.getEntityPlayer();
-        ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+        ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
-        if (SoulWeaponHelper.hasSoulWeapon(player) && instance.getDatum(LEVEL, instance.getCurrentType()) >= Configuration.preservationLevel
+        if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
             && !player.world.getGameRules().getBoolean("keepInventory")) {
-            for (EntityItem item : event.getDrops()) {
-                Main.LOGGER.error(item);
 
-                if (SoulWeaponType.isSoulWeapon(item.getItem())) {
-                    Main.LOGGER.error(true);
-                    event.getDrops().remove(item);
-                }
-            }
+            event.getDrops().removeIf((EntityItem item) -> SoulWeaponType.isSoulWeapon(item.getItem()));
         }
     }
 
