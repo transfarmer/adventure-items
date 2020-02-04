@@ -6,7 +6,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.data.SoulWeaponType;
 
 import java.util.UUID;
@@ -73,8 +72,6 @@ public class SoulWeaponHelper {
                 }
             }
         }
-
-        if (!datumEquality) Main.LOGGER.error("update weapon");
 
         return datumEquality;
     }

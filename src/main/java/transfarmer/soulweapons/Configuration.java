@@ -11,11 +11,11 @@ public class Configuration {
     @Comment("the number of levels per enchantment point")
     public static int enchantmentLevels = 5;
 
+    @Comment("initial experience points required in order to level up")
+    public static int initialXP = 48;
+
     @Comment("whether levelup notifications should be sent to players or not")
     public static boolean levelupNotifications = true;
-
-    @Comment("whether attribute point notifications should be sent to players on levelup or not")
-    public static boolean levelupPointNotifications = true;
 
     @Comment("whether every level should award only an attribute point or not")
     public static boolean onlyPoints = false;
@@ -26,12 +26,12 @@ public class Configuration {
     @Comment("minimum level for soul weapons to be preserved after death")
     public static int preservationLevel = 10;
 
-    @Comment("the offset for soul weapon menu entries from the top multiplied by (the height of the Minecraft window / 16)")
+    @Comment("the offset for soul weapon menu entries from the top multiplied by (height of Minecraft window / 16)")
     public static int menuOffset = 1;
 
     public static class Multipliers {
         @Comment("armor XP multiplier = 1 + (armorMultiplier * armor)")
-        public float armorMultiplier = 0.05F;
+        public float armorMultiplier = 0.2F;
 
         @Comment("attack damage XP multiplier = 1 + (attackDamageMultiplier * damage)")
         public float attackDamageMultiplier = 1F / 3;

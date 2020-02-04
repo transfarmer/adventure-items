@@ -17,7 +17,7 @@ public class ClientWeaponType implements IMessage {
     private int currentTypeIndex;
 
     public ClientWeaponType() {
-        this.currentTypeIndex = 3;
+        this.currentTypeIndex = -1;
     }
 
     public ClientWeaponType(final SoulWeaponType weaponType) {

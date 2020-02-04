@@ -22,10 +22,12 @@ public abstract class ItemSoulWeapon extends ItemSword {
         return this.attackSpeed;
     }
 
+    @Override
     public int getItemEnchantability() {
         return 0;
     }
 
+    @Override
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
         return false;
     }

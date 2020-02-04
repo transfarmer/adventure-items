@@ -13,10 +13,13 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
@@ -28,6 +31,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
@@ -35,6 +40,7 @@ import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.capability.SoulWeaponProvider;
 import transfarmer.soulweapons.data.SoulWeaponType;
+import transfarmer.soulweapons.entity.EntitySoulDagger;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
 import transfarmer.soulweapons.gui.TooltipXPBar;
 import transfarmer.soulweapons.network.ClientWeaponData;
@@ -49,9 +55,7 @@ import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.Configuration.levelupNotifications;
-import static transfarmer.soulweapons.Configuration.levelupPointNotifications;
 import static transfarmer.soulweapons.Configuration.multipliers;
-import static transfarmer.soulweapons.Configuration.onlyPoints;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.CRITICAL;
@@ -63,6 +67,18 @@ import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
 @EventBusSubscriber(modid = Main.MODID)
 public class ForgeEventSubscriber {
     public static SoulWeaponType tooltipWeapon = null;
+
+    @SideOnly(CLIENT)
+    @SubscribeEvent
+    public static void onRegisterEntityEntry(RegistryEvent.Register<EntityEntry> entry) {
+        entry.getRegistry().register(EntityEntryBuilder.create()
+            .entity(EntitySoulDagger.class)
+            .id(new ResourceLocation(Main.MODID, "entitySoulDagger"), 0)
+            .name("soul dagger")
+            .tracker(128, 1, true)
+            .build()
+        );
+    }
 
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
@@ -173,17 +189,26 @@ public class ForgeEventSubscriber {
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
         final EntityLivingBase entity = event.getEntityLiving();
-        final Entity source = event.getSource().getTrueSource();
+        final DamageSource source = event.getSource();
+        final Entity trueSource = event.getSource().getTrueSource();
 
-        if (entity.getEntityWorld().isRemote || !(source instanceof EntityPlayer)) return;
+        if (!entity.getEntityWorld().isRemote && trueSource instanceof EntityPlayer) {
+            final EntityPlayer player = (EntityPlayer) trueSource;
 
-        final ISoulWeapon instance = source.getCapability(CAPABILITY, null);
+            if (source.getImmediateSource() instanceof EntitySoulDagger) {
+                ((EntityPlayer) trueSource).attackTargetEntityWithCurrentItem(entity);
+                event.setCanceled(true);
+                return;
+            }
 
-        if (!SoulWeaponHelper.isSoulWeaponEquipped((EntityPlayer) source)) return;
-        if (new Random().nextInt(100) >= instance.getAttribute(CRITICAL, instance.getCurrentType())) return;
+            final ISoulWeapon instance = trueSource.getCapability(CAPABILITY, null);
 
-        event.setAmount(2 * event.getAmount());
+            if (SoulWeaponHelper.isSoulWeaponEquipped((EntityPlayer) trueSource) && instance.getAttribute(CRITICAL, instance.getCurrentType()) > new Random().nextInt(100)) {
+                event.setAmount(2 * event.getAmount());
+            }
+        }
     }
+
 
     @SubscribeEvent
     public static void onLivingKnockback(LivingKnockBackEvent event) {
@@ -204,36 +229,35 @@ public class ForgeEventSubscriber {
         final IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
         final IAttributeInstance armor = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR);
 
-        if (entity.getEntityWorld().isRemote || attackDamage == null || !(source instanceof EntityPlayer)) return;
-        if (attackDamage.getAttributeValue() == 0) return;
+        //noinspection ConstantConditions
+        if (!entity.getEntityWorld().isRemote && attackDamage instanceof IAttributeInstance && source instanceof EntityPlayer) {
+            if (attackDamage.getAttributeValue() > 0 && SoulWeaponHelper.isSoulWeaponEquipped((EntityPlayer) source)) {
+                final ISoulWeapon instance = source.getCapability(CAPABILITY, null);
 
-        final ISoulWeapon instance = source.getCapability(CAPABILITY, null);
+                int xp = (int) Math.round(entity.getMaxHealth()
+                    * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
+                    * (1 + attackDamage.getAttributeValue() * multipliers.attackDamageMultiplier)
+                    * (1 + armor.getAttributeValue() * multipliers.armorMultiplier));
 
-        if (!SoulWeaponHelper.isSoulWeaponEquipped((EntityPlayer) source)) return;
+                if (!entity.isNonBoss()) {
+                    xp *= multipliers.bossMultiplier;
+                } if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
+                    xp *= multipliers.hardcoreMultiplier;
+                }
 
-        int xp = (int) Math.round(entity.getMaxHealth()
-            * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
-            * (1 + attackDamage.getAttributeValue() * multipliers.attackDamageMultiplier)
-            * (1 + armor.getAttributeValue() * multipliers.armorMultiplier));
+                if (instance.addDatum(xp, XP, instance.getCurrentType()) && levelupNotifications) {
+                    source.sendMessage(new TextComponentString(String.format("Your %s leveled up to level %d.",
+                        ((EntityPlayerMP) source).getHeldItemMainhand().getDisplayName(), instance.getDatum(LEVEL, instance.getCurrentType()))));
+                }
 
-        if (!entity.isNonBoss()) {
-            xp *= multipliers.bossMultiplier;
-        } if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
-            xp *= multipliers.hardcoreMultiplier;
-        }
-
-        Main.CHANNEL.sendTo(new ClientWeaponXP(xp), (EntityPlayerMP) source);
-
-        if (instance.addDatum(xp, XP, instance.getCurrentType())) {
-            if (levelupNotifications) {
-                source.sendMessage(new TextComponentString(String.format("Your %s leveled up to level %d.",
-                    ((EntityPlayerMP) source).getHeldItemMainhand().getDisplayName(), instance.getDatum(LEVEL, instance.getCurrentType()))));
-            }
-
-            if (levelupPointNotifications && (instance.getDatum(LEVEL, instance.getCurrentType()) % 10 == 1 || onlyPoints)) {
-                source.sendMessage(new TextComponentString("You earned an attribute point."));
+                Main.CHANNEL.sendTo(new ClientWeaponXP(xp), (EntityPlayerMP) source);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onProjectileImpact(ProjectileImpactEvent event) {
+
     }
 
     @SideOnly(CLIENT)

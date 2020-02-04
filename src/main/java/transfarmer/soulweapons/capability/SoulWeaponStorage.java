@@ -44,7 +44,8 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
     public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
-        instance.setCurrentType(tag.getInteger("soulweapons.soulweapon.index"));
+        instance.setCurrentType(tag.getInteger("soulweapons.capability.index"));
+        instance.setCurrentTab(tag.getInteger("soulweapons.capability.tab"));
         final int[][] data = new int[3][5];
         final float[][] attributes = new float[3][5];
         final int[][] enchantments = new int[3][7];

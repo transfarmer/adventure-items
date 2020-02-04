@@ -15,6 +15,7 @@ import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.data.SoulWeaponType;
 import transfarmer.soulweapons.network.ServerAddAttribute;
 import transfarmer.soulweapons.network.ServerAddEnchantment;
+import transfarmer.soulweapons.network.ServerTab;
 import transfarmer.soulweapons.network.ServerWeaponType;
 
 import java.text.DecimalFormat;
@@ -53,8 +54,10 @@ public class SoulWeaponMenu extends GuiScreen {
     public SoulWeaponMenu() {
         if (Minecraft.getMinecraft().player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)) {
             this.capability.setCurrentTab(0);
+            Main.CHANNEL.sendToServer(new ServerTab(0));
         } else if (this.capability.getCurrentTab() == 0) {
             this.capability.setCurrentTab(1);
+            Main.CHANNEL.sendToServer(new ServerTab(1));
         }
     }
 
@@ -89,9 +92,15 @@ public class SoulWeaponMenu extends GuiScreen {
         int xCenter = (width - buttonWidth) / 2;
         int ySep = 32;
 
-        addButton(new GuiButton(0, xCenter, height / 2 - ySep, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulGreatsword")));
-        addButton(new GuiButton(1, xCenter, height / 2, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulSword")));
-        addButton(new GuiButton(2,xCenter, height / 2 + ySep, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulDagger")));
+        final GuiButton[] weaponButtons = {
+            addButton(new GuiButton(0, xCenter, height / 2 - ySep, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulGreatsword"))),
+            addButton(new GuiButton(1, xCenter, height / 2, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulSword"))),
+            addButton(new GuiButton(2,xCenter, height / 2 + ySep, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulDagger")))
+        };
+
+        if (capability.getCurrentType() != null) {
+            weaponButtons[capability.getCurrentType().index].enabled = false;
+        }
     }
 
     private void showAttributes() {
@@ -212,16 +221,49 @@ public class SoulWeaponMenu extends GuiScreen {
     public void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 0:
+                if (capability.getCurrentType() == null) {
+                    capability.setCurrentType(GREATSWORD);
+                    this.capability.setCurrentTab(1);
+                    this.mc.displayGuiScreen(null);
+                } else {
+                    capability.setCurrentType(GREATSWORD);
+                    this.buttonList.clear();
+                    this.initGui();
+                }
+
                 Main.CHANNEL.sendToServer(new ServerWeaponType(GREATSWORD));
-                this.mc.displayGuiScreen(null);
+                Main.CHANNEL.sendToServer(new ServerTab(1));
+
                 break;
             case 1:
+                if (capability.getCurrentType() == null) {
+                    capability.setCurrentType(SWORD);
+                    this.capability.setCurrentTab(1);
+                    this.mc.displayGuiScreen(null);
+                } else {
+                    capability.setCurrentType(SWORD);
+                    this.buttonList.clear();
+                    this.initGui();
+                }
+
                 Main.CHANNEL.sendToServer(new ServerWeaponType(SWORD));
-                this.mc.displayGuiScreen(null);
+                Main.CHANNEL.sendToServer(new ServerTab(1));
+
                 break;
             case 2:
+                if (capability.getCurrentType() == null) {
+                    capability.setCurrentType(DAGGER);
+                    this.capability.setCurrentTab(1);
+                    this.mc.displayGuiScreen(null);
+                } else {
+                    capability.setCurrentType(DAGGER);
+                    this.buttonList.clear();
+                    this.initGui();
+                }
+
                 Main.CHANNEL.sendToServer(new ServerWeaponType(DAGGER));
-                this.mc.displayGuiScreen(null);
+                Main.CHANNEL.sendToServer(new ServerTab(1));
+
                 break;
             case 3:
                 this.mc.displayGuiScreen(null);
@@ -263,23 +305,27 @@ public class SoulWeaponMenu extends GuiScreen {
                 Main.CHANNEL.sendToServer(new ServerAddEnchantment(BANE_OF_ARTHROPODS));
                 break;
             case 16:
-                this.buttonList.clear();
+                Main.CHANNEL.sendToServer(new ServerTab(0));
                 this.capability.setCurrentTab(0);
+                this.buttonList.clear();
                 this.initGui();
                 break;
             case 17:
-                this.buttonList.clear();
+                Main.CHANNEL.sendToServer(new ServerTab(1));
                 this.capability.setCurrentTab(1);
+                this.buttonList.clear();
                 this.initGui();
                 break;
             case 18:
-                this.buttonList.clear();
+                Main.CHANNEL.sendToServer(new ServerTab(2));
                 this.capability.setCurrentTab(2);
+                this.buttonList.clear();
                 this.initGui();
                 break;
             case 19:
-                this.buttonList.clear();
+                Main.CHANNEL.sendToServer(new ServerTab(3));
                 this.capability.setCurrentTab(3);
+                this.buttonList.clear();
                 this.initGui();
                 break;
         }
@@ -287,7 +333,7 @@ public class SoulWeaponMenu extends GuiScreen {
 
     public class GUIFactory {
         public GuiButton tabButton(int id, int order, String text) {
-            return new GuiButton(id, 40, 40 + order * 32, 128, 20, text);
+            return new GuiButton(id, width / 24, height / 16 + Math.max(height / 16 * (Configuration.menuOffset - 1 + order), 30 * order), Math.max(96, Math.round(width / 7.5F)), 20, text);
         }
 
         public GuiButton centeredButton(int id, int y, int buttonWidth, String text) {
