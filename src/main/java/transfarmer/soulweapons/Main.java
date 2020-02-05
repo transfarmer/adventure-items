@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import transfarmer.soulweapons.capability.ISoulWeapon;
@@ -33,9 +34,10 @@ import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
 public class Main {
     public static final String MODID = "soulweapons";
     public static final String NAME = "soul weapons";
-    public static final String VERSION = "1.6.0-beta";
+    public static final String VERSION = "1.6.2-beta";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
+    @SideOnly(CLIENT)
     public static final ResourceLocation XP_BAR = new ResourceLocation(Main.MODID, "textures/gui/xp_bar.png");
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);

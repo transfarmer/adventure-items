@@ -7,6 +7,8 @@ public enum SoulWeaponAttribute {
     KNOCKBACK_ATTRIBUTE(3),
     EFFICIENCY(4);
 
+    private static final SoulWeaponAttribute[] attributes = {ATTACK_SPEED, ATTACK_DAMAGE, CRITICAL, KNOCKBACK_ATTRIBUTE, EFFICIENCY};
+
     public final int index;
 
     SoulWeaponAttribute(final int index) {
@@ -14,20 +16,7 @@ public enum SoulWeaponAttribute {
     }
 
     public static SoulWeaponAttribute getAttribute(int index) {
-        switch (index) {
-            case 0:
-                return ATTACK_SPEED;
-            case 1:
-                return ATTACK_DAMAGE;
-            case 2:
-                return CRITICAL;
-            case 3:
-                return KNOCKBACK_ATTRIBUTE;
-            case 4:
-                return EFFICIENCY;
-            default:
-                return null;
-        }
+        return attributes[index];
     }
 
     public static String getName(int index) {

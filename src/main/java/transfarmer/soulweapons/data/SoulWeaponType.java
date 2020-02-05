@@ -16,6 +16,7 @@ public enum SoulWeaponType {
     SWORD(SOUL_SWORD, 1),
     DAGGER(SOUL_DAGGER, 2);
 
+    private static final SoulWeaponType[] types = {GREATSWORD, SWORD, DAGGER};
     private static final List<Item> SOUL_WEAPONS = new ArrayList<>(3);
     static {
         SOUL_WEAPONS.add(GREATSWORD.item);
@@ -44,16 +45,7 @@ public enum SoulWeaponType {
     }
 
     public static SoulWeaponType getType(int index) {
-        switch (index) {
-            case 0:
-                return GREATSWORD;
-            case 1:
-                return SWORD;
-            case 2:
-                return DAGGER;
-            default:
-                return null;
-        }
+        return types[index];
     }
 
     public static SoulWeaponType getType(Item item) {

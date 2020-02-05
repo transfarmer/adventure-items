@@ -12,6 +12,8 @@ import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
+import transfarmer.soulweapons.data.SoulWeaponAttribute;
+import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
 import transfarmer.soulweapons.network.ServerAddAttribute;
 import transfarmer.soulweapons.network.ServerAddEnchantment;
@@ -40,9 +42,6 @@ import static transfarmer.soulweapons.data.SoulWeaponEnchantment.LOOTING;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SHARPNESS;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SMITE;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SWEEPING_EDGE;
-import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
-import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
-import static transfarmer.soulweapons.data.SoulWeaponType.SWORD;
 
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends GuiScreen {
@@ -55,9 +54,6 @@ public class SoulWeaponMenu extends GuiScreen {
         if (Minecraft.getMinecraft().player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)) {
             this.capability.setCurrentTab(0);
             Main.CHANNEL.sendToServer(new ServerTab(0));
-        } else if (this.capability.getCurrentTab() == 0) {
-            this.capability.setCurrentTab(1);
-            Main.CHANNEL.sendToServer(new ServerTab(1));
         }
     }
 
@@ -98,7 +94,7 @@ public class SoulWeaponMenu extends GuiScreen {
             addButton(new GuiButton(2,xCenter, height / 2 + ySep, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulDagger")))
         };
 
-        if (capability.getCurrentType() != null) {
+        if (SoulWeaponHelper.hasSoulWeapon(this.mc.player)) {
             weaponButtons[capability.getCurrentType().index].enabled = false;
         }
     }
@@ -221,47 +217,23 @@ public class SoulWeaponMenu extends GuiScreen {
     public void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 0:
-                if (capability.getCurrentType() == null) {
-                    capability.setCurrentType(GREATSWORD);
-                    this.capability.setCurrentTab(1);
-                    this.mc.displayGuiScreen(null);
-                } else {
-                    capability.setCurrentType(GREATSWORD);
-                    this.buttonList.clear();
-                    this.initGui();
-                }
-
-                Main.CHANNEL.sendToServer(new ServerWeaponType(GREATSWORD));
-                Main.CHANNEL.sendToServer(new ServerTab(1));
-
-                break;
             case 1:
-                if (capability.getCurrentType() == null) {
-                    capability.setCurrentType(SWORD);
-                    this.capability.setCurrentTab(1);
-                    this.mc.displayGuiScreen(null);
-                } else {
-                    capability.setCurrentType(SWORD);
-                    this.buttonList.clear();
-                    this.initGui();
-                }
-
-                Main.CHANNEL.sendToServer(new ServerWeaponType(SWORD));
-                Main.CHANNEL.sendToServer(new ServerTab(1));
-
-                break;
             case 2:
-                if (capability.getCurrentType() == null) {
-                    capability.setCurrentType(DAGGER);
+                final SoulWeaponType type = SoulWeaponType.getType(button.id);
+                GuiScreen screen;
+
+                if (!SoulWeaponHelper.hasSoulWeapon(this.mc.player)) {
+                    capability.setCurrentType(type);
                     this.capability.setCurrentTab(1);
-                    this.mc.displayGuiScreen(null);
+                    screen = null;
                 } else {
-                    capability.setCurrentType(DAGGER);
+                    capability.setCurrentType(type);
                     this.buttonList.clear();
-                    this.initGui();
+                    screen = new SoulWeaponMenu();
                 }
 
-                Main.CHANNEL.sendToServer(new ServerWeaponType(DAGGER));
+                this.mc.displayGuiScreen(screen);
+                Main.CHANNEL.sendToServer(new ServerWeaponType(type));
                 Main.CHANNEL.sendToServer(new ServerTab(1));
 
                 break;
@@ -269,64 +241,31 @@ public class SoulWeaponMenu extends GuiScreen {
                 this.mc.displayGuiScreen(null);
                 break;
             case 4:
-                Main.CHANNEL.sendToServer(new ServerAddAttribute(ATTACK_SPEED));
-                break;
             case 5:
-                Main.CHANNEL.sendToServer(new ServerAddAttribute(ATTACK_DAMAGE));
-                break;
             case 6:
-                Main.CHANNEL.sendToServer(new ServerAddAttribute(CRITICAL));
-                break;
             case 7:
-                Main.CHANNEL.sendToServer(new ServerAddAttribute(KNOCKBACK_ATTRIBUTE));
-                break;
             case 8:
-                Main.CHANNEL.sendToServer(new ServerAddAttribute(EFFICIENCY));
+                Main.CHANNEL.sendToServer(new ServerAddAttribute(SoulWeaponAttribute.getAttribute(button.id - 4)));
                 break;
             case 9:
-                Main.CHANNEL.sendToServer(new ServerAddEnchantment(SHARPNESS));
-                break;
             case 10:
-                Main.CHANNEL.sendToServer(new ServerAddEnchantment(SWEEPING_EDGE));
-                break;
             case 11:
-                Main.CHANNEL.sendToServer(new ServerAddEnchantment(LOOTING));
-                break;
             case 12:
-                Main.CHANNEL.sendToServer(new ServerAddEnchantment(FIRE_ASPECT));
-                break;
             case 13:
-                Main.CHANNEL.sendToServer(new ServerAddEnchantment(KNOCKBACK));
-                break;
             case 14:
-                Main.CHANNEL.sendToServer(new ServerAddEnchantment(SMITE));
-                break;
             case 15:
-                Main.CHANNEL.sendToServer(new ServerAddEnchantment(BANE_OF_ARTHROPODS));
+                Main.CHANNEL.sendToServer(new ServerAddEnchantment(SoulWeaponEnchantment.getEnchantment(button.id - 9)));
                 break;
             case 16:
-                Main.CHANNEL.sendToServer(new ServerTab(0));
-                this.capability.setCurrentTab(0);
-                this.buttonList.clear();
-                this.initGui();
-                break;
             case 17:
-                Main.CHANNEL.sendToServer(new ServerTab(1));
-                this.capability.setCurrentTab(1);
-                this.buttonList.clear();
-                this.initGui();
-                break;
             case 18:
-                Main.CHANNEL.sendToServer(new ServerTab(2));
-                this.capability.setCurrentTab(2);
-                this.buttonList.clear();
-                this.initGui();
-                break;
             case 19:
-                Main.CHANNEL.sendToServer(new ServerTab(3));
-                this.capability.setCurrentTab(3);
+                final int tab = button.id - 16;
+
+                Main.CHANNEL.sendToServer(new ServerTab(tab));
+                this.capability.setCurrentTab(tab);
                 this.buttonList.clear();
-                this.initGui();
+                this.mc.displayGuiScreen(new SoulWeaponMenu());
                 break;
         }
     }
