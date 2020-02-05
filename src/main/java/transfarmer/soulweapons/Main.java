@@ -17,7 +17,6 @@ import transfarmer.soulweapons.capability.SoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponStorage;
 import transfarmer.soulweapons.network.ClientAddAttribute;
 import transfarmer.soulweapons.network.ClientAddEnchantment;
-import transfarmer.soulweapons.network.ClientTab;
 import transfarmer.soulweapons.network.ClientWeaponData;
 import transfarmer.soulweapons.network.ClientWeaponType;
 import transfarmer.soulweapons.network.ClientWeaponXP;
@@ -57,7 +56,6 @@ public class Main {
         CHANNEL.registerMessage(ClientAddEnchantment.Handler.class, ClientAddEnchantment.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientWeaponXP.Handler.class, ClientWeaponXP.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientWeaponData.Handler.class, ClientWeaponData.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientTab.Handler.class, ClientTab.class, id++, CLIENT);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(WEAPON_MENU);
