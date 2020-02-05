@@ -267,7 +267,9 @@ public class ForgeEventSubscriber {
         if (WEAPON_MENU.isKeyDown() && event.phase == END) {
             final EntityPlayer player = Minecraft.getMinecraft().player;
 
-            if (player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD) || SoulWeaponHelper.isSoulWeaponEquipped(player)) {
+            if (player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)) {
+                Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu(0));
+            } else if (SoulWeaponHelper.isSoulWeaponEquipped(player)) {
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
             }
         }

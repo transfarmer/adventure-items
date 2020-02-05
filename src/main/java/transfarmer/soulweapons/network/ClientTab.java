@@ -11,7 +11,7 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ClientTab implements IMessage {
-    private int tab;
+    int tab;
 
     public ClientTab() {}
 
@@ -19,20 +19,21 @@ public class ClientTab implements IMessage {
         this.tab = tab;
     }
 
+    @Override
     public void fromBytes(ByteBuf buffer) {
         this.tab = buffer.readInt();
     }
 
+    @Override
     public void toBytes(ByteBuf buffer) {
         buffer.writeInt(this.tab);
     }
 
     public static final class Handler implements IMessageHandler<ClientTab, IMessage> {
         @SideOnly(CLIENT)
+        @Override
         public IMessage onMessage(ClientTab message, MessageContext context) {
-            final Minecraft minecraft = Minecraft.getMinecraft();
-
-            minecraft.addScheduledTask(() -> minecraft.player.getCapability(CAPABILITY, null).setCurrentTab(message.tab));
+            Minecraft.getMinecraft().player.getCapability(CAPABILITY, null).setCurrentTab(message.tab);
 
             return null;
         }

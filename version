@@ -2,7 +2,14 @@
 from re import search
 
 
+index = None
+new = None
+
+
 def change_version(filename):
+    global index
+    global new
+
     with open(filename, 'r+') as file:
         lines = file.readlines()
         ver_expr = r'\d+\.\d+\.\d+'
@@ -18,10 +25,8 @@ def change_version(filename):
                 after = line[line.index(version) + len(version):]
                 version = version.split('.')
 
-                print(f'\nThe current version in {filename} is {match[0]}.')
-
-                index = None
-                new = None
+                if not index:
+                    print(f'\nThe current version in {filename} is {match[0]}.')
 
                 while not index:
                     index = search(r'[0-2]', input('Enter the version index to change.\n'))

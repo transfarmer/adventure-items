@@ -30,6 +30,7 @@ public class ServerTab implements IMessage {
         @SideOnly(CLIENT)
         public IMessage onMessage(ServerTab message, MessageContext context) {
             context.getServerHandler().player.getCapability(CAPABILITY, null).setCurrentTab(message.tab);
+
             return null;
         }
     }

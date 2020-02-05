@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
@@ -45,16 +44,17 @@ import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SWEEPING_EDGE;
 
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends GuiScreen {
+    private static boolean changeTab;
     private final GuiButton[] tabs = new GuiButton[4];
     private final GUIFactory guiFactory = new GUIFactory();
     private final ISoulWeapon capability = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
     private final SoulWeaponType weaponType = this.capability.getCurrentType();
 
-    public SoulWeaponMenu() {
-        if (Minecraft.getMinecraft().player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)) {
-            this.capability.setCurrentTab(0);
-            Main.CHANNEL.sendToServer(new ServerTab(0));
-        }
+    public SoulWeaponMenu() {}
+
+    public SoulWeaponMenu(final int tab) {
+        this.capability.setCurrentTab(tab);
+        Main.CHANNEL.sendToServer(new ServerTab(tab));
     }
 
     @Override
@@ -80,6 +80,8 @@ public class SoulWeaponMenu extends GuiScreen {
             case 3:
                 showSkills();
         }
+
+        addButton(guiFactory.centeredButton(3, 3 * height / 4, width / 8, "close"));
     }
 
     private void showWeapons() {
@@ -100,8 +102,6 @@ public class SoulWeaponMenu extends GuiScreen {
     }
 
     private void showAttributes() {
-        addButton(guiFactory.centeredButton(3, 3 * height / 4, width / 8, "close"));
-
         showPointButtons(4, 4, this.capability.getDatum(POINTS, this.weaponType));
     }
 
@@ -228,7 +228,6 @@ public class SoulWeaponMenu extends GuiScreen {
                     screen = null;
                 } else {
                     capability.setCurrentType(type);
-                    this.buttonList.clear();
                     screen = new SoulWeaponMenu();
                 }
 
@@ -261,12 +260,20 @@ public class SoulWeaponMenu extends GuiScreen {
             case 18:
             case 19:
                 final int tab = button.id - 16;
+                changeTab = true;
 
-                Main.CHANNEL.sendToServer(new ServerTab(tab));
-                this.capability.setCurrentTab(tab);
-                this.buttonList.clear();
-                this.mc.displayGuiScreen(new SoulWeaponMenu());
+                this.mc.displayGuiScreen(new SoulWeaponMenu(tab));
+
+                changeTab = false;
                 break;
+        }
+    }
+
+    @Override
+    public void onGuiClosed() {
+        if (SoulWeaponHelper.hasSoulWeapon(this.mc.player) && this.capability.getCurrentTab() == 0 && !changeTab) {
+            this.capability.setCurrentTab(1);
+            Main.CHANNEL.sendToServer(new ServerTab(1));
         }
     }
 

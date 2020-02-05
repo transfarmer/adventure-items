@@ -55,9 +55,9 @@ public class Main {
         CHANNEL.registerMessage(ClientWeaponType.Handler.class, ClientWeaponType.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientAddAttribute.Handler.class, ClientAddAttribute.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientAddEnchantment.Handler.class, ClientAddEnchantment.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientTab.Handler.class, ClientTab.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientWeaponXP.Handler.class, ClientWeaponXP.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientWeaponData.Handler.class, ClientWeaponData.class, id++, CLIENT);
+        CHANNEL.registerMessage(ClientTab.Handler.class, ClientTab.class, id++, CLIENT);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(WEAPON_MENU);
