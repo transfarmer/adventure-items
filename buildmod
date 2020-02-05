@@ -1,0 +1,11 @@
+copy_lines=6
+copy="$(tail -"$copy_lines" < build.gradle)"
+relevant_lines=$(($(wc -l < build.gradle)-copy_lines))
+relevant="$(head -"$relevant_lines" < build.gradle)"
+
+printf "%s\n" "$relevant" > build.gradle
+./gradlew clean
+./gradlew build
+printf "%s\n" "$copy" >> build.gradle
+
+./version

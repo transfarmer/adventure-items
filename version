@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+from re import search
+
+
+with open('build.gradle', 'r+') as gradle:
+    lines = gradle.readlines()
+    ver_expr = r'\d+\.\d+\.\d+'
+    type_expr = r'(release|beta|alpha)'
+
+    for i in range(len(lines)):
+        line = lines[i]
+        match = search(f'{ver_expr}-{type_expr}', line)
+
+        if match:
+            version = search(ver_expr, line)[0]
+            before = line[:line.index(version)]
+            after = line[line.index(version) + len(version):]
+            version = version.split('.')
+
+            print(f'\nThe current version is {match[0]}.')
+
+            index = None
+            new = None
+
+            while not index:
+                index = search(r'[0-2]', input('Enter the version index to change.\n'))
+
+            while not new:
+                new = search(r'\d+', input('Enter the new number for this index.\n'))
+
+            version[int(index[0])] = new[0]
+            line = f'{before}{".".join(version)}{after}'
+            lines[i] = line
+            gradle.seek(0)
+            gradle.truncate()
+            gradle.write(''.join(lines))
+            break

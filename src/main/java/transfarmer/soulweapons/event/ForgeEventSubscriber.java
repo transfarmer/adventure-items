@@ -103,7 +103,8 @@ public class ForgeEventSubscriber {
 
         final ISoulWeapon capability = event.player.getCapability(CAPABILITY, null);
 
-        if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel) {
+        if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
+            && !event.player.world.getGameRules().getBoolean("keepInventory")) {
             event.player.addItemStackToInventory(capability.getItemStack(capability.getCurrentType()));
         }
     }
