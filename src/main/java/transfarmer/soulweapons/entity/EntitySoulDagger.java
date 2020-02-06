@@ -3,11 +3,10 @@ package transfarmer.soulweapons.entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.capability.ISoulWeapon;
@@ -50,8 +49,7 @@ public class EntitySoulDagger extends EntityThrowable {
                 attackDamage += 1 + (capability.getEnchantment(SHARPNESS, DAGGER) - 1) / 2F;
             }
 
-            ForgeEventFactory.onProjectileImpact(this, this.world.rayTraceBlocks(new Vec3d(this.posX, this.posY, this.posZ),
-                new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ), false, true, false));
+            result.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(player, result.entityHit), attackDamage);
         }
 
         if (!this.world.isRemote) {

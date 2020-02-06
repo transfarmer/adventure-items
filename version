@@ -31,7 +31,7 @@ def change_version(filename):
                 while not index:
                     index = search(r'[0-2]', input('Enter the version index to change.\n'))
 
-                    if index == '':
+                    if index[0] == '':
                         index = 2
 
                 if index:

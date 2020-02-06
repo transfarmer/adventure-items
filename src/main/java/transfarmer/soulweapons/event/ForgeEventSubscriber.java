@@ -133,6 +133,7 @@ public class ForgeEventSubscriber {
         ISoulWeapon instance = event.getEntityPlayer().getCapability(CAPABILITY, null);
 
         instance.setCurrentType(originalInstance.getCurrentType());
+        instance.setCurrentTab(originalInstance.getCurrentTab());
         instance.set(originalInstance.getData(), originalInstance.getAttributes(), originalInstance.getEnchantments());
     }
 

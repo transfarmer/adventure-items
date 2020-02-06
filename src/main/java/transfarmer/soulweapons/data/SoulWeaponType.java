@@ -45,7 +45,7 @@ public enum SoulWeaponType {
     }
 
     public static SoulWeaponType getType(int index) {
-        return types[index];
+        return index == -1 ? null : types[index];
     }
 
     public static SoulWeaponType getType(Item item) {

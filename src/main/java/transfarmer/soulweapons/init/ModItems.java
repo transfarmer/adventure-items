@@ -9,7 +9,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulweapons.item.ItemSoulGreatSword;
+import transfarmer.soulweapons.item.ItemSoulGreatsword;
 import transfarmer.soulweapons.item.ItemSoulDagger;
 import transfarmer.soulweapons.item.ItemSoulSword;
 
@@ -29,7 +29,7 @@ public class ModItems {
         @SubscribeEvent
         public static void onRegisterItems(RegistryEvent.Register<Item> event) {
             event.getRegistry().registerAll(
-                setup(new ItemSoulGreatSword(), "soul_greatsword"),
+                setup(new ItemSoulGreatsword(), "soul_greatsword"),
                 setup(new ItemSoulSword(), "soul_sword"),
                 setup(new ItemSoulDagger(), "soul_dagger"));
         }
