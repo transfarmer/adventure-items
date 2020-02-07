@@ -29,11 +29,16 @@ def change_version(filename):
                     print(f'\nThe current version in {filename} is {match[0]}.')
                     index = search(r'[0-2]', input('Enter the version index to change.\n'))
 
+<<<<<<< HEAD
                     if not index:
                         new = str(int(version[2]) + 1)
 
                 while not new:
                     new = search(r'\d+', input('Enter the new number for this index.\n'))
+=======
+                    if index[0] == '':
+                        index = 2
+>>>>>>> 0d733f201861eb30c231f1054710a6c784067333
 
                     if new:
                         new = new[0]

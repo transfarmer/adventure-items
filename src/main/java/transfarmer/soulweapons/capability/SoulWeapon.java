@@ -128,7 +128,7 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public AttributeModifier[] getAttributeModifiers(SoulWeaponType type) {
         return new AttributeModifier[]{
-            new AttributeModifier(SoulWeaponHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", getAttribute(ATTACK_SPEED, type), ADD),
+            new AttributeModifier(transfarmer.soulweapons.capability.SoulWeaponHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", getAttribute(ATTACK_SPEED, type), ADD),
             new AttributeModifier(SoulWeaponHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttribute(ATTACK_DAMAGE, type), ADD)
         };
     }

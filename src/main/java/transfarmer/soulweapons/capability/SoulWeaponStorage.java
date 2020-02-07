@@ -10,9 +10,9 @@ import transfarmer.soulweapons.data.SoulWeaponDatum;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
 
-public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
+public class SoulWeaponStorage implements IStorage<transfarmer.soulweapons.capability.ISoulWeapon> {
     @Override
-    public NBTBase writeNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing) {
+    public NBTBase writeNBT(Capability<transfarmer.soulweapons.capability.ISoulWeapon> capability, transfarmer.soulweapons.capability.ISoulWeapon instance, EnumFacing facing) {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("soulweapons.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().index);
         tag.setInteger("soulweapons.capability.tab", instance.getCurrentTab());
@@ -20,7 +20,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
         final float[][] attributes = instance.getAttributes();
         final int[][] enchantments = instance.getEnchantments();
 
-        SoulWeaponHelper.forEach(
+        transfarmer.soulweapons.capability.SoulWeaponHelper.forEach(
             (Integer weaponIndex, Integer valueIndex) ->
                 tag.setInteger(String.format("soulweapons.datum.%s.%s",
                     SoulWeaponType.getType(weaponIndex),
@@ -42,7 +42,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     }
 
     @Override
-    public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing, NBTBase nbt) {
+    public void readNBT(Capability<transfarmer.soulweapons.capability.ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soulweapons.capability.index"));
         instance.setCurrentTab(tag.getInteger("soulweapons.capability.tab"));

@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
 
 @SuppressWarnings("ConstantConditions")
 public class SoulWeaponProvider implements ICapabilitySerializable<NBTBase> {
-    @CapabilityInject(ISoulWeapon.class)
-    public static final Capability<ISoulWeapon> CAPABILITY = null;
+    @CapabilityInject(transfarmer.soulweapons.capability.ISoulWeapon.class)
+    public static final Capability<transfarmer.soulweapons.capability.ISoulWeapon> CAPABILITY = null;
     private ISoulWeapon instance = CAPABILITY.getDefaultInstance();
 
     @Override
