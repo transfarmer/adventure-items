@@ -3,6 +3,7 @@ package transfarmer.soulweapons;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -15,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponStorage;
+import transfarmer.soulweapons.entity.EntitySoulDagger;
 import transfarmer.soulweapons.network.ClientAddAttribute;
 import transfarmer.soulweapons.network.ClientAddEnchantment;
 import transfarmer.soulweapons.network.ClientWeaponData;
@@ -24,6 +26,7 @@ import transfarmer.soulweapons.network.ServerAddAttribute;
 import transfarmer.soulweapons.network.ServerAddEnchantment;
 import transfarmer.soulweapons.network.ServerTab;
 import transfarmer.soulweapons.network.ServerWeaponType;
+import transfarmer.soulweapons.render.RenderSoulDagger;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
@@ -33,7 +36,7 @@ import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
 public class Main {
     public static final String MODID = "soulweapons";
     public static final String NAME = "soul weapons";
-    public static final String VERSION = "1.6.2-beta";
+    public static final String VERSION = "1.6.4-beta";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     @SideOnly(CLIENT)
@@ -59,6 +62,7 @@ public class Main {
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(WEAPON_MENU);
+            RenderingRegistry.registerEntityRenderingHandler(EntitySoulDagger.class, new RenderSoulDagger.RenderFactory());
         }
     }
 }

@@ -21,7 +21,9 @@ public class ItemSoulDagger extends ItemSoulWeapon {
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (!world.isRemote) {
             if (player.getCapability(CAPABILITY, null).getDatum(SKILLS, DAGGER) > 0) {
-                EntitySoulDagger dagger = new EntitySoulDagger(world, player);
+                final EntitySoulDagger dagger = new EntitySoulDagger(world, player);
+
+                player.inventory.removeStackFromSlot(player.inventory.currentItem);
                 dagger.shoot(player, player.rotationPitch, player.rotationYaw, 0, 1.5F, 1);
                 world.spawnEntity(dagger);
             }

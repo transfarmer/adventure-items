@@ -73,7 +73,7 @@ public class ForgeEventSubscriber {
     public static void onRegisterEntityEntry(RegistryEvent.Register<EntityEntry> entry) {
         entry.getRegistry().register(EntityEntryBuilder.create()
             .entity(EntitySoulDagger.class)
-            .id(new ResourceLocation(Main.MODID, "entitySoulDagger"), 0)
+            .id(new ResourceLocation(Main.MODID, "entity_soul_dagger"), 0)
             .name("soul dagger")
             .tracker(128, 1, true)
             .build()
@@ -133,6 +133,7 @@ public class ForgeEventSubscriber {
         ISoulWeapon instance = event.getEntityPlayer().getCapability(CAPABILITY, null);
 
         instance.setCurrentType(originalInstance.getCurrentType());
+        instance.setCurrentTab(originalInstance.getCurrentTab());
         instance.set(originalInstance.getData(), originalInstance.getAttributes(), originalInstance.getEnchantments());
     }
 
@@ -226,7 +227,7 @@ public class ForgeEventSubscriber {
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
         final EntityLivingBase entity = event.getEntityLiving();
-        final Entity source = event.getSource().getTrueSource();
+        final Entity source = event.getSource().getImmediateSource();
         final IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
         final IAttributeInstance armor = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR);
 

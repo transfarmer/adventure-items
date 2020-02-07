@@ -44,7 +44,6 @@ import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SWEEPING_EDGE;
 
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends GuiScreen {
-    private static boolean changeTab;
     private final GuiButton[] tabs = new GuiButton[4];
     private final GUIFactory guiFactory = new GUIFactory();
     private final ISoulWeapon capability = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
@@ -260,20 +259,8 @@ public class SoulWeaponMenu extends GuiScreen {
             case 18:
             case 19:
                 final int tab = button.id - 16;
-                changeTab = true;
-
                 this.mc.displayGuiScreen(new SoulWeaponMenu(tab));
-
-                changeTab = false;
                 break;
-        }
-    }
-
-    @Override
-    public void onGuiClosed() {
-        if (SoulWeaponHelper.hasSoulWeapon(this.mc.player) && this.capability.getCurrentTab() == 0 && !changeTab) {
-            this.capability.setCurrentTab(1);
-            Main.CHANNEL.sendToServer(new ServerTab(1));
         }
     }
 
