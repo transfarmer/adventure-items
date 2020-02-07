@@ -180,6 +180,8 @@ public class SoulWeaponMenu extends GuiScreen {
             this.drawCenteredString(this.fontRenderer, SoulWeapon.getSkillNames()[capability.getCurrentType().index][i],
                 width / 2, (i + 2) * height / 16, 0xFFFFFF);
         }
+
+        this.drawXPBar(mouseX, mouseY);
     }
 
     private void drawXPBar(int mouseX, int mouseY) {

@@ -33,7 +33,7 @@ def change_version(filename):
                         index = 2
                         new = str(int(version[2]) + 1)
                     else:
-                        index = index[0]
+                        index = int(index[0])
 
                     while not new:
                         new = search(r'\d+', input('Enter the new number for this index.\n'))
