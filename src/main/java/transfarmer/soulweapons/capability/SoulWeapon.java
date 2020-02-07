@@ -107,12 +107,12 @@ public class SoulWeapon implements ISoulWeapon {
         this.data[type.index][POINTS.index]--;
     }
 
-    public ItemStack getItemStack(ItemStack itemStack) {
+    public ItemStack getItemStack(final ItemStack itemStack) {
         return getItemStack(SoulWeaponType.getType(itemStack));
     }
 
     @Override
-    public ItemStack getItemStack(SoulWeaponType type) {
+    public ItemStack getItemStack(final SoulWeaponType type) {
         final ItemStack itemStack = type.getItemStack();
         final AttributeModifier[] attributeModifiers = getAttributeModifiers(type);
         final SortedMap<SoulWeaponEnchantment, Integer> enchantments = this.getEnchantments(type);
@@ -126,7 +126,7 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public AttributeModifier[] getAttributeModifiers(SoulWeaponType type) {
+    public AttributeModifier[] getAttributeModifiers(final SoulWeaponType type) {
         return new AttributeModifier[]{
             new AttributeModifier(transfarmer.soulweapons.capability.SoulWeaponHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", getAttribute(ATTACK_SPEED, type), ADD),
             new AttributeModifier(SoulWeaponHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttribute(ATTACK_DAMAGE, type), ADD)
@@ -134,8 +134,8 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public SortedMap<SoulWeaponEnchantment, Integer> getEnchantments(SoulWeaponType type) {
-        SortedMap<SoulWeaponEnchantment, Integer> enchantments = new TreeMap<>();
+    public SortedMap<SoulWeaponEnchantment, Integer> getEnchantments(final SoulWeaponType type) {
+        final SortedMap<SoulWeaponEnchantment, Integer> enchantments = new TreeMap<>();
 
         for (SoulWeaponEnchantment enchantment : SoulWeaponEnchantment.enchantments) {
             final int level = this.getEnchantment(enchantment, type);
@@ -168,11 +168,9 @@ public class SoulWeapon implements ISoulWeapon {
 
         if (this.getAttribute(CRITICAL, type) > 0) {
             tooltip.add(String.format(" %s%s%% %s", I18n.format("format.soulweapons.critical"), FORMAT.format(this.getAttribute(CRITICAL, type)), I18n.format("attribute.soulweapons.critical")));
-        }
-        if (this.getAttribute(KNOCKBACK_ATTRIBUTE, type) > 0) {
+        } if (this.getAttribute(KNOCKBACK_ATTRIBUTE, type) > 0) {
             tooltip.add(String.format(" %s%s %s", I18n.format("format.soulweapons.knockback"), FORMAT.format(this.getAttribute(KNOCKBACK_ATTRIBUTE, type)), I18n.format("attribute.soulweapons.knockback")));
-        }
-        if (this.getAttribute(EFFICIENCY, type) > 0) {
+        } if (this.getAttribute(EFFICIENCY, type) > 0) {
             tooltip.add(String.format(" %s%s %s", I18n.format("format.soulweapons.efficiency"), FORMAT.format(this.getAttribute(EFFICIENCY, type)), I18n.format("attribute.soulweapons.efficiency")));
         }
 

@@ -33,7 +33,7 @@ public class RenderSoulDagger<T extends Entity> extends Render<T> {
         GlStateManager.rotate(-this.renderManager.playerViewY, 0, 1, 0);
         GlStateManager.rotate((this.renderManager.options.thirdPersonView == 2 ? -1 : 1) * this.renderManager.playerViewX, 1, 0, 0);
         GlStateManager.rotate(180, 0, 1, 0);
-        this.bindTexture(this.getEntityTexture(entity));
+        this.bindEntityTexture(entity);
 
         if (this.renderOutlines) {
             GlStateManager.enableColorMaterial();

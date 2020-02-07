@@ -24,6 +24,7 @@ public interface ISoulWeapon {
     ItemStack getItemStack(SoulWeaponType weaponType);
 
     AttributeModifier[] getAttributeModifiers(SoulWeaponType weaponType);
+
     SortedMap<SoulWeaponEnchantment, Integer> getEnchantments(SoulWeaponType weaponType);
 
     String[] getTooltip(SoulWeaponType weaponType);

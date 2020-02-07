@@ -12,6 +12,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import transfarmer.soulweapons.capability.SoulWeaponProvider;
+import transfarmer.soulweapons.entity.EntityExtendedReach;
 
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
@@ -19,6 +20,14 @@ import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
 public class ItemSoulGreatsword extends ItemSoulWeapon {
     public ItemSoulGreatsword() {
         super(3, -2.8F);
+    }
+
+    @Override
+    public boolean onEntitySwing(EntityLivingBase entity, ItemStack itemStack) {
+        final EntityExtendedReach entityExtendedReach = new EntityExtendedReach(entity.world, 6);
+
+
+        return false;
     }
 
     @Override
@@ -47,7 +56,7 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
         final int timeTaken = 200 - timeLeft;
         final double strength = Math.min(1.25, timeTaken / 15F * 1.25);
 
-        entity.addVelocity(look.x * strength, look.y * strength / 2, look.z * strength);
+        entity.addVelocity(look.x * strength, look.y * strength / 4 + 0.2, look.z * strength);
     }
 
 
