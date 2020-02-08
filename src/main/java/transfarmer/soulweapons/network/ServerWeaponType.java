@@ -33,6 +33,7 @@ public class ServerWeaponType implements IMessage {
     }
 
     public static final class Handler implements IMessageHandler<ServerWeaponType, IMessage> {
+        @Override
         public IMessage onMessage(ServerWeaponType message, MessageContext context) {
             final SoulWeaponType WEAPON_TYPE = SoulWeaponType.getType(message.currentWeaponIndex);
             EntityPlayerMP player = context.getServerHandler().player;

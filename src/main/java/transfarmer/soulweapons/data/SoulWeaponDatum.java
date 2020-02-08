@@ -5,9 +5,11 @@ public enum SoulWeaponDatum {
     LEVEL(1),
     POINTS(2),
     ENCHANTMENT_POINTS(3),
-    SKILLS(4);
+    SPENT_ATTRIBUTE_POINTS(4),
+    SPENT_ENCHANTMENT_POINTS(5),
+    SKILLS(6);
 
-    public static final SoulWeaponDatum[] data = {XP, LEVEL, POINTS, ENCHANTMENT_POINTS, SKILLS};
+    public static final SoulWeaponDatum[] data = {XP, LEVEL, POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS, SKILLS};
 
     public final int index;
 

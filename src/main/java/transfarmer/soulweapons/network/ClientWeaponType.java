@@ -34,6 +34,7 @@ public class ClientWeaponType implements IMessage {
 
     public static final class Handler implements IMessageHandler<ClientWeaponType, IMessage> {
         @SideOnly(CLIENT)
+        @Override
         public IMessage onMessage(ClientWeaponType message, MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 EntityPlayer player = Minecraft.getMinecraft().player;

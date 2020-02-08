@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
@@ -20,6 +21,7 @@ public class TooltipXPBar extends Gui {
         final Minecraft mc = Minecraft.getMinecraft();
         final FontRenderer fontRenderer = mc.fontRenderer;
         final ISoulWeapon capability = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
+        final ResourceLocation XP_BAR = new ResourceLocation(Main.MODID, "textures/gui/xp_bar.png");
         int level = capability.getDatum(LEVEL, type);
         int barLeftX = tooltipX + 44;
         int barTopY = tooltipY + 60 + 10 * originalEnchantments;
@@ -28,11 +30,13 @@ public class TooltipXPBar extends Gui {
         GlStateManager.disableDepth();
         GlStateManager.disableLighting();
         GlStateManager.color(1F, 1F, 1F, 1F);
-        mc.getTextureManager().bindTexture(Main.XP_BAR);
+        mc.getTextureManager().bindTexture(XP_BAR);
 
         this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 70, length, 5);
         this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 75,
-            Math.round((float) capability.getDatum(XP, type) / capability.getNextLevelXP(type) * length), 5);
+            Math.min(length, Math.round((float) capability.getDatum(XP, type) / capability.getNextLevelXP(type) * length)), 5);
+
+        mc.getTextureManager().deleteTexture(XP_BAR);
 
         String levelString = String.format("%d", level);
         int x1 = barLeftX - fontRenderer.getStringWidth(levelString) / 2;

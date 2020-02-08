@@ -12,14 +12,17 @@ import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.data.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS_LENGTH;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ClientWeaponData implements IMessage {
     private SoulWeaponType weaponType;
     private int currentTab;
-    private int[][] data = new int[3][5];
-    private float[][] attributes = new float[3][5];
-    private int[][] enchantments = new int[3][7];
+    private int[][] data = new int[3][DATA_LENGTH];
+    private float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
+    private int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
 
     public ClientWeaponData() {}
 
@@ -65,6 +68,7 @@ public class ClientWeaponData implements IMessage {
 
     public static final class Handler implements IMessageHandler<ClientWeaponData, IMessage> {
         @SideOnly(CLIENT)
+        @Override
         public IMessage onMessage(ClientWeaponData message, MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 EntityPlayer player = Minecraft.getMinecraft().player;

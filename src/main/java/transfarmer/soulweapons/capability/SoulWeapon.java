@@ -20,6 +20,9 @@ import java.util.TreeMap;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS_LENGTH;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_DAMAGE;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_SPEED;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.CRITICAL;
@@ -40,15 +43,30 @@ public class SoulWeapon implements ISoulWeapon {
         {"throwing", "perforation", "return", "sneak return"}
     };
     private SoulWeaponType currentType;
-    private int[][] data = new int[3][5];
-    private float[][] attributes = new float[3][5];
-    private int[][] enchantments = new int[3][7];
+    private int[][] data = new int[3][DATA_LENGTH];
+    private float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
+    private int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
     private int currentTab = 0;
 
     @Override
-    public void set(int[][] data, float[][] attributes, int[][] enchantments) {
+    public void set(final int[][] data, final float[][] attributes, final int[][] enchantments) {
         this.data = data;
         this.attributes = attributes;
+        this.enchantments = enchantments;
+    }
+
+    @Override
+    public void setData(final int[][] data) {
+        this.data = data;
+    }
+
+    @Override
+    public void setAttributes(final float[][] attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public void setEnchantments(final int[][] enchantments) {
         this.enchantments = enchantments;
     }
 
@@ -80,33 +98,35 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
+    public void setAttribute(final float value, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
+        this.attributes[type.index][attribute.index] = value;
+    }
+
+    @Override
     public void addAttribute(final float amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
-        this.attributes[type.index][attribute.index] += amount;
+        if (attribute == CRITICAL && this.getAttribute(CRITICAL, type) + amount > 100) {
+            this.setAttribute(100, attribute, type);
+        } else {
+            this.attributes[type.index][attribute.index] += amount;
+        }
     }
 
     @Override
     public void addAttribute(SoulWeaponAttribute attribute, SoulWeaponType type) {
-        switch (attribute) {
-            case ATTACK_SPEED:
-                this.addAttribute(0.2F, attribute, type);
-                break;
-            case ATTACK_DAMAGE:
-                this.addAttribute(1, attribute, type);
-                break;
-            case CRITICAL:
-                this.addAttribute(3, attribute, type);
-                break;
-            case KNOCKBACK_ATTRIBUTE:
-                this.addAttribute(1, attribute, type);
-                break;
-            case EFFICIENCY:
-                this.addAttribute(0.5F, attribute, type);
-                break;
-        }
-
+        this.addAttribute(attribute.increase, attribute, type);
         this.data[type.index][POINTS.index]--;
     }
 
+    @Override
+    public void resetAttributes(final SoulWeaponType type) {
+        for (final SoulWeaponAttribute attribute : SoulWeaponAttribute.getAttributes()) {
+            for (float i = this.getAttribute(attribute, type); i > 0; i++) {
+
+            }
+        }
+    }
+
+    @Override
     public ItemStack getItemStack(final ItemStack itemStack) {
         return getItemStack(SoulWeaponType.getType(itemStack));
     }
@@ -178,13 +198,19 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int getNextLevelXP(SoulWeaponType type) {
-        return Configuration.initialXP + 4 * (int) Math.round(Math.pow(this.getDatum(LEVEL, type), 1.5));
+    public int getNextLevelXP(final SoulWeaponType type) {
+        return this.getDatum(LEVEL, type) >= Configuration.maxLevel ?
+            1 : Configuration.initialXP + 4 * (int) Math.round(Math.pow(this.getDatum(LEVEL, type), 1.5));
     }
 
     @Override
     public int getDatum(SoulWeaponDatum datum, SoulWeaponType type) {
         return this.data[type.index][datum.index];
+    }
+
+    @Override
+    public void setDatum(final int value, final SoulWeaponDatum datum, final SoulWeaponType type) {
+        this.data[type.index][datum.index] = value;
     }
 
     @Override
@@ -347,9 +373,7 @@ public class SoulWeapon implements ISoulWeapon {
 
                         }
                 }
-            case POINTS:
-            case ENCHANTMENT_POINTS:
-            case SKILLS:
+            default:
                 this.data[type.index][datum.index]++;
         }
 

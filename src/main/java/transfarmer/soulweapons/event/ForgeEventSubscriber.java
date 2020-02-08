@@ -42,7 +42,7 @@ import transfarmer.soulweapons.entity.EntitySoulDagger;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
 import transfarmer.soulweapons.gui.TooltipXPBar;
 import transfarmer.soulweapons.network.ClientWeaponData;
-import transfarmer.soulweapons.network.ClientWeaponXP;
+import transfarmer.soulweapons.network.ClientWeaponDatum;
 
 import java.util.List;
 import java.util.Random;
@@ -151,37 +151,37 @@ public class ForgeEventSubscriber {
             }
         }
 
-        if (instance.getCurrentType() != null) {
-            if (!event.player.isCreative()) {
-                int firstSlot = -1;
-                for (final ItemStack itemStack : inventory.mainInventory) {
-                    if (SoulWeaponType.isSoulWeapon(itemStack)) {
-                        if (itemStack.getItem() != instance.getCurrentType().getItem()) {
+        if (instance.getCurrentType() != null && !event.player.isCreative()) {
+            int firstSlot = -1;
+
+            for (final ItemStack itemStack : inventory.mainInventory) {
+                if (SoulWeaponType.isSoulWeapon(itemStack)) {
+                    if (itemStack.getItem() != instance.getCurrentType().getItem()) {
+                        inventory.deleteStack(itemStack);
+                    } else {
+                        final int slot = inventory.mainInventory.indexOf(itemStack);
+
+                        if (firstSlot == -1) {
+                            firstSlot = slot;
+                        } else if (firstSlot != slot) {
                             inventory.deleteStack(itemStack);
-                        } else {
-                            final int slot = inventory.mainInventory.indexOf(itemStack);
-                            if (firstSlot == -1) {
-                                firstSlot = slot;
-                            } else if (firstSlot != slot) {
-                                inventory.deleteStack(itemStack);
-                            }
                         }
                     }
                 }
             }
+        }
 
-            for (final ItemStack itemStack : inventory.mainInventory) {
-                if (!SoulWeaponType.isSoulWeapon(itemStack)) continue;
+        for (final ItemStack itemStack : inventory.mainInventory) {
+            if (!SoulWeaponType.isSoulWeapon(itemStack)) continue;
 
-                ItemStack newItemStack = instance.getItemStack(itemStack);
+            ItemStack newItemStack = instance.getItemStack(itemStack);
 
-                if (SoulWeaponHelper.areDataEqual(itemStack, newItemStack)) continue;
-                if (itemStack.hasDisplayName()) {
-                    newItemStack.setStackDisplayName(itemStack.getDisplayName());
-                }
-
-                inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
+            if (SoulWeaponHelper.areDataEqual(itemStack, newItemStack)) continue;
+            if (itemStack.hasDisplayName()) {
+                newItemStack.setStackDisplayName(itemStack.getDisplayName());
             }
+
+            inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
         }
     }
 
@@ -238,7 +238,7 @@ public class ForgeEventSubscriber {
 
             if (attacker instanceof EntityPlayer && weaponType != null) {
                 if (SoulWeaponHelper.isSoulWeaponEquipped((EntityPlayer) attacker)) {
-                    event.setStrength(event.getStrength() * (1 + instance.getAttribute(KNOCKBACK_ATTRIBUTE, weaponType) / 8F));
+                    event.setStrength(event.getStrength() * (1 + instance.getAttribute(KNOCKBACK_ATTRIBUTE, weaponType) / 20));
                 }
             }
         }
@@ -253,17 +253,20 @@ public class ForgeEventSubscriber {
             final Entity trueSource = event.getSource().getTrueSource();
             Entity source = event.getSource().getImmediateSource();
             ISoulWeapon instance;
-            SoulWeaponType weaponType = null;
+            SoulWeaponType weaponType;
+            String displayName;
 
             if (trueSource instanceof EntityPlayer) {
                 instance = trueSource.getCapability(CAPABILITY, null);
 
                 if (source instanceof EntitySoulDagger) {
-                    source = ((EntitySoulDagger) source).shootingEntity;
                     weaponType = DAGGER;
+                    displayName = ((EntitySoulDagger) source).itemStack.getDisplayName();
+                    source = ((EntitySoulDagger) source).owner;
                 } else if (source instanceof EntityPlayer) {
                     weaponType = instance.getCurrentType();
-                }
+                    displayName = ((EntityPlayerMP) source).getHeldItemMainhand().getDisplayName();
+                } else return;
             } else return;
 
             //noinspection ConstantConditions
@@ -284,10 +287,10 @@ public class ForgeEventSubscriber {
 
                 if (instance.addDatum(xp, XP, weaponType) && levelupNotifications) {
                     source.sendMessage(new TextComponentString(String.format("Your %s leveled up to level %d.",
-                        ((EntityPlayerMP) source).getHeldItemMainhand().getDisplayName(), instance.getDatum(LEVEL, weaponType))));
+                        displayName, instance.getDatum(LEVEL, weaponType))));
                 }
 
-                Main.CHANNEL.sendTo(new ClientWeaponXP(xp), (EntityPlayerMP) source);
+                Main.CHANNEL.sendTo(new ClientWeaponDatum(xp, XP, weaponType), (EntityPlayerMP) source);
             }
         }
     }

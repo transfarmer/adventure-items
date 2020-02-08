@@ -22,11 +22,12 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import transfarmer.soulweapons.capability.ISoulWeapon;
-import transfarmer.soulweapons.init.ModItems;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_DAMAGE;
+import static transfarmer.soulweapons.data.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.FIRE_ASPECT;
+import static transfarmer.soulweapons.data.SoulWeaponEnchantment.KNOCKBACK;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SHARPNESS;
 import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
 
@@ -38,6 +39,8 @@ public class EntitySoulDagger extends EntityArrow {
     private int zTile;
     private int inData;
     private Block inTile;
+    public ItemStack itemStack;
+    public Entity owner;
 
     public EntitySoulDagger(World world) {
         super(world);
@@ -47,9 +50,11 @@ public class EntitySoulDagger extends EntityArrow {
         super(world, x, y, z);
     }
 
-    public EntitySoulDagger(World worldIn, EntityLivingBase shooter) {
-        this(worldIn, shooter.posX, shooter.posY + shooter.getEyeHeight() - 0.1, shooter.posZ);
+    public EntitySoulDagger(World world, EntityLivingBase shooter, ItemStack itemStack) {
+        this(world, shooter.posX, shooter.posY + shooter.getEyeHeight() - 0.1, shooter.posZ);
         this.shootingEntity = shooter;
+        this.itemStack = itemStack;
+        this.owner = shooter;
 
         if (shooter instanceof EntityPlayer) {
             this.pickupStatus = EntityArrow.PickupStatus.ALLOWED;
@@ -58,7 +63,7 @@ public class EntitySoulDagger extends EntityArrow {
 
     @Override
     protected ItemStack getArrowStack() {
-        return new ItemStack(ModItems.SOUL_DAGGER);
+        return this.itemStack;
     }
 
     @Override
@@ -114,8 +119,6 @@ public class EntitySoulDagger extends EntityArrow {
             Vec3d vec3d1 = new Vec3d(this.posX, this.posY, this.posZ);
             Vec3d vec3d = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
             RayTraceResult rayTraceResult = this.world.rayTraceBlocks(vec3d1, vec3d, false, true, false);
-            vec3d1 = new Vec3d(this.posX, this.posY, this.posZ);
-            vec3d = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
             if (rayTraceResult != null) {
                 vec3d = new Vec3d(rayTraceResult.hitVec.x, rayTraceResult.hitVec.y, rayTraceResult.hitVec.z);
@@ -139,27 +142,21 @@ public class EntitySoulDagger extends EntityArrow {
                 this.onHit(rayTraceResult);
             }
 
-            if (this.getIsCritical()) {
-                for (int k = 0; k < 4; ++k) {
-                    this.world.spawnParticle(EnumParticleTypes.CRIT, this.posX + this.motionX * k / 4, this.posY + this.motionY * k / 4, this.posZ + this.motionZ * k / 4, -this.motionX, -this.motionY + 0.2, -this.motionZ);
-                }
-            }
-
             this.posX += this.motionX;
             this.posY += this.motionY;
             this.posZ += this.motionZ;
-            this.rotationYaw = (float) (MathHelper.atan2(this.motionX, this.motionZ) * (180D / Math.PI));
+            this.rotationYaw = (float) (MathHelper.atan2(this.motionX, this.motionZ) * (180 / Math.PI));
 
-            while (this.rotationPitch - this.prevRotationPitch >= 180.0F) {
-                this.prevRotationPitch += 360.0F;
+            while (this.rotationPitch - this.prevRotationPitch >= 180) {
+                this.prevRotationPitch += 360;
             }
 
-            while (this.rotationYaw - this.prevRotationYaw < -180.0F) {
-                this.prevRotationYaw -= 360.0F;
+            while (this.rotationYaw - this.prevRotationYaw < -180) {
+                this.prevRotationYaw -= 360;
             }
 
-            while (this.rotationYaw - this.prevRotationYaw >= 180.0F) {
-                this.prevRotationYaw += 360.0F;
+            while (this.rotationYaw - this.prevRotationYaw >= 180) {
+                this.prevRotationYaw += 360;
             }
 
             this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
@@ -198,7 +195,6 @@ public class EntitySoulDagger extends EntityArrow {
                 final EntityPlayer player = (EntityPlayer) this.shootingEntity;
                 final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
                 float attackDamage = capability.getAttribute(ATTACK_DAMAGE, DAGGER) + 1;
-                int burnTime = 0;
 
                 if (capability.getEnchantments(DAGGER).containsKey(SHARPNESS)) {
                     attackDamage += 1 + (capability.getEnchantment(SHARPNESS, DAGGER) - 1) / 2F;
@@ -207,18 +203,32 @@ public class EntitySoulDagger extends EntityArrow {
                 DamageSource damageSource;
 
                 if (this.shootingEntity == null) {
-                    damageSource = DamageSource.causeArrowDamage(this, this);
+                    damageSource = DamageSource.causeThrownDamage(this, this);
                 } else {
-                    damageSource = DamageSource.causeArrowDamage(this, this.shootingEntity);
+                    damageSource = DamageSource.causeThrownDamage(this, this.shootingEntity);
                 }
 
                 if (result.entityHit.attackEntityFrom(damageSource, attackDamage)) {
                     if (result.entityHit instanceof EntityLivingBase) {
                         EntityLivingBase entity = (EntityLivingBase) result.entityHit;
+                        float knockback = 0;
+                        int burnTime = 0;
 
                         if (this.shootingEntity instanceof EntityLivingBase) {
                             EnchantmentHelper.applyThornEnchantments(entity, this.shootingEntity);
                             EnchantmentHelper.applyArthropodEnchantments((EntityLivingBase) this.shootingEntity, entity);
+                        }
+
+                        if (capability.getAttribute(KNOCKBACK_ATTRIBUTE, DAGGER) > 0) {
+                            knockback += 1 + capability.getAttribute(KNOCKBACK_ATTRIBUTE, DAGGER) / 8;
+                        }
+
+                        if (capability.getEnchantment(KNOCKBACK, DAGGER) > 0) {
+                            knockback += capability.getEnchantment(KNOCKBACK, DAGGER);
+                        }
+
+                        if (knockback > 0) {
+                            result.entityHit.addVelocity(this.motionX * knockback, this.motionY * knockback, this.motionZ * knockback);
                         }
 
                         if (this.isBurning()) {

@@ -10,6 +10,10 @@ import transfarmer.soulweapons.data.SoulWeaponDatum;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
 
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS_LENGTH;
+
 public class SoulWeaponStorage implements IStorage<transfarmer.soulweapons.capability.ISoulWeapon> {
     @Override
     public NBTBase writeNBT(Capability<transfarmer.soulweapons.capability.ISoulWeapon> capability, transfarmer.soulweapons.capability.ISoulWeapon instance, EnumFacing facing) {
@@ -46,9 +50,9 @@ public class SoulWeaponStorage implements IStorage<transfarmer.soulweapons.capab
         NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soulweapons.capability.index"));
         instance.setCurrentTab(tag.getInteger("soulweapons.capability.tab"));
-        final int[][] data = new int[3][5];
-        final float[][] attributes = new float[3][5];
-        final int[][] enchantments = new int[3][7];
+        final int[][] data = new int[3][DATA_LENGTH];
+        final float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
+        final int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
 
         SoulWeaponHelper.forEach(
             (Integer weaponIndex, Integer valueIndex) ->

@@ -7,19 +7,20 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.capability.ISoulWeapon;
-import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
+import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
 
-public class ClientAddAttribute implements IMessage {
+public class ClientSpentEnchantmentPoint implements IMessage {
     private int index;
 
-    public ClientAddAttribute() {}
+    public ClientSpentEnchantmentPoint() {}
 
-    public ClientAddAttribute(SoulWeaponAttribute attribute) {
-        this.index = attribute.index;
+    public ClientSpentEnchantmentPoint(final SoulWeaponEnchantment enchantment) {
+        this.index = enchantment.index;
     }
 
     @Override
@@ -32,15 +33,16 @@ public class ClientAddAttribute implements IMessage {
         buffer.writeInt(this.index);
     }
 
-    public static final class Handler implements IMessageHandler<ClientAddAttribute, IMessage> {
+    public static final class Handler implements IMessageHandler<ClientSpentEnchantmentPoint, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(ClientAddAttribute message, MessageContext context) {
+        public IMessage onMessage(final ClientSpentEnchantmentPoint message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final ISoulWeapon instance = minecraft.player.getCapability(CAPABILITY, null);
 
             minecraft.addScheduledTask(() -> {
-                instance.addAttribute(SoulWeaponAttribute.getAttribute(message.index), instance.getCurrentType());
+                instance.addEnchantment(SoulWeaponEnchantment.getEnchantment(message.index), instance.getCurrentType());
+                instance.addDatum(1, SPENT_ENCHANTMENT_POINTS, instance.getCurrentType());
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
             });
 

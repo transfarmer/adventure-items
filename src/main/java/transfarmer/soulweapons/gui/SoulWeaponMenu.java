@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
@@ -14,8 +15,10 @@ import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
-import transfarmer.soulweapons.network.ServerAddAttribute;
-import transfarmer.soulweapons.network.ServerAddEnchantment;
+import transfarmer.soulweapons.network.ServerResetAttributes;
+import transfarmer.soulweapons.network.ServerResetEnchantments;
+import transfarmer.soulweapons.network.ServerSpendAttributePoint;
+import transfarmer.soulweapons.network.ServerSpendEnchantmentPoint;
 import transfarmer.soulweapons.network.ServerTab;
 import transfarmer.soulweapons.network.ServerWeaponType;
 
@@ -33,6 +36,8 @@ import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.LEVEL;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SKILLS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ATTRIBUTE_POINTS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.BANE_OF_ARTHROPODS;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.FIRE_ASPECT;
@@ -84,15 +89,16 @@ public class SoulWeaponMenu extends GuiScreen {
     }
 
     private void showWeapons() {
-        int buttonWidth = 128;
-        int buttonHeight = 20;
-        int xCenter = (width - buttonWidth) / 2;
-        int ySep = 32;
+        final int buttonWidth = 128;
+        final int buttonHeight = 20;
+        final int xCenter = (width - buttonWidth) / 2;
+        final int yCenter = (height - buttonHeight) / 2;
+        final int ySep = 32;
 
         final GuiButton[] weaponButtons = {
-            addButton(new GuiButton(0, xCenter, height / 2 - ySep, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulGreatsword"))),
-            addButton(new GuiButton(1, xCenter, height / 2, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulSword"))),
-            addButton(new GuiButton(2,xCenter, height / 2 + ySep, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulDagger")))
+            addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulGreatsword"))),
+            addButton(new GuiButton(1, xCenter, yCenter, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulSword"))),
+            addButton(new GuiButton(2, xCenter, yCenter + ySep, buttonWidth, buttonHeight, I18n.format("item.soulweapons.soulDagger")))
         };
 
         if (SoulWeaponHelper.hasSoulWeapon(this.mc.player)) {
@@ -101,11 +107,17 @@ public class SoulWeaponMenu extends GuiScreen {
     }
 
     private void showAttributes() {
+        final GuiButton resetButton = this.addButton(guiFactory.resetButton(20));
+
         showPointButtons(4, 4, this.capability.getDatum(POINTS, this.weaponType));
+        resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.weaponType) > 0;
     }
 
     private void showEnchantments() {
+        final GuiButton resetButton = this.addButton(guiFactory.resetButton(21));
+
         showPointButtons(9, 6, this.capability.getDatum(ENCHANTMENT_POINTS, this.weaponType));
+        resetButton.enabled = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.weaponType) > 0;
     }
 
     private void showSkills() {
@@ -187,14 +199,13 @@ public class SoulWeaponMenu extends GuiScreen {
     private void drawXPBar(int mouseX, int mouseY) {
         final int barLeftX = (width - 182) / 2;
         final int barTopY = (height - 4) / 2;
+        final ResourceLocation XP_BAR = new ResourceLocation(Main.MODID, "textures/gui/xp_bar.png");
 
-        this.mc.getTextureManager().bindTexture(Main.XP_BAR);
         GlStateManager.color(1F, 1F, 1F, 1F);
-
+        this.mc.getTextureManager().bindTexture(XP_BAR);
         this.drawTexturedModalRect(barLeftX, barTopY, 0, 40, 182, 5);
-        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, Math.round((float) capability.getDatum(XP, this.weaponType) / capability.getNextLevelXP(this.weaponType) * 182), 5);
-
-        this.mc.getTextureManager().deleteTexture(Main.XP_BAR);
+        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, Math.min(182, Math.round((float) capability.getDatum(XP, this.weaponType) / capability.getNextLevelXP(this.weaponType) * 182)), 5);
+        this.mc.getTextureManager().deleteTexture(XP_BAR);
 
         final int level = this.capability.getDatum(LEVEL, this.weaponType);
         final String levelString = String.format("%d", level);
@@ -245,7 +256,7 @@ public class SoulWeaponMenu extends GuiScreen {
             case 6:
             case 7:
             case 8:
-                Main.CHANNEL.sendToServer(new ServerAddAttribute(SoulWeaponAttribute.getAttribute(button.id - 4)));
+                Main.CHANNEL.sendToServer(new ServerSpendAttributePoint(SoulWeaponAttribute.getAttribute(button.id - 4)));
                 break;
             case 9:
             case 10:
@@ -254,7 +265,7 @@ public class SoulWeaponMenu extends GuiScreen {
             case 13:
             case 14:
             case 15:
-                Main.CHANNEL.sendToServer(new ServerAddEnchantment(SoulWeaponEnchantment.getEnchantment(button.id - 9)));
+                Main.CHANNEL.sendToServer(new ServerSpendEnchantmentPoint(SoulWeaponEnchantment.getEnchantment(button.id - 9)));
                 break;
             case 16:
             case 17:
@@ -262,6 +273,12 @@ public class SoulWeaponMenu extends GuiScreen {
             case 19:
                 final int tab = button.id - 16;
                 this.mc.displayGuiScreen(new SoulWeaponMenu(tab));
+                break;
+            case 20:
+                Main.CHANNEL.sendToServer(new ServerResetAttributes(this.weaponType));
+                break;
+            case 21:
+                Main.CHANNEL.sendToServer(new ServerResetEnchantments(this.weaponType));
                 break;
         }
     }
@@ -277,6 +294,10 @@ public class SoulWeaponMenu extends GuiScreen {
 
         public GuiButton addPointButton(int id, int x, int y) {
             return new GuiButton(id, x - 10, y - 10, 20, 20, "+");
+        }
+
+        public GuiButton resetButton(final int id) {
+            return new GuiButton(id, width - 120, height - 44, 96, 20, I18n.format("menu.soulweapons.reset"));
         }
     }
 

@@ -24,8 +24,13 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
 
     @Override
     public boolean onEntitySwing(EntityLivingBase entity, ItemStack itemStack) {
-        final EntityExtendedReach entityExtendedReach = new EntityExtendedReach(entity.world, 6);
+        if (!entity.world.isRemote) {
+            final EntityExtendedReach entityExtendedReach = new EntityExtendedReach(entity.world, 6);
+            final Vec3d look = entity.getLookVec();
 
+            entityExtendedReach.shoot(look.x, look.y, look.z, 127, 0);
+            entity.world.spawnEntity(entityExtendedReach);
+        }
 
         return false;
     }

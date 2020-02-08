@@ -9,13 +9,14 @@ import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
 
-public class ServerAddEnchantment implements IMessage {
+public class ServerSpendEnchantmentPoint implements IMessage {
     private int index;
 
-    public ServerAddEnchantment() {}
+    public ServerSpendEnchantmentPoint() {}
 
-    public ServerAddEnchantment(final SoulWeaponEnchantment enchantment) {
+    public ServerSpendEnchantmentPoint(final SoulWeaponEnchantment enchantment) {
         this.index = enchantment.index;
     }
 
@@ -29,16 +30,17 @@ public class ServerAddEnchantment implements IMessage {
         buffer.writeInt(this.index);
     }
 
-    public static final class Handler implements IMessageHandler<ServerAddEnchantment, IMessage> {
+    public static final class Handler implements IMessageHandler<ServerSpendEnchantmentPoint, IMessage> {
         @Override
-        public IMessage onMessage(final ServerAddEnchantment message, final MessageContext context) {
+        public IMessage onMessage(final ServerSpendEnchantmentPoint message, final MessageContext context) {
             final ISoulWeapon instance = context.getServerHandler().player.getCapability(CAPABILITY, null);
             final SoulWeaponEnchantment enchantment = SoulWeaponEnchantment.getEnchantment(message.index);
 
             if (instance.getDatum(ENCHANTMENT_POINTS, instance.getCurrentType()) > 0) {
                 instance.addEnchantment(enchantment, instance.getCurrentType());
+                instance.addDatum(1, SPENT_ENCHANTMENT_POINTS, instance.getCurrentType());
 
-                return new ClientAddEnchantment(enchantment);
+                return new ClientSpentEnchantmentPoint(enchantment);
             }
 
             return null;

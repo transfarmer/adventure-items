@@ -16,19 +16,27 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 public class SoulWeaponHelper {
     public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     public static final UUID ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
+    public static final int DATA_LENGTH = 7;
+    public static final int ATTRIBUTES_LENGTH = 5;
+    public static final int ENCHANTMENTS_LENGTH = 7;
     private static boolean datumEquality;
 
     public static void forEach(BiConsumer<Integer, Integer> datumConsumer,
                                BiConsumer<Integer, Integer> attributeConsumer,
                                BiConsumer<Integer, Integer> enchantmentConsumer) {
         for (int weaponIndex = 0; weaponIndex <= 2; weaponIndex++) {
-            for (int valueIndex = 0; valueIndex <= 6; valueIndex++) {
-                if (valueIndex <= 4) {
-                    attributeConsumer.accept(weaponIndex, valueIndex);
+            for (int valueIndex = 0; valueIndex <= Math.max(DATA_LENGTH, Math.max(ATTRIBUTES_LENGTH, ENCHANTMENTS_LENGTH)); valueIndex++) {
+                if (valueIndex <= DATA_LENGTH - 1) {
                     datumConsumer.accept(weaponIndex, valueIndex);
                 }
 
-                enchantmentConsumer.accept(weaponIndex, valueIndex);
+                if (valueIndex <= ATTRIBUTES_LENGTH - 1) {
+                    attributeConsumer.accept(weaponIndex, valueIndex);
+                }
+
+                if (valueIndex <= ENCHANTMENTS_LENGTH - 1) {
+                    enchantmentConsumer.accept(weaponIndex, valueIndex);
+                }
             }
         }
     }

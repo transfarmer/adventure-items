@@ -4,9 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ServerTab implements IMessage {
@@ -27,7 +25,7 @@ public class ServerTab implements IMessage {
     }
 
     public static final class Handler implements IMessageHandler<ServerTab, IMessage> {
-        @SideOnly(CLIENT)
+        @Override
         public IMessage onMessage(ServerTab message, MessageContext context) {
             context.getServerHandler().player.getCapability(CAPABILITY, null).setCurrentTab(message.tab);
 
