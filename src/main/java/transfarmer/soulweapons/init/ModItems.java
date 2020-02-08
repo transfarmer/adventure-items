@@ -9,19 +9,25 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulweapons.item.ItemSoulGreatsword;
 import transfarmer.soulweapons.item.ItemSoulDagger;
+import transfarmer.soulweapons.item.ItemSoulGreatsword;
 import transfarmer.soulweapons.item.ItemSoulSword;
+
+import javax.annotation.Nonnull;
 
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.Main.MODID;
 
 
+@SuppressWarnings({"ConstantConditions", "NullableProblems"})
 @ObjectHolder(MODID)
 public class ModItems {
+    @Nonnull
     public static final Item SOUL_GREATSWORD = null;
+    @Nonnull
     public static final Item SOUL_SWORD = null;
+    @Nonnull
     public static final Item SOUL_DAGGER = null;
 
     @EventBusSubscriber(modid = MODID)

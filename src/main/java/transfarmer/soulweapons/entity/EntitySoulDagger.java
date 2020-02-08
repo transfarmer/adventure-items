@@ -53,8 +53,8 @@ public class EntitySoulDagger extends EntityArrow {
     public EntitySoulDagger(World world, EntityLivingBase shooter, ItemStack itemStack) {
         this(world, shooter.posX, shooter.posY + shooter.getEyeHeight() - 0.1, shooter.posZ);
         this.shootingEntity = shooter;
-        this.itemStack = itemStack;
         this.owner = shooter;
+        this.itemStack = itemStack;
 
         if (shooter instanceof EntityPlayer) {
             this.pickupStatus = EntityArrow.PickupStatus.ALLOWED;

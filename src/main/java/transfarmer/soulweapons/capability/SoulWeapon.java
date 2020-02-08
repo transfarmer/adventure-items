@@ -3,6 +3,7 @@ package transfarmer.soulweapons.capability;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
@@ -28,12 +29,14 @@ import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_SPEED;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.EFFICIENCY;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.ATTRIBUTE_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.LEVEL;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SHARPNESS;
+import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
+import static transfarmer.soulweapons.data.SoulWeaponType.SWORD;
 
 @SuppressWarnings("DuplicateBranchesInSwitch")
 public class SoulWeapon implements ISoulWeapon {
@@ -43,10 +46,11 @@ public class SoulWeapon implements ISoulWeapon {
         {"throwing", "perforation", "return", "sneak return"}
     };
     private SoulWeaponType currentType;
+    private int currentTab = 0;
+    private int cooldown = 0;
     private int[][] data = new int[3][DATA_LENGTH];
     private float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
     private int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
-    private int currentTab = 0;
 
     @Override
     public void set(final int[][] data, final float[][] attributes, final int[][] enchantments) {
@@ -114,14 +118,12 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public void addAttribute(SoulWeaponAttribute attribute, SoulWeaponType type) {
         this.addAttribute(attribute.increase, attribute, type);
-        this.data[type.index][POINTS.index]--;
     }
 
     @Override
     public void resetAttributes(final SoulWeaponType type) {
         for (final SoulWeaponAttribute attribute : SoulWeaponAttribute.getAttributes()) {
             for (float i = this.getAttribute(attribute, type); i > 0; i++) {
-
             }
         }
     }
@@ -140,7 +142,13 @@ public class SoulWeapon implements ISoulWeapon {
         itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), attributeModifiers[0], MAINHAND);
         itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), attributeModifiers[1], MAINHAND);
 
-        enchantments.forEach((SoulWeaponEnchantment enchantment, Integer level) -> itemStack.addEnchantment(enchantment.enchantment, level));
+        if (type == GREATSWORD) {
+            itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulWeaponHelper.REACH_DISTANCE_UUID, "generic.reachDistance", 3, ADD), MAINHAND);
+        } else if (type == SWORD) {
+            itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulWeaponHelper.REACH_DISTANCE_UUID, "generic.reachDistance", 1.5, ADD), MAINHAND);
+        }
+
+        enchantments.forEach((final SoulWeaponEnchantment enchantment, final Integer level) -> itemStack.addEnchantment(enchantment.enchantment, level));
 
         return itemStack;
     }
@@ -157,7 +165,7 @@ public class SoulWeapon implements ISoulWeapon {
     public SortedMap<SoulWeaponEnchantment, Integer> getEnchantments(final SoulWeaponType type) {
         final SortedMap<SoulWeaponEnchantment, Integer> enchantments = new TreeMap<>();
 
-        for (SoulWeaponEnchantment enchantment : SoulWeaponEnchantment.enchantments) {
+        for (final SoulWeaponEnchantment enchantment : SoulWeaponEnchantment.enchantments) {
             final int level = this.getEnchantment(enchantment, type);
 
             if (level > 0) {
@@ -233,7 +241,7 @@ public class SoulWeapon implements ISoulWeapon {
                     this.addDatum(1, ENCHANTMENT_POINTS, type);
                 }
                 if (Configuration.onlyPoints) {
-                    this.addDatum(1, POINTS, type);
+                    this.addDatum(1, ATTRIBUTE_POINTS, type);
                     return false;
                 }
 
@@ -241,13 +249,13 @@ public class SoulWeapon implements ISoulWeapon {
                     case GREATSWORD:
                         switch (number) {
                             case 0:
-                                this.addDatum(1, POINTS, type);
+                                this.addDatum(1, ATTRIBUTE_POINTS, type);
                                 break;
                             case 1:
                                 if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
                                     addDatum(1, SKILLS, type);
                                 } else {
-                                    this.addDatum(1, POINTS, type);
+                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
                                 }
 
                                 break;
@@ -264,7 +272,7 @@ public class SoulWeapon implements ISoulWeapon {
                                 if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
                                     addDatum(1, SKILLS, type);
                                 } else {
-                                    this.addDatum(1, POINTS, type);
+                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
                                 }
 
                                 break;
@@ -286,13 +294,13 @@ public class SoulWeapon implements ISoulWeapon {
                     case SWORD:
                         switch (number) {
                             case 0:
-                                this.addDatum(1, POINTS, type);
+                                this.addDatum(1, ATTRIBUTE_POINTS, type);
                                 break;
                             case 1:
                                 if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
                                     addDatum(1, SKILLS, type);
                                 } else {
-                                    this.addDatum(1, POINTS, type);
+                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
                                 }
 
                                 break;
@@ -309,7 +317,7 @@ public class SoulWeapon implements ISoulWeapon {
                                 if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
                                     addDatum(1, SKILLS, type);
                                 } else {
-                                    this.addDatum(1, POINTS, type);
+                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
                                 }
 
                                 break;
@@ -331,13 +339,13 @@ public class SoulWeapon implements ISoulWeapon {
                     case DAGGER:
                         switch (number) {
                             case 0:
-                                this.addDatum(1, POINTS, type);
+                                this.addDatum(1, ATTRIBUTE_POINTS, type);
                                 break;
                             case 1:
                                 if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
                                     this.addDatum(1, SKILLS, type);
                                 } else {
-                                    this.addDatum(1, POINTS, type);
+                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
                                 }
 
                                 break;
@@ -354,7 +362,7 @@ public class SoulWeapon implements ISoulWeapon {
                                 if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
                                     addDatum(1, SKILLS, type);
                                 } else {
-                                    this.addDatum(1, POINTS, type);
+                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
                                 }
 
                                 break;
@@ -374,7 +382,7 @@ public class SoulWeapon implements ISoulWeapon {
                         }
                 }
             default:
-                this.data[type.index][datum.index]++;
+                this.data[type.index][datum.index] += amount;
         }
 
         return false;
@@ -394,7 +402,6 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public void addEnchantment(final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
         this.enchantments[type.index][enchantment.index]++;
-        this.data[type.index][ENCHANTMENT_POINTS.index]--;
     }
 
     @Override
@@ -420,6 +427,36 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public void setCurrentType(final int index) {
         this.currentType = SoulWeaponType.getType(index);
+    }
+
+    @Override
+    public void setCooldown(final int ticks) {
+        this.cooldown = ticks;
+    }
+
+    @Override
+    public void resetCooldown(final SoulWeaponType type) {
+        this.cooldown = this.getCooldown(type);
+    }
+
+    @Override
+    public void addCooldown(final int ticks) {
+        this.cooldown += ticks;
+    }
+
+    @Override
+    public int getCooldown() {
+        return this.cooldown;
+    }
+
+    @Override
+    public int getCooldown(final SoulWeaponType type) {
+        return Math.round(20 / (4 + this.getAttribute(ATTACK_SPEED, type)));
+    }
+
+    @Override
+    public float getAttackRatio(final SoulWeaponType type) {
+        return 1 - (float) this.getCooldown() / this.getCooldown(type);
     }
 
     public static String[][] getSkillNames() {

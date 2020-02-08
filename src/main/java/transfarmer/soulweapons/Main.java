@@ -14,11 +14,12 @@ import org.apache.logging.log4j.Logger;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponStorage;
+import transfarmer.soulweapons.entity.EntityReachModifier;
 import transfarmer.soulweapons.entity.EntitySoulDagger;
 import transfarmer.soulweapons.network.ClientResetAttributes;
 import transfarmer.soulweapons.network.ClientResetEnchantments;
 import transfarmer.soulweapons.network.ClientSpendAttributePoint;
-import transfarmer.soulweapons.network.ClientSpentEnchantmentPoint;
+import transfarmer.soulweapons.network.ClientSpendEnchantmentPoint;
 import transfarmer.soulweapons.network.ClientWeaponData;
 import transfarmer.soulweapons.network.ClientWeaponDatum;
 import transfarmer.soulweapons.network.ClientWeaponType;
@@ -28,6 +29,7 @@ import transfarmer.soulweapons.network.ServerSpendAttributePoint;
 import transfarmer.soulweapons.network.ServerSpendEnchantmentPoint;
 import transfarmer.soulweapons.network.ServerTab;
 import transfarmer.soulweapons.network.ServerWeaponType;
+import transfarmer.soulweapons.render.RenderReachModifier;
 import transfarmer.soulweapons.render.RenderSoulDagger;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -38,7 +40,7 @@ import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
 public class Main {
     public static final String MODID = "soulweapons";
     public static final String NAME = "soul weapons";
-    public static final String VERSION = "1.6.6-beta";
+    public static final String VERSION = "1.6.7-beta";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
@@ -57,7 +59,7 @@ public class Main {
 
         CHANNEL.registerMessage(ClientWeaponType.Handler.class, ClientWeaponType.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientSpendAttributePoint.Handler.class, ClientSpendAttributePoint.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientSpentEnchantmentPoint.Handler.class, ClientSpentEnchantmentPoint.class, id++, CLIENT);
+        CHANNEL.registerMessage(ClientSpendEnchantmentPoint.Handler.class, ClientSpendEnchantmentPoint.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientResetAttributes.Handler.class, ClientResetAttributes.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientResetEnchantments.Handler.class, ClientResetEnchantments.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientWeaponDatum.Handler.class, ClientWeaponDatum.class, id++, CLIENT);
@@ -66,6 +68,7 @@ public class Main {
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(WEAPON_MENU);
             RenderingRegistry.registerEntityRenderingHandler(EntitySoulDagger.class, new RenderSoulDagger.RenderFactory());
+            RenderingRegistry.registerEntityRenderingHandler(EntityReachModifier.class, new RenderReachModifier.RenderFactory());
         }
     }
 }

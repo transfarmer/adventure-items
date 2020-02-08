@@ -34,7 +34,7 @@ import static transfarmer.soulweapons.data.SoulWeaponAttribute.EFFICIENCY;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.LEVEL;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.POINTS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.ATTRIBUTE_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ATTRIBUTE_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
@@ -109,7 +109,7 @@ public class SoulWeaponMenu extends GuiScreen {
     private void showAttributes() {
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(20));
 
-        showPointButtons(4, 4, this.capability.getDatum(POINTS, this.weaponType));
+        showPointButtons(4, 4, this.capability.getDatum(ATTRIBUTE_POINTS, this.weaponType));
         resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.weaponType) > 0;
     }
 
@@ -221,7 +221,10 @@ public class SoulWeaponMenu extends GuiScreen {
             && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT) {
             this.drawHoveringText(String.format("%d/%d", capability.getDatum(LEVEL, this.weaponType), Configuration.maxLevel), mouseX, mouseY);
         } else if (mouseX >= (width - 182) / 2 && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4) {
-            this.drawHoveringText(String.format("%d/%d", capability.getDatum(XP, this.weaponType), capability.getNextLevelXP(this.weaponType)), mouseX, mouseY);
+            final String string = this.capability.getDatum(LEVEL, this.weaponType) < Configuration.maxLevel
+                ? String.format("%d/%d", capability.getDatum(XP, this.weaponType), capability.getNextLevelXP(this.weaponType))
+                : String.format("%d", capability.getDatum(XP, this.weaponType));
+            this.drawHoveringText(string, mouseX, mouseY);
         }
     }
 
@@ -256,7 +259,7 @@ public class SoulWeaponMenu extends GuiScreen {
             case 6:
             case 7:
             case 8:
-                Main.CHANNEL.sendToServer(new ServerSpendAttributePoint(SoulWeaponAttribute.getAttribute(button.id - 4)));
+                Main.CHANNEL.sendToServer(new ServerSpendAttributePoint(SoulWeaponAttribute.getAttribute(button.id - 4), this.weaponType));
                 break;
             case 9:
             case 10:
@@ -265,7 +268,7 @@ public class SoulWeaponMenu extends GuiScreen {
             case 13:
             case 14:
             case 15:
-                Main.CHANNEL.sendToServer(new ServerSpendEnchantmentPoint(SoulWeaponEnchantment.getEnchantment(button.id - 9)));
+                Main.CHANNEL.sendToServer(new ServerSpendEnchantmentPoint(SoulWeaponEnchantment.getEnchantment(button.id - 9), this.weaponType));
                 break;
             case 16:
             case 17:

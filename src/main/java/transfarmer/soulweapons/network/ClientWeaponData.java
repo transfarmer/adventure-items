@@ -2,7 +2,6 @@ package transfarmer.soulweapons.network;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -20,15 +19,17 @@ import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 public class ClientWeaponData implements IMessage {
     private SoulWeaponType weaponType;
     private int currentTab;
+    private int cooldown;
     private int[][] data = new int[3][DATA_LENGTH];
     private float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
     private int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
 
     public ClientWeaponData() {}
 
-    public ClientWeaponData(final SoulWeaponType weaponType, final int currentTab, final int[][] data, final float[][] attributes, final int[][] enchantments) {
+    public ClientWeaponData(final SoulWeaponType weaponType, final int currentTab, final int cooldown, final int[][] data, final float[][] attributes, final int[][] enchantments) {
         this.weaponType = weaponType;
         this.currentTab = currentTab;
+        this.cooldown = cooldown;
 
         if (attributes[0].length == 0 || attributes[1].length == 0 || attributes[2].length == 0
             || data[0].length == 0 || data[1].length == 0 || data[2].length == 0
@@ -42,6 +43,7 @@ public class ClientWeaponData implements IMessage {
     public void fromBytes(ByteBuf buffer) {
         this.weaponType = SoulWeaponType.getType(buffer.readInt());
         this.currentTab = buffer.readInt();
+        this.cooldown = buffer.readInt();
 
         SoulWeaponHelper.forEach(
             (Integer weaponIndex, Integer valueIndex) -> this.data[weaponIndex][valueIndex] = buffer.readInt(),
@@ -58,6 +60,7 @@ public class ClientWeaponData implements IMessage {
         }
 
         buffer.writeInt(this.currentTab);
+        buffer.writeInt(this.cooldown);
 
         SoulWeaponHelper.forEach(
             (Integer weaponIndex, Integer valueIndex) -> buffer.writeInt(this.data[weaponIndex][valueIndex]),
@@ -71,11 +74,11 @@ public class ClientWeaponData implements IMessage {
         @Override
         public IMessage onMessage(ClientWeaponData message, MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
-                EntityPlayer player = Minecraft.getMinecraft().player;
-                ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+                final ISoulWeapon instance = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
 
                 instance.setCurrentType(message.weaponType);
                 instance.setCurrentTab(message.currentTab);
+                instance.setCooldown(message.cooldown);
                 instance.set(message.data, message.attributes, message.enchantments);
             });
 

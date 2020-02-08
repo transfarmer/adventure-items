@@ -14,7 +14,7 @@ import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
 
 public class ItemSoulDagger extends ItemSoulWeapon {
     public ItemSoulDagger() {
-        super(1, -2F);
+        super(1, -2F, 3);
     }
 
     @Override
@@ -30,9 +30,11 @@ public class ItemSoulDagger extends ItemSoulWeapon {
 
                 dagger.shoot(player, player.rotationPitch, player.rotationYaw, 0, 1.5F, 1);
                 world.spawnEntity(dagger);
+
+                return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
             }
         }
 
-        return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+        return new ActionResult<>(EnumActionResult.FAIL, player.getHeldItem(hand));
     }
 }

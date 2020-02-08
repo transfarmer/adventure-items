@@ -13,7 +13,7 @@ import transfarmer.soulweapons.gui.SoulWeaponMenu;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES_LENGTH;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.POINTS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.ATTRIBUTE_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ATTRIBUTE_POINTS;
 
 public class ClientResetAttributes implements IMessage {
@@ -43,7 +43,7 @@ public class ClientResetAttributes implements IMessage {
                 final ISoulWeapon capability = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
                 final SoulWeaponType type = SoulWeaponType.getType(message.index);
 
-                capability.addDatum(capability.getDatum(SPENT_ATTRIBUTE_POINTS, type), POINTS, type);
+                capability.addDatum(capability.getDatum(SPENT_ATTRIBUTE_POINTS, type), ATTRIBUTE_POINTS, type);
                 capability.setDatum(0, SPENT_ATTRIBUTE_POINTS, type);
                 capability.setAttributes(new float[3][ATTRIBUTES_LENGTH]);
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());

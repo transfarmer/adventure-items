@@ -37,18 +37,24 @@ public interface ISoulWeapon {
 
     int getMaxSkills(SoulWeaponType weaponType);
 
-    int getDatum(SoulWeaponDatum datum, SoulWeaponType weaponType);
     void setDatum(int value, SoulWeaponDatum datum, SoulWeaponType type);
     boolean addDatum(int amount, SoulWeaponDatum datum, SoulWeaponType type);
+    int getDatum(SoulWeaponDatum datum, SoulWeaponType weaponType);
 
-    int getEnchantment(SoulWeaponEnchantment enchantment, SoulWeaponType weaponType);
     void addEnchantment(SoulWeaponEnchantment enchantment, SoulWeaponType weaponType);
+    int getEnchantment(SoulWeaponEnchantment enchantment, SoulWeaponType weaponType);
+
+    void setCurrentType(SoulWeaponType type);
+    void setCurrentType(int index);
+    SoulWeaponType getCurrentType();
 
     void setCurrentTab(int tab);
     int getCurrentTab();
 
-    SoulWeaponType getCurrentType();
-    void setCurrentType(SoulWeaponType type);
-    void setCurrentType(int index);
-
+    void setCooldown(int ticks);
+    void resetCooldown(SoulWeaponType type);
+    void addCooldown(int ticks);
+    int getCooldown();
+    int getCooldown(SoulWeaponType type);
+    float getAttackRatio(SoulWeaponType type);
 }

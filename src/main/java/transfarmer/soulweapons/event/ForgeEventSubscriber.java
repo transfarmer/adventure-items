@@ -17,7 +17,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
@@ -38,6 +37,7 @@ import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.capability.SoulWeaponProvider;
 import transfarmer.soulweapons.data.SoulWeaponType;
+import transfarmer.soulweapons.entity.EntityReachModifier;
 import transfarmer.soulweapons.entity.EntitySoulDagger;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
 import transfarmer.soulweapons.gui.TooltipXPBar;
@@ -62,18 +62,24 @@ import static transfarmer.soulweapons.data.SoulWeaponAttribute.KNOCKBACK_ATTRIBU
 import static transfarmer.soulweapons.data.SoulWeaponDatum.LEVEL;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
 import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
+import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
+import static transfarmer.soulweapons.data.SoulWeaponType.SWORD;
 
 @EventBusSubscriber(modid = Main.MODID)
 public class ForgeEventSubscriber {
-    public static SoulWeaponType tooltipWeapon = null;
-
-    @SideOnly(CLIENT)
     @SubscribeEvent
     public static void onRegisterEntityEntry(RegistryEvent.Register<EntityEntry> entry) {
         entry.getRegistry().register(EntityEntryBuilder.create()
             .entity(EntitySoulDagger.class)
             .id(new ResourceLocation(Main.MODID, "entity_soul_dagger"), 0)
             .name("soul dagger")
+            .tracker(128, 1, true)
+            .build()
+        );
+        entry.getRegistry().register(EntityEntryBuilder.create()
+            .entity(EntityReachModifier.class)
+            .id(new ResourceLocation(Main.MODID, "entity_reach_extender"), 1)
+            .name("reach extender")
             .tracker(128, 1, true)
             .build()
         );
@@ -109,15 +115,15 @@ public class ForgeEventSubscriber {
     }
 
     private static void updatePlayer(EntityPlayer player) {
-        ISoulWeapon capability = player.getCapability(CAPABILITY, null);
-        Main.CHANNEL.sendTo(new ClientWeaponData(capability.getCurrentType(), capability.getCurrentTab(),
+        final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+        Main.CHANNEL.sendTo(new ClientWeaponData(capability.getCurrentType(), capability.getCurrentTab(), capability.getCooldown(),
             capability.getData(), capability.getAttributes(), capability.getEnchantments()), (EntityPlayerMP) player);
     }
 
     @SubscribeEvent
     public static void onPlayerDrops(PlayerDropsEvent event) {
-        EntityPlayer player = event.getEntityPlayer();
-        ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+        final EntityPlayer player = event.getEntityPlayer();
+        final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
         if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
             && !player.world.getGameRules().getBoolean("keepInventory")) {
@@ -128,8 +134,8 @@ public class ForgeEventSubscriber {
 
     @SubscribeEvent
     public static void onClone(Clone event) {
-        ISoulWeapon originalInstance = event.getOriginal().getCapability(CAPABILITY, null);
-        ISoulWeapon instance = event.getEntityPlayer().getCapability(CAPABILITY, null);
+        final ISoulWeapon originalInstance = event.getOriginal().getCapability(CAPABILITY, null);
+        final ISoulWeapon instance = event.getEntityPlayer().getCapability(CAPABILITY, null);
 
         instance.setCurrentType(originalInstance.getCurrentType());
         instance.setCurrentTab(originalInstance.getCurrentTab());
@@ -138,50 +144,56 @@ public class ForgeEventSubscriber {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent event) {
-        if (!SoulWeaponHelper.hasSoulWeapon(event.player) || event.phase != END) return;
+        if (event.phase != END) return;
 
-        ISoulWeapon instance = event.player.getCapability(CAPABILITY, null);
-        InventoryPlayer inventory = event.player.inventory;
+        if (SoulWeaponHelper.hasSoulWeapon(event.player)) {
+            ISoulWeapon instance = event.player.getCapability(CAPABILITY, null);
+            InventoryPlayer inventory = event.player.inventory;
 
-        if (SoulWeaponHelper.isSoulWeaponEquipped(event.player)) {
-            final SoulWeaponType heldItemType = SoulWeaponType.getType(inventory.getCurrentItem().getItem());
+            if (SoulWeaponHelper.isSoulWeaponEquipped(event.player)) {
+                final SoulWeaponType heldItemType = SoulWeaponType.getType(inventory.getCurrentItem().getItem());
 
-            if (heldItemType != instance.getCurrentType()) {
-                instance.setCurrentType(heldItemType);
+                if (heldItemType != instance.getCurrentType()) {
+                    instance.setCurrentType(heldItemType);
+                }
+
+                if (instance.getCooldown() > 0) {
+                    instance.addCooldown(-1);
+                }
             }
-        }
 
-        if (instance.getCurrentType() != null && !event.player.isCreative()) {
-            int firstSlot = -1;
+            if (instance.getCurrentType() != null && !event.player.isCreative()) {
+                int firstSlot = -1;
 
-            for (final ItemStack itemStack : inventory.mainInventory) {
-                if (SoulWeaponType.isSoulWeapon(itemStack)) {
-                    if (itemStack.getItem() != instance.getCurrentType().getItem()) {
-                        inventory.deleteStack(itemStack);
-                    } else {
-                        final int slot = inventory.mainInventory.indexOf(itemStack);
-
-                        if (firstSlot == -1) {
-                            firstSlot = slot;
-                        } else if (firstSlot != slot) {
+                for (final ItemStack itemStack : inventory.mainInventory) {
+                    if (SoulWeaponType.isSoulWeapon(itemStack)) {
+                        if (itemStack.getItem() != instance.getCurrentType().getItem()) {
                             inventory.deleteStack(itemStack);
+                        } else {
+                            final int slot = inventory.mainInventory.indexOf(itemStack);
+
+                            if (firstSlot == -1) {
+                                firstSlot = slot;
+                            } else if (firstSlot != slot) {
+                                inventory.deleteStack(itemStack);
+                            }
                         }
                     }
                 }
             }
-        }
 
-        for (final ItemStack itemStack : inventory.mainInventory) {
-            if (!SoulWeaponType.isSoulWeapon(itemStack)) continue;
+            for (final ItemStack itemStack : inventory.mainInventory) {
+                if (!SoulWeaponType.isSoulWeapon(itemStack)) continue;
 
-            ItemStack newItemStack = instance.getItemStack(itemStack);
+                ItemStack newItemStack = instance.getItemStack(itemStack);
 
-            if (SoulWeaponHelper.areDataEqual(itemStack, newItemStack)) continue;
-            if (itemStack.hasDisplayName()) {
-                newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                if (SoulWeaponHelper.areDataEqual(itemStack, newItemStack)) continue;
+                if (itemStack.hasDisplayName()) {
+                    newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                }
+
+                inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
             }
-
-            inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
         }
     }
 
@@ -215,12 +227,11 @@ public class ForgeEventSubscriber {
                 }
             } else return;
 
-                if (instance.getAttribute(CRITICAL, weaponType) > new Random().nextInt(100)) {
-                    event.setAmount(2 * event.getAmount());
-                }
+            if (instance.getAttribute(CRITICAL, weaponType) > new Random().nextInt(100)) {
+                event.setAmount(2 * event.getAmount());
+            }
         }
     }
-
 
     @SubscribeEvent
     public static void onLivingKnockback(LivingKnockBackEvent event) {
@@ -295,21 +306,19 @@ public class ForgeEventSubscriber {
         }
     }
 
-    @SubscribeEvent
-    public static void onProjectileImpact(ProjectileImpactEvent event) {
-
-    }
-
     @SideOnly(CLIENT)
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent event) {
-        if (WEAPON_MENU.isKeyDown() && event.phase == END) {
-            final EntityPlayer player = Minecraft.getMinecraft().player;
+        if (event.phase == END) {
+            final Minecraft minecraft = Minecraft.getMinecraft();
+            final EntityPlayer player = minecraft.player;
 
-            if (player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)) {
-                Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu(0));
-            } else if (SoulWeaponHelper.isSoulWeaponEquipped(player)) {
-                Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
+            if (WEAPON_MENU.isKeyDown()) {
+                if (player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)) {
+                    minecraft.displayGuiScreen(new SoulWeaponMenu(0));
+                } else if (SoulWeaponHelper.isSoulWeaponEquipped(player)) {
+                    minecraft.displayGuiScreen(new SoulWeaponMenu());
+                }
             }
         }
     }
@@ -319,32 +328,36 @@ public class ForgeEventSubscriber {
     public static void onItemTooltip(ItemTooltipEvent event) {
         final EntityPlayer player = event.getEntityPlayer();
 
-        if (player == null) return;
+        if (player != null) {
+            final ISoulWeapon instance = player.getCapability(CAPABILITY, null);
 
-        final ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+            if (SoulWeaponType.getItems().contains(event.getItemStack().getItem())) {
+                final SoulWeaponType weaponType = SoulWeaponType.getType(event.getItemStack());
+                final List<String> tooltip = event.getToolTip();
+                final String[] newTooltip = instance.getTooltip(weaponType);
+                final int enchantments = event.getItemStack().getEnchantmentTagList().tagCount();
 
-        if (instance.getCurrentType() == null || !SoulWeaponType.getItems().contains(event.getItemStack().getItem())) return;
+               if (weaponType == GREATSWORD || weaponType == SWORD) {
+                   tooltip.remove(5 + enchantments);
+               }
 
-        tooltipWeapon = SoulWeaponType.getType(event.getItemStack());
+                tooltip.remove(4 + enchantments);
+                tooltip.remove(3 + enchantments);
 
-        final List<String> tooltip = event.getToolTip();
-        final String[] newTooltip = instance.getTooltip(tooltipWeapon);
-        final int enchantments = event.getItemStack().getEnchantmentTagList().tagCount();
-
-        tooltip.remove(4 + enchantments);
-        tooltip.remove(3 + enchantments);
-
-        for (int i = 0; i < newTooltip.length; i++) {
-            tooltip.add(3 + enchantments + i, newTooltip[i]);
+                for (int i = 0; i < newTooltip.length; i++) {
+                    tooltip.add(3 + enchantments + i, newTooltip[i]);
+                }
+            }
         }
     }
 
     @SideOnly(CLIENT)
     @SubscribeEvent
-    public static void onDrawScreen(RenderTooltipEvent.PostText event) {
+    public static void onRenderTooltip(RenderTooltipEvent.PostText event) {
+        final SoulWeaponType tooltipWeapon = SoulWeaponType.getType(event.getStack());
+
         if (tooltipWeapon != null) {
             new TooltipXPBar(tooltipWeapon, event.getX(), event.getY(), event.getStack().getEnchantmentTagList().tagCount());
-            tooltipWeapon = null;
         }
     }
 }

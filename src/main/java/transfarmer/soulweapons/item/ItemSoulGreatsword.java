@@ -11,28 +11,14 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import transfarmer.soulweapons.capability.SoulWeaponProvider;
-import transfarmer.soulweapons.entity.EntityExtendedReach;
 
+import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
 
 public class ItemSoulGreatsword extends ItemSoulWeapon {
     public ItemSoulGreatsword() {
-        super(3, -2.8F);
-    }
-
-    @Override
-    public boolean onEntitySwing(EntityLivingBase entity, ItemStack itemStack) {
-        if (!entity.world.isRemote) {
-            final EntityExtendedReach entityExtendedReach = new EntityExtendedReach(entity.world, 6);
-            final Vec3d look = entity.getLookVec();
-
-            entityExtendedReach.shoot(look.x, look.y, look.z, 127, 0);
-            entity.world.spawnEntity(entityExtendedReach);
-        }
-
-        return false;
+        super(3, -2.8F, 6);
     }
 
     @Override
@@ -47,7 +33,7 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-        if (player != null && player.getCapability(SoulWeaponProvider.CAPABILITY, null).getDatum(SKILLS, GREATSWORD) >= 1) {
+        if (player != null && player.getCapability(CAPABILITY, null).getDatum(SKILLS, GREATSWORD) >= 1) {
             player.setActiveHand(hand);
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }

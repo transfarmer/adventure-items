@@ -16,6 +16,7 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 public class SoulWeaponHelper {
     public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     public static final UUID ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
+    public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
     public static final int DATA_LENGTH = 7;
     public static final int ATTRIBUTES_LENGTH = 5;
     public static final int ENCHANTMENTS_LENGTH = 7;

@@ -20,6 +20,7 @@ public class SoulWeaponStorage implements IStorage<transfarmer.soulweapons.capab
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("soulweapons.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().index);
         tag.setInteger("soulweapons.capability.tab", instance.getCurrentTab());
+        tag.setInteger("soulweapons.capability.cooldown", instance.getCooldown());
         final int[][] data = instance.getData();
         final float[][] attributes = instance.getAttributes();
         final int[][] enchantments = instance.getEnchantments();
@@ -50,6 +51,7 @@ public class SoulWeaponStorage implements IStorage<transfarmer.soulweapons.capab
         NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soulweapons.capability.index"));
         instance.setCurrentTab(tag.getInteger("soulweapons.capability.tab"));
+        instance.setCooldown(tag.getInteger("soulweapons.capability.cooldown"));
         final int[][] data = new int[3][DATA_LENGTH];
         final float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
         final int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
