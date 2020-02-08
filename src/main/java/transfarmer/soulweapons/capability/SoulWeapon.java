@@ -131,14 +131,6 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public void resetAttributes(final SoulWeaponType type) {
-        for (final SoulWeaponAttribute attribute : SoulWeaponAttribute.getAttributes()) {
-            for (float i = this.getAttribute(attribute, type); i > 0; i++) {
-            }
-        }
-    }
-
-    @Override
     public ItemStack getItemStack(final ItemStack itemStack) {
         return getItemStack(SoulWeaponType.getType(itemStack));
     }

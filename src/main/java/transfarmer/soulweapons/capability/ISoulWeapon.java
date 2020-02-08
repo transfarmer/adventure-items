@@ -24,7 +24,6 @@ public interface ISoulWeapon {
     void setAttribute(float value, SoulWeaponAttribute attribute, SoulWeaponType type);
     void addAttribute(SoulWeaponAttribute attribute, SoulWeaponType weaponType);
     void addAttribute(float amount, SoulWeaponAttribute attribute, SoulWeaponType weaponType);
-    void resetAttributes(SoulWeaponType type);
 
     ItemStack getItemStack(ItemStack itemStack);
     ItemStack getItemStack(SoulWeaponType weaponType);
