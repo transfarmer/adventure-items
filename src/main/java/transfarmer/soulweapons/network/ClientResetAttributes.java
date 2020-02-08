@@ -45,7 +45,7 @@ public class ClientResetAttributes implements IMessage {
 
                 capability.addDatum(capability.getDatum(SPENT_ATTRIBUTE_POINTS, type), ATTRIBUTE_POINTS, type);
                 capability.setDatum(0, SPENT_ATTRIBUTE_POINTS, type);
-                capability.setAttributes(new float[3][ATTRIBUTES_LENGTH]);
+                capability.setAttributes(new float[ATTRIBUTES_LENGTH], type);
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
             });
 

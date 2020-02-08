@@ -13,7 +13,9 @@ public interface ISoulWeapon {
     void set(int[][] data, float[][] attributes, int[][] enchantments);
     void setData(int[][] data);
     void setAttributes(float[][] attributes);
+    void setAttributes(float[] attributes, SoulWeaponType type);
     void setEnchantments(int[][] enchantments);
+    void setEnchantments(int[] enchantments, SoulWeaponType type);
     int[][] getData();
     float[][] getAttributes();
     int[][] getEnchantments();

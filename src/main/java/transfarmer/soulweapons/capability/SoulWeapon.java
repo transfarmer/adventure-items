@@ -70,8 +70,18 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
+    public void setAttributes(final float[] attributes, final SoulWeaponType type) {
+        this.attributes[type.index] = attributes;
+    }
+
+    @Override
     public void setEnchantments(final int[][] enchantments) {
         this.enchantments = enchantments;
+    }
+
+    @Override
+    public void setEnchantments(final int[] enchantments, final SoulWeaponType type) {
+        this.enchantments[type.index] = enchantments;
     }
 
     @Override
@@ -116,8 +126,8 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public void addAttribute(SoulWeaponAttribute attribute, SoulWeaponType type) {
-        this.addAttribute(attribute.increase, attribute, type);
+    public void addAttribute(final SoulWeaponAttribute attribute, final SoulWeaponType type) {
+        this.addAttribute(attribute.getIncrease(type), attribute, type);
     }
 
     @Override
@@ -233,154 +243,19 @@ public class SoulWeapon implements ISoulWeapon {
                     return true;
                 }
 
-                return false;
+                break;
             case LEVEL:
-                final int number = this.data[type.index][LEVEL.index] % 10;
-
-                if (number % (Configuration.enchantmentLevels - 1) == 0 && this.getDatum(LEVEL, type) != 0) {
+                final int level = ++this.data[type.index][LEVEL.index];
+                if (level % (Configuration.enchantmentLevels) == 0) {
                     this.addDatum(1, ENCHANTMENT_POINTS, type);
                 }
-                if (Configuration.onlyPoints) {
-                    this.addDatum(1, ATTRIBUTE_POINTS, type);
-                    return false;
+
+                if (level % (Configuration.skillLevels) == 0 && this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
+                    this.addDatum(1, SKILLS, type);
                 }
 
-                switch (currentType) {
-                    case GREATSWORD:
-                        switch (number) {
-                            case 0:
-                                this.addDatum(1, ATTRIBUTE_POINTS, type);
-                                break;
-                            case 1:
-                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
-                                    addDatum(1, SKILLS, type);
-                                } else {
-                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
-                                }
-
-                                break;
-                            case 2:
-                                addAttribute(0.5F, EFFICIENCY, type);
-                                break;
-                            case 3:
-                                addAttribute(1, KNOCKBACK_ATTRIBUTE, type);
-                                break;
-                            case 4:
-                                addAttribute(1, ATTACK_DAMAGE, type);
-                                break;
-                            case 5:
-                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
-                                    addDatum(1, SKILLS, type);
-                                } else {
-                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
-                                }
-
-                                break;
-                            case 6:
-                                addAttribute(0.4F, EFFICIENCY, type);
-                                break;
-                            case 7:
-                                addAttribute(1, KNOCKBACK_ATTRIBUTE, type);
-                                break;
-                            case 8:
-                                addAttribute(2, CRITICAL, type);
-                                break;
-                            case 9:
-                                addAttribute(1, ATTACK_DAMAGE, type);
-                                break;
-                        }
-
-                        break;
-                    case SWORD:
-                        switch (number) {
-                            case 0:
-                                this.addDatum(1, ATTRIBUTE_POINTS, type);
-                                break;
-                            case 1:
-                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
-                                    addDatum(1, SKILLS, type);
-                                } else {
-                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
-                                }
-
-                                break;
-                            case 2:
-                                addAttribute(0.4F, EFFICIENCY, type);
-                                break;
-                            case 3:
-                                addAttribute(1, KNOCKBACK_ATTRIBUTE, type);
-                                break;
-                            case 4:
-                                addAttribute(1, ATTACK_DAMAGE, type);
-                                break;
-                            case 5:
-                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
-                                    addDatum(1, SKILLS, type);
-                                } else {
-                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
-                                }
-
-                                break;
-                            case 6:
-                                addAttribute(0.3F, EFFICIENCY, type);
-                                break;
-                            case 7:
-                                addAttribute(2, CRITICAL, type);
-                                break;
-                            case 8:
-                                addAttribute(2, CRITICAL, type);
-                                break;
-                            case 9:
-                                addAttribute(1, ATTACK_DAMAGE, type);
-                                break;
-                        }
-
-                        break;
-                    case DAGGER:
-                        switch (number) {
-                            case 0:
-                                this.addDatum(1, ATTRIBUTE_POINTS, type);
-                                break;
-                            case 1:
-                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
-                                    this.addDatum(1, SKILLS, type);
-                                } else {
-                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
-                                }
-
-                                break;
-                            case 2:
-                                addAttribute(0.4F, EFFICIENCY, type);
-                                break;
-                            case 3:
-                                addAttribute(2, CRITICAL, type);
-                                break;
-                            case 4:
-                                addAttribute(1, ATTACK_DAMAGE, type);
-                                break;
-                            case 5:
-                                if (this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
-                                    addDatum(1, SKILLS, type);
-                                } else {
-                                    this.addDatum(1, ATTRIBUTE_POINTS, type);
-                                }
-
-                                break;
-                            case 6:
-                                addAttribute(0.3F, EFFICIENCY, type);
-                                break;
-                            case 7:
-                                addAttribute(4, CRITICAL, type);
-                                break;
-                            case 8:
-                                addAttribute(1, KNOCKBACK_ATTRIBUTE, type);
-                                break;
-                            case 9:
-                                addAttribute(1, ATTACK_DAMAGE, type);
-                                break;
-
-                        }
-                }
+                this.addDatum(1, ATTRIBUTE_POINTS, type);
+                break;
             default:
                 this.data[type.index][datum.index] += amount;
         }

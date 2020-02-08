@@ -11,14 +11,14 @@ public class Configuration {
     @Comment("the number of levels per enchantment point")
     public static int enchantmentLevels = 5;
 
+    @Comment("the number of levels per additional skill")
+    public static int skillLevels = 5;
+
     @Comment("initial experience points required in order to level up")
     public static int initialXP = 48;
 
     @Comment("whether levelup notifications should be sent to players or not")
     public static boolean levelupNotifications = true;
-
-    @Comment("whether every level should award only an attribute point or not")
-    public static boolean onlyPoints = false;
 
     @Comment("maximum soul weapon level")
     public static int maxLevel = 100;

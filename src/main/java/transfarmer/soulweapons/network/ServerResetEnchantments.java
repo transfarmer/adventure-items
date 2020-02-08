@@ -40,7 +40,7 @@ public class ServerResetEnchantments implements IMessage {
 
             capability.addDatum(capability.getDatum(SPENT_ENCHANTMENT_POINTS, type), ENCHANTMENT_POINTS, type);
             capability.setDatum(0, SPENT_ENCHANTMENT_POINTS, type);
-            capability.setEnchantments(new int[3][ENCHANTMENTS_LENGTH]);
+            capability.setEnchantments(new int[ENCHANTMENTS_LENGTH], type);
 
             return new ClientResetEnchantments(type);
         }
