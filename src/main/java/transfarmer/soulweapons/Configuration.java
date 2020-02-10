@@ -8,20 +8,23 @@ public class Configuration {
     @Comment("experience point multipliers")
     public static Multipliers multipliers = new Multipliers();
 
-    @Comment("the number of levels per enchantment point")
-    public static int enchantmentLevels = 5;
-
-    @Comment("the number of levels per additional skill")
-    public static int skillLevels = 5;
-
     @Comment("initial experience points required in order to level up")
     public static int initialXP = 48;
+
+    @Comment("the number of levels per enchantment point")
+    public static int levelsPerEnchantment = 5;
+
+    @Comment("the number of levels per additional skill")
+    public static int levelsPerSkill = 5;
 
     @Comment("whether levelup notifications should be sent to players or not")
     public static boolean levelupNotifications = true;
 
     @Comment("maximum soul weapon level")
     public static int maxLevel = 100;
+
+    @Comment("whether passive entities yield XP or not")
+    public static boolean passiveXP = false;
 
     @Comment("minimum level for soul weapons to be preserved after death")
     public static int preservationLevel = 10;

@@ -18,15 +18,16 @@ import transfarmer.soulweapons.entity.EntityReachModifier;
 import transfarmer.soulweapons.entity.EntitySoulDagger;
 import transfarmer.soulweapons.network.ClientResetAttributes;
 import transfarmer.soulweapons.network.ClientResetEnchantments;
-import transfarmer.soulweapons.network.ClientSpendAttributePoint;
-import transfarmer.soulweapons.network.ClientSpendEnchantmentPoint;
+import transfarmer.soulweapons.network.ClientSpendAttributePoints;
+import transfarmer.soulweapons.network.ClientSpendEnchantmentPoints;
 import transfarmer.soulweapons.network.ClientWeaponData;
 import transfarmer.soulweapons.network.ClientWeaponDatum;
 import transfarmer.soulweapons.network.ClientWeaponType;
+import transfarmer.soulweapons.network.ServerBindSlot;
 import transfarmer.soulweapons.network.ServerResetAttributes;
 import transfarmer.soulweapons.network.ServerResetEnchantments;
-import transfarmer.soulweapons.network.ServerSpendAttributePoint;
-import transfarmer.soulweapons.network.ServerSpendEnchantmentPoint;
+import transfarmer.soulweapons.network.ServerSpendAttributePoints;
+import transfarmer.soulweapons.network.ServerSpendEnchantmentPoints;
 import transfarmer.soulweapons.network.ServerTab;
 import transfarmer.soulweapons.network.ServerWeaponType;
 import transfarmer.soulweapons.render.RenderReachModifier;
@@ -40,7 +41,7 @@ import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
 public class Main {
     public static final String MODID = "soulweapons";
     public static final String NAME = "soul weapons";
-    public static final String VERSION = "1.6.8-beta";
+    public static final String VERSION = "1.6.9-beta";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
@@ -51,15 +52,16 @@ public class Main {
         CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
 
         CHANNEL.registerMessage(ServerWeaponType.Handler.class, ServerWeaponType.class, id++, SERVER);
-        CHANNEL.registerMessage(ServerSpendAttributePoint.Handler.class, ServerSpendAttributePoint.class, id++, SERVER);
-        CHANNEL.registerMessage(ServerSpendEnchantmentPoint.Handler.class, ServerSpendEnchantmentPoint.class, id++, SERVER);
+        CHANNEL.registerMessage(ServerSpendAttributePoints.Handler.class, ServerSpendAttributePoints.class, id++, SERVER);
+        CHANNEL.registerMessage(ServerSpendEnchantmentPoints.Handler.class, ServerSpendEnchantmentPoints.class, id++, SERVER);
         CHANNEL.registerMessage(ServerTab.Handler.class, ServerTab.class, id++, SERVER);
         CHANNEL.registerMessage(ServerResetAttributes.Handler.class, ServerResetAttributes.class, id++, SERVER);
         CHANNEL.registerMessage(ServerResetEnchantments.Handler.class, ServerResetEnchantments.class, id++, SERVER);
+        CHANNEL.registerMessage(ServerBindSlot.Handler.class, ServerBindSlot.class, id++, SERVER);
 
         CHANNEL.registerMessage(ClientWeaponType.Handler.class, ClientWeaponType.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientSpendAttributePoint.Handler.class, ClientSpendAttributePoint.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientSpendEnchantmentPoint.Handler.class, ClientSpendEnchantmentPoint.class, id++, CLIENT);
+        CHANNEL.registerMessage(ClientSpendAttributePoints.Handler.class, ClientSpendAttributePoints.class, id++, CLIENT);
+        CHANNEL.registerMessage(ClientSpendEnchantmentPoints.Handler.class, ClientSpendEnchantmentPoints.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientResetAttributes.Handler.class, ClientResetAttributes.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientResetEnchantments.Handler.class, ClientResetEnchantments.class, id++, CLIENT);
         CHANNEL.registerMessage(ClientWeaponDatum.Handler.class, ClientWeaponDatum.class, id++, CLIENT);

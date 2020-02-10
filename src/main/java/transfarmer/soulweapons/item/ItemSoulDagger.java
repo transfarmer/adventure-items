@@ -20,7 +20,7 @@ public class ItemSoulDagger extends ItemSoulWeapon {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (!world.isRemote) {
-            if (player.getCapability(CAPABILITY, null).getDatum(SKILLS, DAGGER) > 0) {
+            if (player.getCapability(CAPABILITY, null).getDatum(SKILLS, DAGGER) >= 1) {
                 final ItemStack itemStack = player.getHeldItem(hand);
                 final EntitySoulDagger dagger = new EntitySoulDagger(world, player, itemStack);
 

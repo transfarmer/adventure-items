@@ -16,42 +16,46 @@ import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.ATTRIBUTE_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ATTRIBUTE_POINTS;
 
-public class ClientSpendAttributePoint implements IMessage {
+public class ClientSpendAttributePoints implements IMessage {
+    private int amount;
     private int attributeIndex;
     private int weaponIndex;
 
-    public ClientSpendAttributePoint() {}
+    public ClientSpendAttributePoints() {}
 
-    public ClientSpendAttributePoint(final SoulWeaponAttribute attribute, final SoulWeaponType type) {
+    public ClientSpendAttributePoints(final int amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
+        this.amount = amount;
         this.attributeIndex = attribute.index;
         this.weaponIndex = type.index;
     }
 
     @Override
-    public void fromBytes(ByteBuf buffer) {
+    public void fromBytes(final ByteBuf buffer) {
+        this.amount = buffer.readInt();
         this.attributeIndex = buffer.readInt();
         this.weaponIndex = buffer.readInt();
     }
 
     @Override
-    public void toBytes(ByteBuf buffer) {
+    public void toBytes(final ByteBuf buffer) {
+        buffer.writeInt(this.amount);
         buffer.writeInt(this.attributeIndex);
         buffer.writeInt(this.weaponIndex);
     }
 
-    public static final class Handler implements IMessageHandler<ClientSpendAttributePoint, IMessage> {
+    public static final class Handler implements IMessageHandler<ClientSpendAttributePoints, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(ClientSpendAttributePoint message, MessageContext context) {
+        public IMessage onMessage(ClientSpendAttributePoints message, MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final SoulWeaponType weaponType = SoulWeaponType.getType(message.weaponIndex);
             final SoulWeaponAttribute attribute = SoulWeaponAttribute.getAttribute(message.attributeIndex);
             final ISoulWeapon instance = minecraft.player.getCapability(CAPABILITY, null);
 
             minecraft.addScheduledTask(() -> {
-                instance.addAttribute(attribute, weaponType);
-                instance.addDatum(-1, ATTRIBUTE_POINTS, weaponType);
-                instance.addDatum(1, SPENT_ATTRIBUTE_POINTS, weaponType);
+                instance.addAttribute(message.amount, attribute, weaponType);
+                instance.addDatum(-message.amount, ATTRIBUTE_POINTS, weaponType);
+                instance.addDatum(message.amount, SPENT_ATTRIBUTE_POINTS, weaponType);
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
             });
 

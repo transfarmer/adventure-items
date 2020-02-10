@@ -13,17 +13,19 @@ public interface ISoulWeapon {
     void set(int[][] data, float[][] attributes, int[][] enchantments);
     void setData(int[][] data);
     void setAttributes(float[][] attributes);
-    void setAttributes(float[] attributes, SoulWeaponType type);
     void setEnchantments(int[][] enchantments);
-    void setEnchantments(int[] enchantments, SoulWeaponType type);
     int[][] getData();
     float[][] getAttributes();
     int[][] getEnchantments();
 
+    void setAttributes(float[] attributes, SoulWeaponType type);
+    void setEnchantments(int[] enchantments, SoulWeaponType type);
+
     float getAttribute(SoulWeaponAttribute attribute, SoulWeaponType weaponType);
     void setAttribute(float value, SoulWeaponAttribute attribute, SoulWeaponType type);
-    void addAttribute(SoulWeaponAttribute attribute, SoulWeaponType weaponType);
+    void addAttribute(int amount, SoulWeaponAttribute attribute, SoulWeaponType type);
     void addAttribute(float amount, SoulWeaponAttribute attribute, SoulWeaponType weaponType);
+    void addAttribute(SoulWeaponAttribute attribute, SoulWeaponType weaponType);
 
     ItemStack getItemStack(ItemStack itemStack);
     ItemStack getItemStack(SoulWeaponType weaponType);
@@ -36,12 +38,11 @@ public interface ISoulWeapon {
 
     int getNextLevelXP(SoulWeaponType weaponType);
 
-    int getMaxSkills(SoulWeaponType weaponType);
-
     void setDatum(int value, SoulWeaponDatum datum, SoulWeaponType type);
     boolean addDatum(int amount, SoulWeaponDatum datum, SoulWeaponType type);
     int getDatum(SoulWeaponDatum datum, SoulWeaponType weaponType);
 
+    void addEnchantment(int amount, SoulWeaponEnchantment enchantment, SoulWeaponType type);
     void addEnchantment(SoulWeaponEnchantment enchantment, SoulWeaponType weaponType);
     int getEnchantment(SoulWeaponEnchantment enchantment, SoulWeaponType weaponType);
 
@@ -58,4 +59,10 @@ public interface ISoulWeapon {
     int getCooldown();
     int getCooldown(SoulWeaponType type);
     float getAttackRatio(SoulWeaponType type);
+
+    int getBoundSlot();
+    void setBoundSlot(int boundSlot);
+    void unbindSlot();
+
+    int getMaxSkills(SoulWeaponType weaponType);
 }

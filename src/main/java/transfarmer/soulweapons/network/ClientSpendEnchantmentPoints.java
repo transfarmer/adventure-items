@@ -16,41 +16,46 @@ import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
 
-public class ClientSpendEnchantmentPoint implements IMessage {
+public class ClientSpendEnchantmentPoints implements IMessage {
+    private int amount;
     private int enchantmentIndex;
     private int weaponIndex;
 
-    public ClientSpendEnchantmentPoint() {}
+    public ClientSpendEnchantmentPoints() {}
 
-    public ClientSpendEnchantmentPoint(final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
+    public ClientSpendEnchantmentPoints(final int amount, final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
+        this.amount = amount;
         this.enchantmentIndex = enchantment.index;
         this.weaponIndex = type.index;
     }
 
     @Override
-    public void fromBytes(ByteBuf buffer) {
+    public void fromBytes(final ByteBuf buffer) {
+        this.amount = buffer.readInt();
         this.enchantmentIndex = buffer.readInt();
         this.weaponIndex = buffer.readInt();
     }
 
     @Override
-    public void toBytes(ByteBuf buffer) {
+    public void toBytes(final ByteBuf buffer) {
+        buffer.writeInt(this.amount);
         buffer.writeInt(this.enchantmentIndex);
         buffer.writeInt(this.weaponIndex);
     }
 
-    public static final class Handler implements IMessageHandler<ClientSpendEnchantmentPoint, IMessage> {
+    public static final class Handler implements IMessageHandler<ClientSpendEnchantmentPoints, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final ClientSpendEnchantmentPoint message, final MessageContext context) {
+        public IMessage onMessage(final ClientSpendEnchantmentPoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
+            final SoulWeaponEnchantment enchantment = SoulWeaponEnchantment.getEnchantment(message.enchantmentIndex);
             final SoulWeaponType weaponType = SoulWeaponType.getType(message.weaponIndex);
             final ISoulWeapon instance = minecraft.player.getCapability(CAPABILITY, null);
 
             minecraft.addScheduledTask(() -> {
-                instance.addEnchantment(SoulWeaponEnchantment.getEnchantment(message.enchantmentIndex), weaponType);
-                instance.addDatum(-1, ENCHANTMENT_POINTS, weaponType);
-                instance.addDatum(1, SPENT_ENCHANTMENT_POINTS, weaponType);
+                instance.addEnchantment(message.amount, enchantment, weaponType);
+                instance.addDatum(-message.amount, ENCHANTMENT_POINTS, weaponType);
+                instance.addDatum(message.amount, SPENT_ENCHANTMENT_POINTS, weaponType);
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
             });
 

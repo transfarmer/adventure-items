@@ -12,42 +12,46 @@ import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
 
-public class ServerSpendEnchantmentPoint implements IMessage {
+public class ServerSpendEnchantmentPoints implements IMessage {
+    private int amount;
     private int enchantmentIndex;
     private int typeIndex;
 
-    public ServerSpendEnchantmentPoint() {}
+    public ServerSpendEnchantmentPoints() {}
 
-    public ServerSpendEnchantmentPoint(final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
+    public ServerSpendEnchantmentPoints(final int amount, final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
+        this.amount = amount;
         this.enchantmentIndex = enchantment.index;
         this.typeIndex = type.index;
     }
 
     @Override
-    public void fromBytes(ByteBuf buffer) {
+    public void fromBytes(final ByteBuf buffer) {
+        this.amount = buffer.readInt();
         this.enchantmentIndex = buffer.readInt();
         this.typeIndex = buffer.readInt();
     }
 
     @Override
-    public void toBytes(ByteBuf buffer) {
+    public void toBytes(final ByteBuf buffer) {
+        buffer.writeInt(this.amount);
         buffer.writeInt(this.enchantmentIndex);
         buffer.writeInt(this.typeIndex);
     }
 
-    public static final class Handler implements IMessageHandler<ServerSpendEnchantmentPoint, IMessage> {
+    public static final class Handler implements IMessageHandler<ServerSpendEnchantmentPoints, IMessage> {
         @Override
-        public IMessage onMessage(final ServerSpendEnchantmentPoint message, final MessageContext context) {
+        public IMessage onMessage(final ServerSpendEnchantmentPoints message, final MessageContext context) {
             final ISoulWeapon instance = context.getServerHandler().player.getCapability(CAPABILITY, null);
             final SoulWeaponEnchantment enchantment = SoulWeaponEnchantment.getEnchantment(message.enchantmentIndex);
             final SoulWeaponType weaponType = SoulWeaponType.getType(message.typeIndex);
 
             if (instance.getDatum(ENCHANTMENT_POINTS, weaponType) > 0) {
-                instance.addEnchantment(enchantment, weaponType);
-                instance.addDatum(-1, ENCHANTMENT_POINTS, weaponType);
-                instance.addDatum(1, SPENT_ENCHANTMENT_POINTS, weaponType);
+                instance.addEnchantment(message.amount, enchantment, weaponType);
+                instance.addDatum(-message.amount, ENCHANTMENT_POINTS, weaponType);
+                instance.addDatum(message.amount, SPENT_ENCHANTMENT_POINTS, weaponType);
 
-                return new ClientSpendEnchantmentPoint(enchantment, weaponType);
+                return new ClientSpendEnchantmentPoints(message.amount, enchantment, weaponType);
             }
 
             return null;

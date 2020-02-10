@@ -17,19 +17,27 @@ import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS_L
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class ClientWeaponData implements IMessage {
-    private SoulWeaponType weaponType;
+    private int weaponIndex;
     private int currentTab;
     private int cooldown;
+    private int boundSlot;
     private int[][] data = new int[3][DATA_LENGTH];
     private float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
     private int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
 
     public ClientWeaponData() {}
 
-    public ClientWeaponData(final SoulWeaponType weaponType, final int currentTab, final int cooldown, final int[][] data, final float[][] attributes, final int[][] enchantments) {
-        this.weaponType = weaponType;
+    public ClientWeaponData(final SoulWeaponType type, final int currentTab, final int cooldown, final int boundSlot,
+                            final int[][] data, final float[][] attributes, final int[][] enchantments) {
+        if (type == null) {
+            this.weaponIndex = -1;
+        } else {
+            this.weaponIndex = type.index;
+        }
+
         this.currentTab = currentTab;
         this.cooldown = cooldown;
+        this.boundSlot = boundSlot;
 
         if (attributes[0].length == 0 || attributes[1].length == 0 || attributes[2].length == 0
             || data[0].length == 0 || data[1].length == 0 || data[2].length == 0
@@ -41,9 +49,10 @@ public class ClientWeaponData implements IMessage {
     }
 
     public void fromBytes(ByteBuf buffer) {
-        this.weaponType = SoulWeaponType.getType(buffer.readInt());
+        this.weaponIndex = buffer.readInt();
         this.currentTab = buffer.readInt();
         this.cooldown = buffer.readInt();
+        this.boundSlot = buffer.readInt();
 
         SoulWeaponHelper.forEach(
             (Integer weaponIndex, Integer valueIndex) -> this.data[weaponIndex][valueIndex] = buffer.readInt(),
@@ -53,14 +62,10 @@ public class ClientWeaponData implements IMessage {
     }
 
     public void toBytes(ByteBuf buffer) {
-        if (this.weaponType != null) {
-            buffer.writeInt(this.weaponType.index);
-        } else {
-            buffer.writeInt(-1);
-        }
-
+        buffer.writeInt(this.weaponIndex);
         buffer.writeInt(this.currentTab);
         buffer.writeInt(this.cooldown);
+        buffer.writeInt(this.boundSlot);
 
         SoulWeaponHelper.forEach(
             (Integer weaponIndex, Integer valueIndex) -> buffer.writeInt(this.data[weaponIndex][valueIndex]),
@@ -76,9 +81,10 @@ public class ClientWeaponData implements IMessage {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 final ISoulWeapon instance = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
 
-                instance.setCurrentType(message.weaponType);
+                instance.setCurrentType(message.weaponIndex);
                 instance.setCurrentTab(message.currentTab);
                 instance.setCooldown(message.cooldown);
+                instance.setBoundSlot(message.boundSlot);
                 instance.set(message.data, message.attributes, message.enchantments);
             });
 

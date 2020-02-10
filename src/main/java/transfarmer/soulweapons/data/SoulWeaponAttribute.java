@@ -1,9 +1,9 @@
 package transfarmer.soulweapons.data;
 
 public enum SoulWeaponAttribute {
-    ATTACK_SPEED(0, 0.05F, 0.1F, 0.2F),
+    ATTACK_SPEED(0, 0.025F, 0.05F, 0.1F),
     ATTACK_DAMAGE(1, 0.5F, 0.4F, 0.25F),
-    CRITICAL(2, 1, 1, 2),
+    CRITICAL(2, 2, 2.5F, 5),
     KNOCKBACK_ATTRIBUTE(3, 1, 0.5F, 0.25F),
     EFFICIENCY(4, 0.5F, 0.75F, 1);
 
@@ -34,15 +34,15 @@ public enum SoulWeaponAttribute {
         return 0;
     }
 
+    public static SoulWeaponAttribute[] getAttributes() {
+        return attributes;
+    }
+
     public static SoulWeaponAttribute getAttribute(final int index) {
         return attributes[index];
     }
 
     public static String getName(final int index) {
         return getAttribute(index).toString();
-    }
-
-    public static SoulWeaponAttribute[] getAttributes() {
-        return attributes;
     }
 }

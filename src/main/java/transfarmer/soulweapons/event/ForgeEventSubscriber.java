@@ -7,11 +7,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.RenderTooltipEvent;
@@ -20,11 +22,13 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -47,6 +51,7 @@ import transfarmer.soulweapons.network.ClientWeaponDatum;
 import java.util.List;
 import java.util.Random;
 
+import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
@@ -68,7 +73,7 @@ import static transfarmer.soulweapons.data.SoulWeaponType.SWORD;
 @EventBusSubscriber(modid = Main.MODID)
 public class ForgeEventSubscriber {
     @SubscribeEvent
-    public static void onRegisterEntityEntry(RegistryEvent.Register<EntityEntry> entry) {
+    public static void onRegisterEntityEntry(final RegistryEvent.Register<EntityEntry> entry) {
         entry.getRegistry().register(EntityEntryBuilder.create()
             .entity(EntitySoulDagger.class)
             .id(new ResourceLocation(Main.MODID, "entity_soul_dagger"), 0)
@@ -86,24 +91,24 @@ public class ForgeEventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+    public static void onAttachCapabilities(final AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof EntityPlayer) {
             event.addCapability(new ResourceLocation(Main.MODID, "soulweapon"), new SoulWeaponProvider());
         }
     }
 
     @SubscribeEvent
-    public static void onPlayerLoggedIn(PlayerLoggedInEvent event) {
+    public static void onPlayerLoggedIn(final PlayerLoggedInEvent event) {
         updatePlayer(event.player);
     }
 
     @SubscribeEvent
-    public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
+    public static void onPlayerChangedDimension(final PlayerChangedDimensionEvent event) {
         updatePlayer(event.player);
     }
 
     @SubscribeEvent
-    public static void onPlayerRespawn(PlayerRespawnEvent event) {
+    public static void onPlayerRespawn(final PlayerRespawnEvent event) {
         updatePlayer(event.player);
 
         final ISoulWeapon capability = event.player.getCapability(CAPABILITY, null);
@@ -114,14 +119,21 @@ public class ForgeEventSubscriber {
         }
     }
 
-    private static void updatePlayer(EntityPlayer player) {
+    private static void updatePlayer(final EntityPlayer player) {
         final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
-        Main.CHANNEL.sendTo(new ClientWeaponData(capability.getCurrentType(), capability.getCurrentTab(), capability.getCooldown(),
-            capability.getData(), capability.getAttributes(), capability.getEnchantments()), (EntityPlayerMP) player);
+        Main.CHANNEL.sendTo(new ClientWeaponData(
+            capability.getCurrentType(),
+            capability.getCurrentTab(),
+            capability.getCooldown(),
+            capability.getBoundSlot(),
+            capability.getData(),
+            capability.getAttributes(),
+            capability.getEnchantments()), (EntityPlayerMP) player
+        );
     }
 
     @SubscribeEvent
-    public static void onPlayerDrops(PlayerDropsEvent event) {
+    public static void onPlayerDrops(final PlayerDropsEvent event) {
         final EntityPlayer player = event.getEntityPlayer();
         final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
@@ -133,17 +145,18 @@ public class ForgeEventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onClone(Clone event) {
+    public static void onClone(final Clone event) {
         final ISoulWeapon originalInstance = event.getOriginal().getCapability(CAPABILITY, null);
         final ISoulWeapon instance = event.getEntityPlayer().getCapability(CAPABILITY, null);
 
         instance.setCurrentType(originalInstance.getCurrentType());
         instance.setCurrentTab(originalInstance.getCurrentTab());
+        instance.setBoundSlot(originalInstance.getBoundSlot());
         instance.set(originalInstance.getData(), originalInstance.getAttributes(), originalInstance.getEnchantments());
     }
 
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent event) {
+    public static void onPlayerTick(final PlayerTickEvent event) {
         if (event.phase != END) return;
 
         if (SoulWeaponHelper.hasSoulWeapon(event.player)) {
@@ -162,21 +175,27 @@ public class ForgeEventSubscriber {
                 }
             }
 
-            if (instance.getCurrentType() != null && !event.player.isCreative()) {
+            if (instance.getCurrentType() != null) {
                 int firstSlot = -1;
 
                 for (final ItemStack itemStack : inventory.mainInventory) {
                     if (SoulWeaponType.isSoulWeapon(itemStack)) {
-                        if (itemStack.getItem() != instance.getCurrentType().getItem()) {
-                            inventory.deleteStack(itemStack);
-                        } else {
-                            final int slot = inventory.mainInventory.indexOf(itemStack);
+                        final int index = inventory.mainInventory.indexOf(itemStack);
 
-                            if (firstSlot == -1) {
-                                firstSlot = slot;
-                            } else if (firstSlot != slot) {
+                        if (!event.player.isCreative()) {
+                            if (itemStack.getItem() != instance.getCurrentType().getItem()) {
                                 inventory.deleteStack(itemStack);
+                            } else {
+                                if (firstSlot == -1) {
+                                    firstSlot = index;
+                                } else if (firstSlot != index) {
+                                    inventory.deleteStack(itemStack);
+                                }
                             }
+                        }
+
+                        if (instance.getBoundSlot() >= 0 && instance.getBoundSlot() != index) {
+                            instance.setBoundSlot(index);
                         }
                     }
                 }
@@ -198,7 +217,40 @@ public class ForgeEventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onBreakSpeed(BreakSpeed event) {
+    public static void onEntityItemPickup(final EntityItemPickupEvent event) {
+        event.setPhase(EventPriority.LOWEST);
+        event.setResult(ALLOW);
+        final boolean isSoulWeapon = SoulWeaponType.isSoulWeapon(event.getItem().getItem());
+        final EntityPlayer player = event.getEntityPlayer();
+        final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+        final NonNullList<ItemStack> inventory = player.inventory.mainInventory;
+        final ItemStack itemStack = event.getItem().getItem();
+
+        if (capability.getBoundSlot() < 0) {
+            player.addItemStackToInventory(itemStack);
+        } else if (!isSoulWeapon) {
+            for (int slot = 0; slot < inventory.size(); slot++) {
+                if (slot != capability.getBoundSlot() && addItemStack(slot, itemStack, player)) {
+                    return;
+                }
+            }
+        } else {
+            if (!addItemStack(capability.getBoundSlot(), itemStack, player)) {
+                player.addItemStackToInventory(itemStack);
+            }
+        }
+    }
+
+    private static boolean addItemStack(final int slot, final ItemStack itemStack, final EntityPlayer player) {
+        final InventoryPlayer inventory = player.inventory;
+        final ItemStack slotStack = inventory.mainInventory.get(slot);
+
+        return (slotStack.getItem() == Items.AIR || slotStack.getItem() == itemStack.getItem() && !itemStack.isItemStackDamageable())
+            && player.inventory.add(slot, itemStack);
+    }
+
+    @SubscribeEvent
+    public static void onBreakSpeed(final BreakSpeed event) {
         final ISoulWeapon capability = event.getEntityPlayer().getCapability(CAPABILITY, null);
 
         if (SoulWeaponHelper.isSoulWeaponEquipped(event.getEntityPlayer())) {
@@ -210,12 +262,12 @@ public class ForgeEventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onLivingHurt(LivingHurtEvent event) {
+    public static void onLivingHurt(final LivingHurtEvent event) {
         if (event.getSource().getTrueSource() != null && !event.getSource().getTrueSource().world.isRemote) {
             final Entity trueSource = event.getSource().getTrueSource();
             final Entity source = event.getSource().getImmediateSource();
-            ISoulWeapon instance;
-            SoulWeaponType weaponType = null;
+            final ISoulWeapon instance;
+            final SoulWeaponType weaponType;
 
             if (trueSource instanceof EntityPlayer) {
                 instance = trueSource.getCapability(CAPABILITY, null);
@@ -224,17 +276,17 @@ public class ForgeEventSubscriber {
                     weaponType = DAGGER;
                 } else if (source instanceof EntityPlayer) {
                     weaponType = instance.getCurrentType();
-                }
+                } else return;
             } else return;
 
-            if (instance.getAttribute(CRITICAL, weaponType) > new Random().nextInt(100)) {
+            if (weaponType != null && instance.getAttribute(CRITICAL, weaponType) > new Random().nextInt(100)) {
                 event.setAmount(2 * event.getAmount());
             }
         }
     }
 
     @SubscribeEvent
-    public static void onLivingKnockback(LivingKnockBackEvent event) {
+    public static void onLivingKnockback(final LivingKnockBackEvent event) {
         if (!event.getAttacker().world.isRemote) {
             Entity attacker = event.getAttacker();
             SoulWeaponType weaponType = null;
@@ -249,14 +301,14 @@ public class ForgeEventSubscriber {
 
             if (attacker instanceof EntityPlayer && weaponType != null) {
                 if (SoulWeaponHelper.isSoulWeaponEquipped((EntityPlayer) attacker)) {
-                    event.setStrength(event.getStrength() * (1 + instance.getAttribute(KNOCKBACK_ATTRIBUTE, weaponType) / 20));
+                    event.setStrength(event.getStrength() * (1 + instance.getAttribute(KNOCKBACK_ATTRIBUTE, weaponType) / 6));
                 }
             }
         }
     }
 
     @SubscribeEvent
-    public static void onLivingDeath(LivingDeathEvent event) {
+    public static void onLivingDeath(final LivingDeathEvent event) {
         if (event.getSource().getTrueSource() != null && !event.getSource().getTrueSource().world.isRemote) {
             final EntityLivingBase entity = event.getEntityLiving();
             final IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
@@ -273,20 +325,26 @@ public class ForgeEventSubscriber {
                 if (source instanceof EntitySoulDagger) {
                     weaponType = DAGGER;
                     displayName = ((EntitySoulDagger) source).itemStack.getDisplayName();
-                    source = ((EntitySoulDagger) source).owner;
+                    source = ((EntitySoulDagger) source).shootingEntity;
                 } else if (source instanceof EntityPlayer) {
                     weaponType = instance.getCurrentType();
                     displayName = ((EntityPlayerMP) source).getHeldItemMainhand().getDisplayName();
                 } else return;
             } else return;
 
-            //noinspection ConstantConditions
-            if (attackDamage instanceof IAttributeInstance && source instanceof EntityPlayer && weaponType != null
-                && attackDamage.getAttributeValue() > 0) {
+            if (source instanceof EntityPlayer && weaponType != null) {
+                float attackDamageValue = 0;
+
+                //noinspection ConstantConditions
+                if ((attackDamage == null || attackDamage.getAttributeValue() <= 0) && !Configuration.passiveXP) {
+                    if (!(entity instanceof EntitySlime)) return;
+                } else {
+                    attackDamageValue = (float) attackDamage.getAttributeValue();
+                }
 
                 int xp = (int) Math.round(entity.getMaxHealth()
                     * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
-                    * (1 + attackDamage.getAttributeValue() * multipliers.attackDamageMultiplier)
+                    * (1 + attackDamageValue * multipliers.attackDamageMultiplier)
                     * (1 + armor.getAttributeValue() * multipliers.armorMultiplier));
 
                 if (!entity.isNonBoss()) {
@@ -308,7 +366,7 @@ public class ForgeEventSubscriber {
 
     @SideOnly(CLIENT)
     @SubscribeEvent
-    public static void onClientTick(ClientTickEvent event) {
+    public static void onClientTick(final ClientTickEvent event) {
         if (event.phase == END) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final EntityPlayer player = minecraft.player;
@@ -325,7 +383,7 @@ public class ForgeEventSubscriber {
 
     @SideOnly(CLIENT)
     @SubscribeEvent
-    public static void onItemTooltip(ItemTooltipEvent event) {
+    public static void onItemTooltip(final ItemTooltipEvent event) {
         final EntityPlayer player = event.getEntityPlayer();
 
         if (player != null) {
@@ -353,7 +411,7 @@ public class ForgeEventSubscriber {
 
     @SideOnly(CLIENT)
     @SubscribeEvent
-    public static void onRenderTooltip(RenderTooltipEvent.PostText event) {
+    public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
         final SoulWeaponType tooltipWeapon = SoulWeaponType.getType(event.getStack());
 
         if (tooltipWeapon != null) {

@@ -21,6 +21,7 @@ import java.util.TreeMap;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.*;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES_LENGTH;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA_LENGTH;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS_LENGTH;
@@ -38,16 +39,16 @@ import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SHARPNESS;
 import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
 import static transfarmer.soulweapons.data.SoulWeaponType.SWORD;
 
-@SuppressWarnings("DuplicateBranchesInSwitch")
 public class SoulWeapon implements ISoulWeapon {
-    private static final String[][] skillNames = {
+    private static final String[][] skills = {
         {"charge"},
-        {}, // lifesteal?
+        {}, // lightning strike?
         {"throwing", "perforation", "return", "sneak return"}
     };
     private SoulWeaponType currentType;
     private int currentTab = 0;
     private int cooldown = 0;
+    private int boundSlot = -1;
     private int[][] data = new int[3][DATA_LENGTH];
     private float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
     private int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
@@ -131,6 +132,13 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
+    public void addAttribute(final int amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
+        for (int i = 0; i < amount; i++) {
+            this.addAttribute(attribute, type);
+        }
+    }
+
+    @Override
     public ItemStack getItemStack(final ItemStack itemStack) {
         return getItemStack(SoulWeaponType.getType(itemStack));
     }
@@ -145,9 +153,9 @@ public class SoulWeapon implements ISoulWeapon {
         itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), attributeModifiers[1], MAINHAND);
 
         if (type == GREATSWORD) {
-            itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulWeaponHelper.REACH_DISTANCE_UUID, "generic.reachDistance", 3, ADD), MAINHAND);
+            itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(REACH_DISTANCE_UUID, "generic.reachDistance", 3, ADD), MAINHAND);
         } else if (type == SWORD) {
-            itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulWeaponHelper.REACH_DISTANCE_UUID, "generic.reachDistance", 1.5, ADD), MAINHAND);
+            itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(REACH_DISTANCE_UUID, "generic.reachDistance", 1.5, ADD), MAINHAND);
         }
 
         enchantments.forEach((final SoulWeaponEnchantment enchantment, final Integer level) -> itemStack.addEnchantment(enchantment.enchantment, level));
@@ -158,8 +166,8 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public AttributeModifier[] getAttributeModifiers(final SoulWeaponType type) {
         return new AttributeModifier[]{
-            new AttributeModifier(transfarmer.soulweapons.capability.SoulWeaponHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", getAttribute(ATTACK_SPEED, type), ADD),
-            new AttributeModifier(SoulWeaponHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttribute(ATTACK_DAMAGE, type), ADD)
+            new AttributeModifier(ATTACK_SPEED_UUID, "generic.attackSpeed", getAttribute(ATTACK_SPEED, type), ADD),
+            new AttributeModifier(ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttribute(ATTACK_DAMAGE, type), ADD)
         };
     }
 
@@ -215,6 +223,10 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getDatum(SoulWeaponDatum datum, SoulWeaponType type) {
+        if (type == null) {
+            return -1;
+        }
+
         return this.data[type.index][datum.index];
     }
 
@@ -238,11 +250,11 @@ public class SoulWeapon implements ISoulWeapon {
                 break;
             case LEVEL:
                 final int level = ++this.data[type.index][LEVEL.index];
-                if (level % (Configuration.enchantmentLevels) == 0) {
+                if (level % (Configuration.levelsPerEnchantment) == 0) {
                     this.addDatum(1, ENCHANTMENT_POINTS, type);
                 }
 
-                if (level % (Configuration.skillLevels) == 0 && this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
+                if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
                     this.addDatum(1, SKILLS, type);
                 }
 
@@ -255,12 +267,6 @@ public class SoulWeapon implements ISoulWeapon {
         return false;
     }
 
-
-    @Override
-    public int getMaxSkills(SoulWeaponType type) {
-        return skillNames[type.index].length;
-    }
-
     @Override
     public int getEnchantment(final SoulWeaponEnchantment enchantment, SoulWeaponType type) {
         return this.enchantments[type.index][enchantment.index];
@@ -269,6 +275,13 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public void addEnchantment(final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
         this.enchantments[type.index][enchantment.index]++;
+    }
+
+    @Override
+    public void addEnchantment(final int amount, final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
+        for (int i = 0; i < amount; i++) {
+            this.addEnchantment(enchantment, type);
+        }
     }
 
     @Override
@@ -326,7 +339,27 @@ public class SoulWeapon implements ISoulWeapon {
         return 1 - (float) this.getCooldown() / this.getCooldown(type);
     }
 
-    public static String[][] getSkillNames() {
-        return skillNames;
+    @Override
+    public int getBoundSlot() {
+        return this.boundSlot;
+    }
+
+    @Override
+    public void setBoundSlot(final int boundSlot) {
+        this.boundSlot = boundSlot;
+    }
+
+    @Override
+    public void unbindSlot() {
+        this.boundSlot = -1;
+    }
+
+    @Override
+    public int getMaxSkills(SoulWeaponType type) {
+        return skills[type.index].length;
+    }
+
+    public static String[][] getSkills() {
+        return skills;
     }
 }
