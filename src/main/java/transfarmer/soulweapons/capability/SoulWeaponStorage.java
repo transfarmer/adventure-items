@@ -10,9 +10,9 @@ import transfarmer.soulweapons.data.SoulWeaponDatum;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
 
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA_LENGTH;
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS;
 
 public class SoulWeaponStorage implements IStorage<transfarmer.soulweapons.capability.ISoulWeapon> {
     @Override
@@ -55,8 +55,8 @@ public class SoulWeaponStorage implements IStorage<transfarmer.soulweapons.capab
         instance.setCooldown(tag.getInteger("soulweapons.capability.cooldown"));
         instance.setBoundSlot(tag.getInteger("soulweapons.capability.boundSlot"));
         final int[][] data = new int[3][DATA_LENGTH];
-        final float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
-        final int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
+        final float[][] attributes = new float[3][ATTRIBUTES];
+        final int[][] enchantments = new int[3][ENCHANTMENTS];
 
         SoulWeaponHelper.forEach(
             (Integer weaponIndex, Integer valueIndex) ->

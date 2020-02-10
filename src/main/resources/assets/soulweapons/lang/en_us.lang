@@ -15,6 +15,7 @@ menu.soulweapons.skills=skills
 menu.soulweapons.reset=reset
 menu.soulweapons.bind=bind current slot
 menu.soulweapons.unbind=unbind current slot
+menu.soulweapons.points=unspent points
 format.soulweapons.attackDamage=§6
 format.soulweapons.attackSpeed=§c
 format.soulweapons.critical=§e

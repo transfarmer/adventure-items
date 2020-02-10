@@ -1,4 +1,4 @@
-package transfarmer.soulweapons.network;
+package transfarmer.soulweapons.network.client;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -11,17 +11,17 @@ import transfarmer.soulweapons.data.SoulWeaponType;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
 
-public class ClientResetEnchantments implements IMessage {
+public class CResetEnchantments implements IMessage {
     private int index;
 
-    public ClientResetEnchantments() {}
+    public CResetEnchantments() {}
 
-    public ClientResetEnchantments(final SoulWeaponType type) {
+    public CResetEnchantments(final SoulWeaponType type) {
         this.index = type.index;
     }
 
@@ -35,17 +35,17 @@ public class ClientResetEnchantments implements IMessage {
         buffer.writeInt(this.index);
     }
 
-    public static final class Handler implements IMessageHandler<ClientResetEnchantments, IMessage> {
+    public static final class Handler implements IMessageHandler<CResetEnchantments, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final ClientResetEnchantments message, final MessageContext context) {
+        public IMessage onMessage(final CResetEnchantments message, final MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 final ISoulWeapon capability = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
                 final SoulWeaponType type = SoulWeaponType.getType(message.index);
 
                 capability.addDatum(capability.getDatum(SPENT_ENCHANTMENT_POINTS, type), ENCHANTMENT_POINTS, type);
                 capability.setDatum(0, SPENT_ENCHANTMENT_POINTS, type);
-                capability.setEnchantments(new int[ENCHANTMENTS_LENGTH], type);
+                capability.setEnchantments(new int[ENCHANTMENTS], type);
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
             });
 

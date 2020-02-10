@@ -238,27 +238,30 @@ public class EntitySoulDagger extends EntityArrow {
                     ? DamageSource.causeThrownDamage(this, this)
                     : DamageSource.causeThrownDamage(this, this.shootingEntity);
 
+                int burnTime = 0;
+
+                if (result.entityHit instanceof EntityLivingBase) {
+                    if (this.isBurning()) {
+                        burnTime += 5;
+                    }
+
+                    if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(result.entityHit instanceof EntityEnderman)) {
+                        burnTime += capability.getEnchantment(FIRE_ASPECT, DAGGER) * 4;
+                    }
+
+                    if (burnTime > 0) {
+                        result.entityHit.setFire(burnTime);
+                    }
+                }
+
                 if (result.entityHit.attackEntityFrom(damageSource, attackDamage)) {
                     if (result.entityHit instanceof EntityLivingBase) {
                         EntityLivingBase entity = (EntityLivingBase) result.entityHit;
                         float knockback = 0;
-                        int burnTime = 0;
 
                         if (this.shootingEntity instanceof EntityLivingBase) {
                             EnchantmentHelper.applyThornEnchantments(entity, this.shootingEntity);
                             EnchantmentHelper.applyArthropodEnchantments((EntityLivingBase) this.shootingEntity, entity);
-                        }
-
-                        if (this.isBurning()) {
-                            burnTime += 5;
-                        }
-
-                        if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
-                            burnTime += capability.getEnchantment(FIRE_ASPECT, DAGGER) * 4;
-                        }
-
-                        if (burnTime > 0) {
-                            result.entityHit.setFire(burnTime);
                         }
 
                         if (this.shootingEntity != null && entity != this.shootingEntity && entity instanceof EntityPlayer && this.shootingEntity instanceof EntityPlayerMP) {

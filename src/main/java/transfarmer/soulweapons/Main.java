@@ -16,20 +16,21 @@ import transfarmer.soulweapons.capability.SoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponStorage;
 import transfarmer.soulweapons.entity.EntityReachModifier;
 import transfarmer.soulweapons.entity.EntitySoulDagger;
-import transfarmer.soulweapons.network.ClientResetAttributes;
-import transfarmer.soulweapons.network.ClientResetEnchantments;
-import transfarmer.soulweapons.network.ClientSpendAttributePoints;
-import transfarmer.soulweapons.network.ClientSpendEnchantmentPoints;
-import transfarmer.soulweapons.network.ClientWeaponData;
-import transfarmer.soulweapons.network.ClientWeaponDatum;
-import transfarmer.soulweapons.network.ClientWeaponType;
-import transfarmer.soulweapons.network.ServerBindSlot;
-import transfarmer.soulweapons.network.ServerResetAttributes;
-import transfarmer.soulweapons.network.ServerResetEnchantments;
-import transfarmer.soulweapons.network.ServerSpendAttributePoints;
-import transfarmer.soulweapons.network.ServerSpendEnchantmentPoints;
-import transfarmer.soulweapons.network.ServerTab;
-import transfarmer.soulweapons.network.ServerWeaponType;
+import transfarmer.soulweapons.network.client.CBindSlot;
+import transfarmer.soulweapons.network.client.CResetAttributes;
+import transfarmer.soulweapons.network.client.CResetEnchantments;
+import transfarmer.soulweapons.network.client.CSpendAttributePoints;
+import transfarmer.soulweapons.network.client.CSpendEnchantmentPoints;
+import transfarmer.soulweapons.network.client.CWeaponData;
+import transfarmer.soulweapons.network.client.CWeaponDatum;
+import transfarmer.soulweapons.network.client.CWeaponType;
+import transfarmer.soulweapons.network.server.SBindSlot;
+import transfarmer.soulweapons.network.server.SResetAttributes;
+import transfarmer.soulweapons.network.server.SResetEnchantments;
+import transfarmer.soulweapons.network.server.SAttributePoints;
+import transfarmer.soulweapons.network.server.SEnchantmentPoints;
+import transfarmer.soulweapons.network.server.STab;
+import transfarmer.soulweapons.network.server.SWeaponType;
 import transfarmer.soulweapons.render.RenderReachModifier;
 import transfarmer.soulweapons.render.RenderSoulDagger;
 
@@ -41,7 +42,7 @@ import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
 public class Main {
     public static final String MODID = "soulweapons";
     public static final String NAME = "soul weapons";
-    public static final String VERSION = "1.6.9-beta";
+    public static final String VERSION = "1.7.0-beta";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
@@ -51,21 +52,22 @@ public class Main {
     public static void preInit(FMLPreInitializationEvent event) {
         CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
 
-        CHANNEL.registerMessage(ServerWeaponType.Handler.class, ServerWeaponType.class, id++, SERVER);
-        CHANNEL.registerMessage(ServerSpendAttributePoints.Handler.class, ServerSpendAttributePoints.class, id++, SERVER);
-        CHANNEL.registerMessage(ServerSpendEnchantmentPoints.Handler.class, ServerSpendEnchantmentPoints.class, id++, SERVER);
-        CHANNEL.registerMessage(ServerTab.Handler.class, ServerTab.class, id++, SERVER);
-        CHANNEL.registerMessage(ServerResetAttributes.Handler.class, ServerResetAttributes.class, id++, SERVER);
-        CHANNEL.registerMessage(ServerResetEnchantments.Handler.class, ServerResetEnchantments.class, id++, SERVER);
-        CHANNEL.registerMessage(ServerBindSlot.Handler.class, ServerBindSlot.class, id++, SERVER);
+        CHANNEL.registerMessage(SWeaponType.Handler.class, SWeaponType.class, id++, SERVER);
+        CHANNEL.registerMessage(SAttributePoints.Handler.class, SAttributePoints.class, id++, SERVER);
+        CHANNEL.registerMessage(SEnchantmentPoints.Handler.class, SEnchantmentPoints.class, id++, SERVER);
+        CHANNEL.registerMessage(STab.Handler.class, STab.class, id++, SERVER);
+        CHANNEL.registerMessage(SResetAttributes.Handler.class, SResetAttributes.class, id++, SERVER);
+        CHANNEL.registerMessage(SResetEnchantments.Handler.class, SResetEnchantments.class, id++, SERVER);
+        CHANNEL.registerMessage(SBindSlot.Handler.class, SBindSlot.class, id++, SERVER);
 
-        CHANNEL.registerMessage(ClientWeaponType.Handler.class, ClientWeaponType.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientSpendAttributePoints.Handler.class, ClientSpendAttributePoints.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientSpendEnchantmentPoints.Handler.class, ClientSpendEnchantmentPoints.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientResetAttributes.Handler.class, ClientResetAttributes.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientResetEnchantments.Handler.class, ClientResetEnchantments.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientWeaponDatum.Handler.class, ClientWeaponDatum.class, id++, CLIENT);
-        CHANNEL.registerMessage(ClientWeaponData.Handler.class, ClientWeaponData.class, id++, CLIENT);
+        CHANNEL.registerMessage(CWeaponType.Handler.class, CWeaponType.class, id++, CLIENT);
+        CHANNEL.registerMessage(CSpendAttributePoints.Handler.class, CSpendAttributePoints.class, id++, CLIENT);
+        CHANNEL.registerMessage(CSpendEnchantmentPoints.Handler.class, CSpendEnchantmentPoints.class, id++, CLIENT);
+        CHANNEL.registerMessage(CResetAttributes.Handler.class, CResetAttributes.class, id++, CLIENT);
+        CHANNEL.registerMessage(CResetEnchantments.Handler.class, CResetEnchantments.class, id++, CLIENT);
+        CHANNEL.registerMessage(CBindSlot.Handler.class, CBindSlot.class, id++, CLIENT);
+        CHANNEL.registerMessage(CWeaponDatum.Handler.class, CWeaponDatum.class, id++, CLIENT);
+        CHANNEL.registerMessage(CWeaponData.Handler.class, CWeaponData.class, id++, CLIENT);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(WEAPON_MENU);

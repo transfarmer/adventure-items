@@ -11,7 +11,7 @@ public enum SoulWeaponEnchantment {
     SMITE(5, Enchantment.getEnchantmentByLocation("smite")),
     BANE_OF_ARTHROPODS(6, Enchantment.getEnchantmentByLocation("bane_of_arthropods"));
 
-    public static final SoulWeaponEnchantment[] enchantments = {SHARPNESS, SWEEPING_EDGE, LOOTING, FIRE_ASPECT, KNOCKBACK, SMITE, BANE_OF_ARTHROPODS};
+    private static final SoulWeaponEnchantment[] enchantments = {SHARPNESS, SWEEPING_EDGE, LOOTING, FIRE_ASPECT, KNOCKBACK, SMITE, BANE_OF_ARTHROPODS};
 
     public final int index;
     public final Enchantment enchantment;
@@ -27,5 +27,9 @@ public enum SoulWeaponEnchantment {
 
     public static String getName(int index) {
         return getEnchantment(index).toString();
+    }
+
+    public static SoulWeaponEnchantment[] getEnchantments() {
+        return enchantments;
     }
 }

@@ -1,4 +1,4 @@
-package transfarmer.soulweapons.network;
+package transfarmer.soulweapons.network.server;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -6,22 +6,21 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.data.SoulWeaponDatum;
 import transfarmer.soulweapons.data.SoulWeaponType;
+import transfarmer.soulweapons.network.client.CWeaponDatum;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ClientWeaponDatum implements IMessage {
+public class SWeaponDatum implements IMessage {
     private int value;
     private int datumIndex;
     private int typeIndex;
 
-    public ClientWeaponDatum() {}
+    public SWeaponDatum() {}
 
-    public ClientWeaponDatum(final int value, final SoulWeaponDatum datum, final SoulWeaponType type) {
+    public SWeaponDatum(final int value, final SoulWeaponDatum datum, final SoulWeaponType type) {
         this.value = value;
         this.datumIndex = datum.index;
         this.typeIndex = type.index;
@@ -41,18 +40,17 @@ public class ClientWeaponDatum implements IMessage {
         buffer.writeInt(this.typeIndex);
     }
 
-    public static final class Handler implements IMessageHandler<ClientWeaponDatum, IMessage> {
-        @SideOnly(CLIENT)
+    public static final class Handler implements IMessageHandler<SWeaponDatum, IMessage> {
         @Override
-        public IMessage onMessage(ClientWeaponDatum message, MessageContext context) {
-            Minecraft.getMinecraft().addScheduledTask(() -> {
-                final EntityPlayer player = Minecraft.getMinecraft().player;
-                final ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+        public IMessage onMessage(SWeaponDatum message, MessageContext context) {
+            final EntityPlayer player = Minecraft.getMinecraft().player;
+            final ISoulWeapon instance = player.getCapability(CAPABILITY, null);
+            final SoulWeaponDatum datum = SoulWeaponDatum.getDatum(message.datumIndex);
+            final SoulWeaponType type = SoulWeaponType.getType(message.typeIndex);
 
-                instance.addDatum(message.value, SoulWeaponDatum.getDatum(message.datumIndex), SoulWeaponType.getType(message.typeIndex));
-            });
+            instance.addDatum(message.value, datum, type);
 
-            return null;
+            return new CWeaponDatum(message.value, datum, type);
         }
     }
 }

@@ -56,10 +56,6 @@ public enum SoulWeaponType {
         return getType(itemStack.getItem());
     }
 
-    public static boolean isSoulWeapon(ItemStack itemStack) {
-        return SOUL_WEAPONS.contains(itemStack.getItem());
-    }
-
     public static List<Item> getItems() {
         return SOUL_WEAPONS;
     }

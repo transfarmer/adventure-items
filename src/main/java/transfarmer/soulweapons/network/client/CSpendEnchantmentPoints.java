@@ -1,4 +1,4 @@
-package transfarmer.soulweapons.network;
+package transfarmer.soulweapons.network.client;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -13,17 +13,15 @@ import transfarmer.soulweapons.gui.SoulWeaponMenu;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
 
-public class ClientSpendEnchantmentPoints implements IMessage {
+public class CSpendEnchantmentPoints implements IMessage {
     private int amount;
     private int enchantmentIndex;
     private int weaponIndex;
 
-    public ClientSpendEnchantmentPoints() {}
+    public CSpendEnchantmentPoints() {}
 
-    public ClientSpendEnchantmentPoints(final int amount, final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
+    public CSpendEnchantmentPoints(final int amount, final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
         this.amount = amount;
         this.enchantmentIndex = enchantment.index;
         this.weaponIndex = type.index;
@@ -43,10 +41,10 @@ public class ClientSpendEnchantmentPoints implements IMessage {
         buffer.writeInt(this.weaponIndex);
     }
 
-    public static final class Handler implements IMessageHandler<ClientSpendEnchantmentPoints, IMessage> {
+    public static final class Handler implements IMessageHandler<CSpendEnchantmentPoints, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final ClientSpendEnchantmentPoints message, final MessageContext context) {
+        public IMessage onMessage(final CSpendEnchantmentPoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final SoulWeaponEnchantment enchantment = SoulWeaponEnchantment.getEnchantment(message.enchantmentIndex);
             final SoulWeaponType weaponType = SoulWeaponType.getType(message.weaponIndex);
@@ -54,8 +52,6 @@ public class ClientSpendEnchantmentPoints implements IMessage {
 
             minecraft.addScheduledTask(() -> {
                 instance.addEnchantment(message.amount, enchantment, weaponType);
-                instance.addDatum(-message.amount, ENCHANTMENT_POINTS, weaponType);
-                instance.addDatum(message.amount, SPENT_ENCHANTMENT_POINTS, weaponType);
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
             });
 

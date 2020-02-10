@@ -1,4 +1,4 @@
-package transfarmer.soulweapons.network;
+package transfarmer.soulweapons.network.server;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -7,19 +7,18 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.data.SoulWeaponType;
+import transfarmer.soulweapons.network.client.CSpendAttributePoints;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.ATTRIBUTE_POINTS;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ATTRIBUTE_POINTS;
 
-public class ServerSpendAttributePoints implements IMessage {
+public class SAttributePoints implements IMessage {
     private int amount;
     private int attributeIndex;
     private int weaponIndex;
 
-    public ServerSpendAttributePoints() {}
+    public SAttributePoints() {}
 
-    public ServerSpendAttributePoints(final int amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
+    public SAttributePoints(final int amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
         this.amount = amount;
         this.attributeIndex = attribute.index;
         this.weaponIndex = type.index;
@@ -39,22 +38,16 @@ public class ServerSpendAttributePoints implements IMessage {
         buffer.writeInt(this.weaponIndex);
     }
 
-    public static final class Handler implements IMessageHandler<ServerSpendAttributePoints, IMessage> {
+    public static final class Handler implements IMessageHandler<SAttributePoints, IMessage> {
         @Override
-        public IMessage onMessage(final ServerSpendAttributePoints message, final MessageContext context) {
+        public IMessage onMessage(final SAttributePoints message, final MessageContext context) {
             final SoulWeaponAttribute attribute = SoulWeaponAttribute.getAttribute(message.attributeIndex);
             final SoulWeaponType weaponType = SoulWeaponType.getType(message.weaponIndex);
             final ISoulWeapon instance = context.getServerHandler().player.getCapability(CAPABILITY, null);
 
-            if (instance.getDatum(ATTRIBUTE_POINTS, weaponType) > 0 ) {
-                instance.addAttribute(message.amount, attribute, weaponType);
-                instance.addDatum(-message.amount, ATTRIBUTE_POINTS, weaponType);
-                instance.addDatum(message.amount, SPENT_ATTRIBUTE_POINTS, weaponType);
+            instance.addAttribute(message.amount, attribute, weaponType);
 
-                return new ClientSpendAttributePoints(message.amount, attribute, weaponType);
-            }
-
-            return null;
+            return new CSpendAttributePoints(message.amount, attribute, weaponType);
         }
     }
 }

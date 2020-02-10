@@ -32,7 +32,7 @@ import transfarmer.soulweapons.capability.ISoulWeapon;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class EntityReachModifier extends EntityArrow {
-    private float reach;
+    private float reachDistance;
 
     public EntityReachModifier(World worldIn) {
         super(worldIn);
@@ -42,11 +42,11 @@ public class EntityReachModifier extends EntityArrow {
         super(world, x, y, z);
     }
 
-    public EntityReachModifier(final World world, final EntityLivingBase shooter, final float reach) {
+    public EntityReachModifier(final World world, final EntityLivingBase shooter, final float reachDistance) {
         this(world, shooter.posX, shooter.posY + shooter.getEyeHeight() - 0.1, shooter.posZ);
         this.world = world;
         this.shootingEntity = shooter;
-        this.reach = reach;
+        this.reachDistance = reachDistance + 1;
         this.setSize(0, 0);
     }
 
@@ -94,7 +94,7 @@ public class EntityReachModifier extends EntityArrow {
             final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
             if (target != null) {
-                if (this.distanceToHit(result) <= this.reach * this.reach
+                if (this.distanceToHit(result) <= this.reachDistance * this.reachDistance
                     && ForgeHooks.onPlayerAttackTarget(player, target) && target.canBeAttackedWithItem() && !target.hitByEntity(player)) {
 
                     float attackDamageModifier = (float) player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();

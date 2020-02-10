@@ -14,7 +14,7 @@ import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
 
 public class ItemSoulDagger extends ItemSoulWeapon {
     public ItemSoulDagger() {
-        super(1, -2F, 3);
+        super(1, -2, 3);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package transfarmer.soulweapons.network;
+package transfarmer.soulweapons.network.client;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -11,24 +11,24 @@ import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.data.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA_LENGTH;
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
-public class ClientWeaponData implements IMessage {
+public class CWeaponData implements IMessage {
     private int weaponIndex;
     private int currentTab;
     private int cooldown;
     private int boundSlot;
     private int[][] data = new int[3][DATA_LENGTH];
-    private float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
-    private int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
+    private float[][] attributes = new float[3][ATTRIBUTES];
+    private int[][] enchantments = new int[3][ENCHANTMENTS];
 
-    public ClientWeaponData() {}
+    public CWeaponData() {}
 
-    public ClientWeaponData(final SoulWeaponType type, final int currentTab, final int cooldown, final int boundSlot,
-                            final int[][] data, final float[][] attributes, final int[][] enchantments) {
+    public CWeaponData(final SoulWeaponType type, final int currentTab, final int cooldown, final int boundSlot,
+                       final int[][] data, final float[][] attributes, final int[][] enchantments) {
         if (type == null) {
             this.weaponIndex = -1;
         } else {
@@ -74,10 +74,10 @@ public class ClientWeaponData implements IMessage {
         );
     }
 
-    public static final class Handler implements IMessageHandler<ClientWeaponData, IMessage> {
+    public static final class Handler implements IMessageHandler<CWeaponData, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(ClientWeaponData message, MessageContext context) {
+        public IMessage onMessage(CWeaponData message, MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 final ISoulWeapon instance = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
 

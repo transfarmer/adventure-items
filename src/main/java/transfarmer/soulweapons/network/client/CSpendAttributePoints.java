@@ -1,4 +1,4 @@
-package transfarmer.soulweapons.network;
+package transfarmer.soulweapons.network.client;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -13,17 +13,15 @@ import transfarmer.soulweapons.gui.SoulWeaponMenu;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.ATTRIBUTE_POINTS;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ATTRIBUTE_POINTS;
 
-public class ClientSpendAttributePoints implements IMessage {
+public class CSpendAttributePoints implements IMessage {
     private int amount;
     private int attributeIndex;
     private int weaponIndex;
 
-    public ClientSpendAttributePoints() {}
+    public CSpendAttributePoints() {}
 
-    public ClientSpendAttributePoints(final int amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
+    public CSpendAttributePoints(final int amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
         this.amount = amount;
         this.attributeIndex = attribute.index;
         this.weaponIndex = type.index;
@@ -43,10 +41,10 @@ public class ClientSpendAttributePoints implements IMessage {
         buffer.writeInt(this.weaponIndex);
     }
 
-    public static final class Handler implements IMessageHandler<ClientSpendAttributePoints, IMessage> {
+    public static final class Handler implements IMessageHandler<CSpendAttributePoints, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(ClientSpendAttributePoints message, MessageContext context) {
+        public IMessage onMessage(final CSpendAttributePoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final SoulWeaponType weaponType = SoulWeaponType.getType(message.weaponIndex);
             final SoulWeaponAttribute attribute = SoulWeaponAttribute.getAttribute(message.attributeIndex);
@@ -54,8 +52,6 @@ public class ClientSpendAttributePoints implements IMessage {
 
             minecraft.addScheduledTask(() -> {
                 instance.addAttribute(message.amount, attribute, weaponType);
-                instance.addDatum(-message.amount, ATTRIBUTE_POINTS, weaponType);
-                instance.addDatum(message.amount, SPENT_ATTRIBUTE_POINTS, weaponType);
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
             });
 

@@ -6,6 +6,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import transfarmer.soulweapons.data.SoulWeaponAttribute;
+import transfarmer.soulweapons.data.SoulWeaponDatum;
+import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
 
 import java.util.UUID;
@@ -17,25 +20,25 @@ public class SoulWeaponHelper {
     public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     public static final UUID ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
-    public static final int DATA_LENGTH = 7;
-    public static final int ATTRIBUTES_LENGTH = 5;
-    public static final int ENCHANTMENTS_LENGTH = 7;
+    public static final int DATA_LENGTH = SoulWeaponDatum.getData().length;
+    public static final int ATTRIBUTES = SoulWeaponAttribute.getAttributes().length;
+    public static final int ENCHANTMENTS = SoulWeaponEnchantment.getEnchantments().length;
     private static boolean datumEquality;
 
     public static void forEach(BiConsumer<Integer, Integer> datumConsumer,
                                BiConsumer<Integer, Integer> attributeConsumer,
                                BiConsumer<Integer, Integer> enchantmentConsumer) {
         for (int weaponIndex = 0; weaponIndex <= 2; weaponIndex++) {
-            for (int valueIndex = 0; valueIndex <= Math.max(DATA_LENGTH, Math.max(ATTRIBUTES_LENGTH, ENCHANTMENTS_LENGTH)); valueIndex++) {
+            for (int valueIndex = 0; valueIndex <= Math.max(DATA_LENGTH, Math.max(ATTRIBUTES, ENCHANTMENTS)); valueIndex++) {
                 if (valueIndex <= DATA_LENGTH - 1) {
                     datumConsumer.accept(weaponIndex, valueIndex);
                 }
 
-                if (valueIndex <= ATTRIBUTES_LENGTH - 1) {
+                if (valueIndex <= ATTRIBUTES - 1) {
                     attributeConsumer.accept(weaponIndex, valueIndex);
                 }
 
-                if (valueIndex <= ENCHANTMENTS_LENGTH - 1) {
+                if (valueIndex <= ENCHANTMENTS - 1) {
                     enchantmentConsumer.accept(weaponIndex, valueIndex);
                 }
             }
@@ -95,11 +98,19 @@ public class SoulWeaponHelper {
         return false;
     }
 
-    public static boolean isSoulWeaponEquipped(EntityPlayer player) {
-        for (final Item WEAPON : SoulWeaponType.getItems()) {
-            if (player.inventory.getCurrentItem().isItemEqual(new ItemStack(WEAPON))) return true;
-        }
+    public static boolean isSoulWeaponEquipped(final EntityPlayer player) {
+        return SoulWeaponType.getItems().contains(player.inventory.getCurrentItem().getItem());
+    }
 
-        return false;
+    public static void removeSoulWeapons(final EntityPlayer player) {
+        for (final ItemStack itemStack : player.inventory.mainInventory) {
+            if (isSoulWeapon(itemStack)) {
+                player.inventory.deleteStack(itemStack);
+            }
+        }
+    }
+
+    public static boolean isSoulWeapon(final ItemStack itemStack) {
+        return SoulWeaponType.getItems().contains(itemStack.getItem());
     }
 }

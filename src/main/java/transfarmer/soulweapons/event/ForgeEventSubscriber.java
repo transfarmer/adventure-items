@@ -8,6 +8,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntitySlime;
+import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -45,8 +46,9 @@ import transfarmer.soulweapons.entity.EntityReachModifier;
 import transfarmer.soulweapons.entity.EntitySoulDagger;
 import transfarmer.soulweapons.gui.SoulWeaponMenu;
 import transfarmer.soulweapons.gui.TooltipXPBar;
-import transfarmer.soulweapons.network.ClientWeaponData;
-import transfarmer.soulweapons.network.ClientWeaponDatum;
+import transfarmer.soulweapons.network.client.CWeaponData;
+import transfarmer.soulweapons.network.client.CWeaponDatum;
+import transfarmer.util.Item;
 
 import java.util.List;
 import java.util.Random;
@@ -121,7 +123,7 @@ public class ForgeEventSubscriber {
 
     private static void updatePlayer(final EntityPlayer player) {
         final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
-        Main.CHANNEL.sendTo(new ClientWeaponData(
+        Main.CHANNEL.sendTo(new CWeaponData(
             capability.getCurrentType(),
             capability.getCurrentTab(),
             capability.getCooldown(),
@@ -140,7 +142,7 @@ public class ForgeEventSubscriber {
         if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
             && !player.world.getGameRules().getBoolean("keepInventory")) {
 
-            event.getDrops().removeIf((EntityItem item) -> SoulWeaponType.isSoulWeapon(item.getItem()));
+            event.getDrops().removeIf((EntityItem item) -> SoulWeaponHelper.isSoulWeapon(item.getItem()));
         }
     }
 
@@ -179,7 +181,7 @@ public class ForgeEventSubscriber {
                 int firstSlot = -1;
 
                 for (final ItemStack itemStack : inventory.mainInventory) {
-                    if (SoulWeaponType.isSoulWeapon(itemStack)) {
+                    if (SoulWeaponHelper.isSoulWeapon(itemStack)) {
                         final int index = inventory.mainInventory.indexOf(itemStack);
 
                         if (!event.player.isCreative()) {
@@ -202,7 +204,7 @@ public class ForgeEventSubscriber {
             }
 
             for (final ItemStack itemStack : inventory.mainInventory) {
-                if (!SoulWeaponType.isSoulWeapon(itemStack)) continue;
+                if (!SoulWeaponHelper.isSoulWeapon(itemStack)) continue;
 
                 ItemStack newItemStack = instance.getItemStack(itemStack);
 
@@ -220,7 +222,7 @@ public class ForgeEventSubscriber {
     public static void onEntityItemPickup(final EntityItemPickupEvent event) {
         event.setPhase(EventPriority.LOWEST);
         event.setResult(ALLOW);
-        final boolean isSoulWeapon = SoulWeaponType.isSoulWeapon(event.getItem().getItem());
+        final boolean isSoulWeapon = SoulWeaponHelper.isSoulWeapon(event.getItem().getItem());
         final EntityPlayer player = event.getEntityPlayer();
         final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
         final NonNullList<ItemStack> inventory = player.inventory.mainInventory;
@@ -314,10 +316,10 @@ public class ForgeEventSubscriber {
             final IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
             final IAttributeInstance armor = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR);
             final Entity trueSource = event.getSource().getTrueSource();
+            final ISoulWeapon instance;
+            final String displayName;
+            final SoulWeaponType weaponType;
             Entity source = event.getSource().getImmediateSource();
-            ISoulWeapon instance;
-            SoulWeaponType weaponType;
-            String displayName;
 
             if (trueSource instanceof EntityPlayer) {
                 instance = trueSource.getCapability(CAPABILITY, null);
@@ -350,8 +352,13 @@ public class ForgeEventSubscriber {
                 if (!entity.isNonBoss()) {
                     xp *= multipliers.bossMultiplier;
                 }
+
                 if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
                     xp *= multipliers.hardcoreMultiplier;
+                }
+
+                if (entity instanceof EntityZombie && entity.isChild()) {
+                    xp *= multipliers.babyZombieMultiplier;
                 }
 
                 if (instance.addDatum(xp, XP, weaponType) && levelupNotifications) {
@@ -359,7 +366,7 @@ public class ForgeEventSubscriber {
                         displayName, instance.getDatum(LEVEL, weaponType))));
                 }
 
-                Main.CHANNEL.sendTo(new ClientWeaponDatum(xp, XP, weaponType), (EntityPlayerMP) source);
+                Main.CHANNEL.sendTo(new CWeaponDatum(xp, XP, weaponType), (EntityPlayerMP) source);
             }
         }
     }
@@ -367,16 +374,15 @@ public class ForgeEventSubscriber {
     @SideOnly(CLIENT)
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {
-        if (event.phase == END) {
+        if (event.phase == END && WEAPON_MENU.isKeyDown()) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final EntityPlayer player = minecraft.player;
+            final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
-            if (WEAPON_MENU.isKeyDown()) {
-                if (player.getHeldItemMainhand().getItem().equals(Items.WOODEN_SWORD)) {
-                    minecraft.displayGuiScreen(new SoulWeaponMenu(0));
-                } else if (SoulWeaponHelper.isSoulWeaponEquipped(player)) {
-                    minecraft.displayGuiScreen(new SoulWeaponMenu());
-                }
+            if (capability.getCurrentType() != null) {
+                minecraft.displayGuiScreen(new SoulWeaponMenu());
+            } else if (Item.hasWoodenSword(player)) {
+                minecraft.displayGuiScreen(new SoulWeaponMenu(0));
             }
         }
     }

@@ -9,7 +9,7 @@ public enum SoulWeaponDatum {
     SPENT_ENCHANTMENT_POINTS(5),
     SKILLS(6);
 
-    public static final SoulWeaponDatum[] data = {XP, LEVEL, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS, SKILLS};
+    private static final SoulWeaponDatum[] data = {XP, LEVEL, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS, SKILLS};
 
     public final int index;
 
@@ -23,5 +23,9 @@ public enum SoulWeaponDatum {
 
     public static String getName(int index) {
         return getDatum(index).toString();
+    }
+
+    public static SoulWeaponDatum[] getData() {
+        return data;
     }
 }

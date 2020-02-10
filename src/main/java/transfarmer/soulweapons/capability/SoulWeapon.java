@@ -21,10 +21,12 @@ import java.util.TreeMap;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.*;
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTACK_DAMAGE_UUID;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTACK_SPEED_UUID;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA_LENGTH;
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.REACH_DISTANCE_UUID;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_DAMAGE;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_SPEED;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.CRITICAL;
@@ -34,6 +36,8 @@ import static transfarmer.soulweapons.data.SoulWeaponDatum.ATTRIBUTE_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.LEVEL;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SKILLS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ATTRIBUTE_POINTS;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SHARPNESS;
 import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
@@ -50,8 +54,8 @@ public class SoulWeapon implements ISoulWeapon {
     private int cooldown = 0;
     private int boundSlot = -1;
     private int[][] data = new int[3][DATA_LENGTH];
-    private float[][] attributes = new float[3][ATTRIBUTES_LENGTH];
-    private int[][] enchantments = new int[3][ENCHANTMENTS_LENGTH];
+    private float[][] attributes = new float[3][ATTRIBUTES];
+    private int[][] enchantments = new int[3][ENCHANTMENTS];
 
     @Override
     public void set(final int[][] data, final float[][] attributes, final int[][] enchantments) {
@@ -118,23 +122,21 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public void addAttribute(final float amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
-        if (attribute == CRITICAL && this.getAttribute(CRITICAL, type) + amount > 100) {
-            this.setAttribute(100, attribute, type);
-        } else {
-            this.attributes[type.index][attribute.index] += amount;
-        }
-    }
-
-    @Override
-    public void addAttribute(final SoulWeaponAttribute attribute, final SoulWeaponType type) {
-        this.addAttribute(attribute.getIncrease(type), attribute, type);
-    }
-
-    @Override
     public void addAttribute(final int amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
-        for (int i = 0; i < amount; i++) {
-            this.addAttribute(attribute, type);
+        final int sign = (int) Math.signum(amount);
+        for (int i = 0; i < Math.abs(amount); i++) {
+            this.addDatum(-sign, ATTRIBUTE_POINTS, type);
+            this.addDatum(sign, SPENT_ATTRIBUTE_POINTS, type);
+
+            if ((attribute == CRITICAL && this.getAttribute(CRITICAL, type) + sign * CRITICAL.getIncrease(type) >= 100)) {
+                this.setAttribute(100, attribute, type);
+                return;
+            } else if (this.attributes[type.index][attribute.index] + sign * attribute.getIncrease(type) > 0) {
+                this.attributes[type.index][attribute.index] += sign * attribute.getIncrease(type);
+            } else {
+                this.attributes[type.index][attribute.index] = 0;
+                return;
+            }
         }
     }
 
@@ -175,7 +177,7 @@ public class SoulWeapon implements ISoulWeapon {
     public SortedMap<SoulWeaponEnchantment, Integer> getEnchantments(final SoulWeaponType type) {
         final SortedMap<SoulWeaponEnchantment, Integer> enchantments = new TreeMap<>();
 
-        for (final SoulWeaponEnchantment enchantment : SoulWeaponEnchantment.enchantments) {
+        for (final SoulWeaponEnchantment enchantment : SoulWeaponEnchantment.getEnchantments()) {
             final int level = this.getEnchantment(enchantment, type);
 
             if (level > 0) {
@@ -268,19 +270,23 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int getEnchantment(final SoulWeaponEnchantment enchantment, SoulWeaponType type) {
+    public int getEnchantment(final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
         return this.enchantments[type.index][enchantment.index];
     }
 
     @Override
-    public void addEnchantment(final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
-        this.enchantments[type.index][enchantment.index]++;
-    }
-
-    @Override
     public void addEnchantment(final int amount, final SoulWeaponEnchantment enchantment, final SoulWeaponType type) {
-        for (int i = 0; i < amount; i++) {
-            this.addEnchantment(enchantment, type);
+        final int sign = (int) Math.signum(amount);
+
+        for (int i = 0; i < Math.abs(amount); i++) {
+            if (this.getEnchantment(enchantment, type) + sign >= 0) {
+                this.addDatum(-sign, ENCHANTMENT_POINTS, type);
+                this.addDatum(sign, SPENT_ENCHANTMENT_POINTS, type);
+
+                this.enchantments[type.index][enchantment.index] += sign;
+            } else {
+                return;
+            }
         }
     }
 

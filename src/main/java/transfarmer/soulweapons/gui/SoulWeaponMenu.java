@@ -16,13 +16,14 @@ import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
-import transfarmer.soulweapons.network.ServerBindSlot;
-import transfarmer.soulweapons.network.ServerResetAttributes;
-import transfarmer.soulweapons.network.ServerResetEnchantments;
-import transfarmer.soulweapons.network.ServerSpendAttributePoints;
-import transfarmer.soulweapons.network.ServerSpendEnchantmentPoints;
-import transfarmer.soulweapons.network.ServerTab;
-import transfarmer.soulweapons.network.ServerWeaponType;
+import transfarmer.soulweapons.network.server.SAttributePoints;
+import transfarmer.soulweapons.network.server.SBindSlot;
+import transfarmer.soulweapons.network.server.SResetAttributes;
+import transfarmer.soulweapons.network.server.SResetEnchantments;
+import transfarmer.soulweapons.network.server.SEnchantmentPoints;
+import transfarmer.soulweapons.network.server.STab;
+import transfarmer.soulweapons.network.server.SWeaponType;
+import transfarmer.util.Item;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -63,12 +64,12 @@ public class SoulWeaponMenu extends GuiScreen {
     public SoulWeaponMenu(final int tab) {
         this();
         this.capability.setCurrentTab(tab);
-        Main.CHANNEL.sendToServer(new ServerTab(tab));
+        Main.CHANNEL.sendToServer(new STab(tab));
     }
 
     @Override
     public void initGui() {
-        if (SoulWeaponHelper.hasSoulWeapon(this.mc.player)) {
+        if (this.capability.getCurrentType() != null) {
             final String key = this.mc.player.inventory.currentItem != capability.getBoundSlot()
                 ? "menu.soulweapons.bind" : "menu.soulweapons.unbind";
 
@@ -115,21 +116,39 @@ public class SoulWeaponMenu extends GuiScreen {
 
         if (SoulWeaponHelper.hasSoulWeapon(this.mc.player)) {
             weaponButtons[capability.getCurrentType().index].enabled = false;
+        } else if (this.capability.getCurrentType() != null && !Item.hasWoodenSword(this.mc.player)) {
+            for (final GuiButton button : weaponButtons) {
+                button.enabled = false;
+            }
         }
     }
 
     private void showAttributes() {
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(20));
-
-        showPointButtons(4, 4, this.capability.getDatum(ATTRIBUTE_POINTS, this.weaponType));
+        final GuiButton[] addPointButtons = addAddPointButtons(4, SoulWeaponHelper.ATTRIBUTES, this.capability.getDatum(ATTRIBUTE_POINTS, this.weaponType));
+        final GuiButton[] removePointButtons = addRemovePointButtons(23, SoulWeaponHelper.ATTRIBUTES);
         resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.weaponType) > 0;
+
+        addPointButtons[2].enabled &= this.capability.getAttribute(CRITICAL, this.weaponType) < 100;
+
+        removePointButtons[0].enabled = this.capability.getAttribute(ATTACK_SPEED, this.weaponType) > this.weaponType.item.getAttackSpeed();
+        removePointButtons[1].enabled = this.capability.getAttribute(ATTACK_DAMAGE, this.weaponType) > this.weaponType.item.getAttackDamage();
+
+        for (int index = 2; index < SoulWeaponHelper.ATTRIBUTES; index++) {
+            removePointButtons[index].enabled = this.capability.getAttribute(SoulWeaponAttribute.getAttribute(index), this.weaponType) > 0;
+        }
     }
 
     private void showEnchantments() {
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(21));
-
-        showPointButtons(9, 6, this.capability.getDatum(ENCHANTMENT_POINTS, this.weaponType));
+        final GuiButton[] removePointButtons = addRemovePointButtons(28, SoulWeaponHelper.ENCHANTMENTS);
         resetButton.enabled = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.weaponType) > 0;
+
+        addAddPointButtons(9, SoulWeaponHelper.ENCHANTMENTS, this.capability.getDatum(ENCHANTMENT_POINTS, this.weaponType));
+
+        for (int index = 0; index < SoulWeaponHelper.ENCHANTMENTS; index++) {
+            removePointButtons[index].enabled = this.capability.getEnchantment(SoulWeaponEnchantment.getEnchantment(index), this.weaponType) > 0;
+        }
     }
 
     private void showSkills() {}
@@ -158,11 +177,25 @@ public class SoulWeaponMenu extends GuiScreen {
         }
     }
 
-    private void showPointButtons(int id, int rows, int points) {
-        for (int row = 0; row <= rows; row++) {
-            GuiButton button = addButton(guiFactory.addPointButton(id + row, (width + 162) / 2, (row + 1) * height / 16 + 4));
-            button.enabled = points > 0;
+    private GuiButton[] addAddPointButtons(final int id, final int rows, final int points) {
+        final GuiButton[] buttons = new GuiButton[rows];
+
+        for (int row = 0; row < rows; row++) {
+            buttons[row] = addButton(guiFactory.addSquareButton(id + row, (width + 162) / 2, (row + 1) * height / 16 + 4, "+"));
+            buttons[row].enabled = points > 0;
         }
+
+        return buttons;
+    }
+
+    private GuiButton[] addRemovePointButtons(final int id, final int rows) {
+        final GuiButton[] buttons = new GuiButton[rows];
+
+        for (int row = 0; row < rows; row++) {
+            buttons[row] = this.addButton(guiFactory.addSquareButton(id + row, (width + 162) / 2 - 24, (row + 1) * height / 16 + 4, "-"));
+        }
+
+        return buttons;
     }
 
     private void drawWeapons(final Renderer renderer, final int mouseX, final int mouseY) {
@@ -178,6 +211,12 @@ public class SoulWeaponMenu extends GuiScreen {
         final String critical = String.format("%s%s: %%s%%%%", I18n.format("format.soulweapons.critical"), I18n.format("attribute.soulweapons.critical"));
         final String knockback = String.format("%s%s: %%s", I18n.format("format.soulweapons.knockback"), I18n.format("attribute.soulweapons.knockback"));
         final String efficiency = String.format("%s%s: %%s", I18n.format("format.soulweapons.efficiency"), I18n.format("attribute.soulweapons.efficiency"));
+        final int points = this.capability.getDatum(ATTRIBUTE_POINTS, this.weaponType);
+
+        if (points > 0) {
+            this.drawCenteredString(this.fontRenderer, String.format("%s: %d", I18n.format("menu.soulweapons.points"), points),
+                Math.round(width / 2F), 4, 0xFFFFFF);
+        }
 
         renderer.drawMiddleAttribute(attackSpeed, capability.getAttribute(ATTACK_SPEED, this.weaponType) + 4, 0);
         renderer.drawMiddleAttribute(attackDamage, capability.getAttribute(ATTACK_DAMAGE, this.weaponType) + 1, 1);
@@ -189,6 +228,13 @@ public class SoulWeaponMenu extends GuiScreen {
     }
 
     private void drawEnchantments(final Renderer renderer, final int mouseX, final int mouseY) {
+        final int points = this.capability.getDatum(ENCHANTMENT_POINTS, this.weaponType);
+
+        if (points > 0) {
+            this.drawCenteredString(this.fontRenderer, String.format("%s: %d", I18n.format("menu.soulweapons.points"), points),
+                Math.round(width / 2F), 4, 0xFFFFFF);
+        }
+
         renderer.drawMiddleEnchantment(String.format("%s: %s", I18n.format("enchantment.soulweapons.sharpness"), this.capability.getEnchantment(SHARPNESS, this.weaponType)), 0);
         renderer.drawMiddleEnchantment(String.format("%s: %s", I18n.format("enchantment.soulweapons.sweepingEdge"), this.capability.getEnchantment(SWEEPING_EDGE, this.weaponType)), 1);
         renderer.drawMiddleEnchantment(String.format("%s: %s", I18n.format("enchantment.soulweapons.looting"), this.capability.getEnchantment(LOOTING, this.weaponType)), 2);
@@ -250,20 +296,17 @@ public class SoulWeaponMenu extends GuiScreen {
             case 1:
             case 2:
                 final SoulWeaponType type = SoulWeaponType.getType(button.id);
-                GuiScreen screen;
+                final GuiScreen screen = !SoulWeaponHelper.hasSoulWeapon(this.mc.player)
+                    ? null : new SoulWeaponMenu();
 
-                if (!SoulWeaponHelper.hasSoulWeapon(this.mc.player)) {
-                    capability.setCurrentType(type);
+                if (screen == null) {
                     this.capability.setCurrentTab(1);
-                    screen = null;
-                } else {
-                    capability.setCurrentType(type);
-                    screen = new SoulWeaponMenu();
+                    Main.CHANNEL.sendToServer(new STab(this.capability.getCurrentTab()));
                 }
 
+                this.capability.setCurrentType(type);
                 this.mc.displayGuiScreen(screen);
-                Main.CHANNEL.sendToServer(new ServerWeaponType(type));
-                Main.CHANNEL.sendToServer(new ServerTab(1));
+                Main.CHANNEL.sendToServer(new SWeaponType(type));
 
                 break;
             case 3:
@@ -280,7 +323,7 @@ public class SoulWeaponMenu extends GuiScreen {
                     amount = this.capability.getDatum(ATTRIBUTE_POINTS, this.weaponType);
                 }
 
-                Main.CHANNEL.sendToServer(new ServerSpendAttributePoints(amount, SoulWeaponAttribute.getAttribute(button.id - 4), this.weaponType));
+                Main.CHANNEL.sendToServer(new SAttributePoints(amount, SoulWeaponAttribute.getAttribute(button.id - 4), this.weaponType));
                 break;
             case 9:
             case 10:
@@ -295,7 +338,7 @@ public class SoulWeaponMenu extends GuiScreen {
                     amount = this.capability.getDatum(ENCHANTMENT_POINTS, this.weaponType);
                 }
 
-                Main.CHANNEL.sendToServer(new ServerSpendEnchantmentPoints(amount, SoulWeaponEnchantment.getEnchantment(button.id - 9), this.weaponType));
+                Main.CHANNEL.sendToServer(new SEnchantmentPoints(amount, SoulWeaponEnchantment.getEnchantment(button.id - 9), this.weaponType));
                 break;
             case 16:
             case 17:
@@ -305,10 +348,10 @@ public class SoulWeaponMenu extends GuiScreen {
                 this.mc.displayGuiScreen(new SoulWeaponMenu(tab));
                 break;
             case 20:
-                Main.CHANNEL.sendToServer(new ServerResetAttributes(this.weaponType));
+                Main.CHANNEL.sendToServer(new SResetAttributes(this.weaponType));
                 break;
             case 21:
-                Main.CHANNEL.sendToServer(new ServerResetEnchantments(this.weaponType));
+                Main.CHANNEL.sendToServer(new SResetEnchantments(this.weaponType));
                 break;
             case 22:
                 final int slot = this.mc.player.inventory.currentItem;
@@ -320,22 +363,59 @@ public class SoulWeaponMenu extends GuiScreen {
                 }
 
                 this.mc.displayGuiScreen(new SoulWeaponMenu());
-                Main.CHANNEL.sendToServer(new ServerBindSlot(slot));
+                Main.CHANNEL.sendToServer(new SBindSlot(slot));
                 break;
+            case 23:
+            case 24:
+            case 25:
+            case 26:
+            case 27:
+                amount = 1;
+
+                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+                    amount = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.weaponType);
+                }
+
+                Main.CHANNEL.sendToServer(new SAttributePoints(-amount, SoulWeaponAttribute.getAttribute(button.id - 23), this.weaponType));
+                break;
+            case 28:
+            case 29:
+            case 30:
+            case 31:
+            case 32:
+            case 33:
+            case 34:
+                amount = 1;
+
+                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+                    amount = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.weaponType);
+                }
+
+                Main.CHANNEL.sendToServer(new SEnchantmentPoints(-amount, SoulWeaponEnchantment.getEnchantment(button.id - 28), this.weaponType));
+        }
+    }
+
+    protected void keyTyped(final char typedChar, final int keyCode) {
+        if (keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) {
+            this.mc.displayGuiScreen(null);
+
+            if (this.mc.currentScreen == null) {
+                this.mc.setIngameFocus();
+            }
         }
     }
 
     public class GUIFactory {
-        public GuiButton tabButton(int id, int order, String text) {
-            return new GuiButton(id, width / 24, height / 16 + Math.max(height / 16 * (Configuration.menuOffset - 1 + order), 30 * order), Math.max(96, Math.round(width / 7.5F)), 20, text);
+        public GuiButton tabButton(final int id, final int row, final String text) {
+            return new GuiButton(id, width / 24, height / 16 + Math.max(height / 16 * (Configuration.menuOffset - 1 + row), 30 * row), Math.max(96, Math.round(width / 7.5F)), 20, text);
         }
 
-        public GuiButton centeredButton(int id, int y, int buttonWidth, String text) {
+        public GuiButton centeredButton(final int id, final int y, final int buttonWidth, final String text) {
             return new GuiButton(id, (width - buttonWidth) / 2, y, buttonWidth, 20, text);
         }
 
-        public GuiButton addPointButton(int id, int x, int y) {
-            return new GuiButton(id, x - 10, y - 10, 20, 20, "+");
+        public GuiButton addSquareButton(final int id, final int x, final int y, final String text) {
+            return new GuiButton(id, x - 10, y - 10, 20, 20, text);
         }
 
         public GuiButton resetButton(final int id) {

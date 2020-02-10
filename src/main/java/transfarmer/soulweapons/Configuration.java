@@ -39,16 +39,19 @@ public class Configuration {
         @Comment("attack damage XP multiplier = 1 + (attackDamageMultiplier * damage)")
         public float attackDamageMultiplier = 1F / 3;
 
-        @Comment("boss XP multiplier")
-        public float bossMultiplier = 3;
-
         @Comment({
             "the XP multiplier for game difficulty. (Difficulty ranges from 0 to 3.)",
             "The default setting of 0.5 on hard mode will multiply XP gain by 0.5 * 3 = 1.5"
         })
         public float difficultyMultiplier = 0.5F;
 
+        @Comment("boss XP multiplier")
+        public float bossMultiplier = 3;
+
         @Comment("hardcore mode XP multiplier")
         public float hardcoreMultiplier = 2;
+
+        @Comment("baby zombie (includes zombie pigmen) XP multiplier")
+        public float babyZombieMultiplier = 2;
     }
 }
