@@ -224,7 +224,8 @@ public class EntitySoulDagger extends EntityArrow {
 
     @Override
     protected void onHit(RayTraceResult result) {
-        if (result.entityHit != null) {
+        final Entity entity = result.entityHit;
+        if (entity != null) {
             if (this.shootingEntity instanceof EntityPlayer) {
                 final EntityPlayer player = (EntityPlayer) this.shootingEntity;
                 final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
@@ -240,49 +241,53 @@ public class EntitySoulDagger extends EntityArrow {
 
                 int burnTime = 0;
 
-                if (result.entityHit instanceof EntityLivingBase) {
+                if (entity instanceof EntityLivingBase) {
                     if (this.isBurning()) {
                         burnTime += 5;
                     }
 
-                    if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(result.entityHit instanceof EntityEnderman)) {
+                    if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
                         burnTime += capability.getEnchantment(FIRE_ASPECT, DAGGER) * 4;
                     }
 
                     if (burnTime > 0) {
-                        result.entityHit.setFire(burnTime);
+                        entity.setFire(burnTime);
                     }
                 }
 
-                if (result.entityHit.attackEntityFrom(damageSource, attackDamage)) {
-                    if (result.entityHit instanceof EntityLivingBase) {
-                        EntityLivingBase entity = (EntityLivingBase) result.entityHit;
-                        float knockback = 0;
+                if (entity.attackEntityFrom(damageSource, attackDamage)) {
+                    if (entity instanceof EntityLivingBase) {
+                        EntityLivingBase entityLivingBase = (EntityLivingBase) entity;
 
                         if (this.shootingEntity instanceof EntityLivingBase) {
-                            EnchantmentHelper.applyThornEnchantments(entity, this.shootingEntity);
-                            EnchantmentHelper.applyArthropodEnchantments((EntityLivingBase) this.shootingEntity, entity);
+                            EnchantmentHelper.applyThornEnchantments(entityLivingBase, this.shootingEntity);
+                            EnchantmentHelper.applyArthropodEnchantments((EntityLivingBase) this.shootingEntity, entityLivingBase);
                         }
 
-                        if (this.shootingEntity != null && entity != this.shootingEntity && entity instanceof EntityPlayer && this.shootingEntity instanceof EntityPlayerMP) {
+                        if (this.shootingEntity != null && entityLivingBase != this.shootingEntity && entityLivingBase instanceof EntityPlayer && this.shootingEntity instanceof EntityPlayerMP) {
                             ((EntityPlayerMP) this.shootingEntity).connection.sendPacket(new SPacketChangeGameState(6, 0));
                         }
                     }
 
                     this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG, 1, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-                } else if (capability.getDatum(SKILLS, DAGGER) < 2) {
-                    this.motionX *= -0.1;
-                    this.motionY *= -0.1;
-                    this.motionZ *= -0.1;
-                    this.rotationYaw += 180;
-                    this.prevRotationYaw += 180;
+                } else {
+                    if (burnTime > 0) {
+                        entity.extinguish();
+                    }
+                    if (capability.getDatum(SKILLS, DAGGER) < 2) {
+                        this.motionX *= -0.1;
+                        this.motionY *= -0.1;
+                        this.motionZ *= -0.1;
+                        this.rotationYaw += 180;
+                        this.prevRotationYaw += 180;
 
-                    if (!this.world.isRemote && this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ < 0.001) {
-                        if (this.pickupStatus == PickupStatus.ALLOWED) {
-                            this.entityDropItem(this.getArrowStack(), 0.1F);
+                        if (!this.world.isRemote && this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ < 0.001) {
+                            if (this.pickupStatus == PickupStatus.ALLOWED) {
+                                this.entityDropItem(this.getArrowStack(), 0.1F);
+                            }
+
+                            this.setDead();
                         }
-
-                        this.setDead();
                     }
                 }
             }

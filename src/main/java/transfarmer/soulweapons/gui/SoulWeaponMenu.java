@@ -192,7 +192,7 @@ public class SoulWeaponMenu extends GuiScreen {
         final GuiButton[] buttons = new GuiButton[rows];
 
         for (int row = 0; row < rows; row++) {
-            buttons[row] = this.addButton(guiFactory.addSquareButton(id + row, (width + 162) / 2 - 24, (row + 1) * height / 16 + 4, "-"));
+            buttons[row] = this.addButton(guiFactory.addSquareButton(id + row, (width + 162) / 2 - 20, (row + 1) * height / 16 + 4, "-"));
         }
 
         return buttons;

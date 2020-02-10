@@ -4,8 +4,6 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureAttribute;
-import net.minecraft.entity.IEntityMultiPart;
-import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -151,9 +149,8 @@ public class EntityReachModifier extends EntityArrow {
                         final double motionX = target.motionX;
                         final double motionY = target.motionY;
                         final double motionZ = target.motionZ;
-                        final boolean attack = target.attackEntityFrom(DamageSource.causePlayerDamage(player), attackDamageModifier);
 
-                        if (attack) {
+                        if (target.attackEntityFrom(DamageSource.causePlayerDamage(player), attackDamageModifier)) {
                             if (knockbackModifier > 0) {
                                 if (target instanceof EntityLivingBase) {
                                     ((EntityLivingBase) target).knockBack(player, knockbackModifier * 0.5F, MathHelper.sin(player.rotationYaw * 0.017453292F), -MathHelper.cos(player.rotationYaw * 0.017453292F));
@@ -212,26 +209,6 @@ public class EntityReachModifier extends EntityArrow {
                             }
 
                             EnchantmentHelper.applyArthropodEnchantments(player, target);
-                            ItemStack itemstack1 = player.getHeldItemMainhand();
-                            Entity entity = target;
-
-                            if (target instanceof MultiPartEntityPart) {
-                                IEntityMultiPart ientitymultipart = ((MultiPartEntityPart) target).parent;
-
-                                if (ientitymultipart instanceof EntityLivingBase) {
-                                    entity = (EntityLivingBase) ientitymultipart;
-                                }
-                            }
-
-                            if (!itemstack1.isEmpty() && entity instanceof EntityLivingBase) {
-                                ItemStack beforeHitCopy = itemstack1.copy();
-                                itemstack1.hitEntity((EntityLivingBase) entity, player);
-
-                                if (itemstack1.isEmpty()) {
-                                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, beforeHitCopy, EnumHand.MAIN_HAND);
-                                    player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
-                                }
-                            }
 
                             if (target instanceof EntityLivingBase) {
                                 float damageDealt = initialHealth - ((EntityLivingBase) target).getHealth();

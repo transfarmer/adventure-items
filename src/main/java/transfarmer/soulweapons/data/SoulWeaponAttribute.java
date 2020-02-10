@@ -3,7 +3,7 @@ package transfarmer.soulweapons.data;
 public enum SoulWeaponAttribute {
     ATTACK_SPEED(0, 0.025F, 0.05F, 0.1F),
     ATTACK_DAMAGE(1, 0.5F, 0.4F, 0.25F),
-    CRITICAL(2, 2, 2.5F, 5),
+    CRITICAL(2, 2, 2.5F, 4),
     KNOCKBACK_ATTRIBUTE(3, 1, 0.5F, 0.25F),
     EFFICIENCY(4, 0.5F, 0.75F, 1);
 

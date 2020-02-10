@@ -190,14 +190,11 @@ public class ForgeEventSubscriber {
                             } else {
                                 if (firstSlot == -1) {
                                     firstSlot = index;
+                                    instance.setBoundSlot(index);
                                 } else if (firstSlot != index) {
                                     inventory.deleteStack(itemStack);
                                 }
                             }
-                        }
-
-                        if (instance.getBoundSlot() >= 0 && instance.getBoundSlot() != index) {
-                            instance.setBoundSlot(index);
                         }
                     }
                 }

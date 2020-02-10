@@ -53,14 +53,14 @@ public class SBindSlot implements IMessage {
                                 player.replaceItemInInventory(message.slot, itemStack);
                                 player.inventory.deleteStack(itemStack);
 
-                                return new CBindSlot(message.slot, true);
+                                return new CBindSlot(message.slot);
                             }
                         }
                     }
                 }
             }
 
-            return new CBindSlot(message.slot, false);
+            return new CBindSlot(message.slot);
         }
     }
 }

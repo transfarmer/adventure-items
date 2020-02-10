@@ -16,7 +16,7 @@ public class CBindSlot implements IMessage {
 
     public CBindSlot() {}
 
-    public CBindSlot(final int slot, final boolean moveToSlot) {
+    public CBindSlot(final int slot) {
         this.slot = slot;
     }
 
@@ -37,13 +37,7 @@ public class CBindSlot implements IMessage {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final ISoulWeapon capability = minecraft.player.getCapability(CAPABILITY, null);
 
-            minecraft.addScheduledTask(() -> {
-                if (capability.getBoundSlot() == message.slot) {
-                    capability.unbindSlot();
-                } else {
-                    capability.setBoundSlot(message.slot);
-                }
-            });
+            minecraft.addScheduledTask(() -> capability.setBoundSlot(message.slot));
 
             return null;
         }
