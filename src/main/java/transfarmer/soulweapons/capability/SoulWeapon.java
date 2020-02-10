@@ -106,14 +106,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public float getAttribute(final SoulWeaponAttribute attribute, final SoulWeaponType type) {
-        switch (attribute) {
-            case ATTACK_SPEED:
-                return this.attributes[type.index][ATTACK_SPEED.index] + type.item.getAttackSpeed();
-            case ATTACK_DAMAGE:
-                return this.attributes[type.index][ATTACK_DAMAGE.index] + type.item.getAttackDamage();
-            default:
-                return this.attributes[type.index][attribute.index];
-        }
+        return this.attributes[type.index][attribute.index];
     }
 
     @Override
@@ -138,6 +131,16 @@ public class SoulWeapon implements ISoulWeapon {
                 return;
             }
         }
+    }
+
+    @Override
+    public float getAttackSpeed(final SoulWeaponType type) {
+        return this.attributes[type.index][ATTACK_SPEED.index] + type.item.getAttackSpeed();
+    }
+
+    @Override
+    public float getAttackDamage(final SoulWeaponType type) {
+        return this.attributes[type.index][ATTACK_DAMAGE.index] + type.item.getAttackDamage();
     }
 
     @Override
@@ -168,8 +171,8 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public AttributeModifier[] getAttributeModifiers(final SoulWeaponType type) {
         return new AttributeModifier[]{
-            new AttributeModifier(ATTACK_SPEED_UUID, "generic.attackSpeed", getAttribute(ATTACK_SPEED, type), ADD),
-            new AttributeModifier(ATTACK_DAMAGE_UUID, "generic.attackDamage", getAttribute(ATTACK_DAMAGE, type), ADD)
+            new AttributeModifier(ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttackSpeed(type), ADD),
+            new AttributeModifier(ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttackDamage(type), ADD)
         };
     }
 
@@ -194,13 +197,13 @@ public class SoulWeapon implements ISoulWeapon {
         final List<String> tooltip = new ArrayList<>(7);
         final Map<SoulWeaponEnchantment, Integer> enchantments = this.getEnchantments(type);
 
-        float attackDamage = this.getAttribute(ATTACK_DAMAGE, type) + 1;
+        float attackDamage = this.getAttackDamage(type) + 1;
 
         if (enchantments.containsKey(SHARPNESS)) {
             attackDamage += 1 + (enchantments.get(SHARPNESS) - 1) / 2F;
         }
 
-        tooltip.add(String.format(" %s%s %s", I18n.format("format.soulweapons.attackSpeed"), FORMAT.format(this.getAttribute(ATTACK_SPEED, type) + 4), I18n.format("attribute.soulweapons.attackSpeed")));
+        tooltip.add(String.format(" %s%s %s", I18n.format("format.soulweapons.attackSpeed"), FORMAT.format(this.getAttackSpeed(type) + 4), I18n.format("attribute.soulweapons.attackSpeed")));
         tooltip.add(String.format(" %s%s %s", I18n.format("format.soulweapons.attackDamage"), FORMAT.format(attackDamage), I18n.format("attribute.soulweapons.attackDamage")));
 
         tooltip.add("");
@@ -337,7 +340,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getCooldown(final SoulWeaponType type) {
-        return Math.round(20 / (4 + this.getAttribute(ATTACK_SPEED, type)));
+        return Math.round(20 / (4 + this.getAttackSpeed(type)));
     }
 
     @Override

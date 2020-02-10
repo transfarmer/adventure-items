@@ -21,9 +21,12 @@ public interface ISoulWeapon {
     void setAttributes(float[] attributes, SoulWeaponType type);
     void setEnchantments(int[] enchantments, SoulWeaponType type);
 
-    float getAttribute(SoulWeaponAttribute attribute, SoulWeaponType weaponType);
+    float getAttribute(SoulWeaponAttribute attribute, SoulWeaponType type);
     void setAttribute(float value, SoulWeaponAttribute attribute, SoulWeaponType type);
     void addAttribute(int amount, SoulWeaponAttribute attribute, SoulWeaponType type);
+
+    float getAttackSpeed(SoulWeaponType type);
+    float getAttackDamage(SoulWeaponType type);
 
     ItemStack getItemStack(ItemStack itemStack);
     ItemStack getItemStack(SoulWeaponType weaponType);

@@ -96,13 +96,9 @@ public class EntityReachModifier extends EntityArrow {
                     && ForgeHooks.onPlayerAttackTarget(player, target) && target.canBeAttackedWithItem() && !target.hitByEntity(player)) {
 
                     float attackDamageModifier = (float) player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
-                    float attackDamageRatio;
-
-                    if (target instanceof EntityLivingBase) {
-                        attackDamageRatio = EnchantmentHelper.getModifierForCreature(player.getHeldItemMainhand(), ((EntityLivingBase) target).getCreatureAttribute());
-                    } else {
-                        attackDamageRatio = EnchantmentHelper.getModifierForCreature(player.getHeldItemMainhand(), EnumCreatureAttribute.UNDEFINED);
-                    }
+                    float attackDamageRatio = target instanceof EntityLivingBase
+                        ? EnchantmentHelper.getModifierForCreature(player.getHeldItemMainhand(), ((EntityLivingBase) target).getCreatureAttribute())
+                        : EnchantmentHelper.getModifierForCreature(player.getHeldItemMainhand(), EnumCreatureAttribute.UNDEFINED);
 
                     final float cooldownRatio = capability.getAttackRatio(capability.getCurrentType());
                     attackDamageModifier *= 0.2 + cooldownRatio * cooldownRatio * 0.8;
@@ -116,7 +112,6 @@ public class EntityReachModifier extends EntityArrow {
                         if (knockback) {
                             player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_PLAYER_ATTACK_KNOCKBACK, player.getSoundCategory(), 1, 1);
                             knockbackModifier++;
-                            knockback = true;
                         }
 
                         boolean critical = strong && player.fallDistance > 0 && !player.onGround && !player.isOnLadder()
@@ -135,7 +130,7 @@ public class EntityReachModifier extends EntityArrow {
                         final boolean sweep = strong && !critical && !knockback && player.onGround && speed < player.getAIMoveSpeed() && player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword;
                         float initialHealth = 0;
                         boolean burn = false;
-                        int fireAspectModifier = EnchantmentHelper.getFireAspectModifier(player);
+                        final int fireAspectModifier = EnchantmentHelper.getFireAspectModifier(player);
 
                         if (target instanceof EntityLivingBase) {
                             initialHealth = ((EntityLivingBase) target).getHealth();

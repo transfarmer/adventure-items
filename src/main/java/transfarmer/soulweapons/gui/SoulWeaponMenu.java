@@ -131,8 +131,8 @@ public class SoulWeaponMenu extends GuiScreen {
 
         addPointButtons[2].enabled &= this.capability.getAttribute(CRITICAL, this.weaponType) < 100;
 
-        removePointButtons[0].enabled = this.capability.getAttribute(ATTACK_SPEED, this.weaponType) > this.weaponType.item.getAttackSpeed();
-        removePointButtons[1].enabled = this.capability.getAttribute(ATTACK_DAMAGE, this.weaponType) > this.weaponType.item.getAttackDamage();
+        removePointButtons[0].enabled = this.capability.getAttribute(ATTACK_SPEED, this.weaponType) > 0;
+        removePointButtons[1].enabled = this.capability.getAttribute(ATTACK_DAMAGE, this.weaponType) > 0;
 
         for (int index = 2; index < SoulWeaponHelper.ATTRIBUTES; index++) {
             removePointButtons[index].enabled = this.capability.getAttribute(SoulWeaponAttribute.getAttribute(index), this.weaponType) > 0;
@@ -218,8 +218,8 @@ public class SoulWeaponMenu extends GuiScreen {
                 Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        renderer.drawMiddleAttribute(attackSpeed, capability.getAttribute(ATTACK_SPEED, this.weaponType) + 4, 0);
-        renderer.drawMiddleAttribute(attackDamage, capability.getAttribute(ATTACK_DAMAGE, this.weaponType) + 1, 1);
+        renderer.drawMiddleAttribute(attackSpeed, capability.getAttackSpeed(this.weaponType) + 4, 0);
+        renderer.drawMiddleAttribute(attackDamage, capability.getAttackDamage(this.weaponType) + 1, 1);
         renderer.drawMiddleAttribute(critical, capability.getAttribute(CRITICAL, this.weaponType), 2);
         renderer.drawMiddleAttribute(knockback, capability.getAttribute(KNOCKBACK_ATTRIBUTE, this.weaponType), 3);
         renderer.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY, this.weaponType), 4);

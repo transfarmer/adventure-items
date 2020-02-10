@@ -6,13 +6,15 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketChangeGameState;
+import net.minecraft.network.play.server.SPacketEntityVelocity;
+import net.minecraft.stats.StatList;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -21,16 +23,14 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_DAMAGE;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_SPEED;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.FIRE_ASPECT;
-import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SHARPNESS;
 import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
 
 public class EntitySoulDagger extends EntityArrow {
@@ -100,7 +100,7 @@ public class EntitySoulDagger extends EntityArrow {
 
         if (this.shootingEntity instanceof EntityPlayer) {
             final ISoulWeapon capability = this.shootingEntity.getCapability(CAPABILITY, null);
-            final float attackSpeed = 4 + capability.getAttribute(ATTACK_SPEED, DAGGER);
+            final float attackSpeed = 4 + capability.getAttackSpeed(DAGGER);
 
             if (capability.getDatum(SKILLS, DAGGER) >= 4 && this.shootingEntity.isSneaking()
                 || capability.getDatum(SKILLS, DAGGER) >= 3
@@ -229,11 +229,6 @@ public class EntitySoulDagger extends EntityArrow {
             if (this.shootingEntity instanceof EntityPlayer) {
                 final EntityPlayer player = (EntityPlayer) this.shootingEntity;
                 final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
-                float attackDamage = capability.getAttribute(ATTACK_DAMAGE, DAGGER) + 1;
-
-                if (capability.getEnchantments(DAGGER).containsKey(SHARPNESS)) {
-                    attackDamage += 1 + (capability.getEnchantment(SHARPNESS, DAGGER) - 1) / 2F;
-                }
 
                 final DamageSource damageSource = this.shootingEntity == null
                     ? DamageSource.causeThrownDamage(this, this)
@@ -241,35 +236,81 @@ public class EntitySoulDagger extends EntityArrow {
 
                 int burnTime = 0;
 
-                if (entity instanceof EntityLivingBase) {
-                    if (this.isBurning()) {
-                        burnTime += 5;
-                    }
+                float attackDamageModifier = 1 + capability.getAttackDamage(DAGGER);
+                final float attackDamageRatio = entity instanceof EntityLivingBase
+                    ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
+                    : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);
 
-                    if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
-                        burnTime += capability.getEnchantment(FIRE_ASPECT, DAGGER) * 4;
-                    }
+                if (attackDamageModifier > 0 || attackDamageRatio > 0) {
+                    final int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
 
-                    if (burnTime > 0) {
-                        entity.setFire(burnTime);
-                    }
-                }
+                    attackDamageModifier += attackDamageRatio;
+                    float initialHealth = 0;
+                    burnTime += EnchantmentHelper.getFireAspectModifier(player);
 
-                if (entity.attackEntityFrom(damageSource, attackDamage)) {
                     if (entity instanceof EntityLivingBase) {
-                        EntityLivingBase entityLivingBase = (EntityLivingBase) entity;
+                        initialHealth = ((EntityLivingBase) entity).getHealth();
 
-                        if (this.shootingEntity instanceof EntityLivingBase) {
-                            EnchantmentHelper.applyThornEnchantments(entityLivingBase, this.shootingEntity);
-                            EnchantmentHelper.applyArthropodEnchantments((EntityLivingBase) this.shootingEntity, entityLivingBase);
+                        if (this.isBurning()) {
+                            burnTime += 5;
                         }
 
-                        if (this.shootingEntity != null && entityLivingBase != this.shootingEntity && entityLivingBase instanceof EntityPlayer && this.shootingEntity instanceof EntityPlayerMP) {
-                            ((EntityPlayerMP) this.shootingEntity).connection.sendPacket(new SPacketChangeGameState(6, 0));
+                        if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
+                            burnTime += capability.getEnchantment(FIRE_ASPECT, DAGGER) * 4;
+                        }
+
+                        if (burnTime > 0 && !entity.isBurning()) {
+                            entity.setFire(1);
                         }
                     }
 
-                    this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG, 1, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+                    final double motionX = entity.motionX;
+                    final double motionY = entity.motionY;
+                    final double motionZ = entity.motionZ;
+
+                    if (entity.attackEntityFrom(damageSource, attackDamageModifier)) {
+                        if (knockbackModifier > 0) {
+                            if (entity instanceof EntityLivingBase) {
+                                ((EntityLivingBase) entity).knockBack(player, knockbackModifier * 0.5F, MathHelper.sin(player.rotationYaw * 0.017453292F), -MathHelper.cos(player.rotationYaw * 0.017453292F));
+                            } else {
+                                entity.addVelocity(-MathHelper.sin(player.rotationYaw * 0.017453292F) * knockbackModifier * 0.5F, 0.1D, MathHelper.cos(player.rotationYaw * 0.017453292F) * knockbackModifier * 0.5F);
+                            }
+                        }
+
+                        if (entity instanceof EntityPlayerMP && entity.velocityChanged) {
+                            ((EntityPlayerMP) entity).connection.sendPacket(new SPacketEntityVelocity(entity));
+                            entity.velocityChanged = false;
+                            entity.motionX = motionX;
+                            entity.motionY = motionY;
+                            entity.motionZ = motionZ;
+                        }
+
+                        if (attackDamageRatio > 0) {
+                            player.onEnchantmentCritical(entity);
+                        }
+
+                        player.setLastAttackedEntity(entity);
+
+                        if (entity instanceof EntityLivingBase) {
+                            EnchantmentHelper.applyThornEnchantments((EntityLivingBase) entity, player);
+                        }
+
+                        EnchantmentHelper.applyArthropodEnchantments(player, entity);
+
+                        if (entity instanceof EntityLivingBase) {
+                            final float damageDealt = initialHealth - ((EntityLivingBase) entity).getHealth();
+                            player.addStat(StatList.DAMAGE_DEALT, Math.round(damageDealt * 10.0F));
+
+                            if (burnTime > 0) {
+                                entity.setFire(burnTime);
+                            }
+
+                            if (player.world instanceof WorldServer && damageDealt > 2.0F) {
+                                int k = (int) ((double) damageDealt * 0.5D);
+                                ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, entity.posX, entity.posY + (double) (entity.height * 0.5F), entity.posZ, k, 0.1D, 0.0D, 0.1D, 0.2D);
+                            }
+                        }
+                    }
                 } else {
                     if (burnTime > 0) {
                         entity.extinguish();
@@ -320,8 +361,8 @@ public class EntitySoulDagger extends EntityArrow {
     @Override
     public void onCollideWithPlayer(final EntityPlayer player) {
         if (!this.world.isRemote && this.ticksExisted > 10 && this.arrowShake <= 0 && player.equals(this.shootingEntity)
-            && (this.pickupStatus == EntityArrow.PickupStatus.ALLOWED
-            || this.pickupStatus == EntityArrow.PickupStatus.CREATIVE_ONLY && player.isCreative())) {
+            && (this.pickupStatus == PickupStatus.ALLOWED
+            || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
             if (player.isCreative() && SoulWeaponHelper.hasSoulWeapon(player)) {
                 player.onItemPickup(this, 1);
                 this.setDead();
