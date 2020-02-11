@@ -116,22 +116,23 @@ public class EntitySoulDagger extends EntityArrow {
                 }
 
                 if (Math.hypot(Math.hypot(this.motionX, this.motionY), this.motionZ) > 0.3) {
-                    final float acceleration = 0.85F;
-                    this.motionX *= acceleration;
-                    this.motionY *= acceleration;
-                    this.motionZ *= acceleration;
+                    final double multiplier = 0.85;
+                    this.motionX *= multiplier;
+                    this.motionY *= multiplier;
+                    this.motionZ *= multiplier;
                 } else {
-                    final float acceleration = this.ticksSeeking / 100F;
-                    final double displacementX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2D - this.posX;
-                    final double displacementY = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) / 2D - this.posY;
-                    final double displacementZ = boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ) / 2D - this.posZ;
+                    final double multiplier = 0.8;
+                    final double displacementX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
+                    final double displacementY = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) / 2 - this.posY;
+                    final double displacementZ = boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ) / 2 - this.posZ;
+                    final Vec3d normalized = new Vec3d(displacementX, displacementY, displacementZ).normalize();
 
-                    this.motionX = displacementX * acceleration;
-                    this.motionY = displacementY * acceleration;
-                    this.motionZ = displacementZ * acceleration;
+                    this.motionX += normalized.x * multiplier;
+                    this.motionY += normalized.y * multiplier;
+                    this.motionZ += normalized.z * multiplier;
                 }
             } else {
-                if (this.ticksSeeking != 0) {
+                if (this.ticksSeeking > 0) {
                     this.ticksSeeking = 0;
                 }
             }
@@ -360,8 +361,8 @@ public class EntitySoulDagger extends EntityArrow {
 
     @Override
     public void onCollideWithPlayer(final EntityPlayer player) {
-        if (!this.world.isRemote && this.ticksExisted > 10 && this.arrowShake <= 0 && player.equals(this.shootingEntity)
-            && (this.pickupStatus == PickupStatus.ALLOWED
+        if (!this.world.isRemote && this.ticksExisted > 20 / (4 + player.getCapability(CAPABILITY, null).getAttackSpeed(DAGGER))
+            && this.arrowShake <= 0 && player.equals(this.shootingEntity) && (this.pickupStatus == PickupStatus.ALLOWED
             || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
             if (player.isCreative() && SoulWeaponHelper.hasSoulWeapon(player)) {
                 player.onItemPickup(this, 1);
