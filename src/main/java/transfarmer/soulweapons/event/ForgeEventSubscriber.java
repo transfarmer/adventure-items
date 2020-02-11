@@ -332,38 +332,39 @@ public class ForgeEventSubscriber {
             } else return;
 
             if (source instanceof EntityPlayer && weaponType != null) {
-                float attackDamageValue = 0;
+                double attackDamageValue = 0;
 
                 //noinspection ConstantConditions
-                if ((attackDamage == null || attackDamage.getAttributeValue() <= 0) && !Configuration.passiveXP) {
-                    if (!(entity instanceof EntitySlime)) return;
-                } else {
-                    attackDamageValue = (float) attackDamage.getAttributeValue();
+                if (attackDamage != null) {
+                    attackDamageValue = attackDamage.getAttributeValue();
                 }
 
-                int xp = (int) Math.round(entity.getMaxHealth()
-                    * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
-                    * (1 + attackDamageValue * multipliers.attackDamageMultiplier)
-                    * (1 + armor.getAttributeValue() * multipliers.armorMultiplier));
+                //noinspection ConstantConditions
+                if (attackDamage != null || (Configuration.passiveXP || entity instanceof EntitySlime)) {
+                    int xp = (int) Math.round(entity.getMaxHealth()
+                        * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
+                        * (1 + attackDamageValue * multipliers.attackDamageMultiplier)
+                        * (1 + armor.getAttributeValue() * multipliers.armorMultiplier));
 
-                if (!entity.isNonBoss()) {
-                    xp *= multipliers.bossMultiplier;
+                    if (!entity.isNonBoss()) {
+                        xp *= multipliers.bossMultiplier;
+                    }
+
+                    if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
+                        xp *= multipliers.hardcoreMultiplier;
+                    }
+
+                    if (entity instanceof EntityZombie && entity.isChild()) {
+                        xp *= multipliers.babyZombieMultiplier;
+                    }
+
+                    if (instance.addDatum(xp, XP, weaponType) && levelupNotifications) {
+                        source.sendMessage(new TextComponentString(String.format("Your %s leveled up to level %d.",
+                            displayName, instance.getDatum(LEVEL, weaponType))));
+                    }
+
+                    Main.CHANNEL.sendTo(new CWeaponDatum(xp, XP, weaponType), (EntityPlayerMP) source);
                 }
-
-                if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
-                    xp *= multipliers.hardcoreMultiplier;
-                }
-
-                if (entity instanceof EntityZombie && entity.isChild()) {
-                    xp *= multipliers.babyZombieMultiplier;
-                }
-
-                if (instance.addDatum(xp, XP, weaponType) && levelupNotifications) {
-                    source.sendMessage(new TextComponentString(String.format("Your %s leveled up to level %d.",
-                        displayName, instance.getDatum(LEVEL, weaponType))));
-                }
-
-                Main.CHANNEL.sendTo(new CWeaponDatum(xp, XP, weaponType), (EntityPlayerMP) source);
             }
         }
     }
