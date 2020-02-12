@@ -2,10 +2,12 @@ package transfarmer.soulweapons.capability;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.NonNullList;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.data.SoulWeaponDatum;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
@@ -15,6 +17,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
+import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
 public class SoulWeaponHelper {
     public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
@@ -23,6 +26,11 @@ public class SoulWeaponHelper {
     public static final int DATA_LENGTH = SoulWeaponDatum.getData().length;
     public static final int ATTRIBUTES = SoulWeaponAttribute.getAttributes().length;
     public static final int ENCHANTMENTS = SoulWeaponEnchantment.getEnchantments().length;
+    private static final String[][] skills = {
+        {"charge"},
+        {}, // lightning strike?
+        {"throwing", "perforation", "return", "sneak return"}
+    };
     private static boolean datumEquality;
 
     public static void forEach(BiConsumer<Integer, Integer> datumConsumer,
@@ -88,9 +96,9 @@ public class SoulWeaponHelper {
         return datumEquality;
     }
 
-    public static boolean hasSoulWeapon(EntityPlayer player) {
-        for (final Item WEAPON : SoulWeaponType.getItems()) {
-            if (player.inventory.hasItemStack(new ItemStack(WEAPON))) {
+    public static boolean hasSoulWeapon(final EntityPlayer player) {
+        for (final SoulWeaponType type : SoulWeaponType.getTypes()) {
+            if (player.inventory.hasItemStack(player.getCapability(CAPABILITY, null).getItemStack(type))) {
                 return true;
             }
         }
@@ -112,5 +120,46 @@ public class SoulWeaponHelper {
 
     public static boolean isSoulWeapon(final ItemStack itemStack) {
         return SoulWeaponType.getItems().contains(itemStack.getItem());
+    }
+
+    public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player) {
+        final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+        final InventoryPlayer inventory = player.inventory;
+        final NonNullList<ItemStack> mainInventory = inventory.mainInventory;
+
+        if (!isSoulWeapon(itemStack)) {
+            final int slot = inventory.storeItemStack(itemStack);
+
+            if (slot != -1) {
+                final ItemStack slotStack = mainInventory.get(slot);
+                final int transferred = Math.min(slotStack.getMaxStackSize() - slotStack.getCount(), itemStack.getCount());
+
+                itemStack.setCount(itemStack.getCount() - transferred);
+                slotStack.setCount(slotStack.getCount() + transferred);
+
+                if (itemStack.getCount() > 0) {
+                    return addItemStack(itemStack, player);
+                }
+
+                return true;
+            }
+
+            for (int index = 0; index < mainInventory.size(); index++) {
+                if (index != capability.getBoundSlot() && mainInventory.get(index).isEmpty()) {
+                    return inventory.add(index, itemStack);
+                }
+            }
+        }
+
+        return inventory.add(mainInventory.get(capability.getBoundSlot()).getItem() == Items.AIR
+            ? capability.getBoundSlot() : inventory.getFirstEmptyStack(), itemStack);
+    }
+
+    public static int getMaxSkills(SoulWeaponType type) {
+        return SoulWeaponHelper.getSkills()[type.index].length;
+    }
+
+    public static String[][] getSkills() {
+        return skills;
     }
 }

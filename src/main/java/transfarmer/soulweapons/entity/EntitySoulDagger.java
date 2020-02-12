@@ -35,6 +35,7 @@ import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
 
 public class EntitySoulDagger extends EntityArrow {
     public ItemStack itemStack;
+    private float attackDamageRatio;
     private int ticksSeeking;
     private int ticksInGround;
     private int xTile;
@@ -183,11 +184,12 @@ public class EntitySoulDagger extends EntityArrow {
                 }
             }
 
+            if (this.isWet()) {
+                this.extinguish();
+            }
+
             if (this.ticksSeeking == 0) {
                 final float acceleration = this.isInWater() ? 0.6F : 0.99F;
-                if (this.isWet()) {
-                    this.extinguish();
-                }
 
                 this.motionX *= acceleration;
                 this.motionY *= acceleration;
@@ -221,6 +223,10 @@ public class EntitySoulDagger extends EntityArrow {
             this.setPosition(this.posX, this.posY, this.posZ);
             this.doBlockCollisions();
         }
+
+        if (this.shootingEntity != null && !this.shootingEntity.isEntityAlive()) {
+            this.setDead();
+        }
     }
 
     @Override
@@ -237,16 +243,16 @@ public class EntitySoulDagger extends EntityArrow {
 
                 int burnTime = 0;
 
-                float attackDamageModifier = 1 + capability.getAttackDamage(DAGGER);
-                final float attackDamageRatio = entity instanceof EntityLivingBase
+                float attackDamage = 1 + capability.getAttackDamage(DAGGER);
+                final float attackDamageModifier = entity instanceof EntityLivingBase
                     ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
                     : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);
 
-                if (attackDamageModifier > 0 || attackDamageRatio > 0) {
+                if (attackDamage > 0 || attackDamageModifier > 0) {
                     final int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
-
-                    attackDamageModifier += attackDamageRatio;
                     float initialHealth = 0;
+
+                    attackDamage = (attackDamage + attackDamageModifier) * this.attackDamageRatio;
                     burnTime += EnchantmentHelper.getFireAspectModifier(player);
 
                     if (entity instanceof EntityLivingBase) {
@@ -269,7 +275,7 @@ public class EntitySoulDagger extends EntityArrow {
                     final double motionY = entity.motionY;
                     final double motionZ = entity.motionZ;
 
-                    if (entity.attackEntityFrom(damageSource, attackDamageModifier)) {
+                    if (entity.attackEntityFrom(damageSource, attackDamage)) {
                         if (knockbackModifier > 0) {
                             if (entity instanceof EntityLivingBase) {
                                 ((EntityLivingBase) entity).knockBack(player, knockbackModifier * 0.5F, MathHelper.sin(player.rotationYaw * 0.017453292F), -MathHelper.cos(player.rotationYaw * 0.017453292F));
@@ -286,7 +292,7 @@ public class EntitySoulDagger extends EntityArrow {
                             entity.motionZ = motionZ;
                         }
 
-                        if (attackDamageRatio > 0) {
+                        if (attackDamageModifier > 0) {
                             player.onEnchantmentCritical(entity);
                         }
 
@@ -346,9 +352,9 @@ public class EntitySoulDagger extends EntityArrow {
             this.motionX = result.hitVec.x - this.posX;
             this.motionY = result.hitVec.y - this.posY;
             this.motionZ = result.hitVec.z - this.posZ;
-            this.posX -= this.motionX / speed * 0.05;
-            this.posY -= this.motionY / speed * 0.05;
-            this.posZ -= this.motionZ / speed * 0.05;
+            this.posX -= this.motionX / speed * 0.02;
+            this.posY -= this.motionY / speed * 0.02;
+            this.posZ -= this.motionZ / speed * 0.02;
             this.playSound(SoundEvents.ENTITY_ARROW_HIT, 1, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
             this.inGround = true;
             this.arrowShake = 7;
@@ -357,6 +363,11 @@ public class EntitySoulDagger extends EntityArrow {
                 this.inTile.onEntityCollision(this.world, blockPos, blockState, this);
             }
         }
+    }
+
+    public void shoot(final Entity shooter, final float pitch, final float yaw, final float velocity, final float inaccuracy) {
+        this.shoot(shooter, pitch, yaw, 0, velocity, inaccuracy);
+        this.attackDamageRatio = velocity / 2.5F;
     }
 
     @Override

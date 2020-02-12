@@ -2,13 +2,12 @@ package transfarmer.soulweapons.network.server;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulweapons.capability.ISoulWeapon;
-import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.data.SoulWeaponType;
 import transfarmer.soulweapons.network.client.CBindSlot;
 
@@ -39,25 +38,21 @@ public class SBindSlot implements IMessage {
         public IMessage onMessage(final SBindSlot message, final MessageContext context) {
             final EntityPlayer player = context.getServerHandler().player;
             final ISoulWeapon capability = context.getServerHandler().player.getCapability(CAPABILITY, null);
+            final NonNullList<ItemStack> inventory = player.inventory.mainInventory;
 
             if (capability.getBoundSlot() == message.slot) {
                 capability.unbindSlot();
             } else {
-                capability.setBoundSlot(message.slot);
-
-                if (SoulWeaponHelper.hasSoulWeapon(player)) {
-                    if (player.inventory.mainInventory.get(message.slot).getItem() == Items.AIR) {
-
-                        for (final ItemStack itemStack : player.inventory.mainInventory) {
-                            if (SoulWeaponType.getType(itemStack) == capability.getCurrentType()) {
-                                player.replaceItemInInventory(message.slot, itemStack);
-                                player.inventory.deleteStack(itemStack);
-
-                                return new CBindSlot(message.slot);
-                            }
+                if (inventory.get(message.slot).isEmpty()) {
+                    for (final ItemStack itemStack : inventory) {
+                        if (SoulWeaponType.getType(itemStack) == capability.getCurrentType()) {
+                            inventory.set(capability.getBoundSlot(), ItemStack.EMPTY);
+                            player.inventory.setInventorySlotContents(message.slot, itemStack);
                         }
                     }
                 }
+
+                capability.setBoundSlot(message.slot);
             }
 
             return new CBindSlot(message.slot);

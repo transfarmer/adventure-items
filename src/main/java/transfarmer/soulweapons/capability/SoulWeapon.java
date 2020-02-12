@@ -44,11 +44,6 @@ import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
 import static transfarmer.soulweapons.data.SoulWeaponType.SWORD;
 
 public class SoulWeapon implements ISoulWeapon {
-    private static final String[][] skills = {
-        {"charge"},
-        {}, // lightning strike?
-        {"throwing", "perforation", "return", "sneak return"}
-    };
     private SoulWeaponType currentType;
     private int currentTab = 0;
     private int cooldown = 0;
@@ -259,7 +254,7 @@ public class SoulWeapon implements ISoulWeapon {
                     this.addDatum(1, ENCHANTMENT_POINTS, type);
                 }
 
-                if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(SKILLS, type) < this.getMaxSkills(type)) {
+                if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(SKILLS, type) < SoulWeaponHelper.getMaxSkills(type)) {
                     this.addDatum(1, SKILLS, type);
                 }
 
@@ -361,14 +356,5 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public void unbindSlot() {
         this.boundSlot = -1;
-    }
-
-    @Override
-    public int getMaxSkills(SoulWeaponType type) {
-        return skills[type.index].length;
-    }
-
-    public static String[][] getSkills() {
-        return skills;
     }
 }

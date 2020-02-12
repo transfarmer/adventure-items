@@ -5,25 +5,25 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
-import transfarmer.soulweapons.capability.SoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
 import transfarmer.soulweapons.network.server.SAttributePoints;
 import transfarmer.soulweapons.network.server.SBindSlot;
+import transfarmer.soulweapons.network.server.SEnchantmentPoints;
 import transfarmer.soulweapons.network.server.SResetAttributes;
 import transfarmer.soulweapons.network.server.SResetEnchantments;
-import transfarmer.soulweapons.network.server.SEnchantmentPoints;
 import transfarmer.soulweapons.network.server.STab;
 import transfarmer.soulweapons.network.server.SWeaponType;
-import transfarmer.util.Item;
+import transfarmer.util.ItemHelper;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -116,7 +116,7 @@ public class SoulWeaponMenu extends GuiScreen {
 
         if (SoulWeaponHelper.hasSoulWeapon(this.mc.player)) {
             weaponButtons[capability.getCurrentType().index].enabled = false;
-        } else if (this.capability.getCurrentType() != null && !Item.hasWoodenSword(this.mc.player)) {
+        } else if (this.capability.getCurrentType() != null && !ItemHelper.hasItem(Items.WOODEN_SWORD, this.mc.player)) {
             for (final GuiButton button : weaponButtons) {
                 button.enabled = false;
             }
@@ -248,7 +248,7 @@ public class SoulWeaponMenu extends GuiScreen {
 
     private void drawSkills(final Renderer renderer, final int mouseX, final int mouseY) {
         for (int i = 0; i < capability.getDatum(SKILLS, this.weaponType); i++) {
-            this.drawCenteredString(this.fontRenderer, SoulWeapon.getSkills()[capability.getCurrentType().index][i],
+            this.drawCenteredString(this.fontRenderer, SoulWeaponHelper.getSkills()[capability.getCurrentType().index][i],
                 width / 2, (i + 2) * height / 16, 0xFFFFFF);
         }
 

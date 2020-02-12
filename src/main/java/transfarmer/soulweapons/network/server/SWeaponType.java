@@ -11,7 +11,7 @@ import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.data.SoulWeaponType;
 import transfarmer.soulweapons.network.client.CWeaponType;
-import transfarmer.util.Item;
+import transfarmer.util.ItemHelper;
 
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
@@ -46,7 +46,7 @@ public class SWeaponType implements IMessage {
             instance.setCurrentType(weaponType);
 
             if (!SoulWeaponHelper.hasSoulWeapon(player)) {
-                for (final ItemStack woodenSword : Item.getWoodenSwords(player)) {
+                for (final ItemStack woodenSword : ItemHelper.getWoodenSwords(player)) {
                     player.inventory.deleteStack(woodenSword);
                 }
             } else {

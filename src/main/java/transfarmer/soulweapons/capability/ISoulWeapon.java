@@ -63,6 +63,4 @@ public interface ISoulWeapon {
     int getBoundSlot();
     void setBoundSlot(int boundSlot);
     void unbindSlot();
-
-    int getMaxSkills(SoulWeaponType weaponType);
 }

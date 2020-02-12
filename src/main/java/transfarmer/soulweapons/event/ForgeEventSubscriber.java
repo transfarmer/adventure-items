@@ -48,7 +48,7 @@ import transfarmer.soulweapons.gui.SoulWeaponMenu;
 import transfarmer.soulweapons.gui.TooltipXPBar;
 import transfarmer.soulweapons.network.client.CWeaponData;
 import transfarmer.soulweapons.network.client.CWeaponDatum;
-import transfarmer.util.Item;
+import transfarmer.util.ItemHelper;
 
 import java.util.List;
 import java.util.Random;
@@ -184,17 +184,18 @@ public class ForgeEventSubscriber {
                     if (SoulWeaponHelper.isSoulWeapon(itemStack)) {
                         final int index = inventory.mainInventory.indexOf(itemStack);
 
-                        if (!event.player.isCreative()) {
-                            if (itemStack.getItem() != instance.getCurrentType().getItem()) {
-                                inventory.deleteStack(itemStack);
-                            } else {
-                                if (firstSlot == -1) {
-                                    firstSlot = index;
-                                    instance.setBoundSlot(index);
-                                } else if (firstSlot != index) {
-                                    inventory.deleteStack(itemStack);
-                                }
+                        if (itemStack.getItem() == instance.getCurrentType().getItem() && firstSlot == -1) {
+                            firstSlot = index;
+
+                            if (instance.getBoundSlot() != -1) {
+                                instance.setBoundSlot(index);
                             }
+
+                            continue;
+                        }
+
+                        if (!event.player.isCreative() && index != firstSlot) {
+                            inventory.deleteStack(itemStack);
                         }
                     }
                 }
@@ -225,27 +226,7 @@ public class ForgeEventSubscriber {
         final NonNullList<ItemStack> inventory = player.inventory.mainInventory;
         final ItemStack itemStack = event.getItem().getItem();
 
-        if (capability.getBoundSlot() < 0) {
-            player.addItemStackToInventory(itemStack);
-        } else if (!isSoulWeapon) {
-            for (int slot = 0; slot < inventory.size(); slot++) {
-                if (slot != capability.getBoundSlot() && addItemStack(slot, itemStack, player)) {
-                    return;
-                }
-            }
-        } else {
-            if (!addItemStack(capability.getBoundSlot(), itemStack, player)) {
-                player.addItemStackToInventory(itemStack);
-            }
-        }
-    }
-
-    private static boolean addItemStack(final int slot, final ItemStack itemStack, final EntityPlayer player) {
-        final InventoryPlayer inventory = player.inventory;
-        final ItemStack slotStack = inventory.mainInventory.get(slot);
-
-        return (slotStack.getItem() == Items.AIR || slotStack.getItem() == itemStack.getItem() && !itemStack.isItemStackDamageable())
-            && player.inventory.add(slot, itemStack);
+        SoulWeaponHelper.addItemStack(itemStack, player);
     }
 
     @SubscribeEvent
@@ -332,15 +313,15 @@ public class ForgeEventSubscriber {
             } else return;
 
             if (source instanceof EntityPlayer && weaponType != null) {
-                double attackDamageValue = 0;
-
                 //noinspection ConstantConditions
-                if (attackDamage != null) {
-                    attackDamageValue = attackDamage.getAttributeValue();
-                }
+                if (attackDamage != null || Configuration.passiveXP || entity instanceof EntitySlime) {
+                    double attackDamageValue = 0;
 
-                //noinspection ConstantConditions
-                if (attackDamage != null || (Configuration.passiveXP || entity instanceof EntitySlime)) {
+                    //noinspection ConstantConditions
+                    if (attackDamage != null) {
+                        attackDamageValue = attackDamage.getAttributeValue();
+                    }
+
                     int xp = (int) Math.round(entity.getMaxHealth()
                         * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
                         * (1 + attackDamageValue * multipliers.attackDamageMultiplier)
@@ -377,9 +358,10 @@ public class ForgeEventSubscriber {
             final EntityPlayer player = minecraft.player;
             final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
-            if (capability.getCurrentType() != null) {
+            if (SoulWeaponHelper.hasSoulWeapon(player)
+                || (!ItemHelper.hasItem(Items.WOODEN_SWORD, player) && capability.getCurrentType() != null)) {
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
-            } else if (Item.hasWoodenSword(player)) {
+            } else if (ItemHelper.hasItem(Items.WOODEN_SWORD, player)) {
                 minecraft.displayGuiScreen(new SoulWeaponMenu(0));
             }
         }

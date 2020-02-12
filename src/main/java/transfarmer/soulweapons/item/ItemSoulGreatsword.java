@@ -32,8 +32,8 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-        if (player != null && player.getCapability(CAPABILITY, null).getDatum(SKILLS, GREATSWORD) >= 1) {
+    public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
+        if (!world.isRemote && player != null && player.getCapability(CAPABILITY, null).getDatum(SKILLS, GREATSWORD) >= 1) {
             player.setActiveHand(hand);
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }
@@ -42,12 +42,15 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
     }
 
     @Override
-    public void onPlayerStoppedUsing(ItemStack itemStack, World world, EntityLivingBase entity, int timeLeft) {
-        final Vec3d look = entity.getLookVec();
+    public void onPlayerStoppedUsing(final ItemStack itemStack, final World world, final EntityLivingBase entity, final int timeLeft) {
         final int timeTaken = 200 - timeLeft;
-        final double strength = Math.min(1.25, timeTaken / 15F * 1.25);
 
-        entity.addVelocity(look.x * strength, look.y * strength / 4 + 0.2, look.z * strength);
+        if (timeTaken > 5) {
+            final Vec3d look = entity.getLookVec();
+            final double strength = Math.min(1.25, timeTaken / 15F * 1.25);
+
+            entity.addVelocity(look.x * strength, look.y * strength / 4 + 0.2, look.z * strength);
+        }
     }
 
 

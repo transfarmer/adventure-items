@@ -56,6 +56,10 @@ public enum SoulWeaponType {
         return getType(itemStack.getItem());
     }
 
+    public static SoulWeaponType[] getTypes() {
+        return types;
+    }
+
     public static List<Item> getItems() {
         return SOUL_WEAPONS;
     }
