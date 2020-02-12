@@ -3,7 +3,6 @@ package transfarmer.soulweapons.capability;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -151,7 +150,7 @@ public class SoulWeaponHelper {
             }
         }
 
-        return inventory.add(mainInventory.get(capability.getBoundSlot()).getItem() == Items.AIR
+        return inventory.add(capability.getBoundSlot() >= 0 && mainInventory.get(capability.getBoundSlot()).isEmpty()
             ? capability.getBoundSlot() : inventory.getFirstEmptyStack(), itemStack);
     }
 

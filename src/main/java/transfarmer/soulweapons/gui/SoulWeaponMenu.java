@@ -13,6 +13,7 @@ import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
+import transfarmer.soulweapons.client.KeyBindings;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
@@ -396,7 +397,7 @@ public class SoulWeaponMenu extends GuiScreen {
     }
 
     protected void keyTyped(final char typedChar, final int keyCode) {
-        if (keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) {
+        if (keyCode == 1 || keyCode == KeyBindings.WEAPON_MENU.getKeyCode() || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) {
             this.mc.displayGuiScreen(null);
 
             if (this.mc.currentScreen == null) {
