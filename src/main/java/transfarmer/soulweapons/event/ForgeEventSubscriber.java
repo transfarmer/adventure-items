@@ -20,6 +20,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
@@ -348,6 +349,10 @@ public class ForgeEventSubscriber {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onEntityStruckByLighting(final EntityStruckByLightningEvent event) {
     }
 
     @SideOnly(CLIENT)

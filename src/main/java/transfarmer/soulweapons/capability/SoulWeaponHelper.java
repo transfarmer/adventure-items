@@ -96,13 +96,20 @@ public class SoulWeaponHelper {
     }
 
     public static boolean hasSoulWeapon(final EntityPlayer player) {
-        for (final SoulWeaponType type : SoulWeaponType.getTypes()) {
-            if (player.inventory.hasItemStack(player.getCapability(CAPABILITY, null).getItemStack(type))) {
+        final ItemStack[] inventory = player.inventory.mainInventory.toArray(new ItemStack[player.inventory.getSizeInventory() + 1]);
+        inventory[player.inventory.getSizeInventory()] = (player.inventory.getStackInSlot(40));
+
+        for (final ItemStack itemStack : inventory) {
+            if (itemStack != null && isSoulWeapon(itemStack)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    public static boolean isSoulWeapon(final ItemStack itemStack) {
+        return SoulWeaponType.getItems().contains(itemStack.getItem());
     }
 
     public static boolean isSoulWeaponEquipped(final EntityPlayer player) {
@@ -117,10 +124,6 @@ public class SoulWeaponHelper {
         }
     }
 
-    public static boolean isSoulWeapon(final ItemStack itemStack) {
-        return SoulWeaponType.getItems().contains(itemStack.getItem());
-    }
-
     public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player) {
         final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
         final InventoryPlayer inventory = player.inventory;
@@ -130,7 +133,7 @@ public class SoulWeaponHelper {
             final int slot = inventory.storeItemStack(itemStack);
 
             if (slot != -1) {
-                final ItemStack slotStack = mainInventory.get(slot);
+                final ItemStack slotStack = inventory.getStackInSlot(slot);
                 final int transferred = Math.min(slotStack.getMaxStackSize() - slotStack.getCount(), itemStack.getCount());
 
                 itemStack.setCount(itemStack.getCount() - transferred);
@@ -148,9 +151,11 @@ public class SoulWeaponHelper {
                     return inventory.add(index, itemStack);
                 }
             }
+
+            return false;
         }
 
-        return inventory.add(capability.getBoundSlot() >= 0 && mainInventory.get(capability.getBoundSlot()).isEmpty()
+        return inventory.add(capability.getBoundSlot() >= 0 && inventory.getStackInSlot(capability.getBoundSlot()).isEmpty()
             ? capability.getBoundSlot() : inventory.getFirstEmptyStack(), itemStack);
     }
 

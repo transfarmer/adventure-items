@@ -33,6 +33,7 @@ public class ItemSoulDagger extends ItemSoulWeapon {
     public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
         if (!world.isRemote && player.getCapability(CAPABILITY, null).getDatum(SKILLS, DAGGER) >= 1) {
             player.setActiveHand(hand);
+
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }
 
@@ -44,13 +45,14 @@ public class ItemSoulDagger extends ItemSoulWeapon {
         if (!world.isRemote) {
             final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack);
             final EntityPlayer player = (EntityPlayer) entity;
-            final int timeTaken = this.getMaxItemUseDuration(itemStack) - timeLeft;
+            final float attackSpeed = 4 + player.getCapability(CAPABILITY, null).getAttackSpeed(DAGGER);
+            final float velocity = Math.min(attackSpeed * (attackSpeed / 2) * (this.getMaxItemUseDuration(itemStack) - timeLeft) / 20, attackSpeed);
 
-            if (entity instanceof EntityPlayer && !player.isCreative()) {
+            if (!player.isCreative()) {
                 player.inventory.deleteStack(itemStack);
             }
 
-            dagger.shoot(entity, entity.rotationPitch, entity.rotationYaw, Math.min(2.5F, timeTaken / 10F * 2.5F), 1);
+            dagger.shoot(entity, entity.rotationPitch, entity.rotationYaw, velocity, attackSpeed, 1);
             world.spawnEntity(dagger);
         }
     }

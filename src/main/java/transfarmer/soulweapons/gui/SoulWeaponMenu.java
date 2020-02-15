@@ -7,8 +7,10 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
@@ -26,6 +28,7 @@ import transfarmer.soulweapons.network.server.STab;
 import transfarmer.soulweapons.network.server.SWeaponType;
 import transfarmer.util.ItemHelper;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -80,6 +83,8 @@ public class SoulWeaponMenu extends GuiScreen {
             this.tabs[2] = addButton(guiFactory.tabButton(18, 2, I18n.format("menu.soulweapons.enchantments")));
             this.tabs[3] = addButton(guiFactory.tabButton(19, 3, I18n.format("menu.soulweapons.skills")));
             this.tabs[this.capability.getCurrentTab()].enabled = false;
+
+            Mouse.getDWheel();
         }
 
         switch (this.capability.getCurrentTab()) {
@@ -396,6 +401,7 @@ public class SoulWeaponMenu extends GuiScreen {
         }
     }
 
+    @Override
     protected void keyTyped(final char typedChar, final int keyCode) {
         if (keyCode == 1 || keyCode == KeyBindings.WEAPON_MENU.getKeyCode() || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) {
             this.mc.displayGuiScreen(null);
@@ -403,6 +409,21 @@ public class SoulWeaponMenu extends GuiScreen {
             if (this.mc.currentScreen == null) {
                 this.mc.setIngameFocus();
             }
+        }
+    }
+
+    @Override
+    public void handleMouseInput() {
+        try {
+            super.handleMouseInput();
+        } catch (final IOException exception) {
+            exception.printStackTrace();
+        }
+
+        final int dWheel;
+
+        if ((dWheel = Mouse.getDWheel()) != 0) {
+            this.mc.displayGuiScreen(new SoulWeaponMenu(MathHelper.clamp(this.capability.getCurrentTab() - dWheel / 120, 0, 3)));
         }
     }
 
