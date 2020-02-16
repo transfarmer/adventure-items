@@ -19,13 +19,7 @@ import transfarmer.soulweapons.client.KeyBindings;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
-import transfarmer.soulweapons.network.server.SAttributePoints;
-import transfarmer.soulweapons.network.server.SBindSlot;
-import transfarmer.soulweapons.network.server.SEnchantmentPoints;
-import transfarmer.soulweapons.network.server.SResetAttributes;
-import transfarmer.soulweapons.network.server.SResetEnchantments;
-import transfarmer.soulweapons.network.server.STab;
-import transfarmer.soulweapons.network.server.SWeaponType;
+import transfarmer.soulweapons.network.server.*;
 import transfarmer.util.ItemHelper;
 
 import java.io.IOException;
@@ -34,25 +28,9 @@ import java.text.NumberFormat;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_DAMAGE;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_SPEED;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.CRITICAL;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.EFFICIENCY;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.ATTRIBUTE_POINTS;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.ENCHANTMENT_POINTS;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.LEVEL;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.SKILLS;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ATTRIBUTE_POINTS;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
-import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
-import static transfarmer.soulweapons.data.SoulWeaponEnchantment.BANE_OF_ARTHROPODS;
-import static transfarmer.soulweapons.data.SoulWeaponEnchantment.FIRE_ASPECT;
-import static transfarmer.soulweapons.data.SoulWeaponEnchantment.KNOCKBACK;
-import static transfarmer.soulweapons.data.SoulWeaponEnchantment.LOOTING;
-import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SHARPNESS;
-import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SMITE;
-import static transfarmer.soulweapons.data.SoulWeaponEnchantment.SWEEPING_EDGE;
+import static transfarmer.soulweapons.data.SoulWeaponAttribute.*;
+import static transfarmer.soulweapons.data.SoulWeaponDatum.*;
+import static transfarmer.soulweapons.data.SoulWeaponEnchantment.*;
 
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends GuiScreen {
@@ -405,10 +383,6 @@ public class SoulWeaponMenu extends GuiScreen {
     protected void keyTyped(final char typedChar, final int keyCode) {
         if (keyCode == 1 || keyCode == KeyBindings.WEAPON_MENU.getKeyCode() || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) {
             this.mc.displayGuiScreen(null);
-
-            if (this.mc.currentScreen == null) {
-                this.mc.setIngameFocus();
-            }
         }
     }
 
@@ -423,8 +397,13 @@ public class SoulWeaponMenu extends GuiScreen {
         final int dWheel;
 
         if ((dWheel = Mouse.getDWheel()) != 0) {
-            this.mc.displayGuiScreen(new SoulWeaponMenu(MathHelper.clamp(this.capability.getCurrentTab() - dWheel / 120, 0, 3)));
+            this.mc.displayGuiScreen(new SoulWeaponMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, 3)));
         }
+    }
+
+    @Override
+    public boolean doesGuiPauseGame() {
+        return false;
     }
 
     public class GUIFactory {

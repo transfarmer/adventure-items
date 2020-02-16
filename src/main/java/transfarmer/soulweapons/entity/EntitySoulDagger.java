@@ -11,22 +11,18 @@ import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
 
@@ -40,7 +36,9 @@ import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
 public class EntitySoulDagger extends EntityArrow {
     public ItemStack itemStack;
     private UUID shooterUUID;
+    private boolean clone;
     private float attackDamageRatio;
+    private int ticksToSeek = -1;
     private int ticksSeeking;
     private int ticksInGround;
     private int xTile;
@@ -86,7 +84,7 @@ public class EntitySoulDagger extends EntityArrow {
             this.shootingEntity = this.world.getPlayerEntityByUUID(this.shooterUUID);
         }
 
-        if (this.prevRotationPitch == 0F && this.prevRotationYaw == 0F) {
+        if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
             final float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
             this.rotationYaw = (float) (MathHelper.atan2(this.motionX, this.motionZ) * 180 / Math.PI);
             this.rotationPitch = (float) (MathHelper.atan2(this.motionY, f) * 180 / Math.PI);
@@ -98,14 +96,6 @@ public class EntitySoulDagger extends EntityArrow {
         final IBlockState blockState = this.world.getBlockState(blockPos);
         final Block block = blockState.getBlock();
 
-        if (blockState.getMaterial() != Material.AIR) {
-            AxisAlignedBB axisalignedbb = blockState.getCollisionBoundingBox(this.world, blockPos);
-
-            if (axisalignedbb != Block.NULL_AABB && axisalignedbb.offset(blockPos).contains(new Vec3d(this.posX, this.posY, this.posZ))) {
-                this.inGround = true;
-            }
-        }
-
         if (this.arrowShake > 0) {
             --this.arrowShake;
         }
@@ -114,39 +104,71 @@ public class EntitySoulDagger extends EntityArrow {
             final ISoulWeapon capability = this.shootingEntity.getCapability(CAPABILITY, null);
             final float attackSpeed = 4 + capability.getAttackSpeed(DAGGER);
 
-            if (capability.getDatum(SKILLS, DAGGER) >= 4 && this.shootingEntity.isSneaking()
-                || capability.getDatum(SKILLS, DAGGER) >= 3
-                && (this.ticksExisted > 60 / attackSpeed || this.ticksInGround > 20 / attackSpeed)) {
+            if (capability.getDatum(SKILLS, DAGGER) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
+                    || capability.getDatum(SKILLS, DAGGER) >= 3
+                    && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed)) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();
-                this.ticksSeeking++;
+                double multiplier = 0.90;
 
-                if (this.inGround) {
-                    this.motionX = 0;
-                    this.motionY = 0;
-                    this.motionZ = 0;
-                    this.inGround = false;
+                if (this.ticksToSeek == -1 && !this.inGround) {
+                    this.ticksToSeek = (int) Math.round(Math.log(0.05) / Math.log(multiplier));
+                    Main.LOGGER.error(this.ticksToSeek);
                 }
 
-                if (Math.hypot(Math.hypot(this.motionX, this.motionY), this.motionZ) > 0.3) {
-                    final double multiplier = 0.85;
+                if (this.ticksToSeek > 0 && !this.inGround) {
                     this.motionX *= multiplier;
                     this.motionY *= multiplier;
                     this.motionZ *= multiplier;
-                } else {
-                    final double multiplier = 0.8;
-                    final double displacementX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
-                    final double displacementY = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) / 2 - this.posY;
-                    final double displacementZ = boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ) / 2 - this.posZ;
-                    final Vec3d normalized = new Vec3d(displacementX, displacementY, displacementZ).normalize();
 
-                    this.motionX += normalized.x * multiplier;
-                    this.motionY += normalized.y * multiplier;
-                    this.motionZ += normalized.z * multiplier;
+                    this.ticksToSeek--;
+                } else {
+                    final double dX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
+                    final double dY = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) / 2 - this.posY;
+                    final double dZ = boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ) / 2 - this.posZ;
+                    final Vec3d normalized = new Vec3d(dX, dY, dZ).normalize();
+
+                    if (this.ticksToSeek != 0) {
+                        this.ticksToSeek = 0;
+                    }
+
+                    if (this.inGround) {
+                        this.motionX = 0;
+                        this.motionY = 0;
+                        this.motionZ = 0;
+                        this.inGround = false;
+                    }
+
+                    if (this.ticksSeeking > 5) {
+                        multiplier = Math.min(0.08 * this.ticksSeeking, 5);
+
+                        if (Math.sqrt(dX * dX + dY * dY + dZ * dZ) <= 5 && this.ticksSeeking > 100) {
+                            this.motionX = dX;
+                            this.motionY = dY;
+                            this.motionZ = dZ;
+                        } else {
+                            this.motionX = normalized.x * multiplier;
+                            this.motionY = normalized.y * multiplier;
+                            this.motionZ = normalized.z * multiplier;
+                        }
+                    } else {
+                        multiplier = 0.08;
+                        this.motionX += normalized.x * multiplier;
+                        this.motionY += normalized.y * multiplier;
+                        this.motionZ += normalized.z * multiplier;
+                    }
+
+                    this.ticksSeeking++;
                 }
             } else {
                 if (this.ticksSeeking > 0) {
                     this.ticksSeeking = 0;
                 }
+            }
+        } else if (blockState.getMaterial() != Material.AIR) {
+            final AxisAlignedBB axisAlignedBB = blockState.getCollisionBoundingBox(this.world, blockPos);
+
+            if (axisAlignedBB != Block.NULL_AABB && axisAlignedBB.offset(blockPos).contains(new Vec3d(this.posX, this.posY, this.posZ))) {
+                this.inGround = true;
             }
         }
 
@@ -163,7 +185,7 @@ public class EntitySoulDagger extends EntityArrow {
                 this.ticksInGround++;
             }
         } else {
-            Vec3d pos = new Vec3d(this.posX, this.posY, this.posZ);
+            final Vec3d pos = new Vec3d(this.posX, this.posY, this.posZ);
             Vec3d hitPos = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
             RayTraceResult rayTraceResult = this.world.rayTraceBlocks(pos, hitPos, false, true, false);
 
@@ -177,12 +199,10 @@ public class EntitySoulDagger extends EntityArrow {
                 rayTraceResult = new RayTraceResult(entity);
             }
 
-            if (rayTraceResult != null && rayTraceResult.entityHit instanceof EntityPlayer) {
-                EntityPlayer playerHit = (EntityPlayer) rayTraceResult.entityHit;
-
-                if (this.shootingEntity instanceof EntityPlayer && !((EntityPlayer) this.shootingEntity).canAttackPlayer(playerHit)) {
-                    rayTraceResult = null;
-                }
+            if (rayTraceResult != null && rayTraceResult.entityHit instanceof EntityPlayer
+                    && this.shootingEntity instanceof EntityPlayer
+                    && !((EntityPlayer) this.shootingEntity).canAttackPlayer((EntityPlayer) rayTraceResult.entityHit)) {
+                rayTraceResult = null;
             }
 
             if (rayTraceResult != null && !ForgeEventFactory.onProjectileImpact(this, rayTraceResult)) {
@@ -199,7 +219,7 @@ public class EntitySoulDagger extends EntityArrow {
                 this.extinguish();
             }
 
-            if (this.ticksSeeking == 0) {
+            if (this.ticksToSeek == -1) {
                 final float acceleration = this.isInWater() ? 0.6F : 0.99F;
 
                 this.motionX *= acceleration;
@@ -230,7 +250,6 @@ public class EntitySoulDagger extends EntityArrow {
 
             this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
             this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
-
             this.setPosition(this.posX, this.posY, this.posZ);
             this.doBlockCollisions();
         }
@@ -241,23 +260,24 @@ public class EntitySoulDagger extends EntityArrow {
     }
 
     @Override
-    protected void onHit(RayTraceResult result) {
+    protected void onHit(final RayTraceResult result) {
         final Entity entity = result.entityHit;
+
         if (entity != null) {
             if (this.shootingEntity instanceof EntityPlayer) {
                 final EntityPlayer player = (EntityPlayer) this.shootingEntity;
                 final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
                 final DamageSource damageSource = this.shootingEntity == null
-                    ? DamageSource.causeThrownDamage(this, this)
-                    : DamageSource.causeThrownDamage(this, this.shootingEntity);
+                        ? DamageSource.causeThrownDamage(this, this)
+                        : DamageSource.causeThrownDamage(this, this.shootingEntity);
 
                 int burnTime = 0;
 
                 float attackDamage = 1 + capability.getAttackDamage(DAGGER);
                 final float attackDamageModifier = entity instanceof EntityLivingBase
-                    ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
-                    : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);
+                        ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
+                        : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);
 
                 if (attackDamage > 0 || attackDamageModifier > 0) {
                     final int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
@@ -333,24 +353,14 @@ public class EntitySoulDagger extends EntityArrow {
                     if (burnTime > 0) {
                         entity.extinguish();
                     }
+                }
 
-                    if (capability.getDatum(SKILLS, DAGGER) < 2) {
-                        this.motionX *= -0.1;
-                        this.motionY *= -0.1;
-                        this.motionZ *= -0.1;
-                        this.rotationYaw += 180;
-                        this.prevRotationYaw += 180;
-
-                        /*
-                        if (!this.world.isRemote && this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ < 0.001) {
-                            if (this.pickupStatus == PickupStatus.ALLOWED) {
-                                this.entityDropItem(this.getArrowStack(), 0.1F);
-                            }
-
-                            this.setDead();
-                        }
-                        */
-                    }
+                if (capability.getDatum(SKILLS, DAGGER) < 2) {
+                    this.motionX *= -0.1;
+                    this.motionY *= -0.1;
+                    this.motionZ *= -0.1;
+                    this.rotationYaw += 180;
+                    this.prevRotationYaw += 180;
                 }
             }
         } else if (this.ticksSeeking == 0) {
@@ -369,9 +379,9 @@ public class EntitySoulDagger extends EntityArrow {
             this.posX -= this.motionX / speed * 0.02;
             this.posY -= this.motionY / speed * 0.02;
             this.posZ -= this.motionZ / speed * 0.02;
-            this.playSound(SoundEvents.ENTITY_ARROW_HIT, 1, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
             this.inGround = true;
             this.arrowShake = 7;
+            this.playSound(blockState.getBlock().getSoundType(blockState, this.world, blockPos, this).getBreakSound(), 1, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
             if (blockState.getMaterial() != Material.AIR) {
                 this.inTile.onEntityCollision(this.world, blockPos, blockState, this);
@@ -387,8 +397,8 @@ public class EntitySoulDagger extends EntityArrow {
     @Override
     public void onCollideWithPlayer(final EntityPlayer player) {
         if (!this.world.isRemote && this.ticksExisted > 20 / (4 + player.getCapability(CAPABILITY, null).getAttackSpeed(DAGGER))
-            && this.arrowShake <= 0 && player.getUniqueID().equals(this.shooterUUID) && (this.pickupStatus == PickupStatus.ALLOWED
-            || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
+                && this.arrowShake <= 0 && player.getUniqueID().equals(this.shooterUUID) && (this.pickupStatus == PickupStatus.ALLOWED
+                || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
             if (player.isCreative() && SoulWeaponHelper.hasSoulWeapon(player)) {
                 player.onItemPickup(this, 1);
                 this.setDead();

@@ -112,6 +112,7 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public void addAttribute(final int amount, final SoulWeaponAttribute attribute, final SoulWeaponType type) {
         final int sign = (int) Math.signum(amount);
+
         for (int i = 0; i < Math.abs(amount); i++) {
             this.addDatum(-sign, ATTRIBUTE_POINTS, type);
             this.addDatum(sign, SPENT_ATTRIBUTE_POINTS, type);
@@ -119,7 +120,7 @@ public class SoulWeapon implements ISoulWeapon {
             if ((attribute == CRITICAL && this.getAttribute(CRITICAL, type) + sign * CRITICAL.getIncrease(type) >= 100)) {
                 this.setAttribute(100, attribute, type);
                 return;
-            } else if (this.attributes[type.index][attribute.index] + sign * attribute.getIncrease(type) > 0) {
+            } else if (this.attributes[type.index][attribute.index] + sign * attribute.getIncrease(type) > 0.0F) {
                 this.attributes[type.index][attribute.index] += sign * attribute.getIncrease(type);
             } else {
                 this.attributes[type.index][attribute.index] = 0;

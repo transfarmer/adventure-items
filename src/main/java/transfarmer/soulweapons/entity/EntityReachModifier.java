@@ -54,7 +54,7 @@ public class EntityReachModifier extends EntityArrow {
     }
 
     public void onUpdate() {
-        Vec3d pos = new Vec3d(this.posX, this.posY, this.posZ);
+        final Vec3d pos = new Vec3d(this.posX, this.posY, this.posZ);
         Vec3d newPos = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
         RayTraceResult rayTraceResult = this.world.rayTraceBlocks(pos, newPos, false, true, false);
 
@@ -69,9 +69,9 @@ public class EntityReachModifier extends EntityArrow {
         }
 
         if (rayTraceResult != null && rayTraceResult.entityHit instanceof EntityPlayer) {
-            EntityPlayer entityplayer = (EntityPlayer) rayTraceResult.entityHit;
 
-            if (this.shootingEntity instanceof EntityPlayer && !((EntityPlayer) this.shootingEntity).canAttackPlayer(entityplayer)) {
+            if (this.shootingEntity instanceof EntityPlayer
+                    && !((EntityPlayer) this.shootingEntity).canAttackPlayer((EntityPlayer) rayTraceResult.entityHit)) {
                 rayTraceResult = null;
             }
         }

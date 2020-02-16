@@ -14,7 +14,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.RenderTooltipEvent;
@@ -64,32 +63,28 @@ import static transfarmer.soulweapons.Configuration.levelupNotifications;
 import static transfarmer.soulweapons.Configuration.multipliers;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.CRITICAL;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.EFFICIENCY;
-import static transfarmer.soulweapons.data.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
+import static transfarmer.soulweapons.data.SoulWeaponAttribute.*;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.LEVEL;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
-import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
-import static transfarmer.soulweapons.data.SoulWeaponType.GREATSWORD;
-import static transfarmer.soulweapons.data.SoulWeaponType.SWORD;
+import static transfarmer.soulweapons.data.SoulWeaponType.*;
 
 @EventBusSubscriber(modid = Main.MODID)
 public class ForgeEventSubscriber {
     @SubscribeEvent
     public static void onRegisterEntityEntry(final RegistryEvent.Register<EntityEntry> entry) {
         entry.getRegistry().register(EntityEntryBuilder.create()
-            .entity(EntitySoulDagger.class)
-            .id(new ResourceLocation(Main.MODID, "entity_soul_dagger"), 0)
-            .name("soul dagger")
-            .tracker(128, 1, true)
-            .build()
+                .entity(EntitySoulDagger.class)
+                .id(new ResourceLocation(Main.MODID, "entity_soul_dagger"), 0)
+                .name("soul dagger")
+                .tracker(256, 1, true)
+                .build()
         );
         entry.getRegistry().register(EntityEntryBuilder.create()
-            .entity(EntityReachModifier.class)
-            .id(new ResourceLocation(Main.MODID, "entity_reach_extender"), 1)
-            .name("reach extender")
-            .tracker(128, 1, true)
-            .build()
+                .entity(EntityReachModifier.class)
+                .id(new ResourceLocation(Main.MODID, "entity_reach_extender"), 1)
+                .name("reach extender")
+                .tracker(16, 1, true)
+                .build()
         );
     }
 
@@ -117,7 +112,7 @@ public class ForgeEventSubscriber {
         final ISoulWeapon capability = event.player.getCapability(CAPABILITY, null);
 
         if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
-            && !event.player.world.getGameRules().getBoolean("keepInventory")) {
+                && !event.player.world.getGameRules().getBoolean("keepInventory")) {
             event.player.addItemStackToInventory(capability.getItemStack(capability.getCurrentType()));
         }
     }
@@ -125,13 +120,13 @@ public class ForgeEventSubscriber {
     private static void updatePlayer(final EntityPlayer player) {
         final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
         Main.CHANNEL.sendTo(new CWeaponData(
-            capability.getCurrentType(),
-            capability.getCurrentTab(),
-            capability.getCooldown(),
-            capability.getBoundSlot(),
-            capability.getData(),
-            capability.getAttributes(),
-            capability.getEnchantments()), (EntityPlayerMP) player
+                capability.getCurrentType(),
+                capability.getCurrentTab(),
+                capability.getCooldown(),
+                capability.getBoundSlot(),
+                capability.getData(),
+                capability.getAttributes(),
+                capability.getEnchantments()), (EntityPlayerMP) player
         );
     }
 
@@ -141,7 +136,7 @@ public class ForgeEventSubscriber {
         final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
         if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
-            && !player.world.getGameRules().getBoolean("keepInventory")) {
+                && !player.world.getGameRules().getBoolean("keepInventory")) {
 
             event.getDrops().removeIf((EntityItem item) -> SoulWeaponHelper.isSoulWeapon(item.getItem()));
         }
@@ -221,13 +216,8 @@ public class ForgeEventSubscriber {
     public static void onEntityItemPickup(final EntityItemPickupEvent event) {
         event.setPhase(EventPriority.LOWEST);
         event.setResult(ALLOW);
-        final boolean isSoulWeapon = SoulWeaponHelper.isSoulWeapon(event.getItem().getItem());
-        final EntityPlayer player = event.getEntityPlayer();
-        final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
-        final NonNullList<ItemStack> inventory = player.inventory.mainInventory;
-        final ItemStack itemStack = event.getItem().getItem();
 
-        SoulWeaponHelper.addItemStack(itemStack, player);
+        SoulWeaponHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
     }
 
     @SubscribeEvent
@@ -237,7 +227,7 @@ public class ForgeEventSubscriber {
         if (SoulWeaponHelper.isSoulWeaponEquipped(event.getEntityPlayer())) {
             final float breakSpeed = capability.getAttribute(EFFICIENCY, capability.getCurrentType());
             event.setNewSpeed(event.getState().getMaterial() == Material.WEB ?
-                Math.max(15, breakSpeed) : breakSpeed
+                    Math.max(15, breakSpeed) : breakSpeed
             );
         }
     }
@@ -324,9 +314,9 @@ public class ForgeEventSubscriber {
                     }
 
                     int xp = (int) Math.round(entity.getMaxHealth()
-                        * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
-                        * (1 + attackDamageValue * multipliers.attackDamageMultiplier)
-                        * (1 + armor.getAttributeValue() * multipliers.armorMultiplier));
+                            * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
+                            * (1 + attackDamageValue * multipliers.attackDamageMultiplier)
+                            * (1 + armor.getAttributeValue() * multipliers.armorMultiplier));
 
                     if (!entity.isNonBoss()) {
                         xp *= multipliers.bossMultiplier;
@@ -342,7 +332,7 @@ public class ForgeEventSubscriber {
 
                     if (instance.addDatum(xp, XP, weaponType) && levelupNotifications) {
                         source.sendMessage(new TextComponentString(String.format("Your %s leveled up to level %d.",
-                            displayName, instance.getDatum(LEVEL, weaponType))));
+                                displayName, instance.getDatum(LEVEL, weaponType))));
                     }
 
                     Main.CHANNEL.sendTo(new CWeaponDatum(xp, XP, weaponType), (EntityPlayerMP) source);
@@ -358,13 +348,13 @@ public class ForgeEventSubscriber {
     @SideOnly(CLIENT)
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {
-        if (event.phase == END && WEAPON_MENU.isKeyDown()) {
+        if (event.phase == END && WEAPON_MENU.isPressed()) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final EntityPlayer player = minecraft.player;
             final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
             if (SoulWeaponHelper.hasSoulWeapon(player)
-                || (!ItemHelper.hasItem(Items.WOODEN_SWORD, player) && capability.getCurrentType() != null)) {
+                    || (!ItemHelper.hasItem(Items.WOODEN_SWORD, player) && capability.getCurrentType() != null)) {
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
             } else if (ItemHelper.hasItem(Items.WOODEN_SWORD, player)) {
                 minecraft.displayGuiScreen(new SoulWeaponMenu(0));
@@ -386,9 +376,9 @@ public class ForgeEventSubscriber {
                 final String[] newTooltip = instance.getTooltip(weaponType);
                 final int enchantments = event.getItemStack().getEnchantmentTagList().tagCount();
 
-               if (weaponType == GREATSWORD || weaponType == SWORD) {
-                   tooltip.remove(5 + enchantments);
-               }
+                if (weaponType == GREATSWORD || weaponType == SWORD) {
+                    tooltip.remove(5 + enchantments);
+                }
 
                 tooltip.remove(4 + enchantments);
                 tooltip.remove(3 + enchantments);
