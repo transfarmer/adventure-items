@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
 import transfarmer.soulweapons.data.SoulWeaponType;
-import transfarmer.soulweapons.gui.SoulWeaponMenu;
+import transfarmer.soulweapons.client.gui.SoulWeaponMenu;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;

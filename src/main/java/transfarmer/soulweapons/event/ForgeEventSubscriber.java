@@ -29,6 +29,7 @@ import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -41,11 +42,12 @@ import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
 import transfarmer.soulweapons.capability.SoulWeaponProvider;
+import transfarmer.soulweapons.client.gui.SoulWeaponMenu;
+import transfarmer.soulweapons.client.gui.TooltipXPBar;
 import transfarmer.soulweapons.data.SoulWeaponType;
 import transfarmer.soulweapons.entity.EntityReachModifier;
 import transfarmer.soulweapons.entity.EntitySoulDagger;
-import transfarmer.soulweapons.gui.SoulWeaponMenu;
-import transfarmer.soulweapons.gui.TooltipXPBar;
+import transfarmer.soulweapons.entity.EntitySoulLightningBolt;
 import transfarmer.soulweapons.network.client.CWeaponData;
 import transfarmer.soulweapons.network.client.CWeaponDatum;
 import transfarmer.util.ItemHelper;
@@ -122,7 +124,7 @@ public class ForgeEventSubscriber {
         Main.CHANNEL.sendTo(new CWeaponData(
                 capability.getCurrentType(),
                 capability.getCurrentTab(),
-                capability.getCooldown(),
+                capability.getAttackCooldwn(),
                 capability.getBoundSlot(),
                 capability.getData(),
                 capability.getAttributes(),
@@ -168,7 +170,7 @@ public class ForgeEventSubscriber {
                     instance.setCurrentType(heldItemType);
                 }
 
-                if (instance.getCooldown() > 0) {
+                if (instance.getAttackCooldwn() > 0) {
                     instance.addCooldown(-1);
                 }
             }
@@ -180,7 +182,7 @@ public class ForgeEventSubscriber {
                     if (SoulWeaponHelper.isSoulWeapon(itemStack)) {
                         final int index = inventory.mainInventory.indexOf(itemStack);
 
-                        if (itemStack.getItem() == instance.getCurrentType().getItem() && firstSlot == -1) {
+                        if (itemStack.getItem() == instance.getCurrentType().item && firstSlot == -1) {
                             firstSlot = index;
 
                             if (instance.getBoundSlot() != -1) {
@@ -209,6 +211,12 @@ public class ForgeEventSubscriber {
 
                 inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
             }
+        }
+
+        final ISoulWeapon capability = event.player.getCapability(CAPABILITY, null);
+
+        if (capability.getCurrentType() != null && capability.getLightningCooldown() > 0) {
+            capability.decrementLightningCooldown();
         }
     }
 
@@ -297,10 +305,16 @@ public class ForgeEventSubscriber {
                     weaponType = DAGGER;
                     displayName = ((EntitySoulDagger) source).itemStack.getDisplayName();
                     source = ((EntitySoulDagger) source).shootingEntity;
-                } else if (source instanceof EntityPlayer) {
-                    weaponType = instance.getCurrentType();
+                } else {
+                    if (source instanceof EntityPlayer) {
+                        weaponType = instance.getCurrentType();
+                    } else if (source instanceof EntitySoulLightningBolt) {
+                        weaponType = SWORD;
+                        source = ((EntitySoulLightningBolt) source).getCaster();
+                    } else return;
+
                     displayName = ((EntityPlayerMP) source).getHeldItemMainhand().getDisplayName();
-                } else return;
+                }
             } else return;
 
             if (source instanceof EntityPlayer && weaponType != null) {
@@ -342,22 +356,61 @@ public class ForgeEventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onEntityStruckByLighting(final EntityStruckByLightningEvent event) {
+    public static void onEntityStruckByLightning(final EntityStruckByLightningEvent event) {
+        event.setResult(Event.Result.DENY);
     }
+
+    /*
+    @SideOnly(CLIENT)
+    @SubscribeEvent
+    public static void onLeftClickEmpty(final LeftClickEmpty event) {
+        final Minecraft minecraft = Minecraft.getMinecraft();
+        Client.ENTITY_RENDERER.getMouseOver(1, ((ItemSoulWeapon) event.getItemStack().getItem()).getReachDistance());
+
+        if (event.getItemStack().getItem() instanceof ItemSoulWeapon) {
+            final EntityPlayer player = event.getEntityPlayer();
+            final Entity target = minecraft.pointedEntity;
+
+            if (target instanceof EntityItem || target instanceof EntityXPOrb || target instanceof EntityArrow || target == player) {
+                player.getServer().logWarning("Player " + player.getName() + " tried to attack an invalid entity");
+                return;
+            }
+
+            if (target != null) {
+                Main.CHANNEL.sendToServer(new SExtendedAttack(target));
+                player.sendMessage(new TextComponentString("" + player.getPositionEyes(1).distanceTo(target.getPositionVector())));
+            }
+
+            if (minecraft.objectMouseOver != null) {
+                Main.LOGGER.error(minecraft.objectMouseOver);
+                Main.LOGGER.error(player.getPositionEyes(1).distanceTo(minecraft.objectMouseOver.hitVec));
+            }
+        }
+
+        if (minecraft.pointedEntity != null) {
+            Main.LOGGER.error("nonnull entity");
+        } else {
+            Main.LOGGER.error("null entity");
+        }
+    }
+    */
 
     @SideOnly(CLIENT)
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {
-        if (event.phase == END && WEAPON_MENU.isPressed()) {
+        if (event.phase == END) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final EntityPlayer player = minecraft.player;
-            final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
 
-            if (SoulWeaponHelper.hasSoulWeapon(player)
-                    || (!ItemHelper.hasItem(Items.WOODEN_SWORD, player) && capability.getCurrentType() != null)) {
-                minecraft.displayGuiScreen(new SoulWeaponMenu());
-            } else if (ItemHelper.hasItem(Items.WOODEN_SWORD, player)) {
-                minecraft.displayGuiScreen(new SoulWeaponMenu(0));
+            if (WEAPON_MENU.isPressed()) {
+                final EntityPlayer player = minecraft.player;
+                final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+
+                if (SoulWeaponHelper.hasSoulWeapon(player)
+                        || (!ItemHelper.hasItem(Items.WOODEN_SWORD, player) && capability.getCurrentType() != null)) {
+                    minecraft.displayGuiScreen(new SoulWeaponMenu());
+                } else if (ItemHelper.hasItem(Items.WOODEN_SWORD, player)) {
+                    minecraft.displayGuiScreen(new SoulWeaponMenu(0));
+                }
             }
         }
     }

@@ -12,7 +12,7 @@ import transfarmer.soulweapons.data.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES;
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 
@@ -21,7 +21,7 @@ public class CWeaponData implements IMessage {
     private int currentTab;
     private int cooldown;
     private int boundSlot;
-    private int[][] data = new int[3][DATA_LENGTH];
+    private int[][] data = new int[3][DATA];
     private float[][] attributes = new float[3][ATTRIBUTES];
     private int[][] enchantments = new int[3][ENCHANTMENTS];
 
@@ -83,7 +83,7 @@ public class CWeaponData implements IMessage {
 
                 instance.setCurrentType(message.weaponIndex);
                 instance.setCurrentTab(message.currentTab);
-                instance.setCooldown(message.cooldown);
+                instance.setAttackCooldwn(message.cooldown);
                 instance.setBoundSlot(message.boundSlot);
                 instance.set(message.data, message.attributes, message.enchantments);
             });

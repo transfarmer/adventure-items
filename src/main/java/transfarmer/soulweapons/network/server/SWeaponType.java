@@ -65,7 +65,7 @@ public class SWeaponType implements IMessage {
                 slot = player.inventory.getFirstEmptyStack();
             }
 
-            player.inventory.setInventorySlotContents(slot, new ItemStack(instance.getCurrentType().getItem()));
+            player.inventory.setInventorySlotContents(slot, new ItemStack(instance.getCurrentType().item));
 
             return new CWeaponType(slot, weaponType);
         }

@@ -24,7 +24,7 @@ import static net.minecraftforge.common.util.Constants.AttributeModifierOperatio
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTACK_DAMAGE_UUID;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTACK_SPEED_UUID;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES;
-import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA_LENGTH;
+import static transfarmer.soulweapons.capability.SoulWeaponHelper.DATA;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ENCHANTMENTS;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.REACH_DISTANCE_UUID;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.ATTACK_DAMAGE;
@@ -46,9 +46,10 @@ import static transfarmer.soulweapons.data.SoulWeaponType.SWORD;
 public class SoulWeapon implements ISoulWeapon {
     private SoulWeaponType currentType;
     private int currentTab = 0;
-    private int cooldown = 0;
+    private int attackCooldwn = 0;
+    private int lightningCooldown = 60;
     private int boundSlot = -1;
-    private int[][] data = new int[3][DATA_LENGTH];
+    private int[][] data = new int[3][DATA];
     private float[][] attributes = new float[3][ATTRIBUTES];
     private int[][] enchantments = new int[3][ENCHANTMENTS];
 
@@ -120,7 +121,7 @@ public class SoulWeapon implements ISoulWeapon {
             if ((attribute == CRITICAL && this.getAttribute(CRITICAL, type) + sign * CRITICAL.getIncrease(type) >= 100)) {
                 this.setAttribute(100, attribute, type);
                 return;
-            } else if (this.attributes[type.index][attribute.index] + sign * attribute.getIncrease(type) > 0.0F) {
+            } else if (this.attributes[type.index][attribute.index] + sign * attribute.getIncrease(type) > 0.0001) {
                 this.attributes[type.index][attribute.index] += sign * attribute.getIncrease(type);
             } else {
                 this.attributes[type.index][attribute.index] = 0;
@@ -135,8 +136,24 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
+    public float getEffectiveAttackSpeed(final SoulWeaponType type) {
+        return this.getAttackSpeed(type) + 4;
+    }
+
+    @Override
     public float getAttackDamage(final SoulWeaponType type) {
         return this.attributes[type.index][ATTACK_DAMAGE.index] + type.item.getAttackDamage();
+    }
+
+    @Override
+    public float getEffectiveAttackDamage(final SoulWeaponType type) {
+        float attackDamage = this.getAttackDamage(type);
+
+        if (this.getEnchantment(SHARPNESS, type) > 0) {
+            attackDamage += 1 + (this.getEnchantment(SHARPNESS, type) - 1) / 2F;
+        }
+
+        return attackDamage;
     }
 
     @Override
@@ -146,7 +163,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public ItemStack getItemStack(final SoulWeaponType type) {
-        final ItemStack itemStack = type.getItemStack();
+        final ItemStack itemStack = new ItemStack(type.item);
         final AttributeModifier[] attributeModifiers = getAttributeModifiers(type);
         final SortedMap<SoulWeaponEnchantment, Integer> enchantments = this.getEnchantments(type);
 
@@ -315,23 +332,23 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public void setCooldown(final int ticks) {
-        this.cooldown = ticks;
+    public void setAttackCooldwn(final int ticks) {
+        this.attackCooldwn = ticks;
     }
 
     @Override
     public void resetCooldown(final SoulWeaponType type) {
-        this.cooldown = this.getCooldown(type);
+        this.attackCooldwn = this.getCooldown(type);
     }
 
     @Override
     public void addCooldown(final int ticks) {
-        this.cooldown += ticks;
+        this.attackCooldwn += ticks;
     }
 
     @Override
-    public int getCooldown() {
-        return this.cooldown;
+    public int getAttackCooldwn() {
+        return this.attackCooldwn;
     }
 
     @Override
@@ -341,7 +358,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public float getAttackRatio(final SoulWeaponType type) {
-        return 1 - (float) this.getCooldown() / this.getCooldown(type);
+        return 1 - (float) this.getAttackCooldwn() / this.getCooldown(type);
     }
 
     @Override
@@ -357,5 +374,20 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public void unbindSlot() {
         this.boundSlot = -1;
+    }
+
+    @Override
+    public int getLightningCooldown() {
+        return lightningCooldown;
+    }
+
+    @Override
+    public void resetLightningCooldown() {
+        this.lightningCooldown = Math.round(96 / this.getEffectiveAttackSpeed(this.currentType));
+    }
+
+    @Override
+    public void decrementLightningCooldown() {
+        this.lightningCooldown--;
     }
 }

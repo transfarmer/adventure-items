@@ -1,16 +1,15 @@
-package transfarmer.soulweapons.gui;
+package transfarmer.soulweapons.client.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.data.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulweapons.client.Client.XP_BAR;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.LEVEL;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.XP;
@@ -21,7 +20,6 @@ public class TooltipXPBar extends Gui {
         final Minecraft mc = Minecraft.getMinecraft();
         final FontRenderer fontRenderer = mc.fontRenderer;
         final ISoulWeapon capability = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
-        final ResourceLocation XP_BAR = new ResourceLocation(Main.MODID, "textures/gui/xp_bar.png");
         int level = capability.getDatum(LEVEL, type);
         int barLeftX = tooltipX + 44;
         int barTopY = tooltipY + 60 + 10 * originalEnchantments;

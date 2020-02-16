@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.data.SoulWeaponType;
-import transfarmer.soulweapons.gui.SoulWeaponMenu;
+import transfarmer.soulweapons.client.gui.SoulWeaponMenu;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.capability.SoulWeaponHelper.ATTRIBUTES;

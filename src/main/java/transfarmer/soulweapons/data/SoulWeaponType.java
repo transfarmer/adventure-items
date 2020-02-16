@@ -23,20 +23,12 @@ public enum SoulWeaponType {
         SOUL_WEAPONS.add(SWORD.item);
         SOUL_WEAPONS.add(DAGGER.item);
     }
-    public ItemSoulWeapon item;
-    public int index;
+    public final ItemSoulWeapon item;
+    public final int index;
 
     SoulWeaponType(Item item, int index) {
         this.item = (ItemSoulWeapon) item;
         this.index = index;
-    }
-
-    public Item getItem() {
-        return this.item;
-    }
-
-    public ItemStack getItemStack() {
-        return new ItemStack(this.item);
     }
 
     @Override

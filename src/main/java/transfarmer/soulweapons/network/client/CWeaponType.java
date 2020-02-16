@@ -43,7 +43,7 @@ public class CWeaponType implements IMessage {
 
                 player.getCapability(CAPABILITY, null).setCurrentType(message.weaponIndex);
                 player.inventory.setInventorySlotContents(message.slot,
-                    new ItemStack(player.getCapability(CAPABILITY, null).getCurrentType().getItem()));
+                    new ItemStack(player.getCapability(CAPABILITY, null).getCurrentType().item));
             });
 
             return null;

@@ -26,7 +26,10 @@ public interface ISoulWeapon {
     void addAttribute(int amount, SoulWeaponAttribute attribute, SoulWeaponType type);
 
     float getAttackSpeed(SoulWeaponType type);
+    float getEffectiveAttackSpeed(SoulWeaponType type);
+
     float getAttackDamage(SoulWeaponType type);
+    float getEffectiveAttackDamage(SoulWeaponType type);
 
     ItemStack getItemStack(ItemStack itemStack);
     ItemStack getItemStack(SoulWeaponType weaponType);
@@ -53,14 +56,18 @@ public interface ISoulWeapon {
     void setCurrentTab(int tab);
     int getCurrentTab();
 
-    void setCooldown(int ticks);
+    void setAttackCooldwn(int ticks);
     void resetCooldown(SoulWeaponType type);
     void addCooldown(int ticks);
-    int getCooldown();
+    int getAttackCooldwn();
     int getCooldown(SoulWeaponType type);
     float getAttackRatio(SoulWeaponType type);
 
     int getBoundSlot();
     void setBoundSlot(int boundSlot);
     void unbindSlot();
+
+    int getLightningCooldown();
+    void resetLightningCooldown();
+    void decrementLightningCooldown();
 }

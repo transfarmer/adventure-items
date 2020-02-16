@@ -1,4 +1,4 @@
-package transfarmer.soulweapons.gui;
+package transfarmer.soulweapons.client.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -6,7 +6,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -27,6 +26,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulweapons.client.Client.XP_BAR;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.*;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.*;
@@ -244,7 +244,6 @@ public class SoulWeaponMenu extends GuiScreen {
     private void drawXPBar(int mouseX, int mouseY) {
         final int barLeftX = (width - 182) / 2;
         final int barTopY = (height - 4) / 2;
-        final ResourceLocation XP_BAR = new ResourceLocation(Main.MODID, "textures/gui/xp_bar.png");
 
         GlStateManager.color(1F, 1F, 1F, 1F);
         this.mc.getTextureManager().bindTexture(XP_BAR);

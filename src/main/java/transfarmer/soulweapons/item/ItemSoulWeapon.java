@@ -52,6 +52,10 @@ public abstract class ItemSoulWeapon extends ItemSword {
         return this.attackSpeed;
     }
 
+    public float getReachDistance() {
+        return this.reachDistance;
+    }
+
     @Override
     public int getItemEnchantability() {
         return 0;

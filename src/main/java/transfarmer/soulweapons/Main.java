@@ -16,21 +16,8 @@ import transfarmer.soulweapons.capability.SoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponStorage;
 import transfarmer.soulweapons.entity.EntityReachModifier;
 import transfarmer.soulweapons.entity.EntitySoulDagger;
-import transfarmer.soulweapons.network.client.CBindSlot;
-import transfarmer.soulweapons.network.client.CResetAttributes;
-import transfarmer.soulweapons.network.client.CResetEnchantments;
-import transfarmer.soulweapons.network.client.CSpendAttributePoints;
-import transfarmer.soulweapons.network.client.CSpendEnchantmentPoints;
-import transfarmer.soulweapons.network.client.CWeaponData;
-import transfarmer.soulweapons.network.client.CWeaponDatum;
-import transfarmer.soulweapons.network.client.CWeaponType;
-import transfarmer.soulweapons.network.server.SBindSlot;
-import transfarmer.soulweapons.network.server.SResetAttributes;
-import transfarmer.soulweapons.network.server.SResetEnchantments;
-import transfarmer.soulweapons.network.server.SAttributePoints;
-import transfarmer.soulweapons.network.server.SEnchantmentPoints;
-import transfarmer.soulweapons.network.server.STab;
-import transfarmer.soulweapons.network.server.SWeaponType;
+import transfarmer.soulweapons.network.client.*;
+import transfarmer.soulweapons.network.server.*;
 import transfarmer.soulweapons.render.RenderReachModifier;
 import transfarmer.soulweapons.render.RenderSoulDagger;
 
@@ -59,6 +46,7 @@ public class Main {
         CHANNEL.registerMessage(SResetAttributes.Handler.class, SResetAttributes.class, id++, SERVER);
         CHANNEL.registerMessage(SResetEnchantments.Handler.class, SResetEnchantments.class, id++, SERVER);
         CHANNEL.registerMessage(SBindSlot.Handler.class, SBindSlot.class, id++, SERVER);
+        CHANNEL.registerMessage(SLightning.Handler.class, SLightning.class, id++, SERVER);
 
         CHANNEL.registerMessage(CWeaponType.Handler.class, CWeaponType.class, id++, CLIENT);
         CHANNEL.registerMessage(CSpendAttributePoints.Handler.class, CSpendAttributePoints.class, id++, CLIENT);
@@ -66,6 +54,7 @@ public class Main {
         CHANNEL.registerMessage(CResetAttributes.Handler.class, CResetAttributes.class, id++, CLIENT);
         CHANNEL.registerMessage(CResetEnchantments.Handler.class, CResetEnchantments.class, id++, CLIENT);
         CHANNEL.registerMessage(CBindSlot.Handler.class, CBindSlot.class, id++, CLIENT);
+        CHANNEL.registerMessage(CLightning.Handler.class, CLightning.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponDatum.Handler.class, CWeaponDatum.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponData.Handler.class, CWeaponData.class, id++, CLIENT);
 
