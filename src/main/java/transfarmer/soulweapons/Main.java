@@ -29,7 +29,7 @@ import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
 public class Main {
     public static final String MODID = "soulweapons";
     public static final String NAME = "soul weapons";
-    public static final String VERSION = "1.7.6-beta";
+    public static final String VERSION = "1.8.2-beta";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
@@ -46,7 +46,6 @@ public class Main {
         CHANNEL.registerMessage(SResetAttributes.Handler.class, SResetAttributes.class, id++, SERVER);
         CHANNEL.registerMessage(SResetEnchantments.Handler.class, SResetEnchantments.class, id++, SERVER);
         CHANNEL.registerMessage(SBindSlot.Handler.class, SBindSlot.class, id++, SERVER);
-        CHANNEL.registerMessage(SLightning.Handler.class, SLightning.class, id++, SERVER);
 
         CHANNEL.registerMessage(CWeaponType.Handler.class, CWeaponType.class, id++, CLIENT);
         CHANNEL.registerMessage(CSpendAttributePoints.Handler.class, CSpendAttributePoints.class, id++, CLIENT);
@@ -54,7 +53,6 @@ public class Main {
         CHANNEL.registerMessage(CResetAttributes.Handler.class, CResetAttributes.class, id++, CLIENT);
         CHANNEL.registerMessage(CResetEnchantments.Handler.class, CResetEnchantments.class, id++, CLIENT);
         CHANNEL.registerMessage(CBindSlot.Handler.class, CBindSlot.class, id++, CLIENT);
-        CHANNEL.registerMessage(CLightning.Handler.class, CLightning.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponDatum.Handler.class, CWeaponDatum.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponData.Handler.class, CWeaponData.class, id++, CLIENT);
 

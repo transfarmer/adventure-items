@@ -14,6 +14,7 @@ import transfarmer.soulweapons.Configuration;
 import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
+import transfarmer.soulweapons.capability.SoulWeaponProvider;
 import transfarmer.soulweapons.client.KeyBindings;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
@@ -27,7 +28,6 @@ import java.text.NumberFormat;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulweapons.client.Client.XP_BAR;
-import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponAttribute.*;
 import static transfarmer.soulweapons.data.SoulWeaponDatum.*;
 import static transfarmer.soulweapons.data.SoulWeaponEnchantment.*;
@@ -36,7 +36,7 @@ import static transfarmer.soulweapons.data.SoulWeaponEnchantment.*;
 public class SoulWeaponMenu extends GuiScreen {
     private final GuiButton[] tabs = new GuiButton[4];
     private final GUIFactory guiFactory = new GUIFactory();
-    private final ISoulWeapon capability = Minecraft.getMinecraft().player.getCapability(CAPABILITY, null);
+    private final ISoulWeapon capability = SoulWeaponProvider.get(Minecraft.getMinecraft().player);
     private final SoulWeaponType weaponType = this.capability.getCurrentType();
 
     public SoulWeaponMenu() {

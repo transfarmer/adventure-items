@@ -1,5 +1,6 @@
 package transfarmer.soulweapons.capability;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -34,5 +35,10 @@ public class SoulWeaponProvider implements ICapabilitySerializable<NBTBase> {
     @Override
     public void deserializeNBT(NBTBase nbt) {
         CAPABILITY.getStorage().readNBT(CAPABILITY, instance, null, nbt);
+    }
+
+    @Nonnull
+    public static ISoulWeapon get(final Entity entity) {
+        return entity.getCapability(CAPABILITY, null);
     }
 }

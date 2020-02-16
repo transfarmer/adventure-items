@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.monster.EntityZombie;
@@ -14,23 +15,22 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -54,6 +54,7 @@ import transfarmer.util.ItemHelper;
 
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
@@ -120,7 +121,7 @@ public class ForgeEventSubscriber {
     }
 
     private static void updatePlayer(final EntityPlayer player) {
-        final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+        final ISoulWeapon capability = SoulWeaponProvider.get(player);
         Main.CHANNEL.sendTo(new CWeaponData(
                 capability.getCurrentType(),
                 capability.getCurrentTab(),
@@ -222,7 +223,6 @@ public class ForgeEventSubscriber {
 
     @SubscribeEvent
     public static void onEntityItemPickup(final EntityItemPickupEvent event) {
-        event.setPhase(EventPriority.LOWEST);
         event.setResult(ALLOW);
 
         SoulWeaponHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
@@ -297,6 +297,8 @@ public class ForgeEventSubscriber {
             final String displayName;
             final SoulWeaponType weaponType;
             Entity source = event.getSource().getImmediateSource();
+            Main.LOGGER.error(source);
+            Main.LOGGER.error(trueSource);
 
             if (trueSource instanceof EntityPlayer) {
                 instance = trueSource.getCapability(CAPABILITY, null);
@@ -356,8 +358,13 @@ public class ForgeEventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onEntityStruckByLightning(final EntityStruckByLightningEvent event) {
-        event.setResult(Event.Result.DENY);
+    public static void onSpecialSpawn(LivingSpawnEvent.SpecialSpawn event) {
+        final Entity entity = event.getEntity();
+
+        if (entity instanceof EntityLightningBolt && !(entity instanceof EntitySoulLightningBolt)
+                && !entity.writeToNBT(new NBTTagCompound()).getUniqueId("casterUUID").equals(new UUID(0, 0))) {
+            event.setCanceled(true);
+        }
     }
 
     /*

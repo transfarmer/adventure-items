@@ -17,10 +17,11 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
+import transfarmer.soulweapons.capability.SoulWeaponHelper;
+import transfarmer.soulweapons.capability.SoulWeaponProvider;
 
 import java.util.List;
 
-import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulweapons.data.SoulWeaponType.SWORD;
 
 public class EntitySoulLightningBolt extends EntityLightningBolt {
@@ -80,14 +81,19 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                     } else if (entity != this.caster && entity instanceof EntityLivingBase
                             && !ForgeEventFactory.onEntityStruckByLightning(entity, this)) {
                         final float attackDamage = this.caster instanceof EntityPlayer
-                                ? 1 + this.caster.getCapability(CAPABILITY, null).getEffectiveAttackDamage(SWORD)
-                                : 5;
+                                ? 1 + SoulWeaponProvider.get(this.caster).getEffectiveAttackDamage(SWORD) : 5;
 
-                        entity.attackEntityFrom(DamageSource.causeIndirectDamage(this, this.caster), attackDamage);
                         entity.setFire(1);
 
                         if (!entity.isBurning()) {
                             this.setFire(8);
+                        }
+
+                        if (this.caster instanceof EntityPlayer) {
+                            SoulWeaponHelper.delegateAttack(entity, this, (EntityPlayer) this.caster,
+                                    this.caster.getHeldItemMainhand(), attackDamage);
+                        } else {
+                            entity.attackEntityFrom(DamageSource.causeIndirectDamage(this, this.caster), attackDamage);
                         }
                     }
                 }

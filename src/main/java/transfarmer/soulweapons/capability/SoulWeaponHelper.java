@@ -1,12 +1,22 @@
 package transfarmer.soulweapons.capability;
 
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.stats.StatList;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.WorldServer;
 import transfarmer.soulweapons.data.SoulWeaponAttribute;
 import transfarmer.soulweapons.data.SoulWeaponDatum;
 import transfarmer.soulweapons.data.SoulWeaponEnchantment;
@@ -17,6 +27,8 @@ import java.util.function.BiConsumer;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static transfarmer.soulweapons.capability.SoulWeaponProvider.CAPABILITY;
+import static transfarmer.soulweapons.data.SoulWeaponEnchantment.FIRE_ASPECT;
+import static transfarmer.soulweapons.data.SoulWeaponType.DAGGER;
 
 public class SoulWeaponHelper {
     public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
@@ -165,5 +177,83 @@ public class SoulWeaponHelper {
 
     public static String[][] getSkills() {
         return skills;
+    }
+
+    public static void delegateAttack(final Entity target, final Entity delegate, final EntityPlayer player,
+                                      final ItemStack itemStack, final float attackDamage) {
+        final ISoulWeapon capability = SoulWeaponProvider.get(player);
+
+        final DamageSource damageSource = player == null
+                ? DamageSource.causeThrownDamage(delegate, delegate)
+                : DamageSource.causeThrownDamage(delegate, player);
+
+        int burnTime = 0;
+
+        final float attackDamageModifier = target instanceof EntityLivingBase
+                ? EnchantmentHelper.getModifierForCreature(itemStack, ((EntityLivingBase) target).getCreatureAttribute())
+                : EnchantmentHelper.getModifierForCreature(itemStack, EnumCreatureAttribute.UNDEFINED);
+
+        if (attackDamage > 0 || attackDamageModifier > 0) {
+            final int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
+            float initialHealth = 0;
+
+            burnTime += EnchantmentHelper.getFireAspectModifier(player);
+
+            if (target instanceof EntityLivingBase) {
+                initialHealth = ((EntityLivingBase) target).getHealth();
+
+                if (delegate.isBurning()) {
+                    burnTime += 5;
+                }
+
+                if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(target instanceof EntityEnderman)) {
+                    burnTime += capability.getEnchantment(FIRE_ASPECT, DAGGER) * 4;
+                }
+
+                if (burnTime > 0 && !target.isBurning()) {
+                    target.setFire(1);
+                }
+            }
+
+            if (target.attackEntityFrom(damageSource, attackDamage)) {
+                if (knockbackModifier > 0) {
+                    if (target instanceof EntityLivingBase) {
+                        ((EntityLivingBase) target).knockBack(player, knockbackModifier * 0.5F, MathHelper.sin(player.rotationYaw * 0.017453292F), -MathHelper.cos(player.rotationYaw * 0.017453292F));
+                    } else {
+                        target.addVelocity(-MathHelper.sin(player.rotationYaw * 0.017453292F) * knockbackModifier * 0.5F, 0.1D, MathHelper.cos(player.rotationYaw * 0.017453292F) * knockbackModifier * 0.5F);
+                    }
+                }
+
+                if (attackDamageModifier > 0) {
+                    player.onEnchantmentCritical(target);
+                }
+
+                player.setLastAttackedEntity(target);
+
+                if (target instanceof EntityLivingBase) {
+                    EnchantmentHelper.applyThornEnchantments((EntityLivingBase) target, player);
+                }
+
+                EnchantmentHelper.applyArthropodEnchantments(player, target);
+
+                if (target instanceof EntityLivingBase) {
+                    final float damageDealt = initialHealth - ((EntityLivingBase) target).getHealth();
+                    player.addStat(StatList.DAMAGE_DEALT, Math.round(damageDealt * 10));
+
+                    if (burnTime > 0) {
+                        target.setFire(burnTime);
+                    }
+
+                    if (player.world instanceof WorldServer && damageDealt > 2) {
+                        int k = (int) ((double) damageDealt * 0.5);
+                        ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, target.posX, target.posY + target.height * 0.5, target.posZ, k, 0.1, 0, 0.1, 0.2);
+                    }
+                }
+            }
+        } else {
+            if (burnTime > 0) {
+                target.extinguish();
+            }
+        }
     }
 }
