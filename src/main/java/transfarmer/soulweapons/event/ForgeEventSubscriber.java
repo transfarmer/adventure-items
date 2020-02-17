@@ -297,8 +297,6 @@ public class ForgeEventSubscriber {
             final String displayName;
             final SoulWeaponType weaponType;
             Entity source = event.getSource().getImmediateSource();
-            Main.LOGGER.error(source);
-            Main.LOGGER.error(trueSource);
 
             if (trueSource instanceof EntityPlayer) {
                 instance = trueSource.getCapability(CAPABILITY, null);

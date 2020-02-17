@@ -25,6 +25,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import transfarmer.soulweapons.Main;
 import transfarmer.soulweapons.capability.ISoulWeapon;
 import transfarmer.soulweapons.capability.SoulWeaponHelper;
+import transfarmer.soulweapons.capability.SoulWeaponProvider;
 
 import java.util.UUID;
 
@@ -69,6 +70,10 @@ public class EntitySoulDagger extends EntityArrow {
 
     @Override
     protected ItemStack getArrowStack() {
+        if (this.shootingEntity instanceof EntityPlayer) {
+            return SoulWeaponProvider.get(this.shootingEntity).getItemStack(DAGGER);
+        }
+
         return this.itemStack;
     }
 

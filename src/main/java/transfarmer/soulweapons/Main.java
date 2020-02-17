@@ -29,7 +29,7 @@ import static transfarmer.soulweapons.client.KeyBindings.WEAPON_MENU;
 public class Main {
     public static final String MODID = "soulweapons";
     public static final String NAME = "soul weapons";
-    public static final String VERSION = "1.8.2-beta";
+    public static final String VERSION = "1.8.3-beta";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
