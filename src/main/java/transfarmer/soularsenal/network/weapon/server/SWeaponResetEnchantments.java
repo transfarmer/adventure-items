@@ -1,0 +1,49 @@
+package transfarmer.soularsenal.network.weapon.server;
+
+import io.netty.buffer.ByteBuf;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import transfarmer.soularsenal.capability.weapon.ISoulWeapon;
+import transfarmer.soularsenal.data.weapon.SoulWeaponType;
+import transfarmer.soularsenal.network.weapon.client.CWeaponResetEnchantments;
+
+import static transfarmer.soularsenal.capability.weapon.SoulWeaponHelper.ENCHANTMENTS;
+import static transfarmer.soularsenal.capability.weapon.SoulWeaponProvider.CAPABILITY;
+import static transfarmer.soularsenal.data.weapon.SoulWeaponDatum.ENCHANTMENT_POINTS;
+import static transfarmer.soularsenal.data.weapon.SoulWeaponDatum.SPENT_ENCHANTMENT_POINTS;
+
+public class SWeaponResetEnchantments implements IMessage {
+    private int index;
+
+    public SWeaponResetEnchantments() {
+    }
+
+    public SWeaponResetEnchantments(final SoulWeaponType type) {
+        this.index = type.index;
+    }
+
+    @Override
+    public void fromBytes(final ByteBuf buffer) {
+        this.index = buffer.readInt();
+    }
+
+    @Override
+    public void toBytes(final ByteBuf buffer) {
+        buffer.writeInt(this.index);
+    }
+
+    public static final class Handler implements IMessageHandler<SWeaponResetEnchantments, IMessage> {
+        @Override
+        public IMessage onMessage(final SWeaponResetEnchantments message, final MessageContext context) {
+            final ISoulWeapon capability = context.getServerHandler().player.getCapability(CAPABILITY, null);
+            final SoulWeaponType type = SoulWeaponType.getType(message.index);
+
+            capability.addDatum(capability.getDatum(SPENT_ENCHANTMENT_POINTS, type), ENCHANTMENT_POINTS, type);
+            capability.setDatum(0, SPENT_ENCHANTMENT_POINTS, type);
+            capability.setEnchantments(new int[ENCHANTMENTS], type);
+
+            return new CWeaponResetEnchantments(type);
+        }
+    }
+}
