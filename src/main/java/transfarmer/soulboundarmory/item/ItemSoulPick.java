@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
@@ -64,7 +65,7 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
             final SoulToolType type = SoulToolType.getType(itemStack);
             final int xp = Math.round(blockState.getBlockHardness(world, blockPos));
 
-            if (capability.addDatum(xp, XP, type) && !world.isRemote) {
+            if (capability.addDatum(xp, XP, type) && !world.isRemote && FMLCommonHandler.instance().getSide().isClient()) {
                 entity.sendMessage(new TextComponentString(String.format(Mappings.MESSAGE_LEVEL_UP, itemStack.getDisplayName(), capability.getDatum(LEVEL, type))));
             }
         }

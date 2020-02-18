@@ -4,6 +4,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum;
@@ -17,6 +18,7 @@ import java.util.*;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.*;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute.*;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.*;
@@ -185,6 +187,7 @@ public class SoulWeapon implements ISoulWeapon {
         return enchantments;
     }
 
+    @SideOnly(CLIENT)
     @Override
     public String[] getTooltip(final SoulWeaponType type) {
         final NumberFormat FORMAT = DecimalFormat.getInstance();

@@ -1,7 +1,11 @@
 package transfarmer.soulboundarmory.i18n;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+
+@SideOnly(CLIENT)
 public class Mappings {
     public static final String SOUL_GREATSWORD_NAME = I18n.format("item.soulboundarmory.soulboundGreatsword");
     public static final String SOUL_SWORD_NAME = I18n.format("item.soulboundarmory.soulboundSword");
@@ -49,4 +53,6 @@ public class Mappings {
     public static final String MINING_LEVEL_IRON = I18n.format("miningLevel.soulboundarmory.iron");
     public static final String MINING_LEVEL_DIAMOND = I18n.format("miningLevel.soulboundarmory.diamond");
     public static final String MINING_LEVEL_OBSIDIAN = I18n.format("miningLevel.soulboundarmory.obsidian");
+
+    public static final String[] miningLevels = {MINING_LEVEL_COAL, MINING_LEVEL_IRON, MINING_LEVEL_DIAMOND, MINING_LEVEL_OBSIDIAN};
 }

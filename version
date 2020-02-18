@@ -51,4 +51,4 @@ def change_version(filename):
 
 
 change_version('build.gradle')
-change_version('src/main/java/transfarmer/soulweapons/Main.java')
+change_version('src/main/java/transfarmer/soulboundarmory/Main.java')

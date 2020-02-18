@@ -23,7 +23,6 @@ public class SoulToolHelper {
     public static final int ATTRIBUTES = 3;
     public static final int ENCHANTMENTS = 3;
     private static final String[][] skills = {{}};
-    private static final String[] miningLevels = {Mappings.MINING_LEVEL_COAL, Mappings.MINING_LEVEL_IRON, Mappings.MINING_LEVEL_DIAMOND, Mappings.MINING_LEVEL_OBSIDIAN};
     private static boolean datumEquality;
 
     public static boolean areEmpty(final int[][] data, final float[][] attributes, final int[][] enchantments) {
@@ -168,6 +167,6 @@ public class SoulToolHelper {
     }
 
     public static String[] getMiningLevels() {
-        return miningLevels;
+        return Mappings.miningLevels;
     }
 }
