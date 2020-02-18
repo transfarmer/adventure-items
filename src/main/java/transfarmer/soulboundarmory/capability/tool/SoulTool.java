@@ -29,7 +29,7 @@ public class SoulTool implements ISoulTool {
     private float[][] attributes = new float[SOUL_TOOLS][ATTRIBUTES];
     private int[][] enchantments = new int[SOUL_TOOLS][ENCHANTMENTS];
     private int boundSlot = -1;
-    private int currentTab;
+    private int currentTab = -1;
 
     @Override
     public void setStatistics(final int[][] data, final float[][] attributes, final int[][] enchantments) {

@@ -28,12 +28,13 @@ public class CToolData implements IMessage {
                      final int[][] data, final float[][] attributes, final int[][] enchantments) {
         if (type == null) {
             this.toolIndex = -1;
+            this.currentTab = -1;
+            this.boundSlot = -1;
         } else {
             this.toolIndex = type.index;
+            this.currentTab = currentTab;
+            this.boundSlot = boundSlot;
         }
-
-        this.currentTab = currentTab;
-        this.boundSlot = boundSlot;
 
         if (SoulToolHelper.areEmpty(data, attributes, enchantments)) return;
 
@@ -48,9 +49,9 @@ public class CToolData implements IMessage {
         this.boundSlot = buffer.readInt();
 
         SoulToolHelper.forEach(
-            (Integer toolIndex, Integer valueIndex) -> this.data[toolIndex][valueIndex] = buffer.readInt(),
-            (Integer toolIndex, Integer valueIndex) -> this.attributes[toolIndex][valueIndex] = buffer.readFloat(),
-            (Integer toolIndex, Integer valueIndex) -> this.enchantments[toolIndex][valueIndex] = buffer.readInt()
+            (final Integer toolIndex, final Integer valueIndex) -> this.data[toolIndex][valueIndex] = buffer.readInt(),
+            (final Integer toolIndex, final Integer valueIndex) -> this.attributes[toolIndex][valueIndex] = buffer.readFloat(),
+            (final Integer toolIndex, final Integer valueIndex) -> this.enchantments[toolIndex][valueIndex] = buffer.readInt()
         );
     }
 
@@ -60,16 +61,16 @@ public class CToolData implements IMessage {
         buffer.writeInt(this.boundSlot);
 
         SoulToolHelper.forEach(
-            (Integer toolIndex, Integer valueIndex) -> buffer.writeInt(this.data[toolIndex][valueIndex]),
-            (Integer toolIndex, Integer valueIndex) -> buffer.writeFloat(this.attributes[toolIndex][valueIndex]),
-            (Integer toolIndex, Integer valueIndex) -> buffer.writeInt(this.enchantments[toolIndex][valueIndex])
+            (final Integer toolIndex, final Integer valueIndex) -> buffer.writeInt(this.data[toolIndex][valueIndex]),
+            (final Integer toolIndex, final Integer valueIndex) -> buffer.writeFloat(this.attributes[toolIndex][valueIndex]),
+            (final Integer toolIndex, final Integer valueIndex) -> buffer.writeInt(this.enchantments[toolIndex][valueIndex])
         );
     }
 
     public static final class Handler implements IMessageHandler<CToolData, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(CToolData message, MessageContext context) {
+        public IMessage onMessage(final CToolData message, final MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 final ISoulTool instance = SoulToolProvider.get(Minecraft.getMinecraft().player);
 

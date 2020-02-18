@@ -48,9 +48,9 @@ public class CommonEventSubscriber {
                 } else if (SoulToolHelper.isSoulToolEquipped(player)) {
                     minecraft.displayGuiScreen(new SoulToolMenu());
                 } else if (ItemHelper.isItemEquipped(Items.WOODEN_SWORD, player)) {
-                    minecraft.displayGuiScreen(new SoulWeaponMenu(0));
+                    minecraft.displayGuiScreen(new SoulWeaponMenu());
                 } else if (ItemHelper.isItemEquipped(Items.WOODEN_PICKAXE, player)){
-                    minecraft.displayGuiScreen(new SoulToolMenu(0));
+                    minecraft.displayGuiScreen(new SoulToolMenu());
                 }
             }
         }

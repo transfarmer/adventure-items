@@ -36,8 +36,9 @@ import static transfarmer.soulboundarmory.data.tool.SoulToolEnchantment.*;
 
 @SideOnly(CLIENT)
 public class SoulToolMenu extends GuiScreen {
-    private final GuiButton[] tabs = new GuiButton[4];
+    private final GuiButton[] tabs = new GuiButton[3];
     private final GUIFactory guiFactory = new GUIFactory();
+    private final Renderer RENDERER = new Renderer();
     private final ISoulTool capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
     private final SoulToolType toolType = this.capability.getCurrentType();
 
@@ -58,30 +59,29 @@ public class SoulToolMenu extends GuiScreen {
                     ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
 
             this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, text));
-            this.tabs[1] = addButton(guiFactory.tabButton(17, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
-            this.tabs[2] = addButton(guiFactory.tabButton(18, 1, Mappings.MENU_BUTTON_ENCHANTMENTS));
-            this.tabs[3] = addButton(guiFactory.tabButton(19, 2, Mappings.MENU_BUTTON_SKILLS));
+            this.tabs[0] = addButton(guiFactory.tabButton(17, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
+            this.tabs[1] = addButton(guiFactory.tabButton(18, 1, Mappings.MENU_BUTTON_ENCHANTMENTS));
+            this.tabs[2] = addButton(guiFactory.tabButton(19, 2, Mappings.MENU_BUTTON_SKILLS));
             this.tabs[this.capability.getCurrentTab()].enabled = false;
         }
 
         switch (this.capability.getCurrentTab()) {
             case 0:
-                showConfirmation();
+                this.showAttributes();
                 break;
             case 1:
-                showAttributes();
+                this.showEnchantments();
                 break;
             case 2:
-                showEnchantments();
+                this.showSkills();
                 break;
             case 3:
-                showSkills();
-                break;
-            case 4:
-                showTraits();
+                this.showTraits();
+            default:
+                this.showConfirmation();
         }
 
-        addButton(guiFactory.centeredButton(3, 3 * height / 4, width / 8, "close"));
+        this.addButton(this.guiFactory.centeredButton(3, 3 * height / 4, width / 8, "close"));
     }
 
     private void showConfirmation() {
@@ -98,7 +98,7 @@ public class SoulToolMenu extends GuiScreen {
     }
 
     private void showAttributes() {
-        final GuiButton resetButton = this.addButton(guiFactory.resetButton(20));
+        final GuiButton resetButton = this.addButton(this.guiFactory.resetButton(20));
         final GuiButton[] removePointButtons = this.addRemovePointButtons(23, SoulToolHelper.ATTRIBUTES);
         final GuiButton[] addPointButtons = this.addAddPointButtons(4, SoulToolHelper.ATTRIBUTES, this.capability.getDatum(ATTRIBUTE_POINTS, this.toolType));
         resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.toolType) > 0;
@@ -143,42 +143,37 @@ public class SoulToolMenu extends GuiScreen {
         return buttons;
     }
 
-    private void showSkills() {
-    }
+    private void showSkills() {}
 
-    private void showTraits() {
-    }
+    private void showTraits() {}
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        final Renderer RENDERER = new Renderer();
-
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         switch (this.capability.getCurrentTab()) {
             case 0:
-                drawSelection(RENDERER, mouseX, mouseY);
+                this.drawAttributes(mouseX, mouseY);
                 break;
             case 1:
-                drawAttributes(RENDERER, mouseX, mouseY);
+                this.drawEnchantments(mouseX, mouseY);
                 break;
             case 2:
-                drawEnchantments(RENDERER, mouseX, mouseY);
-                break;
-            case 3:
-                drawSkills(RENDERER, mouseX, mouseY);
+                this.drawSkills(mouseX, mouseY);
+            default:
+                this.drawSelection(mouseX, mouseY);
         }
     }
 
-    private void drawSelection(final Renderer renderer, final int mouseX, final int mouseY) {
+    private void drawSelection(final int mouseX, final int mouseY) {
         if (!SoulToolHelper.hasSoulTool(this.mc.player)) {
             this.drawCenteredString(this.fontRenderer, Mappings.MENU_CONFIRMATION,
                     Math.round(width / 2F), 40, 0xFFFFFF);
         }
     }
 
-    private void drawAttributes(final Renderer renderer, final int mouseX, final int mouseY) {
+    private void drawAttributes(final int mouseX, final int mouseY) {
         final String efficiency = String.format("%s%s: %%s", Mappings.WEAPON_EFFICIENCY_FORMAT, Mappings.EFFICIENCY_NAME);
         final String harvestLevel = String.format("%s%s: %%s (%s)", Mappings.HARVEST_LEVEL_FORMAT, Mappings.HARVEST_LEVEL_NAME,
                 SoulToolHelper.getMiningLevels()[Math.min((int) this.capability.getAttribute(HARVEST_LEVEL, this.toolType), 3)]);
@@ -190,14 +185,14 @@ public class SoulToolMenu extends GuiScreen {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        renderer.drawMiddleAttribute(efficiency, capability.getEffectiveEfficiency(this.toolType), 0);
-        renderer.drawMiddleAttribute(reachDistance, capability.getEffectiveReachDistance(this.toolType), 1);
-        renderer.drawMiddleAttribute(harvestLevel, capability.getAttribute(HARVEST_LEVEL, this.toolType), 2);
+        this.RENDERER.drawMiddleAttribute(efficiency, capability.getEffectiveEfficiency(this.toolType), 0);
+        this.RENDERER.drawMiddleAttribute(reachDistance, capability.getEffectiveReachDistance(this.toolType), 1);
+        this.RENDERER.drawMiddleAttribute(harvestLevel, capability.getAttribute(HARVEST_LEVEL, this.toolType), 2);
 
         this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawEnchantments(final Renderer renderer, final int mouseX, final int mouseY) {
+    private void drawEnchantments(final int mouseX, final int mouseY) {
         final int points = this.capability.getDatum(ENCHANTMENT_POINTS, this.toolType);
 
         if (points > 0) {
@@ -205,14 +200,14 @@ public class SoulToolMenu extends GuiScreen {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.EFFICIENCY_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_EFFICIENCY_ENCHANTMENT, this.toolType)), 0);
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.FORTUNE_NAME, this.capability.getEnchantment(SOUL_FORTUNE, this.toolType)), 1);
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SILK_TOUCH_NAME, this.capability.getEnchantment(SOUL_SILK_TOUCH, this.toolType)), 2);
+        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.EFFICIENCY_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_EFFICIENCY_ENCHANTMENT, this.toolType)), 0);
+        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.FORTUNE_NAME, this.capability.getEnchantment(SOUL_FORTUNE, this.toolType)), 1);
+        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.SILK_TOUCH_NAME, this.capability.getEnchantment(SOUL_SILK_TOUCH, this.toolType)), 2);
 
         this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawSkills(final Renderer renderer, final int mouseX, final int mouseY) {
+    private void drawSkills(final int mouseX, final int mouseY) {
         for (int i = 0; i < capability.getDatum(SKILLS, this.toolType); i++) {
             this.drawCenteredString(this.fontRenderer, SoulToolHelper.getSkills()[capability.getCurrentType().index][i],
                     width / 2, (i + 2) * height / 16, 0xFFFFFF);
@@ -221,8 +216,7 @@ public class SoulToolMenu extends GuiScreen {
         this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawTraits(final Renderer renderer, final int mouseX, final int mouseY) {
-    }
+    private void drawTraits(final int mouseX, final int mouseY) {}
 
     private void drawXPBar(int mouseX, int mouseY) {
         final int barLeftX = (width - 182) / 2;
@@ -266,7 +260,7 @@ public class SoulToolMenu extends GuiScreen {
                         ? null : new SoulToolMenu();
 
                 if (screen == null) {
-                    this.capability.setCurrentTab(1);
+                    this.capability.setCurrentTab(0);
                     Main.CHANNEL.sendToServer(new SToolTab(this.capability.getCurrentTab()));
                 }
 
@@ -378,7 +372,7 @@ public class SoulToolMenu extends GuiScreen {
         final int dWheel;
 
         if ((dWheel = Mouse.getDWheel()) != 0 && SoulToolHelper.isSoulToolEquipped(this.mc.player)) {
-            this.mc.displayGuiScreen(new SoulToolMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 1, 3)));
+            this.mc.displayGuiScreen(new SoulToolMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, 2)));
         }
     }
 

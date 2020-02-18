@@ -24,6 +24,7 @@ import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolTooltipXPBar;
+import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.network.tool.client.CToolData;
@@ -181,9 +182,15 @@ public class ToolEventSubscriber {
         if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
             final ISoulTool capability = SoulToolProvider.get(event.getEntityPlayer());
             final IItemSoulTool item = (IItemSoulTool) event.getEntityPlayer().getHeldItemMainhand().getItem();
+            final SoulToolType type = capability.getCurrentType();
 
             if (item.isEffectiveAgainst(event.getState())) {
-                final float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType());
+                float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type);
+                final int efficiency = capability.getEnchantment(SoulToolEnchantment.SOUL_EFFICIENCY_ENCHANTMENT, type);
+
+                if (efficiency > 0) {
+                    newSpeed += 1 + efficiency * efficiency;
+                }
 
                 if (item.canHarvestBlock(event.getState(), event.getEntityPlayer())) {
                     event.setNewSpeed(newSpeed);
@@ -191,7 +198,7 @@ public class ToolEventSubscriber {
                     event.setNewSpeed(newSpeed / 2.5F);
                 }
             } else {
-                event.setNewSpeed((event.getOriginalSpeed() - 1 + capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType())) / 4);
+                event.setNewSpeed((event.getOriginalSpeed() - 1 + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type)) / 4);
             }
         }
     }
