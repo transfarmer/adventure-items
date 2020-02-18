@@ -7,20 +7,20 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
-import transfarmer.soulboundarmory.i18n.Mappings;
+import transfarmer.soulboundarmory.network.tool.client.CToolLevelupMessage;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
@@ -63,9 +63,8 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
             final SoulToolType type = SoulToolType.getType(itemStack);
             final int xp = Math.round(blockState.getBlockHardness(world, blockPos));
 
-            if (capability.addDatum(xp, XP, type) && !world.isRemote && FMLCommonHandler.instance().getSide().isClient()
-                    && Configuration.levelupNotifications) {
-                entity.sendMessage(new TextComponentString(String.format(Mappings.MESSAGE_LEVEL_UP, itemStack.getDisplayName(), capability.getDatum(LEVEL, type))));
+            if (capability.addDatum(xp, XP, type) && !world.isRemote && Configuration.levelupNotifications) {
+                Main.CHANNEL.sendTo(new CToolLevelupMessage(itemStack, capability.getDatum(LEVEL, type)), (EntityPlayerMP) entity);
             }
         }
 

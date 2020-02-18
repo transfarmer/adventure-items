@@ -179,10 +179,18 @@ public class ToolEventSubscriber {
     public static void onBreakSpeed(final BreakSpeed event) {
         if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
             final ISoulTool capability = SoulToolProvider.get(event.getEntityPlayer());
-            if (((IItemSoulTool) event.getEntityPlayer().getHeldItemMainhand().getItem()).isEffectiveAgainst(event.getState())) {
-                event.setNewSpeed(event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType()));
+            final IItemSoulTool item = (IItemSoulTool) event.getEntityPlayer().getHeldItemMainhand().getItem();
+
+            if (item.isEffectiveAgainst(event.getState())) {
+                final float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType());
+
+                if (item.canHarvestBlock(event.getState(), event.getEntityPlayer())) {
+                    event.setNewSpeed(newSpeed);
+                } else {
+                    event.setNewSpeed(newSpeed / 2.5F);
+                }
             } else {
-                event.setNewSpeed(event.getOriginalSpeed() - 1 + capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType()) / 2);
+                event.setNewSpeed((event.getOriginalSpeed() - 1 + capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType())) / 4);
             }
         }
     }
