@@ -55,7 +55,7 @@ public class SoulToolMenu extends GuiScreen {
     public void initGui() {
         if (this.mc.player.getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
             final String text = this.mc.player.inventory.currentItem != capability.getBoundSlot()
-                ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
+                    ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
 
             this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, text));
             this.tabs[1] = addButton(guiFactory.tabButton(17, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
@@ -143,9 +143,11 @@ public class SoulToolMenu extends GuiScreen {
         return buttons;
     }
 
-    private void showSkills() {}
+    private void showSkills() {
+    }
 
-    private void showTraits() {}
+    private void showTraits() {
+    }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -172,7 +174,7 @@ public class SoulToolMenu extends GuiScreen {
     private void drawSelection(final Renderer renderer, final int mouseX, final int mouseY) {
         if (!SoulToolHelper.hasSoulTool(this.mc.player)) {
             this.drawCenteredString(this.fontRenderer, Mappings.MENU_CONFIRMATION,
-                Math.round(width / 2F), 40, 0xFFFFFF);
+                    Math.round(width / 2F), 40, 0xFFFFFF);
         }
     }
 
@@ -185,7 +187,7 @@ public class SoulToolMenu extends GuiScreen {
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
-                Math.round(width / 2F), 4, 0xFFFFFF);
+                    Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
         renderer.drawMiddleAttribute(efficiency, capability.getEffectiveEfficiency(this.toolType), 0);
@@ -200,7 +202,7 @@ public class SoulToolMenu extends GuiScreen {
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
-                Math.round(width / 2F), 4, 0xFFFFFF);
+                    Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
         renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.EFFICIENCY_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_EFFICIENCY_ENCHANTMENT, this.toolType)), 0);
@@ -213,13 +215,14 @@ public class SoulToolMenu extends GuiScreen {
     private void drawSkills(final Renderer renderer, final int mouseX, final int mouseY) {
         for (int i = 0; i < capability.getDatum(SKILLS, this.toolType); i++) {
             this.drawCenteredString(this.fontRenderer, SoulToolHelper.getSkills()[capability.getCurrentType().index][i],
-                width / 2, (i + 2) * height / 16, 0xFFFFFF);
+                    width / 2, (i + 2) * height / 16, 0xFFFFFF);
         }
 
         this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawTraits(final Renderer renderer, final int mouseX, final int mouseY) {}
+    private void drawTraits(final Renderer renderer, final int mouseX, final int mouseY) {
+    }
 
     private void drawXPBar(int mouseX, int mouseY) {
         final int barLeftX = (width - 182) / 2;
@@ -242,25 +245,25 @@ public class SoulToolMenu extends GuiScreen {
         this.fontRenderer.drawString(levelString, levelLeftX, levelTopY, 0xEC00B8);
 
         if (mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
-            && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT) {
+                && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT) {
             this.drawHoveringText(String.format("%d/%d", capability.getDatum(LEVEL, this.toolType), Configuration.maxLevel), mouseX, mouseY);
         } else if (mouseX >= (width - 182) / 2 && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4) {
             final String string = this.capability.getDatum(LEVEL, this.toolType) < Configuration.maxLevel
-                ? String.format("%d/%d", capability.getDatum(XP, this.toolType), capability.getNextLevelXP(this.toolType))
-                : String.format("%d", capability.getDatum(XP, this.toolType));
+                    ? String.format("%d/%d", capability.getDatum(XP, this.toolType), capability.getNextLevelXP(this.toolType))
+                    : String.format("%d", capability.getDatum(XP, this.toolType));
             this.drawHoveringText(string, mouseX, mouseY);
         }
     }
 
     @Override
-    public void actionPerformed(GuiButton button) {
+    public void actionPerformed(final GuiButton button) {
         switch (button.id) {
             case 0:
             case 1:
             case 2:
                 final SoulToolType type = SoulToolType.getType(button.id);
                 final GuiScreen screen = !SoulToolHelper.hasSoulTool(this.mc.player)
-                    ? null : new SoulToolMenu();
+                        ? null : new SoulToolMenu();
 
                 if (screen == null) {
                     this.capability.setCurrentTab(1);
@@ -366,18 +369,16 @@ public class SoulToolMenu extends GuiScreen {
 
     @Override
     public void handleMouseInput() {
-        if (this.toolType != null) {
-            try {
-                super.handleMouseInput();
-            } catch (final IOException exception) {
-                exception.printStackTrace();
-            }
+        try {
+            super.handleMouseInput();
+        } catch (final IOException exception) {
+            exception.printStackTrace();
+        }
 
-            final int dWheel;
+        final int dWheel;
 
-            if ((dWheel = Mouse.getDWheel()) != 0) {
-                this.mc.displayGuiScreen(new SoulToolMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 1, 3)));
-            }
+        if ((dWheel = Mouse.getDWheel()) != 0 && SoulToolHelper.isSoulToolEquipped(this.mc.player)) {
+            this.mc.displayGuiScreen(new SoulToolMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 1, 3)));
         }
     }
 

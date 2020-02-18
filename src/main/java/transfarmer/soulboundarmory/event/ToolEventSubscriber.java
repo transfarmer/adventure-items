@@ -125,6 +125,12 @@ public class ToolEventSubscriber {
                             if (instance.getBoundSlot() != -1) {
                                 instance.bindSlot(index);
                             }
+
+                            continue;
+                        }
+
+                        if (!event.player.isCreative() && index != firstSlot) {
+                            inventory.deleteStack(itemStack);
                         }
                     }
                 }

@@ -16,9 +16,7 @@ import transfarmer.soulboundarmory.network.tool.client.CToolType;
 public class SToolType implements IMessage {
     private int index;
 
-    public SToolType() {
-        this.index = -1;
-    }
+    public SToolType() {}
 
     public SToolType(final SoulToolType ToolType) {
         this.index = ToolType.index;
@@ -49,19 +47,7 @@ public class SToolType implements IMessage {
                 SoulToolHelper.removeSoulTools(player);
             }
 
-            if (slot >= 0) {
-                final ItemStack boundSlotItem = player.inventory.getStackInSlot(slot);
-
-                if (boundSlotItem.getItem() != Items.AIR && !SoulToolHelper.isSoulTool(boundSlotItem)) {
-                    slot = -1;
-                }
-            }
-
-            if (slot < 0) {
-                slot = player.inventory.getFirstEmptyStack();
-            }
-
-            player.inventory.setInventorySlotContents(slot, new ItemStack(instance.getCurrentType().getItem()));
+            SoulToolHelper.addItemStack(new ItemStack(instance.getCurrentType().getItem()), player);
 
             return new CToolType(slot, toolType);
         }

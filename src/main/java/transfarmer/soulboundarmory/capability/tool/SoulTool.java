@@ -55,7 +55,7 @@ public class SoulTool implements ISoulTool {
 
     @Override
     public int getDatum(final SoulToolDatum datum, final SoulToolType type) {
-        return this.data[type.index][datum.index];
+        return type == null ? null : this.data[type.index][datum.index];
     }
 
     @Override
