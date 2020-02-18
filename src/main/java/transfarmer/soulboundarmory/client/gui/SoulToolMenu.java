@@ -19,6 +19,7 @@ import transfarmer.soulboundarmory.data.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
 import transfarmer.soulboundarmory.i18n.Mappings;
+import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.network.tool.server.*;
 import transfarmer.util.ItemHelper;
 
@@ -28,13 +29,14 @@ import java.text.NumberFormat;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.ResourceLocations.Client.XP_BAR;
-import static transfarmer.soulboundarmory.data.tool.SoulToolAttribute.*;
+import static transfarmer.soulboundarmory.data.tool.SoulToolAttribute.HARVEST_LEVEL;
+import static transfarmer.soulboundarmory.data.tool.SoulToolAttribute.getAttribute;
 import static transfarmer.soulboundarmory.data.tool.SoulToolDatum.*;
 import static transfarmer.soulboundarmory.data.tool.SoulToolEnchantment.*;
 
 @SideOnly(CLIENT)
 public class SoulToolMenu extends GuiScreen {
-    private final GuiButton[] tabs = new GuiButton[3];
+    private final GuiButton[] tabs = new GuiButton[4];
     private final GUIFactory guiFactory = new GUIFactory();
     private final ISoulTool capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
     private final SoulToolType toolType = this.capability.getCurrentType();
@@ -51,37 +53,38 @@ public class SoulToolMenu extends GuiScreen {
 
     @Override
     public void initGui() {
-        if (this.capability.getCurrentType() != null) {
+        if (this.mc.player.getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
             final String text = this.mc.player.inventory.currentItem != capability.getBoundSlot()
                 ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
 
             this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, text));
-            this.tabs[0] = addButton(guiFactory.tabButton(17, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
-            this.tabs[1] = addButton(guiFactory.tabButton(18, 1, Mappings.MENU_BUTTON_ENCHANTMENTS));
-            this.tabs[2] = addButton(guiFactory.tabButton(19, 2, Mappings.MENU_BUTTON_SKILLS));
+            this.tabs[1] = addButton(guiFactory.tabButton(17, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
+            this.tabs[2] = addButton(guiFactory.tabButton(18, 1, Mappings.MENU_BUTTON_ENCHANTMENTS));
+            this.tabs[3] = addButton(guiFactory.tabButton(19, 2, Mappings.MENU_BUTTON_SKILLS));
             this.tabs[this.capability.getCurrentTab()].enabled = false;
-
-            Mouse.getDWheel();
         }
 
         switch (this.capability.getCurrentTab()) {
             case 0:
-                showAttributes();
+                showConfirmation();
                 break;
             case 1:
-                showEnchantments();
+                showAttributes();
                 break;
             case 2:
-                showSkills();
+                showEnchantments();
                 break;
             case 3:
+                showSkills();
+                break;
+            case 4:
                 showTraits();
         }
 
         addButton(guiFactory.centeredButton(3, 3 * height / 4, width / 8, "close"));
     }
 
-    private void showTools() {
+    private void showConfirmation() {
         final int buttonWidth = 128;
         final int buttonHeight = 20;
         final int xCenter = (width - buttonWidth) / 2;
@@ -89,9 +92,7 @@ public class SoulToolMenu extends GuiScreen {
         final int ySep = 32;
         final GuiButton choiceButton = this.addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_PICK_NAME));
 
-        if (SoulToolHelper.hasSoulTool(this.mc.player)) {
-            choiceButton.enabled = false;
-        } else if (this.capability.getCurrentType() != null && !ItemHelper.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
+        if (SoulToolHelper.hasSoulTool(this.mc.player) || !ItemHelper.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
             choiceButton.enabled = false;
         }
     }
@@ -155,12 +156,15 @@ public class SoulToolMenu extends GuiScreen {
 
         switch (this.capability.getCurrentTab()) {
             case 0:
-                drawAttributes(RENDERER, mouseX, mouseY);
+                drawSelection(RENDERER, mouseX, mouseY);
                 break;
             case 1:
-                drawEnchantments(RENDERER, mouseX, mouseY);
+                drawAttributes(RENDERER, mouseX, mouseY);
                 break;
             case 2:
+                drawEnchantments(RENDERER, mouseX, mouseY);
+                break;
+            case 3:
                 drawSkills(RENDERER, mouseX, mouseY);
         }
     }
@@ -303,8 +307,7 @@ public class SoulToolMenu extends GuiScreen {
             case 17:
             case 18:
             case 19:
-                final int tab = button.id - 16;
-                this.mc.displayGuiScreen(new SoulToolMenu(tab));
+                this.mc.displayGuiScreen(new SoulToolMenu(button.id - 16));
                 break;
             case 20:
                 Main.CHANNEL.sendToServer(new SToolResetAttributes(this.toolType));
@@ -363,16 +366,18 @@ public class SoulToolMenu extends GuiScreen {
 
     @Override
     public void handleMouseInput() {
-        try {
-            super.handleMouseInput();
-        } catch (final IOException exception) {
-            exception.printStackTrace();
-        }
+        if (this.toolType != null) {
+            try {
+                super.handleMouseInput();
+            } catch (final IOException exception) {
+                exception.printStackTrace();
+            }
 
-        final int dWheel;
+            final int dWheel;
 
-        if ((dWheel = Mouse.getDWheel()) != 0) {
-            this.mc.displayGuiScreen(new SoulToolMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, 2)));
+            if ((dWheel = Mouse.getDWheel()) != 0) {
+                this.mc.displayGuiScreen(new SoulToolMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 1, 3)));
+            }
         }
     }
 

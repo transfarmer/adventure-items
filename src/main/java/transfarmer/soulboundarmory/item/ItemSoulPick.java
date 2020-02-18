@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.item;
 
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -16,14 +15,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
 import transfarmer.soulboundarmory.i18n.Mappings;
 
-import java.util.Set;
-
+import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static transfarmer.soulboundarmory.data.tool.SoulToolAttribute.HARVEST_LEVEL;
 import static transfarmer.soulboundarmory.data.tool.SoulToolDatum.LEVEL;
@@ -32,7 +31,6 @@ import static transfarmer.soulboundarmory.data.tool.SoulToolType.PICK;
 
 public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
     private final float reachDistance;
-    private static final Set<Block> EFFECTIVE_ON = Sets.newHashSet(Blocks.ACTIVATOR_RAIL, Blocks.COAL_ORE, Blocks.COBBLESTONE, Blocks.DETECTOR_RAIL, Blocks.DIAMOND_BLOCK, Blocks.DIAMOND_ORE, Blocks.DOUBLE_STONE_SLAB, Blocks.GOLDEN_RAIL, Blocks.GOLD_BLOCK, Blocks.GOLD_ORE, Blocks.ICE, Blocks.IRON_BLOCK, Blocks.IRON_ORE, Blocks.LAPIS_BLOCK, Blocks.LAPIS_ORE, Blocks.LIT_REDSTONE_ORE, Blocks.MOSSY_COBBLESTONE, Blocks.NETHERRACK, Blocks.PACKED_ICE, Blocks.RAIL, Blocks.REDSTONE_ORE, Blocks.SANDSTONE, Blocks.RED_SANDSTONE, Blocks.STONE, Blocks.STONE_SLAB, Blocks.STONE_BUTTON, Blocks.STONE_PRESSURE_PLATE);
 
     public ItemSoulPick() {
         super(ToolMaterial.DIAMOND);
@@ -65,7 +63,8 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
             final SoulToolType type = SoulToolType.getType(itemStack);
             final int xp = Math.round(blockState.getBlockHardness(world, blockPos));
 
-            if (capability.addDatum(xp, XP, type) && !world.isRemote && FMLCommonHandler.instance().getSide().isClient()) {
+            if (capability.addDatum(xp, XP, type) && !world.isRemote && FMLCommonHandler.instance().getSide().isClient()
+                    && Configuration.levelupNotifications) {
                 entity.sendMessage(new TextComponentString(String.format(Mappings.MESSAGE_LEVEL_UP, itemStack.getDisplayName(), capability.getDatum(LEVEL, type))));
             }
         }
@@ -87,7 +86,7 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
     public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot) {
         final Multimap<String, AttributeModifier> attributeModifiers = super.getItemAttributeModifiers(equipmentSlot);
 
-        if (equipmentSlot == EntityEquipmentSlot.MAINHAND) {
+        if (equipmentSlot == MAINHAND) {
             attributeModifiers.put(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulToolHelper.REACH_DISTANCE_UUID, "generic.reachDistance", this.reachDistance, ADD));
         }
 
