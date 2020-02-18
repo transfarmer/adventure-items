@@ -12,8 +12,8 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 
 version = "2.0.0-beta"
-group = "transfarmer.soulweapons" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "soulweapons"
+group = "transfarmer.soulboundarmory" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "soulboundarmory"
 
 sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 compileJava {
