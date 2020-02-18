@@ -123,8 +123,9 @@ public class WeaponEventSubscriber {
     public static void onPlayerDrops(final PlayerDropsEvent event) {
         final EntityPlayer player = event.getEntityPlayer();
         final ISoulWeapon capability = SoulWeaponProvider.get(player);
+        final SoulWeaponType type = capability.getCurrentType();
 
-        if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
+        if (type != null && capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
                 && !player.world.getGameRules().getBoolean("keepInventory")) {
 
             event.getDrops().removeIf((EntityItem item) -> SoulWeaponHelper.isSoulWeapon(item.getItem()));

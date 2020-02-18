@@ -225,10 +225,6 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getDatum(SoulWeaponDatum datum, SoulWeaponType type) {
-        if (type == null) {
-            return -1;
-        }
-
         return this.data[type.index][datum.index];
     }
 
