@@ -53,10 +53,11 @@ public class ToolEventSubscriber {
         updatePlayer(event.player);
 
         final ISoulTool capability = SoulToolProvider.get(event.player);
+        final SoulToolType type = capability.getCurrentType();
 
-        if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
+        if (type != null && capability.getDatum(LEVEL, type) >= Configuration.preservationLevel
                 && !event.player.world.getGameRules().getBoolean("keepInventory")) {
-            event.player.addItemStackToInventory(capability.getItemStack(capability.getCurrentType()));
+            event.player.addItemStackToInventory(capability.getItemStack(type));
         }
     }
 
@@ -88,11 +89,11 @@ public class ToolEventSubscriber {
     public static void onPlayerDrops(final PlayerDropsEvent event) {
         final EntityPlayer player = event.getEntityPlayer();
         final ISoulTool capability = SoulToolProvider.get(player);
+        final SoulToolType type = capability.getCurrentType();
 
-        if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
+        if (type != null && capability.getDatum(LEVEL, type) >= Configuration.preservationLevel
                 && !player.world.getGameRules().getBoolean("keepInventory")) {
-
-            event.getDrops().removeIf((EntityItem item) -> SoulToolHelper.isSoulTool(item.getItem()));
+            event.getDrops().removeIf((final EntityItem item) -> SoulToolHelper.isSoulTool(item.getItem()));
         }
     }
 
