@@ -70,7 +70,6 @@ public class Main {
         CHANNEL.registerMessage(SToolResetEnchantments.Handler.class, SToolResetEnchantments.class, id++, SERVER);
         CHANNEL.registerMessage(SToolBindSlot.Handler.class, SToolBindSlot.class, id++, SERVER);
 
-        CHANNEL.registerMessage(CToolType.Handler.class, CToolType.class, id++, CLIENT);
         CHANNEL.registerMessage(CToolSpendAttributePoints.Handler.class, CToolSpendAttributePoints.class, id++, CLIENT);
         CHANNEL.registerMessage(CToolSpendEnchantmentPoints.Handler.class, CToolSpendEnchantmentPoints.class, id++, CLIENT);
         CHANNEL.registerMessage(CToolResetAttributes.Handler.class, CToolResetAttributes.class, id++, CLIENT);

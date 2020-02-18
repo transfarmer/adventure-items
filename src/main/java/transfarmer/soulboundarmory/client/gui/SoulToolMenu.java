@@ -253,8 +253,6 @@ public class SoulToolMenu extends GuiScreen {
     public void actionPerformed(final GuiButton button) {
         switch (button.id) {
             case 0:
-            case 1:
-            case 2:
                 final SoulToolType type = SoulToolType.getType(button.id);
                 final GuiScreen screen = !SoulToolHelper.hasSoulTool(this.mc.player)
                         ? null : new SoulToolMenu();

@@ -6,9 +6,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
@@ -17,23 +15,18 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.client.gui.SoulToolTooltipXPBar;
 import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.network.tool.client.CToolData;
 
-import java.util.List;
-
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.data.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.data.tool.SoulToolDatum.LEVEL;
 
@@ -200,41 +193,6 @@ public class ToolEventSubscriber {
             } else {
                 event.setNewSpeed((event.getOriginalSpeed() - 1 + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type)) / 4);
             }
-        }
-    }
-
-    @SideOnly(CLIENT)
-    @SubscribeEvent
-    public static void onItemTooltip(final ItemTooltipEvent event) {
-        final EntityPlayer player = event.getEntityPlayer();
-
-        if (player != null) {
-            final ISoulTool instance = SoulToolProvider.get(player);
-
-            if (event.getItemStack().getItem() instanceof IItemSoulTool) {
-                final SoulToolType weaponType = SoulToolType.getType(event.getItemStack());
-                final List<String> tooltip = event.getToolTip();
-                final String[] newTooltip = instance.getTooltip(weaponType);
-                final int enchantments = event.getItemStack().getEnchantmentTagList().tagCount();
-
-                tooltip.remove(5 + enchantments);
-                tooltip.remove(4 + enchantments);
-                tooltip.remove(3 + enchantments);
-
-                for (int i = 0; i < newTooltip.length; i++) {
-                    tooltip.add(3 + enchantments + i, newTooltip[i]);
-                }
-            }
-        }
-    }
-
-    @SideOnly(CLIENT)
-    @SubscribeEvent
-    public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
-        final SoulToolType tooltipTool = SoulToolType.getType(event.getStack());
-
-        if (tooltipTool != null) {
-            new SoulToolTooltipXPBar(tooltipTool, event.getX(), event.getY(), event.getStack().getEnchantmentTagList().tagCount());
         }
     }
 }

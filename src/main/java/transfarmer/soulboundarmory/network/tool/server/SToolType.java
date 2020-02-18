@@ -2,7 +2,6 @@ package transfarmer.soulboundarmory.network.tool.server;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -11,45 +10,41 @@ import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
-import transfarmer.soulboundarmory.network.tool.client.CToolType;
 
 public class SToolType implements IMessage {
     private int index;
 
     public SToolType() {}
 
-    public SToolType(final SoulToolType ToolType) {
-        this.index = ToolType.index;
+    public SToolType(final SoulToolType type) {
+        this.index = type.index;
     }
 
     @Override
-    public void fromBytes(ByteBuf buf) {
-        this.index = buf.readInt();
+    public void fromBytes(final ByteBuf buffer) {
+        this.index = buffer.readInt();
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {
-        buf.writeInt(index);
+    public void toBytes(final ByteBuf buffer) {
+        buffer.writeInt(this.index);
     }
 
     public static final class Handler implements IMessageHandler<SToolType, IMessage> {
         @Override
-        public IMessage onMessage(SToolType message, MessageContext context) {
+        public IMessage onMessage(final SToolType message, final MessageContext context) {
             final SoulToolType toolType = SoulToolType.getType(message.index);
             final EntityPlayerMP player = context.getServerHandler().player;
             final ISoulTool instance = SoulToolProvider.get(player);
-            int slot = instance.getBoundSlot();
             instance.setCurrentType(toolType);
 
             if (!SoulToolHelper.hasSoulTool(player)) {
-                player.inventory.clearMatchingItems(Items.WOODEN_PICKAXE, -1, 37, null);
-            } else {
-                SoulToolHelper.removeSoulTools(player);
+                player.inventory.deleteStack(player.getHeldItemMainhand());
             }
 
             SoulToolHelper.addItemStack(new ItemStack(instance.getCurrentType().getItem()), player);
 
-            return new CToolType(slot, toolType);
+            return null;
         }
     }
 }

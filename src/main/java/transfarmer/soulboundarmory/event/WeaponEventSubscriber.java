@@ -16,14 +16,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
@@ -32,13 +30,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.client.gui.SoulWeaponTooltipXPBar;
 import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
@@ -46,7 +42,6 @@ import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.network.weapon.client.CWeaponData;
 import transfarmer.soulboundarmory.network.weapon.client.CWeaponDatum;
 
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -55,13 +50,13 @@ import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedD
 import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Configuration.levelupNotifications;
 import static transfarmer.soulboundarmory.Configuration.multipliers;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute.*;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.LEVEL;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.XP;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.*;
+import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.DAGGER;
+import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.SWORD;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class WeaponEventSubscriber {
@@ -352,79 +347,6 @@ public class WeaponEventSubscriber {
         if (entity instanceof EntityLightningBolt && !(entity instanceof EntitySoulLightningBolt)
                 && !entity.writeToNBT(new NBTTagCompound()).getUniqueId("casterUUID").equals(new UUID(0, 0))) {
             event.setCanceled(true);
-        }
-    }
-
-    /*
-    @SideOnly(CLIENT)
-    @SubscribeEvent
-    public static void onLeftClickEmpty(final LeftClickEmpty event) {
-        final Minecraft minecraft = Minecraft.getMinecraft();
-        Client.ENTITY_RENDERER.getMouseOver(1, ((ItemSoulWeapon) event.getItemStack().getItem()).getReachDistance());
-
-        if (event.getItemStack().getItem() instanceof ItemSoulWeapon) {
-            final EntityPlayer player = event.getEntityPlayer();
-            final Entity target = minecraft.pointedEntity;
-
-            if (target instanceof EntityItem || target instanceof EntityXPOrb || target instanceof EntityArrow || target == player) {
-                player.getServer().logWarning("Player " + player.getName() + " tried to attack an invalid entity");
-                return;
-            }
-
-            if (target != null) {
-                Main.CHANNEL.sendToServer(new SExtendedAttack(target));
-                player.sendMessage(new TextComponentString("" + player.getPositionEyes(1).distanceTo(target.getPositionVector())));
-            }
-
-            if (minecraft.objectMouseOver != null) {
-                Main.LOGGER.error(minecraft.objectMouseOver);
-                Main.LOGGER.error(player.getPositionEyes(1).distanceTo(minecraft.objectMouseOver.hitVec));
-            }
-        }
-
-        if (minecraft.pointedEntity != null) {
-            Main.LOGGER.error("nonnull entity");
-        } else {
-            Main.LOGGER.error("null entity");
-        }
-    }
-    */
-
-    @SideOnly(CLIENT)
-    @SubscribeEvent
-    public static void onItemTooltip(final ItemTooltipEvent event) {
-        final EntityPlayer player = event.getEntityPlayer();
-
-        if (player != null) {
-            final ISoulWeapon instance = SoulWeaponProvider.get(player);
-
-            if (SoulWeaponType.getItems().contains(event.getItemStack().getItem())) {
-                final SoulWeaponType weaponType = SoulWeaponType.getType(event.getItemStack());
-                final List<String> tooltip = event.getToolTip();
-                final String[] newTooltip = instance.getTooltip(weaponType);
-                final int enchantments = event.getItemStack().getEnchantmentTagList().tagCount();
-
-                if (weaponType == GREATSWORD || weaponType == SWORD) {
-                    tooltip.remove(5 + enchantments);
-                }
-
-                tooltip.remove(4 + enchantments);
-                tooltip.remove(3 + enchantments);
-
-                for (int i = 0; i < newTooltip.length; i++) {
-                    tooltip.add(3 + enchantments + i, newTooltip[i]);
-                }
-            }
-        }
-    }
-
-    @SideOnly(CLIENT)
-    @SubscribeEvent
-    public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
-        final SoulWeaponType tooltipWeapon = SoulWeaponType.getType(event.getStack());
-
-        if (tooltipWeapon != null) {
-            new SoulWeaponTooltipXPBar(tooltipWeapon, event.getX(), event.getY(), event.getStack().getEnchantmentTagList().tagCount());
         }
     }
 }
