@@ -56,7 +56,7 @@ public class ToolEventSubscriber {
         final ISoulTool capability = SoulToolProvider.get(event.player);
         final SoulToolType type = capability.getCurrentType();
 
-        if (type != null && capability.getDatum(LEVEL, type) >= Configuration.preservationLevel
+        if (type != null && capability != null && capability.getDatum(LEVEL, type) >= Configuration.preservationLevel
                 && !event.player.world.getGameRules().getBoolean("keepInventory")) {
             event.player.addItemStackToInventory(capability.getItemStack(type));
         }

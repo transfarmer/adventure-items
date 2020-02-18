@@ -59,9 +59,9 @@ public class SoulToolMenu extends GuiScreen {
                     ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
 
             this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, text));
-            this.tabs[0] = addButton(guiFactory.tabButton(17, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
-            this.tabs[1] = addButton(guiFactory.tabButton(18, 1, Mappings.MENU_BUTTON_ENCHANTMENTS));
-            this.tabs[2] = addButton(guiFactory.tabButton(19, 2, Mappings.MENU_BUTTON_SKILLS));
+            this.tabs[0] = addButton(guiFactory.tabButton(16, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
+            this.tabs[1] = addButton(guiFactory.tabButton(17, 1, Mappings.MENU_BUTTON_ENCHANTMENTS));
+            this.tabs[2] = addButton(guiFactory.tabButton(18, 2, Mappings.MENU_BUTTON_SKILLS));
             this.tabs[this.capability.getCurrentTab()].enabled = false;
         }
 

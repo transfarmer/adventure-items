@@ -37,7 +37,6 @@ public class SoulToolProvider implements ICapabilitySerializable<NBTBase> {
         CAPABILITY.getStorage().readNBT(CAPABILITY, instance, null, nbt);
     }
 
-    @Nonnull
     public static ISoulTool get(final Entity entity) {
         return entity.getCapability(CAPABILITY, null);
     }
