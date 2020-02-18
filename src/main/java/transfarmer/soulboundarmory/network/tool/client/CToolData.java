@@ -2,6 +2,7 @@ package transfarmer.soulboundarmory.network.tool.client;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -31,8 +32,8 @@ public class CToolData implements IMessage {
             this.currentTab = -1;
             this.boundSlot = -1;
         } else {
-            this.toolIndex = type.index;
-            this.currentTab = currentTab;
+            this.toolIndex = MathHelper.clamp(type.index, 0, SOUL_TOOLS);
+            this.currentTab = MathHelper.clamp(currentTab, 0, 2);
             this.boundSlot = boundSlot;
         }
 
