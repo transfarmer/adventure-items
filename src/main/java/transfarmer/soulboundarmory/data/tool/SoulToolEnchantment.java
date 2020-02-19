@@ -35,15 +35,19 @@ public enum SoulToolEnchantment implements IEnchantment {
         return super.toString().toLowerCase();
     }
 
-    public static SoulToolEnchantment[] getEnchantments() {
-        return ENCHANTMENTS;
+    public static String getName(final int index) {
+        return getEnchantment(index).toString();
     }
 
     public static SoulToolEnchantment getEnchantment(final int index) {
         return ENCHANTMENTS[index];
     }
 
-    public static String getName(final int index) {
-        return getEnchantment(index).toString();
+    public static SoulToolEnchantment[] getEnchantments() {
+        return ENCHANTMENTS;
+    }
+
+    public static int getAmount() {
+        return ENCHANTMENTS.length;
     }
 }

@@ -22,6 +22,10 @@ public enum SoulWeaponEnchantment implements IEnchantment {
         this.enchantment = enchantment;
     }
 
+    public static int getAmount() {
+        return ENCHANTMENTS.length;
+    }
+
     @Override
     public int getIndex() {
         return this.index;

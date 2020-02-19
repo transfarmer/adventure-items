@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +18,7 @@ import transfarmer.soulboundarmory.capability.tool.SoulToolStorage;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponStorage;
+import transfarmer.soulboundarmory.command.CommandSoulboundArmory;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.network.client.tool.*;
@@ -84,5 +86,10 @@ public class Main {
             RenderingRegistry.registerEntityRenderingHandler(EntitySoulDagger.class, new RenderSoulDagger.RenderFactory());
             RenderingRegistry.registerEntityRenderingHandler(EntityReachModifier.class, new RenderReachModifier.RenderFactory());
         }
+    }
+
+    @EventHandler
+    public static void onFMLServerStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandSoulboundArmory());
     }
 }

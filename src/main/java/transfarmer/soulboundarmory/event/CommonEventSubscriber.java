@@ -94,25 +94,32 @@ public class CommonEventSubscriber {
     }
 
     private static void updatePlayer(final EntityPlayer player) {
-        final ISoulWeapon weaponCapability = SoulWeaponProvider.get(player);
-        final ISoulTool toolCapability = SoulToolProvider.get(player);
+        if (player != null) {
+            final ISoulWeapon weaponCapability = SoulWeaponProvider.get(player);
+            final ISoulTool toolCapability = SoulToolProvider.get(player);
 
-        Main.CHANNEL.sendTo(new CWeaponData(weaponCapability.getCurrentType(),
-                weaponCapability.getCurrentTab(),
-                weaponCapability.getAttackCooldwn(),
-                weaponCapability.getBoundSlot(),
-                weaponCapability.getData(),
-                weaponCapability.getAttributes(),
-                weaponCapability.getEnchantments()), (EntityPlayerMP) player
-        );
-        Main.CHANNEL.sendTo(new CToolData(
-                toolCapability.getCurrentType(),
-                toolCapability.getCurrentTab(),
-                toolCapability.getBoundSlot(),
-                toolCapability.getData(),
-                toolCapability.getAttributes(),
-                toolCapability.getEnchantments()), (EntityPlayerMP) player
-        );
+            if (weaponCapability == null || toolCapability == null) {
+                throw new NullPointerException(String.format("weaponCapability: %s\ntoolCapability: %s", weaponCapability, toolCapability));
+            }
+
+            Main.CHANNEL.sendTo(new CWeaponData(player,
+                    weaponCapability.getCurrentType(),
+                    weaponCapability.getCurrentTab(),
+                    weaponCapability.getAttackCooldown(),
+                    weaponCapability.getBoundSlot(),
+                    weaponCapability.getData(),
+                    weaponCapability.getAttributes(),
+                    weaponCapability.getEnchantments()), (EntityPlayerMP) player
+            );
+            Main.CHANNEL.sendTo(new CToolData(player,
+                    toolCapability.getCurrentType(),
+                    toolCapability.getCurrentTab(),
+                    toolCapability.getBoundSlot(),
+                    toolCapability.getData(),
+                    toolCapability.getAttributes(),
+                    toolCapability.getEnchantments()), (EntityPlayerMP) player
+            );
+        }
     }
 
     @SubscribeEvent

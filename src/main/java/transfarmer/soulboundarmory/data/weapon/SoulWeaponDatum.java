@@ -11,7 +11,7 @@ public enum SoulWeaponDatum implements IDatum {
     SPENT_ENCHANTMENT_POINTS(5),
     SKILLS(6);
 
-    private static final SoulWeaponDatum[] data = {XP, LEVEL, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS, SKILLS};
+    private static final SoulWeaponDatum[] DATA = {XP, LEVEL, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS, SKILLS};
 
     private final int index;
 
@@ -24,8 +24,12 @@ public enum SoulWeaponDatum implements IDatum {
         return this.index;
     }
 
+    public static int getAmount() {
+        return DATA.length;
+    }
+
     public static SoulWeaponDatum getDatum(int index) {
-        return data[index];
+        return DATA[index];
     }
 
     public static String getName(int index) {
@@ -33,6 +37,6 @@ public enum SoulWeaponDatum implements IDatum {
     }
 
     public static SoulWeaponDatum[] getData() {
-        return data;
+        return DATA;
     }
 }

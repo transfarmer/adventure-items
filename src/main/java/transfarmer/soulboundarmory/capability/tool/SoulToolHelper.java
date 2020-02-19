@@ -5,7 +5,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 
 import java.util.UUID;
@@ -15,16 +14,6 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 public class SoulToolHelper {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
     private static boolean datumEquality;
-
-    public static boolean areEmpty(final int[][] data, final float[][] attributes, final int[][] enchantments) {
-        for (int toolIndex = 0; toolIndex < SoulToolType.getTypes().length; toolIndex++) {
-            if (data[toolIndex].length == 0 || attributes[toolIndex].length == 0 || enchantments[toolIndex].length == 0) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     public static boolean isSoulTool(final ItemStack itemStack) {
         return itemStack.getItem() instanceof IItemSoulTool;

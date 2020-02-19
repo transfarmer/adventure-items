@@ -31,13 +31,13 @@ public interface ISoulWeapon extends ISoulCapability {
 
     void addCooldown(int ticks);
 
-    int getAttackCooldwn();
+    int getAttackCooldown();
 
     int getCooldown(IType type);
 
     float getAttackRatio(IType type);
 
-    void setAttackCooldwn(int ticks);
+    void setAttackCooldown(int ticks);
 
     int getLightningCooldown();
 

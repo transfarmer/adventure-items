@@ -88,7 +88,7 @@ public class WeaponEventSubscriber {
                     capability.setCurrentType(type);
                 }
 
-                if (capability.getAttackCooldwn() > 0) {
+                if (capability.getAttackCooldown() > 0) {
                     capability.addCooldown(-1);
                 }
             }

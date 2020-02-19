@@ -17,7 +17,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("soulweapons.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().getIndex());
         tag.setInteger("soulweapons.capability.tab", instance.getCurrentTab());
-        tag.setInteger("soulweapons.capability.cooldown", instance.getAttackCooldwn());
+        tag.setInteger("soulweapons.capability.cooldown", instance.getAttackCooldown());
         tag.setInteger("soulweapons.capability.boundSlot", instance.getBoundSlot());
         final int[][] data = instance.getData();
         final float[][] attributes = instance.getAttributes();
@@ -49,7 +49,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
         NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soulweapons.capability.index"));
         instance.setCurrentTab(tag.getInteger("soulweapons.capability.tab"));
-        instance.setAttackCooldwn(tag.getInteger("soulweapons.capability.cooldown"));
+        instance.setAttackCooldown(tag.getInteger("soulweapons.capability.cooldown"));
         instance.bindSlot(tag.getInteger("soulweapons.capability.boundSlot"));
         final int[][] data = new int[instance.getItemAmount()][instance.getDatumAmount()];
         final float[][] attributes = new float[instance.getItemAmount()][instance.getAttributeAmount()];

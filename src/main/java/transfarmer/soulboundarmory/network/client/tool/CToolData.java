@@ -2,6 +2,7 @@ package transfarmer.soulboundarmory.network.client.tool;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -10,13 +11,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
-import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.data.IType;
+import transfarmer.soulboundarmory.data.tool.SoulToolAttribute;
+import transfarmer.soulboundarmory.data.tool.SoulToolDatum;
+import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.data.tool.SoulToolType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public class CToolData implements IMessage {
+    private EntityPlayer sender;
     private int toolIndex;
     private int currentTab;
     private int boundSlot;
@@ -24,13 +29,19 @@ public class CToolData implements IMessage {
     private float[][] attributes;
     private int[][] enchantments;
 
-    public CToolData() {}
+    public CToolData() {
+        this.data = new int[SoulToolType.getAmount()][SoulToolDatum.getAmount()];
+        this.attributes = new float[SoulToolType.getAmount()][SoulToolAttribute.getAmount()];
+        this.enchantments = new int[SoulToolType.getAmount()][SoulToolEnchantment.getAmount()];
+    }
 
-    public CToolData(final IType type, final int currentTab, final int boundSlot,
+    public CToolData(final EntityPlayer sender, final IType type, final int currentTab, final int boundSlot,
                      final int[][] data, final float[][] attributes, final int[][] enchantments) {
-        final ISoulCapability capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
+        final ISoulCapability capability = SoulToolProvider.get(sender);
 
-        if (type == null || capability == null) {
+        this.sender = sender;
+
+        if (type == null) {
             this.toolIndex = -1;
             this.currentTab = -1;
             this.boundSlot = -1;
@@ -40,16 +51,15 @@ public class CToolData implements IMessage {
             this.boundSlot = boundSlot;
         }
 
-        if (SoulToolHelper.areEmpty(data, attributes, enchantments)) {
+        if (SoulItemHelper.areEmpty(SoulToolProvider.get(sender), data, attributes, enchantments)) {
             this.data = new int[capability.getItemAmount()][capability.getDatumAmount()];
             this.attributes = new float[capability.getItemAmount()][capability.getAttributeAmount()];
             this.enchantments = new int[capability.getItemAmount()][capability.getEnchantmentAmount()];
         } else {
             this.data = data;
             this.attributes = attributes;
+            this.enchantments = enchantments;
         }
-
-        this.enchantments = enchantments;
     }
 
     public void fromBytes(ByteBuf buffer) {
@@ -69,7 +79,7 @@ public class CToolData implements IMessage {
         buffer.writeInt(this.currentTab);
         buffer.writeInt(this.boundSlot);
 
-        SoulItemHelper.forEach(SoulToolProvider.get(Minecraft.getMinecraft().player),
+        SoulItemHelper.forEach(SoulToolProvider.get(this.sender),
                 (final Integer toolIndex, final Integer valueIndex) -> buffer.writeInt(this.data[toolIndex][valueIndex]),
                 (final Integer toolIndex, final Integer valueIndex) -> buffer.writeFloat(this.attributes[toolIndex][valueIndex]),
                 (final Integer toolIndex, final Integer valueIndex) -> buffer.writeInt(this.enchantments[toolIndex][valueIndex])

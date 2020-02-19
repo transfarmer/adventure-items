@@ -61,4 +61,8 @@ public enum SoulToolType implements IType {
     public static SoulToolType[] getTypes() {
         return TYPES;
     }
+
+    public static int getAmount() {
+        return TYPES.length;
+    }
 }

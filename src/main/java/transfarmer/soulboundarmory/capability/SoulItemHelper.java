@@ -46,13 +46,19 @@ public class SoulItemHelper {
         return itemStack.getItem() instanceof ISoulItem;
     }
 
-    public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player) {
-        final ISoulCapability capability = getCapability(player, itemStack.getItem());
+    public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player, boolean hasReservedSlot) {
+        final int weaponBoundSlot = SoulWeaponProvider.get(player).getBoundSlot();
+        final int toolBoundSlot = SoulToolProvider.get(player).getBoundSlot();
+
+        if (!isSoulItem(itemStack)) {
+            hasReservedSlot = false;
+        }
+
         final InventoryPlayer inventory = player.inventory;
         final ItemStack[] mainInventory = inventory.mainInventory.toArray(new ItemStack[40]);
         mainInventory[mainInventory.length - 1] = player.getHeldItemOffhand();
 
-        if (isSoulItem(itemStack)) {
+        if (!hasReservedSlot) {
             final int slot = inventory.storeItemStack(itemStack);
 
             if (slot != -1) {
@@ -63,14 +69,14 @@ public class SoulItemHelper {
                 slotStack.setCount(slotStack.getCount() + transferred);
 
                 if (itemStack.getCount() > 0) {
-                    return addItemStack(itemStack, player);
+                    return addItemStack(itemStack, player, false);
                 }
 
                 return true;
             }
 
             for (int index = 0; index < mainInventory.length; index++) {
-                if (index != capability.getBoundSlot() && index != capability.getBoundSlot() && mainInventory[index].isEmpty()) {
+                if (index != weaponBoundSlot && index != toolBoundSlot && mainInventory[index].isEmpty()) {
                     return inventory.add(index, itemStack);
                 }
             }
@@ -78,30 +84,48 @@ public class SoulItemHelper {
             return false;
         }
 
-        return inventory.add(capability.getBoundSlot() >= 0 && inventory.getStackInSlot(capability.getBoundSlot()).isEmpty()
-                ? capability.getBoundSlot()
-                : inventory.getFirstEmptyStack(), itemStack);
+        final ISoulCapability capability = getCapability(player, itemStack.getItem());
+        final int boundSlot = capability.getBoundSlot();
+
+        if (boundSlot >= 0 && inventory.getStackInSlot(boundSlot).isEmpty()) {
+            return inventory.add(boundSlot, itemStack);
+        }
+
+        return addItemStack(itemStack, player, false);
     }
 
     public static void forEach(final ISoulCapability capability,
                                final BiConsumer<Integer, Integer> data,
                                final BiConsumer<Integer, Integer> attributes,
                                final BiConsumer<Integer, Integer> enchantments) {
-        for (int toolIndex = 0; toolIndex < capability.getItemAmount(); toolIndex++) {
+        for (int itemIndex = 0; itemIndex < capability.getItemAmount(); itemIndex++) {
             for (int valueIndex = 0; valueIndex < Math.max(capability.getDatumAmount(), Math.max(capability.getAttributeAmount(), capability.getEnchantmentAmount())); valueIndex++) {
                 if (valueIndex < capability.getDatumAmount()) {
-                    data.accept(toolIndex, valueIndex);
+                    data.accept(itemIndex, valueIndex);
                 }
 
                 if (valueIndex < capability.getAttributeAmount()) {
-                    attributes.accept(toolIndex, valueIndex);
+                    attributes.accept(itemIndex, valueIndex);
                 }
 
                 if (valueIndex < capability.getEnchantmentAmount()) {
-                    enchantments.accept(toolIndex, valueIndex);
+                    enchantments.accept(itemIndex, valueIndex);
                 }
             }
         }
     }
 
+    public static boolean areEmpty(final ISoulCapability capability, final int[][] data, final float[][] attributes, final int[][] enchantments) {
+        for (int index = 0; index < capability.getItemAmount(); index++) {
+            if (data[index].length == 0 || attributes[index].length == 0 || enchantments[index].length == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player) {
+        return addItemStack(itemStack, player, true);
+    }
 }

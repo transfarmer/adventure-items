@@ -30,13 +30,9 @@ import static transfarmer.soulboundarmory.data.tool.SoulToolDatum.*;
 
 public class SoulTool implements ISoulTool {
     private IType currentType;
-    private static final int SOUL_TOOLS = SoulToolType.getTypes().length;
-    private static final int DATA = SoulToolDatum.getData().length;
-    private static final int ATTRIBUTES = SoulToolAttribute.getAttributes().length;
-    private static final int ENCHANTMENTS = SoulToolEnchantment.getEnchantments().length;
-    private int[][] data = new int[SOUL_TOOLS][DATA];
-    private float[][] attributes = new float[SOUL_TOOLS][ATTRIBUTES];
-    private int[][] enchantments = new int[SOUL_TOOLS][ENCHANTMENTS];
+    private int[][] data = new int[this.getItemAmount()][this.getDatumAmount()];
+    private float[][] attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
+    private int[][] enchantments = new int[this.getItemAmount()][this.getEnchantmentAmount()];
     private int boundSlot = -1;
     private int currentTab = -1;
 
@@ -230,7 +226,7 @@ public class SoulTool implements ISoulTool {
     public int getNextLevelXP(final IType type) {
         return this.getDatum(LEVEL, type) >= Configuration.maxLevel
                 ? 1
-                : Configuration.initialToolXP + 4 * (int) Math.round(Math.pow(this.getDatum(LEVEL, type), 1.25));
+                : Configuration.initialToolXP + (int) Math.round(4 * Math.pow(this.getDatum(LEVEL, type), 1.25));
     }
 
     @Override
@@ -309,22 +305,22 @@ public class SoulTool implements ISoulTool {
 
     @Override
     public int getItemAmount() {
-        return SOUL_TOOLS;
+        return SoulToolType.getAmount();
     }
 
     @Override
     public int getDatumAmount() {
-        return DATA;
+        return SoulToolDatum.getAmount();
     }
 
     @Override
     public int getAttributeAmount() {
-        return ATTRIBUTES;
+        return SoulToolAttribute.getAmount();
     }
 
     @Override
     public int getEnchantmentAmount() {
-        return ENCHANTMENTS;
+        return SoulToolEnchantment.getAmount();
     }
 
     @Override

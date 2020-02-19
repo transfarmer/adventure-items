@@ -24,6 +24,10 @@ public enum SoulToolDatum implements IDatum {
         return this.index;
     }
 
+    public static String getName(final int index) {
+        return getDatum(index).toString().toLowerCase();
+    }
+
     public static SoulToolDatum[] getData() {
         return DATA;
     }
@@ -32,7 +36,7 @@ public enum SoulToolDatum implements IDatum {
         return DATA[index];
     }
 
-    public static String getName(final int index) {
-        return getDatum(index).toString().toLowerCase();
+    public static int getAmount() {
+        return DATA.length;
     }
 }

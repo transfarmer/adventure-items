@@ -28,6 +28,10 @@ public enum SoulToolAttribute implements IAttribute {
         return this.increase[type.getIndex()];
     }
 
+    public static String getName(final int index) {
+        return getAttribute(index).toString().toLowerCase();
+    }
+
     public static SoulToolAttribute[] getAttributes() {
         return ATTRIBUTES;
     }
@@ -36,7 +40,7 @@ public enum SoulToolAttribute implements IAttribute {
         return ATTRIBUTES[index];
     }
 
-    public static String getName(final int index) {
-        return getAttribute(index).toString().toLowerCase();
+    public static int getAmount() {
+        return ATTRIBUTES.length;
     }
 }

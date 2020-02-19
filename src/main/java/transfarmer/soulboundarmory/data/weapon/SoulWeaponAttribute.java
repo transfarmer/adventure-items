@@ -30,6 +30,10 @@ public enum SoulWeaponAttribute implements IAttribute {
         return this.increases[type.getIndex()];
     }
 
+    public static int getAmount() {
+        return ATTRIBUTES.length;
+    }
+
     public static SoulWeaponAttribute[] getAttributes() {
         return ATTRIBUTES;
     }

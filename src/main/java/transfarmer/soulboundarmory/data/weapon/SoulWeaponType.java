@@ -58,6 +58,10 @@ public enum SoulWeaponType implements IType {
         return super.toString().toLowerCase();
     }
 
+    public static int getAmount() {
+        return TYPES.length;
+    }
+
     public static SoulWeaponType getType(int index) {
         return index == -1 ? null : TYPES[index];
     }
