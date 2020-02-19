@@ -6,7 +6,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,12 +21,9 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
-import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import transfarmer.soulboundarmory.Configuration;
@@ -41,15 +37,12 @@ import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
 
 import java.util.Random;
 import java.util.UUID;
 
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
-import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
-import static net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import static transfarmer.soulboundarmory.Configuration.levelupNotifications;
@@ -78,67 +71,6 @@ public class WeaponEventSubscriber {
                 .tracker(16, 1, true)
                 .build()
         );
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLoggedIn(final PlayerLoggedInEvent event) {
-        updatePlayer(event.player);
-    }
-
-    @SubscribeEvent
-    public static void onPlayerChangedDimension(final PlayerChangedDimensionEvent event) {
-        updatePlayer(event.player);
-    }
-
-    @SubscribeEvent
-    public static void onPlayerRespawn(final PlayerRespawnEvent event) {
-        updatePlayer(event.player);
-
-        final ISoulWeapon capability = SoulWeaponProvider.get(event.player);
-
-        if (capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
-                && !event.player.world.getGameRules().getBoolean("keepInventory")) {
-            event.player.addItemStackToInventory(capability.getItemStack(capability.getCurrentType()));
-        }
-    }
-
-    private static void updatePlayer(final EntityPlayer player) {
-        final ISoulWeapon capability = SoulWeaponProvider.get(player);
-
-        if (capability != null) {
-            Main.CHANNEL.sendTo(new CWeaponData(capability.getCurrentType(),
-                    capability.getCurrentTab(),
-                    capability.getAttackCooldwn(),
-                    capability.getBoundSlot(),
-                    capability.getData(),
-                    capability.getAttributes(),
-                    capability.getEnchantments()), (EntityPlayerMP) player
-            );
-        }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerDrops(final PlayerDropsEvent event) {
-        final EntityPlayer player = event.getEntityPlayer();
-        final ISoulWeapon capability = SoulWeaponProvider.get(player);
-        final IType type = capability.getCurrentType();
-
-        if (type != null && capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
-                && !player.world.getGameRules().getBoolean("keepInventory")) {
-
-            event.getDrops().removeIf((EntityItem item) -> SoulWeaponHelper.isSoulWeapon(item.getItem()));
-        }
-    }
-
-    @SubscribeEvent
-    public static void onClone(final Clone event) {
-        final ISoulWeapon originalInstance = SoulWeaponProvider.get(event.getOriginal());
-        final ISoulWeapon instance = SoulWeaponProvider.get(event.getEntityPlayer());
-
-        instance.setCurrentType(originalInstance.getCurrentType());
-        instance.setCurrentTab(originalInstance.getCurrentTab());
-        instance.bindSlot(originalInstance.getBoundSlot());
-        instance.setStatistics(originalInstance.getData(), originalInstance.getAttributes(), originalInstance.getEnchantments());
     }
 
     @SubscribeEvent

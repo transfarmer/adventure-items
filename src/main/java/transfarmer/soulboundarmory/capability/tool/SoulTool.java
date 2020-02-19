@@ -230,7 +230,7 @@ public class SoulTool implements ISoulTool {
     public int getNextLevelXP(final IType type) {
         return this.getDatum(LEVEL, type) >= Configuration.maxLevel
                 ? 1
-                : Configuration.initialToolXP + (int) Math.round(Math.pow(this.getDatum(LEVEL, type), 1.25));
+                : Configuration.initialToolXP + 4 * (int) Math.round(Math.pow(this.getDatum(LEVEL, type), 1.25));
     }
 
     @Override

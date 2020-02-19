@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.capability;
 
+import net.minecraft.item.ItemStack;
 import transfarmer.soulboundarmory.data.IAttribute;
 import transfarmer.soulboundarmory.data.IDatum;
 import transfarmer.soulboundarmory.data.IEnchantment;
@@ -81,4 +82,6 @@ public interface ISoulCapability {
     void bindSlot(int boundSlot);
 
     void unbindSlot();
+
+    ItemStack getItemStack(IType type);
 }

@@ -19,16 +19,12 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponStorage;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
-import transfarmer.soulboundarmory.network.client.tool.CToolData;
 import transfarmer.soulboundarmory.network.client.tool.*;
 import transfarmer.soulboundarmory.network.client.weapon.*;
 import transfarmer.soulboundarmory.network.server.tool.*;
 import transfarmer.soulboundarmory.network.server.weapon.*;
 import transfarmer.soulboundarmory.render.RenderReachModifier;
 import transfarmer.soulboundarmory.render.RenderSoulDagger;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
@@ -43,13 +39,6 @@ public class Main {
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
     public static int id;
-
-    public static final List<Class<?>> CAPABILITIES = new ArrayList<>();
-
-    public Main() {
-        CAPABILITIES.add(ISoulWeapon.class);
-        CAPABILITIES.add(ISoulTool.class);
-    }
 
     @EventHandler
     public static void preInit(FMLPreInitializationEvent event) {

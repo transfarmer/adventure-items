@@ -1,21 +1,15 @@
 package transfarmer.soulboundarmory.event;
 
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
-import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
@@ -25,76 +19,13 @@ import transfarmer.soulboundarmory.data.IType;
 import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.network.client.tool.CToolData;
 
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static transfarmer.soulboundarmory.data.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
-import static transfarmer.soulboundarmory.data.tool.SoulToolDatum.LEVEL;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class ToolEventSubscriber {
-    @SubscribeEvent
-    public static void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event) {
-        updatePlayer(event.player);
-    }
-
-    @SubscribeEvent
-    public static void onPlayerChangedDimension(final PlayerEvent.PlayerChangedDimensionEvent event) {
-        updatePlayer(event.player);
-    }
-
-    @SubscribeEvent
-    public static void onPlayerRespawn(final PlayerEvent.PlayerRespawnEvent event) {
-        updatePlayer(event.player);
-
-        final ISoulTool capability = SoulToolProvider.get(event.player);
-        final IType type = capability.getCurrentType();
-
-        if (type != null && capability != null && capability.getDatum(LEVEL, type) >= Configuration.preservationLevel
-                && !event.player.world.getGameRules().getBoolean("keepInventory")) {
-            event.player.addItemStackToInventory(capability.getItemStack(type));
-        }
-    }
-
-    private static void updatePlayer(final EntityPlayer player) {
-        final ISoulTool capability = SoulToolProvider.get(player);
-
-        if (capability != null) {
-            Main.CHANNEL.sendTo(new CToolData(
-                    capability.getCurrentType(),
-                    capability.getCurrentTab(),
-                    capability.getBoundSlot(),
-                    capability.getData(),
-                    capability.getAttributes(),
-                    capability.getEnchantments()), (EntityPlayerMP) player
-            );
-        }
-    }
-
-    @SubscribeEvent
-    public static void onClone(final Clone event) {
-        final ISoulTool originalInstance = SoulToolProvider.get(event.getOriginal());
-        final ISoulTool instance = SoulToolProvider.get(event.getEntityPlayer());
-
-        instance.setCurrentType(originalInstance.getCurrentType());
-        instance.setCurrentTab(originalInstance.getCurrentTab());
-        instance.bindSlot(originalInstance.getBoundSlot());
-        instance.setStatistics(originalInstance.getData(), originalInstance.getAttributes(), originalInstance.getEnchantments());
-    }
-
-    @SubscribeEvent
-    public static void onPlayerDrops(final PlayerDropsEvent event) {
-        final EntityPlayer player = event.getEntityPlayer();
-        final ISoulTool capability = SoulToolProvider.get(player);
-        final IType type = capability.getCurrentType();
-
-        if (type != null && capability.getDatum(LEVEL, type) >= Configuration.preservationLevel
-                && !player.world.getGameRules().getBoolean("keepInventory")) {
-            event.getDrops().removeIf((final EntityItem item) -> SoulToolHelper.isSoulTool(item.getItem()));
-        }
-    }
-
     @SubscribeEvent
     public static void onPlayerTick(final PlayerTickEvent event) {
         if (event.phase != END) return;
