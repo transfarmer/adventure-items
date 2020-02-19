@@ -8,9 +8,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.DAGGER;
 
@@ -31,7 +31,7 @@ public class ItemSoulDagger extends ItemSoulWeapon {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
-        if (!world.isRemote && player.getCapability(CAPABILITY, null).getDatum(SKILLS, DAGGER) >= 1) {
+        if (!world.isRemote && SoulWeaponProvider.get(player).getDatum(SKILLS, DAGGER) >= 1) {
             player.setActiveHand(hand);
 
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
@@ -45,7 +45,7 @@ public class ItemSoulDagger extends ItemSoulWeapon {
         if (!world.isRemote) {
             final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack);
             final EntityPlayer player = (EntityPlayer) entity;
-            final float attackSpeed = 4 + player.getCapability(CAPABILITY, null).getAttackSpeed(DAGGER);
+            final float attackSpeed = 4 + SoulWeaponProvider.get(player).getAttackSpeed(DAGGER);
             final float velocity = Math.min(attackSpeed * (attackSpeed / 2) * (this.getMaxItemUseDuration(itemStack) - timeLeft) / 20, attackSpeed);
 
             if (!player.isCreative()) {

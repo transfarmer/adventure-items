@@ -1,8 +1,9 @@
 package transfarmer.soulboundarmory.data.weapon;
 
 import net.minecraft.enchantment.Enchantment;
+import transfarmer.soulboundarmory.data.IEnchantment;
 
-public enum SoulWeaponEnchantment {
+public enum SoulWeaponEnchantment implements IEnchantment {
     SHARPNESS(0, Enchantment.getEnchantmentByLocation("sharpness")),
     SWEEPING_EDGE(1, Enchantment.getEnchantmentByLocation("sweeping")),
     LOOTING(2, Enchantment.getEnchantmentByLocation("looting")),
@@ -11,18 +12,28 @@ public enum SoulWeaponEnchantment {
     SMITE(5, Enchantment.getEnchantmentByLocation("smite")),
     BANE_OF_ARTHROPODS(6, Enchantment.getEnchantmentByLocation("bane_of_arthropods"));
 
-    private static final SoulWeaponEnchantment[] enchantments = {SHARPNESS, SWEEPING_EDGE, LOOTING, FIRE_ASPECT, KNOCKBACK, SMITE, BANE_OF_ARTHROPODS};
+    private final int index;
+    private final Enchantment enchantment;
 
-    public final int index;
-    public final Enchantment enchantment;
+    private static final SoulWeaponEnchantment[] ENCHANTMENTS = {SHARPNESS, SWEEPING_EDGE, LOOTING, FIRE_ASPECT, KNOCKBACK, SMITE, BANE_OF_ARTHROPODS};
 
     SoulWeaponEnchantment(final int index, final Enchantment enchantment) {
         this.index = index;
         this.enchantment = enchantment;
     }
 
+    @Override
+    public int getIndex() {
+        return this.index;
+    }
+
+    @Override
+    public Enchantment getEnchantment() {
+        return this.enchantment;
+    }
+
     public static SoulWeaponEnchantment getEnchantment(int index) {
-        return enchantments[index];
+        return ENCHANTMENTS[index];
     }
 
     public static String getName(int index) {
@@ -30,6 +41,6 @@ public enum SoulWeaponEnchantment {
     }
 
     public static SoulWeaponEnchantment[] getEnchantments() {
-        return enchantments;
+        return ENCHANTMENTS;
     }
 }

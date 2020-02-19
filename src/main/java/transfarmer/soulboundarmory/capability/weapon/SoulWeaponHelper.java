@@ -15,14 +15,9 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldServer;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 
 import java.util.UUID;
-import java.util.function.BiConsumer;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment.FIRE_ASPECT;
@@ -32,35 +27,7 @@ public class SoulWeaponHelper {
     public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     public static final UUID ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
-    public static final int DATA = SoulWeaponDatum.getData().length;
-    public static final int ATTRIBUTES = SoulWeaponAttribute.getAttributes().length;
-    public static final int ENCHANTMENTS = SoulWeaponEnchantment.getEnchantments().length;
-    private static final String[][] skills = {
-        {"charge"},
-        {"lightning bolt"},
-        {"throwing", "perforation", "return", "sneak return"}
-    };
     private static boolean datumEquality;
-
-    public static void forEach(BiConsumer<Integer, Integer> datumConsumer,
-                               BiConsumer<Integer, Integer> attributeConsumer,
-                               BiConsumer<Integer, Integer> enchantmentConsumer) {
-        for (int weaponIndex = 0; weaponIndex <= 2; weaponIndex++) {
-            for (int valueIndex = 0; valueIndex < Math.max(DATA, Math.max(ATTRIBUTES, ENCHANTMENTS)); valueIndex++) {
-                if (valueIndex < DATA) {
-                    datumConsumer.accept(weaponIndex, valueIndex);
-                }
-
-                if (valueIndex < ATTRIBUTES) {
-                    attributeConsumer.accept(weaponIndex, valueIndex);
-                }
-
-                if (valueIndex < ENCHANTMENTS) {
-                    enchantmentConsumer.accept(weaponIndex, valueIndex);
-                }
-            }
-        }
-    }
 
     public static boolean areDataEqual(ItemStack itemStack0, ItemStack itemStack1) {
         datumEquality = true;
@@ -133,14 +100,6 @@ public class SoulWeaponHelper {
                 player.inventory.deleteStack(itemStack);
             }
         }
-    }
-
-    public static int getMaxSkills(SoulWeaponType type) {
-        return SoulWeaponHelper.getSkills()[type.index].length;
-    }
-
-    public static String[][] getSkills() {
-        return skills;
     }
 
     public static void delegateAttack(final Entity target, final Entity delegate, final EntityPlayer player,

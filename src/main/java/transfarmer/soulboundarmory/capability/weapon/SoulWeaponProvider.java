@@ -13,8 +13,8 @@ import javax.annotation.Nullable;
 @SuppressWarnings("ConstantConditions")
 public class SoulWeaponProvider implements ICapabilitySerializable<NBTBase> {
     @CapabilityInject(ISoulWeapon.class)
-    public static final Capability<ISoulWeapon> CAPABILITY = null;
-    private ISoulWeapon instance = CAPABILITY.getDefaultInstance();
+    private static final Capability<ISoulWeapon> CAPABILITY = null;
+    private final ISoulWeapon instance = CAPABILITY.getDefaultInstance();
 
     @Override
     @Nullable
@@ -37,8 +37,7 @@ public class SoulWeaponProvider implements ICapabilitySerializable<NBTBase> {
         CAPABILITY.getStorage().readNBT(CAPABILITY, instance, null, nbt);
     }
 
-    @Nonnull
     public static ISoulWeapon get(final Entity entity) {
-        return entity.getCapability(CAPABILITY, null);
+        return entity == null ? null : entity.getCapability(CAPABILITY, null);
     }
 }

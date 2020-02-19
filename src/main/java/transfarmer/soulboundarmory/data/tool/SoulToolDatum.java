@@ -1,6 +1,8 @@
 package transfarmer.soulboundarmory.data.tool;
 
-public enum SoulToolDatum {
+import transfarmer.soulboundarmory.data.IDatum;
+
+public enum SoulToolDatum implements IDatum {
     XP(0),
     LEVEL(1),
     ATTRIBUTE_POINTS(2),
@@ -9,13 +11,21 @@ public enum SoulToolDatum {
     SPENT_ENCHANTMENT_POINTS(5),
     SKILLS(6);
 
-    public final int index;
+    private final int index;
 
-    private static final SoulToolDatum[] DATA = {XP, LEVEL, ATTRIBUTE_POINTS, SPENT_ATTRIBUTE_POINTS,
-            ENCHANTMENT_POINTS, SPENT_ENCHANTMENT_POINTS, SKILLS};
+    private static final SoulToolDatum[] DATA = {XP, LEVEL, ATTRIBUTE_POINTS, SPENT_ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ENCHANTMENT_POINTS, SKILLS};
 
     SoulToolDatum(final int index) {
         this.index = index;
+    }
+
+    @Override
+    public int getIndex() {
+        return this.index;
+    }
+
+    public static SoulToolDatum[] getData() {
+        return DATA;
     }
 
     public static SoulToolDatum getDatum(final int index) {

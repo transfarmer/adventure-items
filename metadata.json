@@ -1,7 +1,7 @@
 {
-    chnagelog: "Implemented basic thrown soul dagger renderer and functionality.",
-    changelogType: ["text"],
-    gameVersions: [6756],
-    releaseType: "beta"
+    "chnagelog": "Implemented basic thrown soul dagger renderer and functionality.",
+    "changelogType": ["text"],
+    "gameVersions": [6756],
+    "releaseType": "beta"
 }
 

@@ -1,11 +1,14 @@
 package transfarmer.soulboundarmory.data.tool;
 
-public enum SoulToolAttribute {
+import transfarmer.soulboundarmory.data.IAttribute;
+import transfarmer.soulboundarmory.data.IType;
+
+public enum SoulToolAttribute implements IAttribute {
     EFFICIENCY_ATTRIBUTE(0, 0.5F),
     REACH_DISTANCE(1, 0.1F),
     HARVEST_LEVEL(2, 0.2F);
 
-    public final int index;
+    private final int index;
     private final float[] increase;
 
     private static final SoulToolAttribute[] ATTRIBUTES = {EFFICIENCY_ATTRIBUTE, REACH_DISTANCE, HARVEST_LEVEL};
@@ -15,12 +18,22 @@ public enum SoulToolAttribute {
         this.increase = increase;
     }
 
-    public static SoulToolAttribute getAttribute(final int index) {
-        return ATTRIBUTES[index];
+    @Override
+    public int getIndex() {
+        return this.index;
     }
 
-    public float getIncrease(final SoulToolType type) {
-        return this.increase[type.index];
+    @Override
+    public float getIncrease(final IType type) {
+        return this.increase[type.getIndex()];
+    }
+
+    public static SoulToolAttribute[] getAttributes() {
+        return ATTRIBUTES;
+    }
+
+    public static SoulToolAttribute getAttribute(final int index) {
+        return ATTRIBUTES[index];
     }
 
     public static String getName(final int index) {

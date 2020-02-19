@@ -1,6 +1,8 @@
 package transfarmer.soulboundarmory.data.weapon;
 
-public enum SoulWeaponDatum {
+import transfarmer.soulboundarmory.data.IDatum;
+
+public enum SoulWeaponDatum implements IDatum {
     XP(0),
     LEVEL(1),
     ATTRIBUTE_POINTS(2),
@@ -11,10 +13,15 @@ public enum SoulWeaponDatum {
 
     private static final SoulWeaponDatum[] data = {XP, LEVEL, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS, SKILLS};
 
-    public final int index;
+    private final int index;
 
     SoulWeaponDatum(int index) {
         this.index = index;
+    }
+
+    @Override
+    public int getIndex() {
+        return this.index;
     }
 
     public static SoulWeaponDatum getDatum(int index) {

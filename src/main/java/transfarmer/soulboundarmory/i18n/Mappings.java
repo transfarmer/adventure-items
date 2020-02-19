@@ -54,5 +54,9 @@ public class Mappings {
     public static final String MINING_LEVEL_DIAMOND = I18n.format("miningLevel.soulboundarmory.diamond");
     public static final String MINING_LEVEL_OBSIDIAN = I18n.format("miningLevel.soulboundarmory.obsidian");
 
-    public static final String[] miningLevels = {MINING_LEVEL_COAL, MINING_LEVEL_IRON, MINING_LEVEL_DIAMOND, MINING_LEVEL_OBSIDIAN};
+    private static final String[] miningLevels = {MINING_LEVEL_COAL, MINING_LEVEL_IRON, MINING_LEVEL_DIAMOND, MINING_LEVEL_OBSIDIAN};
+
+    public static String[] getMiningLevels() {
+        return miningLevels;
+    }
 }

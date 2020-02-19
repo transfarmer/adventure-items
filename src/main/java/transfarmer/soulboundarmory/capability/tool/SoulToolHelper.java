@@ -6,51 +6,24 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
-import transfarmer.soulboundarmory.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 
 import java.util.UUID;
-import java.util.function.BiConsumer;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 
 public class SoulToolHelper {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
-    public static final int SOUL_TOOLS = 1;
-    public static final int DATA = 7;
-    public static final int ATTRIBUTES = 3;
-    public static final int ENCHANTMENTS = 3;
-    private static final String[][] skills = {{}};
     private static boolean datumEquality;
 
     public static boolean areEmpty(final int[][] data, final float[][] attributes, final int[][] enchantments) {
-        for (int toolIndex = 0; toolIndex < SOUL_TOOLS; toolIndex++) {
+        for (int toolIndex = 0; toolIndex < SoulToolType.getTypes().length; toolIndex++) {
             if (data[toolIndex].length == 0 || attributes[toolIndex].length == 0 || enchantments[toolIndex].length == 0) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    public static void forEach(final BiConsumer<Integer, Integer> data,
-                               final BiConsumer<Integer, Integer> attributes,
-                               final BiConsumer<Integer, Integer> enchantments) {
-        for (int toolIndex = 0; toolIndex < SOUL_TOOLS; toolIndex++) {
-            for (int valueIndex = 0; valueIndex < Math.max(DATA, Math.max(ATTRIBUTES, ENCHANTMENTS)); valueIndex++) {
-                if (valueIndex < DATA) {
-                    data.accept(toolIndex, valueIndex);
-                }
-
-                if (valueIndex < ATTRIBUTES) {
-                    attributes.accept(toolIndex, valueIndex);
-                }
-
-                if (valueIndex < ENCHANTMENTS) {
-                    enchantments.accept(toolIndex, valueIndex);
-                }
-            }
-        }
     }
 
     public static boolean isSoulTool(final ItemStack itemStack) {
@@ -118,17 +91,5 @@ public class SoulToolHelper {
                 player.inventory.deleteStack(itemStack);
             }
         }
-    }
-
-    public static int getMaxSkills(SoulToolType type) {
-        return SoulToolHelper.getSkills()[type.index].length;
-    }
-
-    public static String[][] getSkills() {
-        return skills;
-    }
-
-    public static String[] getMiningLevels() {
-        return Mappings.miningLevels;
     }
 }

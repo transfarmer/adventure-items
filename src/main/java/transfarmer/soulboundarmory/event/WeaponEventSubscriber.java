@@ -36,12 +36,13 @@ import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.data.IType;
 import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
-import transfarmer.soulboundarmory.network.weapon.client.CWeaponData;
-import transfarmer.soulboundarmory.network.weapon.client.CWeaponDatum;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
 
 import java.util.Random;
 import java.util.UUID;
@@ -104,22 +105,23 @@ public class WeaponEventSubscriber {
     private static void updatePlayer(final EntityPlayer player) {
         final ISoulWeapon capability = SoulWeaponProvider.get(player);
 
-        Main.CHANNEL.sendTo(new CWeaponData(
-                capability.getCurrentType(),
-                capability.getCurrentTab(),
-                capability.getAttackCooldwn(),
-                capability.getBoundSlot(),
-                capability.getData(),
-                capability.getAttributes(),
-                capability.getEnchantments()), (EntityPlayerMP) player
-        );
+        if (capability != null) {
+            Main.CHANNEL.sendTo(new CWeaponData(capability.getCurrentType(),
+                    capability.getCurrentTab(),
+                    capability.getAttackCooldwn(),
+                    capability.getBoundSlot(),
+                    capability.getData(),
+                    capability.getAttributes(),
+                    capability.getEnchantments()), (EntityPlayerMP) player
+            );
+        }
     }
 
     @SubscribeEvent
     public static void onPlayerDrops(final PlayerDropsEvent event) {
         final EntityPlayer player = event.getEntityPlayer();
         final ISoulWeapon capability = SoulWeaponProvider.get(player);
-        final SoulWeaponType type = capability.getCurrentType();
+        final IType type = capability.getCurrentType();
 
         if (type != null && capability.getDatum(LEVEL, capability.getCurrentType()) >= Configuration.preservationLevel
                 && !player.world.getGameRules().getBoolean("keepInventory")) {
@@ -135,8 +137,8 @@ public class WeaponEventSubscriber {
 
         instance.setCurrentType(originalInstance.getCurrentType());
         instance.setCurrentTab(originalInstance.getCurrentTab());
-        instance.setBoundSlot(originalInstance.getBoundSlot());
-        instance.set(originalInstance.getData(), originalInstance.getAttributes(), originalInstance.getEnchantments());
+        instance.bindSlot(originalInstance.getBoundSlot());
+        instance.setStatistics(originalInstance.getData(), originalInstance.getAttributes(), originalInstance.getEnchantments());
     }
 
     @SubscribeEvent
@@ -144,33 +146,33 @@ public class WeaponEventSubscriber {
         if (event.phase != END) return;
 
         if (SoulWeaponHelper.hasSoulWeapon(event.player)) {
-            ISoulWeapon instance = SoulWeaponProvider.get(event.player);
+            ISoulWeapon capability = SoulWeaponProvider.get(event.player);
             InventoryPlayer inventory = event.player.inventory;
 
             if (SoulWeaponHelper.isSoulWeaponEquipped(event.player)) {
-                final SoulWeaponType heldItemType = SoulWeaponType.getType(inventory.getCurrentItem().getItem());
+                final IType type = SoulWeaponType.getType(inventory.getCurrentItem().getItem());
 
-                if (heldItemType != instance.getCurrentType()) {
-                    instance.setCurrentType(heldItemType);
+                if (type != capability.getCurrentType()) {
+                    capability.setCurrentType(type);
                 }
 
-                if (instance.getAttackCooldwn() > 0) {
-                    instance.addCooldown(-1);
+                if (capability.getAttackCooldwn() > 0) {
+                    capability.addCooldown(-1);
                 }
             }
 
-            if (instance.getCurrentType() != null) {
+            if (capability.getCurrentType() != null) {
                 int firstSlot = -1;
 
                 for (final ItemStack itemStack : inventory.mainInventory) {
                     if (SoulWeaponHelper.isSoulWeapon(itemStack)) {
                         final int index = inventory.mainInventory.indexOf(itemStack);
 
-                        if (itemStack.getItem() == instance.getCurrentType().item && firstSlot == -1) {
+                        if (itemStack.getItem() == capability.getCurrentType().getItem() && firstSlot == -1) {
                             firstSlot = index;
 
-                            if (instance.getBoundSlot() != -1) {
-                                instance.setBoundSlot(index);
+                            if (capability.getBoundSlot() != -1) {
+                                capability.bindSlot(index);
                             }
 
                             continue;
@@ -186,7 +188,7 @@ public class WeaponEventSubscriber {
             for (final ItemStack itemStack : inventory.mainInventory) {
                 if (!SoulWeaponHelper.isSoulWeapon(itemStack)) continue;
 
-                final ItemStack newItemStack = instance.getItemStack(itemStack);
+                final ItemStack newItemStack = capability.getItemStack(itemStack);
 
                 if (!SoulWeaponHelper.areDataEqual(itemStack, newItemStack)) {
                     if (itemStack.hasDisplayName()) {
@@ -230,7 +232,7 @@ public class WeaponEventSubscriber {
         if (event.getSource().getTrueSource() != null && !event.getSource().getTrueSource().world.isRemote) {
             final Entity trueSource = event.getSource().getTrueSource();
             final Entity source = event.getSource().getImmediateSource();
-            final SoulWeaponType weaponType;
+            final IType weaponType;
 
             if (trueSource instanceof EntityPlayer) {
                 final ISoulWeapon instance = SoulWeaponProvider.get(trueSource);
@@ -254,7 +256,7 @@ public class WeaponEventSubscriber {
     public static void onLivingKnockback(final LivingKnockBackEvent event) {
         if (!event.getAttacker().world.isRemote) {
             Entity attacker = event.getAttacker();
-            SoulWeaponType weaponType = null;
+            IType weaponType = null;
             final ISoulWeapon instance = SoulWeaponProvider.get(attacker);
 
             if (attacker instanceof EntitySoulDagger) {
@@ -281,7 +283,7 @@ public class WeaponEventSubscriber {
             final Entity trueSource = event.getSource().getTrueSource();
             final ISoulWeapon instance;
             final String displayName;
-            final SoulWeaponType weaponType;
+            final IType weaponType;
             Entity source = event.getSource().getImmediateSource();
 
             if (trueSource instanceof EntityPlayer) {

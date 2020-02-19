@@ -5,20 +5,17 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
 
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.ATTRIBUTES;
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.DATA;
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.ENCHANTMENTS;
-
 public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
     public NBTBase writeNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing) {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("soulweapons.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().index);
+        tag.setInteger("soulweapons.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().getIndex());
         tag.setInteger("soulweapons.capability.tab", instance.getCurrentTab());
         tag.setInteger("soulweapons.capability.cooldown", instance.getAttackCooldwn());
         tag.setInteger("soulweapons.capability.boundSlot", instance.getBoundSlot());
@@ -26,7 +23,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
         final float[][] attributes = instance.getAttributes();
         final int[][] enchantments = instance.getEnchantments();
 
-        SoulWeaponHelper.forEach(
+        SoulItemHelper.forEach(instance,
             (Integer weaponIndex, Integer valueIndex) ->
                 tag.setInteger(String.format("soulweapons.datum.%s.%s",
                     SoulWeaponType.getType(weaponIndex),
@@ -53,12 +50,12 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
         instance.setCurrentType(tag.getInteger("soulweapons.capability.index"));
         instance.setCurrentTab(tag.getInteger("soulweapons.capability.tab"));
         instance.setAttackCooldwn(tag.getInteger("soulweapons.capability.cooldown"));
-        instance.setBoundSlot(tag.getInteger("soulweapons.capability.boundSlot"));
-        final int[][] data = new int[3][DATA];
-        final float[][] attributes = new float[3][ATTRIBUTES];
-        final int[][] enchantments = new int[3][ENCHANTMENTS];
+        instance.bindSlot(tag.getInteger("soulweapons.capability.boundSlot"));
+        final int[][] data = new int[instance.getItemAmount()][instance.getDatumAmount()];
+        final float[][] attributes = new float[instance.getItemAmount()][instance.getAttributeAmount()];
+        final int[][] enchantments = new int[instance.getItemAmount()][instance.getEnchantmentAmount()];
 
-        SoulWeaponHelper.forEach(
+        SoulItemHelper.forEach(instance,
             (Integer weaponIndex, Integer valueIndex) ->
                 data[weaponIndex][valueIndex] = tag.getInteger(String.format("soulweapons.datum.%s.%s",
                     SoulWeaponType.getType(weaponIndex),
@@ -76,6 +73,6 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
                 ))
         );
 
-        instance.set(data, attributes, enchantments);
+        instance.setStatistics(data, attributes, enchantments);
     }
 }

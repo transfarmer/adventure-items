@@ -26,8 +26,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider.CAPABILITY;
+import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
 public class EntityReachModifier extends EntityArrow {
     private float reachDistance;
@@ -89,7 +88,7 @@ public class EntityReachModifier extends EntityArrow {
         if (!this.world.isRemote && result.entityHit != this.shootingEntity && this.shootingEntity instanceof EntityPlayer) {
             final Entity target = result.entityHit;
             final EntityPlayer player = (EntityPlayer) this.shootingEntity;
-            final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+            final ISoulWeapon capability = SoulWeaponProvider.get(player);
 
             if (target != null) {
                 if (this.distanceToHit(result) <= this.reachDistance * this.reachDistance

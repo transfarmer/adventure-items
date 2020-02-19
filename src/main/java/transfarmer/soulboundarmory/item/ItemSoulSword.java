@@ -9,10 +9,10 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
+import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.world.ModWorld;
 
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.SWORD;
 
@@ -33,7 +33,7 @@ public class ItemSoulSword extends ItemSoulWeapon {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
-        final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+        final ISoulWeapon capability = SoulWeaponProvider.get(player);
 
         if (!world.isRemote && capability.getDatum(SKILLS, SWORD) >= 1 && capability.getLightningCooldown() <= 0) {
             final RayTraceResult result = ModWorld.rayTraceAll(world, player);

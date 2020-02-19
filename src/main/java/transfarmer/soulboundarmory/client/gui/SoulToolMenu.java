@@ -15,12 +15,13 @@ import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.KeyBindings;
+import transfarmer.soulboundarmory.data.IType;
 import transfarmer.soulboundarmory.data.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
 import transfarmer.soulboundarmory.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.network.tool.server.*;
+import transfarmer.soulboundarmory.network.server.tool.*;
 import transfarmer.util.ItemHelper;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class SoulToolMenu extends GuiScreen {
     private final GUIFactory guiFactory = new GUIFactory();
     private final Renderer RENDERER = new Renderer();
     private final ISoulTool capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
-    private final SoulToolType toolType = this.capability.getCurrentType();
+    private final IType toolType = this.capability.getCurrentType();
 
     public SoulToolMenu() {
         this.mc = Minecraft.getMinecraft();
@@ -99,25 +100,25 @@ public class SoulToolMenu extends GuiScreen {
 
     private void showAttributes() {
         final GuiButton resetButton = this.addButton(this.guiFactory.resetButton(20));
-        final GuiButton[] removePointButtons = this.addRemovePointButtons(23, SoulToolHelper.ATTRIBUTES);
-        final GuiButton[] addPointButtons = this.addAddPointButtons(4, SoulToolHelper.ATTRIBUTES, this.capability.getDatum(ATTRIBUTE_POINTS, this.toolType));
+        final GuiButton[] removePointButtons = this.addRemovePointButtons(23, this.capability.getAttributeAmount());
+        final GuiButton[] addPointButtons = this.addAddPointButtons(4, this.capability.getAttributeAmount(), this.capability.getDatum(ATTRIBUTE_POINTS, this.toolType));
         resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.toolType) > 0;
 
-        for (int index = 0; index < SoulToolHelper.ATTRIBUTES; index++) {
+        for (int index = 0; index < this.capability.getAttributeAmount(); index++) {
             removePointButtons[index].enabled = this.capability.getAttribute(getAttribute(index), this.toolType) > 0;
         }
 
-        addPointButtons[HARVEST_LEVEL.index].enabled &= this.capability.getAttribute(HARVEST_LEVEL, this.toolType) < 3;
+        addPointButtons[HARVEST_LEVEL.getIndex()].enabled &= this.capability.getAttribute(HARVEST_LEVEL, this.toolType) < 3;
     }
 
     private void showEnchantments() {
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(21));
-        final GuiButton[] removePointButtons = addRemovePointButtons(28, SoulToolHelper.ENCHANTMENTS);
+        final GuiButton[] removePointButtons = addRemovePointButtons(28, this.capability.getEnchantmentAmount());
         resetButton.enabled = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.toolType) > 0;
 
-        this.addAddPointButtons(9, SoulToolHelper.ENCHANTMENTS, this.capability.getDatum(ENCHANTMENT_POINTS, this.toolType));
+        this.addAddPointButtons(9, this.capability.getEnchantmentAmount(), this.capability.getDatum(ENCHANTMENT_POINTS, this.toolType));
 
-        for (int index = 0; index < SoulToolHelper.ENCHANTMENTS; index++) {
+        for (int index = 0; index < this.capability.getEnchantmentAmount(); index++) {
             removePointButtons[index].enabled = this.capability.getEnchantment(SoulToolEnchantment.getEnchantment(index), this.toolType) > 0;
         }
     }
@@ -176,7 +177,7 @@ public class SoulToolMenu extends GuiScreen {
     private void drawAttributes(final int mouseX, final int mouseY) {
         final String efficiency = String.format("%s%s: %%s", Mappings.WEAPON_EFFICIENCY_FORMAT, Mappings.EFFICIENCY_NAME);
         final String harvestLevel = String.format("%s%s: %%s (%s)", Mappings.HARVEST_LEVEL_FORMAT, Mappings.HARVEST_LEVEL_NAME,
-                SoulToolHelper.getMiningLevels()[Math.min((int) this.capability.getAttribute(HARVEST_LEVEL, this.toolType), 3)]);
+                Mappings.getMiningLevels()[Math.min((int) this.capability.getAttribute(HARVEST_LEVEL, this.toolType), 3)]);
         final String reachDistance = String.format("%s%s: %%s", Mappings.REACH_DISTANCE_FORMAT, Mappings.REACH_DISTANCE_NAME);
         final int points = this.capability.getDatum(ATTRIBUTE_POINTS, this.toolType);
 
@@ -208,9 +209,9 @@ public class SoulToolMenu extends GuiScreen {
     }
 
     private void drawSkills(final int mouseX, final int mouseY) {
-        for (int i = 0; i < capability.getDatum(SKILLS, this.toolType); i++) {
-            this.drawCenteredString(this.fontRenderer, SoulToolHelper.getSkills()[capability.getCurrentType().index][i],
-                    width / 2, (i + 2) * height / 16, 0xFFFFFF);
+        for (int i = 0; i < this.capability.getDatum(SKILLS, this.toolType); i++) {
+            this.drawCenteredString(this.fontRenderer, this.capability.getCurrentType().getSkills()[i],
+                    this.width / 2, (i + 2) * this.height / 16, 0xFFFFFF);
         }
 
         this.drawXPBar(mouseX, mouseY);

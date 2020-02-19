@@ -29,7 +29,6 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
 import java.util.UUID;
 
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment.FIRE_ASPECT;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.DAGGER;
@@ -106,7 +105,7 @@ public class EntitySoulDagger extends EntityArrow {
         }
 
         if (this.shootingEntity instanceof EntityPlayer) {
-            final ISoulWeapon capability = this.shootingEntity.getCapability(CAPABILITY, null);
+            final ISoulWeapon capability = SoulWeaponProvider.get(this.shootingEntity);
             final float attackSpeed = 4 + capability.getAttackSpeed(DAGGER);
 
             if (capability.getDatum(SKILLS, DAGGER) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
@@ -271,7 +270,7 @@ public class EntitySoulDagger extends EntityArrow {
         if (entity != null) {
             if (this.shootingEntity instanceof EntityPlayer) {
                 final EntityPlayer player = (EntityPlayer) this.shootingEntity;
-                final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
+                final ISoulWeapon capability = SoulWeaponProvider.get(player);
 
                 final DamageSource damageSource = this.shootingEntity == null
                         ? DamageSource.causeThrownDamage(this, this)
@@ -401,7 +400,7 @@ public class EntitySoulDagger extends EntityArrow {
 
     @Override
     public void onCollideWithPlayer(final EntityPlayer player) {
-        if (!this.world.isRemote && this.ticksExisted > 20 / (4 + player.getCapability(CAPABILITY, null).getAttackSpeed(DAGGER))
+        if (!this.world.isRemote && this.ticksExisted > 20 / (4 + SoulWeaponProvider.get(player).getAttackSpeed(DAGGER))
                 && this.arrowShake <= 0 && player.getUniqueID().equals(this.shooterUUID) && (this.pickupStatus == PickupStatus.ALLOWED
                 || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
             if (player.isCreative() && SoulWeaponHelper.hasSoulWeapon(player)) {

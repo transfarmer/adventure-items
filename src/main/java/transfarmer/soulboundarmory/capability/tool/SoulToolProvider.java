@@ -38,6 +38,6 @@ public class SoulToolProvider implements ICapabilitySerializable<NBTBase> {
     }
 
     public static ISoulTool get(final Entity entity) {
-        return entity.getCapability(CAPABILITY, null);
+        return entity == null ? null : entity.getCapability(CAPABILITY, null);
     }
 }

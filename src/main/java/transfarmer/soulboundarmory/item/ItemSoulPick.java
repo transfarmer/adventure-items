@@ -20,7 +20,7 @@ import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
-import transfarmer.soulboundarmory.network.tool.client.CToolLevelupMessage;
+import transfarmer.soulboundarmory.network.client.tool.CToolLevelupMessage;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;

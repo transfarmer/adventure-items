@@ -2,33 +2,55 @@ package transfarmer.soulboundarmory.data.weapon;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import transfarmer.soulboundarmory.data.IType;
+import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_GREATSWORD;
-import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_DAGGER;
-import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
+import static transfarmer.soulboundarmory.init.ModItems.*;
 
-public enum SoulWeaponType {
-    GREATSWORD(SOULBOUND_GREATSWORD, 0),
-    SWORD(SOULBOUND_SWORD, 1),
-    DAGGER(SOULBOUND_DAGGER, 2);
+public enum SoulWeaponType implements IType {
+    GREATSWORD(SOULBOUND_GREATSWORD, 0, "charge"),
+    SWORD(SOULBOUND_SWORD, 1, "lightning bolt"),
+    DAGGER(SOULBOUND_DAGGER, 2, "throwing", "perforation", "return", "sneak return");
 
-    private static final SoulWeaponType[] types = {GREATSWORD, SWORD, DAGGER};
+    private final ItemSoulWeapon item;
+    private final int index;
+    private final String[] SKILLS;
+    private static final SoulWeaponType[] TYPES = {GREATSWORD, SWORD, DAGGER};
     private static final List<Item> SOUL_WEAPONS = new ArrayList<>(3);
     static {
         SOUL_WEAPONS.add(GREATSWORD.item);
         SOUL_WEAPONS.add(SWORD.item);
         SOUL_WEAPONS.add(DAGGER.item);
     }
-    public final ItemSoulWeapon item;
-    public final int index;
 
-    SoulWeaponType(Item item, int index) {
+    SoulWeaponType(final Item item, final int index, final String ... skills) {
         this.item = (ItemSoulWeapon) item;
         this.index = index;
+        this.SKILLS = skills;
+    }
+
+    @Override
+    public int getIndex() {
+        return this.index;
+    }
+
+    @Override
+    public Item getItem() {
+        return this.item;
+    }
+
+    @Override
+    public ISoulItem getSoulItem() {
+        return this.item;
+    }
+
+    @Override
+    public String[] getSkills() {
+        return this.SKILLS;
     }
 
     @Override
@@ -37,7 +59,7 @@ public enum SoulWeaponType {
     }
 
     public static SoulWeaponType getType(int index) {
-        return index == -1 ? null : types[index];
+        return index == -1 ? null : TYPES[index];
     }
 
     public static SoulWeaponType getType(Item item) {
@@ -49,7 +71,7 @@ public enum SoulWeaponType {
     }
 
     public static SoulWeaponType[] getTypes() {
-        return types;
+        return TYPES;
     }
 
     public static List<Item> getItems() {

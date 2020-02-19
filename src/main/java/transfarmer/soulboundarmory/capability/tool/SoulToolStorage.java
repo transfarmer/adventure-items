@@ -5,25 +5,24 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.data.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.data.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
 
-import static transfarmer.soulboundarmory.capability.tool.SoulToolHelper.*;
-
 public class SoulToolStorage implements IStorage<ISoulTool> {
     @Override
     public NBTBase writeNBT(Capability<ISoulTool> capability, ISoulTool instance, EnumFacing facing) {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("soultools.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().index);
+        tag.setInteger("soultools.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().getIndex());
         tag.setInteger("soultools.capability.tab", instance.getCurrentTab());
         tag.setInteger("soultools.capability.boundSlot", instance.getBoundSlot());
         final int[][] data = instance.getData();
         final float[][] attributes = instance.getAttributes();
         final int[][] enchantments = instance.getEnchantments();
 
-        SoulToolHelper.forEach(
+        SoulItemHelper.forEach(instance,
             (Integer toolIndex, Integer valueIndex) ->
                 tag.setInteger(String.format("soultools.datum.%s.%s",
                     SoulToolType.getType(toolIndex),
@@ -50,11 +49,11 @@ public class SoulToolStorage implements IStorage<ISoulTool> {
         instance.setCurrentType(tag.getInteger("soultools.capability.index"));
         instance.setCurrentTab(tag.getInteger("soultools.capability.tab"));
         instance.bindSlot(tag.getInteger("soultools.capability.boundSlot"));
-        final int[][] data = new int[SOUL_TOOLS][DATA];
-        final float[][] attributes = new float[SOUL_TOOLS][ATTRIBUTES];
-        final int[][] enchantments = new int[SOUL_TOOLS][ENCHANTMENTS];
+        final int[][] data = new int[instance.getItemAmount()][instance.getDatumAmount()];
+        final float[][] attributes = new float[instance.getItemAmount()][instance.getAttributeAmount()];
+        final int[][] enchantments = new int[instance.getItemAmount()][instance.getEnchantmentAmount()];
 
-        SoulToolHelper.forEach(
+        SoulItemHelper.forEach(instance,
             (Integer toolIndex, Integer valueIndex) ->
                 data[toolIndex][valueIndex] = tag.getInteger(String.format("soultools.datum.%s.%s",
                     SoulToolType.getType(toolIndex),

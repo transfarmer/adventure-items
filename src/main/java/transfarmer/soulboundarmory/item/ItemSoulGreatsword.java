@@ -11,8 +11,8 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.GREATSWORD;
 
@@ -33,7 +33,7 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
-        if (!world.isRemote && player != null && player.getCapability(CAPABILITY, null).getDatum(SKILLS, GREATSWORD) >= 1) {
+        if (!world.isRemote && player != null && SoulWeaponProvider.get(player).getDatum(SKILLS, GREATSWORD) >= 1) {
             player.setActiveHand(hand);
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }

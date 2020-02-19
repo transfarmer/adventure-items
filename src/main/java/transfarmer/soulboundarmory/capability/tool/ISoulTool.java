@@ -2,55 +2,24 @@ package transfarmer.soulboundarmory.capability.tool;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulboundarmory.data.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.data.tool.SoulToolDatum;
-import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
+import transfarmer.soulboundarmory.data.IEnchantment;
+import transfarmer.soulboundarmory.data.IType;
 
-import java.util.SortedMap;
+import java.util.Map;
 
-public interface ISoulTool {
-    void setStatistics(int[][] data, float[][] attributes, int[][] enchantments);
+public interface ISoulTool extends ISoulCapability {
+    float getEffectiveEfficiency(IType type);
 
-    int[][] getData();
-    float[][] getAttributes();
-    int[][] getEnchantments();
+    ItemStack getItemStack(IType type);
 
-    int getDatum(SoulToolDatum datum, SoulToolType type);
-    boolean addDatum(int amount, SoulToolDatum datum, SoulToolType type);
-    void setDatum(int amount, SoulToolDatum datum, SoulToolType type);
-
-    float getAttribute(SoulToolAttribute attribute, SoulToolType type);
-    void setAttributes(float[] attributes, SoulToolType type);
-    void addAttribute(int amount, SoulToolAttribute attribute, SoulToolType toolType);
-
-    int getEnchantment(SoulToolEnchantment enchantment, SoulToolType type);
-    void setEnchantments(int[] enchantments, SoulToolType type);
-    void addEnchantment(int amount, SoulToolEnchantment enchantment, SoulToolType toolType);
-
-    SoulToolType getCurrentType();
-    void setCurrentType(SoulToolType type);
-    void setCurrentType(int index);
-
-    float getEffectiveEfficiency(SoulToolType type);
-
-    ItemStack getItemStack(SoulToolType type);
     ItemStack getItemStack(ItemStack itemStack);
 
-    AttributeModifier[] getAttributeModifiers(SoulToolType type);
+    AttributeModifier[] getAttributeModifiers(IType type);
 
-    SortedMap<SoulToolEnchantment, Integer> getEnchantments(SoulToolType type);
+    Map<IEnchantment, Integer> getEnchantments(IType type);
 
-    String[] getTooltip(SoulToolType type);
+    String[] getTooltip(IType type);
 
-    int getBoundSlot();
-    void bindSlot(int slot);
-    void unbindSlot();
-
-    int getCurrentTab();
-    void setCurrentTab(int tab);
-
-    int getNextLevelXP(SoulToolType type);
-
-    float getEffectiveReachDistance(SoulToolType type);
+    float getEffectiveReachDistance(IType type);
 }

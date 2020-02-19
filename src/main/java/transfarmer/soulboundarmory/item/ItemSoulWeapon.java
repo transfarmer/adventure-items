@@ -18,7 +18,7 @@ import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.ATT
 import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.ATTACK_SPEED_UUID;
 import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.REACH_DISTANCE_UUID;
 
-public abstract class ItemSoulWeapon extends ItemSword {
+public abstract class ItemSoulWeapon extends ItemSword implements ISoulItem {
     private final float attackDamage;
     private final float attackSpeed;
     private final float reachDistance;
@@ -44,14 +44,17 @@ public abstract class ItemSoulWeapon extends ItemSword {
         return false;
     }
 
+    @Override
     public float getAttackDamage() {
         return this.attackDamage;
     }
 
+    @Override
     public float getAttackSpeed() {
         return this.attackSpeed;
     }
 
+    @Override
     public float getReachDistance() {
         return this.reachDistance;
     }
@@ -65,6 +68,7 @@ public abstract class ItemSoulWeapon extends ItemSword {
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
         return false;
     }
+
     @Override
     public Multimap<String, AttributeModifier> getAttributeModifiers(final EntityEquipmentSlot slot, final ItemStack itemStack) {
         final Multimap<String, AttributeModifier> attributeModifiers = HashMultimap.create();

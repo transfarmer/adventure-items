@@ -21,10 +21,11 @@ import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.data.IType;
 import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.network.tool.client.CToolData;
+import transfarmer.soulboundarmory.network.client.tool.CToolData;
 
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
@@ -48,7 +49,7 @@ public class ToolEventSubscriber {
         updatePlayer(event.player);
 
         final ISoulTool capability = SoulToolProvider.get(event.player);
-        final SoulToolType type = capability.getCurrentType();
+        final IType type = capability.getCurrentType();
 
         if (type != null && capability != null && capability.getDatum(LEVEL, type) >= Configuration.preservationLevel
                 && !event.player.world.getGameRules().getBoolean("keepInventory")) {
@@ -59,14 +60,16 @@ public class ToolEventSubscriber {
     private static void updatePlayer(final EntityPlayer player) {
         final ISoulTool capability = SoulToolProvider.get(player);
 
-        Main.CHANNEL.sendTo(new CToolData(
-                capability.getCurrentType(),
-                capability.getCurrentTab(),
-                capability.getBoundSlot(),
-                capability.getData(),
-                capability.getAttributes(),
-                capability.getEnchantments()), (EntityPlayerMP) player
-        );
+        if (capability != null) {
+            Main.CHANNEL.sendTo(new CToolData(
+                    capability.getCurrentType(),
+                    capability.getCurrentTab(),
+                    capability.getBoundSlot(),
+                    capability.getData(),
+                    capability.getAttributes(),
+                    capability.getEnchantments()), (EntityPlayerMP) player
+            );
+        }
     }
 
     @SubscribeEvent
@@ -84,7 +87,7 @@ public class ToolEventSubscriber {
     public static void onPlayerDrops(final PlayerDropsEvent event) {
         final EntityPlayer player = event.getEntityPlayer();
         final ISoulTool capability = SoulToolProvider.get(player);
-        final SoulToolType type = capability.getCurrentType();
+        final IType type = capability.getCurrentType();
 
         if (type != null && capability.getDatum(LEVEL, type) >= Configuration.preservationLevel
                 && !player.world.getGameRules().getBoolean("keepInventory")) {
@@ -178,7 +181,7 @@ public class ToolEventSubscriber {
         if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
             final ISoulTool capability = SoulToolProvider.get(event.getEntityPlayer());
             final IItemSoulTool item = (IItemSoulTool) event.getEntityPlayer().getHeldItemMainhand().getItem();
-            final SoulToolType type = capability.getCurrentType();
+            final IType type = capability.getCurrentType();
 
             if (item.isEffectiveAgainst(event.getState())) {
                 float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type);
