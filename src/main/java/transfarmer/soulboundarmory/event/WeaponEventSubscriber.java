@@ -32,6 +32,7 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
@@ -208,7 +209,7 @@ public class WeaponEventSubscriber {
     public static void onEntityItemPickup(final EntityItemPickupEvent event) {
         event.setResult(ALLOW);
 
-        SoulWeaponHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
+        SoulItemHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
     }
 
     @SubscribeEvent

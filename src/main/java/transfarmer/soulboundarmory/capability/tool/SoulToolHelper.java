@@ -2,11 +2,9 @@ package transfarmer.soulboundarmory.capability.tool;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.NonNullList;
 import transfarmer.soulboundarmory.data.tool.SoulToolType;
 import transfarmer.soulboundarmory.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
@@ -120,42 +118,6 @@ public class SoulToolHelper {
                 player.inventory.deleteStack(itemStack);
             }
         }
-    }
-
-    public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player) {
-        final ISoulTool capability = SoulToolProvider.get(player);
-        final InventoryPlayer inventory = player.inventory;
-        final NonNullList<ItemStack> mainInventory = inventory.mainInventory;
-
-        if (!isSoulTool(itemStack)) {
-            final int slot = inventory.storeItemStack(itemStack);
-
-            if (slot != -1) {
-                final ItemStack slotStack = inventory.getStackInSlot(slot);
-                final int transferred = Math.min(slotStack.getMaxStackSize() - slotStack.getCount(), itemStack.getCount());
-
-                itemStack.setCount(itemStack.getCount() - transferred);
-                slotStack.setCount(slotStack.getCount() + transferred);
-
-                if (itemStack.getCount() > 0) {
-                    return addItemStack(itemStack, player);
-                }
-
-                return true;
-            }
-
-            for (int index = 0; index < mainInventory.size(); index++) {
-                if (index != capability.getBoundSlot() && mainInventory.get(index).isEmpty()) {
-                    return inventory.add(index, itemStack);
-                }
-            }
-
-            return false;
-        }
-
-        return inventory.add(capability.getBoundSlot() >= 0 && inventory.getStackInSlot(capability.getBoundSlot()).isEmpty()
-                ? capability.getBoundSlot()
-                : inventory.getFirstEmptyStack(), itemStack);
     }
 
     public static int getMaxSkills(SoulToolType type) {

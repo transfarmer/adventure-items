@@ -7,14 +7,12 @@ import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldServer;
 import transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute;
@@ -27,7 +25,6 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider.CAPABILITY;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment.FIRE_ASPECT;
 import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.DAGGER;
 
@@ -136,41 +133,6 @@ public class SoulWeaponHelper {
                 player.inventory.deleteStack(itemStack);
             }
         }
-    }
-
-    public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player) {
-        final ISoulWeapon capability = player.getCapability(CAPABILITY, null);
-        final InventoryPlayer inventory = player.inventory;
-        final NonNullList<ItemStack> mainInventory = inventory.mainInventory;
-
-        if (!isSoulWeapon(itemStack)) {
-            final int slot = inventory.storeItemStack(itemStack);
-
-            if (slot != -1) {
-                final ItemStack slotStack = inventory.getStackInSlot(slot);
-                final int transferred = Math.min(slotStack.getMaxStackSize() - slotStack.getCount(), itemStack.getCount());
-
-                itemStack.setCount(itemStack.getCount() - transferred);
-                slotStack.setCount(slotStack.getCount() + transferred);
-
-                if (itemStack.getCount() > 0) {
-                    return addItemStack(itemStack, player);
-                }
-
-                return true;
-            }
-
-            for (int index = 0; index < mainInventory.size(); index++) {
-                if (index != capability.getBoundSlot() && mainInventory.get(index).isEmpty()) {
-                    return inventory.add(index, itemStack);
-                }
-            }
-
-            return false;
-        }
-
-        return inventory.add(capability.getBoundSlot() >= 0 && inventory.getStackInSlot(capability.getBoundSlot()).isEmpty()
-            ? capability.getBoundSlot() : inventory.getFirstEmptyStack(), itemStack);
     }
 
     public static int getMaxSkills(SoulWeaponType type) {

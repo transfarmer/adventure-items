@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
@@ -149,9 +150,11 @@ public class ToolEventSubscriber {
 
     @SubscribeEvent
     public static void onEntityItemPickup(final EntityItemPickupEvent event) {
-        event.setResult(ALLOW);
+        if (!event.getEntityPlayer().world.isRemote) {
+            event.setResult(ALLOW);
 
-        SoulToolHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
+            SoulItemHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
+        }
     }
 
     @SubscribeEvent

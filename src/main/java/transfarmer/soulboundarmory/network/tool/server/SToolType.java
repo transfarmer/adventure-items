@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
@@ -42,7 +43,7 @@ public class SToolType implements IMessage {
                 player.inventory.deleteStack(player.getHeldItemMainhand());
             }
 
-            SoulToolHelper.addItemStack(new ItemStack(instance.getCurrentType().getItem()), player);
+            SoulItemHelper.addItemStack(new ItemStack(instance.getCurrentType().getItem()), player);
 
             return null;
         }
