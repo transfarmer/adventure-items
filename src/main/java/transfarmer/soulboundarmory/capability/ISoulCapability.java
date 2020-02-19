@@ -1,10 +1,13 @@
 package transfarmer.soulboundarmory.capability;
 
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.ItemStack;
 import transfarmer.soulboundarmory.data.IAttribute;
 import transfarmer.soulboundarmory.data.IDatum;
 import transfarmer.soulboundarmory.data.IEnchantment;
 import transfarmer.soulboundarmory.data.IType;
+
+import java.util.Map;
 
 public interface ISoulCapability {
     void setStatistics(int[][] data, float[][] attributes, int[][] enchantments);
@@ -83,5 +86,13 @@ public interface ISoulCapability {
 
     void unbindSlot();
 
+    Map<IEnchantment, Integer> getEnchantments(IType type);
+
+    AttributeModifier[] getAttributeModifiers(IType type);
+
     ItemStack getItemStack(IType type);
+
+    ItemStack getItemStack(ItemStack itemStack);
+
+    String[] getTooltip(IType type);
 }

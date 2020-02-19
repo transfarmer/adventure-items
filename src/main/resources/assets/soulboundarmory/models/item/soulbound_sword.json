@@ -1,6 +1,6 @@
 {
     "parent": "item/handheld",
     "textures": {
-        "layer0": "soulboundarmory:item/soul_sword"
+        "layer0": "soulboundarmory:item/soulbound_sword"
     }
 }

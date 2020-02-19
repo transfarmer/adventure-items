@@ -177,7 +177,7 @@ public class CommonEventSubscriber {
                     minecraft.displayGuiScreen(new SoulToolMenu());
                 } else if (ItemHelper.isItemEquipped(Items.WOODEN_SWORD, player)) {
                     minecraft.displayGuiScreen(new SoulWeaponMenu(-1));
-                } else if (ItemHelper.isItemEquipped(Items.WOODEN_PICKAXE, player)){
+                } else if (ItemHelper.isItemEquipped(Items.WOODEN_PICKAXE, player)) {
                     minecraft.displayGuiScreen(new SoulToolMenu(-1));
                 }
             }
@@ -190,45 +190,40 @@ public class CommonEventSubscriber {
         final EntityPlayer player = event.getEntityPlayer();
 
         if (player != null) {
-            try {
-                if (event.getItemStack().getItem() instanceof ItemSoulWeapon) {
-                    final ISoulWeapon capability = SoulWeaponProvider.get(player);
+            if (event.getItemStack().getItem() instanceof ItemSoulWeapon) {
+                final ISoulCapability capability = SoulWeaponProvider.get(player);
 
-                    final SoulWeaponType weaponType = SoulWeaponType.getType(event.getItemStack());
+                final SoulWeaponType weaponType = SoulWeaponType.getType(event.getItemStack());
+                final List<String> tooltip = event.getToolTip();
+                final String[] newTooltip = capability.getTooltip(weaponType);
+                final int enchantments = event.getItemStack().getEnchantmentTagList().tagCount();
+
+                if (weaponType == GREATSWORD || weaponType == SWORD) {
+                    tooltip.remove(5 + enchantments);
+                }
+
+                tooltip.remove(4 + enchantments);
+                tooltip.remove(3 + enchantments);
+
+                for (int i = 0; i < newTooltip.length; i++) {
+                    tooltip.add(3 + enchantments + i, newTooltip[i]);
+                }
+            } else if (event.getItemStack().getItem() instanceof IItemSoulTool) {
+                final ISoulCapability capability = SoulToolProvider.get(player);
+
+                if (event.getItemStack().getItem() instanceof IItemSoulTool) {
+                    final SoulToolType weaponType = SoulToolType.getType(event.getItemStack());
                     final List<String> tooltip = event.getToolTip();
                     final String[] newTooltip = capability.getTooltip(weaponType);
                     final int enchantments = event.getItemStack().getEnchantmentTagList().tagCount();
+                    Main.LOGGER.error(enchantments);
 
-                    if (weaponType == GREATSWORD || weaponType == SWORD) {
-                        tooltip.remove(5 + enchantments);
-                    }
-
-                    tooltip.remove(4 + enchantments);
                     tooltip.remove(3 + enchantments);
 
                     for (int i = 0; i < newTooltip.length; i++) {
                         tooltip.add(3 + enchantments + i, newTooltip[i]);
                     }
-                } else if (event.getItemStack().getItem() instanceof IItemSoulTool) {
-                    final ISoulTool capability = SoulToolProvider.get(player);
-
-                    if (event.getItemStack().getItem() instanceof IItemSoulTool) {
-                        final SoulToolType weaponType = SoulToolType.getType(event.getItemStack());
-                        final List<String> tooltip = event.getToolTip();
-                        final String[] newTooltip = capability.getTooltip(weaponType);
-                        final int enchantments = event.getItemStack().getEnchantmentTagList().tagCount();
-
-                        tooltip.remove(5 + enchantments);
-                        tooltip.remove(4 + enchantments);
-                        tooltip.remove(3 + enchantments);
-
-                        for (int i = 0; i < newTooltip.length; i++) {
-                            tooltip.add(3 + enchantments + i, newTooltip[i]);
-                        }
-                    }
                 }
-            } catch (ArrayIndexOutOfBoundsException exception) {
-                exception.printStackTrace();
             }
         }
     }
