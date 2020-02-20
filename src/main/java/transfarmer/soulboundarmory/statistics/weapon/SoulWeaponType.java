@@ -20,11 +20,11 @@ public enum SoulWeaponType implements IType {
     private final int index;
     private final String[] SKILLS;
     private static final IType[] TYPES = {GREATSWORD, SWORD, DAGGER};
-    private static final List<Item> SOUL_WEAPONS = new ArrayList<>(3);
+    private static final List<Item> ITEMS = new ArrayList<>(3);
     static {
-        SOUL_WEAPONS.add(GREATSWORD.item);
-        SOUL_WEAPONS.add(SWORD.item);
-        SOUL_WEAPONS.add(DAGGER.item);
+        ITEMS.add(GREATSWORD.item);
+        ITEMS.add(SWORD.item);
+        ITEMS.add(DAGGER.item);
     }
 
     SoulWeaponType(final ItemSoulWeapon item, final int index, final String ... skills) {
@@ -67,7 +67,7 @@ public enum SoulWeaponType implements IType {
     }
 
     public static IType getType(Item item) {
-        return getType(SOUL_WEAPONS.indexOf(item));
+        return getType(ITEMS.indexOf(item));
     }
 
     public static IType getType(ItemStack itemStack) {
@@ -79,6 +79,6 @@ public enum SoulWeaponType implements IType {
     }
 
     public static List<Item> getItems() {
-        return SOUL_WEAPONS;
+        return ITEMS;
     }
 }

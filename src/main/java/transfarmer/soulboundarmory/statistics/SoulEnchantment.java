@@ -1,6 +1,10 @@
 package transfarmer.soulboundarmory.statistics;
 
 import net.minecraft.enchantment.Enchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 import static net.minecraft.init.Enchantments.*;
 
@@ -42,16 +46,16 @@ public class SoulEnchantment extends Statistic {
         return obj instanceof SoulEnchantment && ((SoulEnchantment) obj).index == this.index;
     }
 
-    public static String getName(final int index) {
-        return get(index).toString().toLowerCase();
-    }
-
     public static SoulEnchantment[] get() {
         return ENCHANTMENTS;
     }
 
-    public static SoulEnchantment get(final int index) {
-        return ENCHANTMENTS[index];
+    public static SoulEnchantment get(final IType type, final int index) {
+        return type instanceof SoulWeaponType
+                ? SoulWeaponEnchantment.get(index)
+                : type instanceof SoulToolType
+                ? SoulToolEnchantment.get(index)
+                : null;
     }
 
     public static int getAmount() {

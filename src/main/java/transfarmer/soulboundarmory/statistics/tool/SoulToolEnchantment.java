@@ -18,6 +18,10 @@ public class SoulToolEnchantment extends SoulEnchantment {
         return get(index).toString().toLowerCase();
     }
 
+    public static SoulEnchantment[] get() {
+        return ENCHANTMENTS;
+    }
+
     public static SoulEnchantment get(final int index) {
         return ENCHANTMENTS[index];
     }

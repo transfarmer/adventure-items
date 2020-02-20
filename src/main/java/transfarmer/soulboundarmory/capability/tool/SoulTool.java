@@ -21,7 +21,7 @@ import java.util.Map;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
-import static transfarmer.soulboundarmory.capability.tool.SoulToolHelper.REACH_DISTANCE_UUID;
+import static transfarmer.soulboundarmory.capability.SoulItemHelper.REACH_DISTANCE_UUID;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.*;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.*;
 

@@ -46,7 +46,7 @@ public class SWeaponDatum implements IMessage {
         public IMessage onMessage(SWeaponDatum message, MessageContext context) {
             final EntityPlayer player = Minecraft.getMinecraft().player;
             final ISoulWeapon instance = SoulWeaponProvider.get(player);
-            final SoulDatum datum = SoulWeaponDatum.getDatum(message.datumIndex);
+            final SoulDatum datum = SoulWeaponDatum.get(message.datumIndex);
             final IType type = SoulWeaponType.getType(message.typeIndex);
 
             instance.addDatum(message.value, datum, type);

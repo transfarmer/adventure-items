@@ -48,7 +48,6 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
-import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
@@ -66,7 +65,6 @@ import transfarmer.soulboundarmory.network.client.tool.CToolData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
 import transfarmer.soulboundarmory.statistics.IType;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
@@ -81,8 +79,7 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Configuration.levelupNotifications;
-import static transfarmer.soulboundarmory.Configuration.multipliers;
+import static transfarmer.soulboundarmory.Configuration.*;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_TOOL;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_WEAPON;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
@@ -140,14 +137,14 @@ public class EventSubscriber {
         IType type = capability.getCurrentType();
 
         if (!event.player.world.getGameRules().getBoolean("keepInventory")) {
-            if (type != null && capability.getDatum(SoulWeaponDatum.LEVEL, type) >= Configuration.preservationLevel) {
+            if (type != null && capability.getDatum(SoulWeaponDatum.LEVEL, type) >= preservationLevel) {
                 event.player.addItemStackToInventory(capability.getItemStack(type));
             }
 
             capability = SoulToolProvider.get(event.player);
             type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(SoulToolDatum.LEVEL, type) >= Configuration.preservationLevel) {
+            if (type != null && capability.getDatum(SoulToolDatum.LEVEL, type) >= preservationLevel) {
                 event.player.addItemStackToInventory(capability.getItemStack(type));
             }
         }
@@ -184,15 +181,15 @@ public class EventSubscriber {
             ISoulCapability capability = SoulWeaponProvider.get(player);
             IType type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(SoulDatum.LEVEL, type) >= Configuration.preservationLevel) {
-                event.getDrops().removeIf((final EntityItem item) -> SoulWeaponHelper.isSoulWeapon(item.getItem()));
+            if (type != null && capability.getDatum(LEVEL, type) >= preservationLevel) {
+                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof ItemSoulWeapon);
             }
 
             capability = SoulToolProvider.get(player);
             type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(SoulToolDatum.LEVEL, type) >= Configuration.preservationLevel) {
-                event.getDrops().removeIf((final EntityItem item) -> SoulToolHelper.isSoulTool(item.getItem()));
+            if (type != null && capability.getDatum(LEVEL, type) >= preservationLevel) {
+                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof IItemSoulTool);
             }
         }
     }
@@ -366,6 +363,7 @@ public class EventSubscriber {
                 if (((IItemSoulTool) item).isEffectiveAgainst(event.getState())) {
                     float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type);
                     final int efficiency = capability.getEnchantment(SoulToolEnchantment.SOUL_EFFICIENCY, type);
+                    //noinspection ConstantConditions
                     final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
 
                     if (efficiency > 0) {
@@ -385,11 +383,11 @@ public class EventSubscriber {
                     event.setNewSpeed((event.getOriginalSpeed() - 1 + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type)) / 8);
                 }
             } else if (item instanceof ItemSoulWeapon) {
-                final float breakSpeed = capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType());
+                final float newSpeed = capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType());
 
                 event.setNewSpeed(event.getState().getMaterial() == Material.WEB
-                        ? Math.max(15, breakSpeed)
-                        : breakSpeed
+                        ? Math.max(15, newSpeed)
+                        : newSpeed
                 );
             }
         }
@@ -401,11 +399,11 @@ public class EventSubscriber {
 
         ISoulWeapon weaponCapability = SoulWeaponProvider.get(event.player);
 
-        if (SoulToolHelper.hasSoulTool(event.player)) {
+        if (SoulItemHelper.hasSoulTool(event.player)) {
             ISoulCapability instance = SoulToolProvider.get(event.player);
             InventoryPlayer inventory = event.player.inventory;
 
-            if (SoulToolHelper.isSoulToolEquipped(event.player)) {
+            if (SoulItemHelper.isSoulToolEquipped(event.player)) {
                 final IType type = SoulToolType.getType(inventory.getCurrentItem().getItem());
 
                 if (type != instance.getCurrentType()) {
@@ -426,14 +424,16 @@ public class EventSubscriber {
                         if (instance.getBoundSlot() != -1) {
                             instance.bindSlot(index);
                         }
+
+                        if (!SoulItemHelper.areDataEqual(itemStack, newItemStack)) {
+                            if (itemStack.hasDisplayName()) {
+                                newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                            }
+
+                            inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
+                        }
                     } else if (!event.player.isCreative() && index != firstSlot) {
                         inventory.deleteStack(itemStack);
-                    } else if (!SoulToolHelper.areDataEqual(itemStack, newItemStack)) {
-                        if (itemStack.hasDisplayName()) {
-                            newItemStack.setStackDisplayName(itemStack.getDisplayName());
-                        }
-
-                        inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
                     }
                 }
             }
@@ -482,7 +482,7 @@ public class EventSubscriber {
                 if (itemStack.getItem() instanceof ItemSoulWeapon) {
                     final ItemStack newItemStack = weaponCapability.getItemStack(itemStack);
 
-                    if (!SoulWeaponHelper.areDataEqual(itemStack, newItemStack)) {
+                    if (!SoulItemHelper.areDataEqual(itemStack, newItemStack)) {
                         if (itemStack.hasDisplayName()) {
                             newItemStack.setStackDisplayName(itemStack.getDisplayName());
                         }
@@ -509,7 +509,7 @@ public class EventSubscriber {
 
                 if (SoulWeaponHelper.isSoulWeaponEquipped(player)) {
                     minecraft.displayGuiScreen(new SoulWeaponMenu());
-                } else if (SoulToolHelper.isSoulToolEquipped(player)) {
+                } else if (SoulItemHelper.isSoulToolEquipped(player)) {
                     minecraft.displayGuiScreen(new SoulToolMenu());
                 } else if (ItemHelper.isItemEquipped(Items.WOODEN_SWORD, player)) {
                     minecraft.displayGuiScreen(new SoulWeaponMenu(0));

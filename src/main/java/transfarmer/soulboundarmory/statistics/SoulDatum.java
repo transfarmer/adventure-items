@@ -29,14 +29,14 @@ public class SoulDatum extends Statistic {
     }
 
     public static String getName(final int index) {
-        return getDatum(index).toString().toLowerCase();
+        return get(index).toString().toLowerCase();
     }
 
-    public static SoulDatum[] getData() {
+    public static SoulDatum[] get() {
         return DATA;
     }
 
-    public static SoulDatum getDatum(final int index) {
+    public static SoulDatum get(final int index) {
         return DATA[index];
     }
 

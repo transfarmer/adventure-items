@@ -6,8 +6,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.statistics.*;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
@@ -23,12 +27,9 @@ import java.util.Map;
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.*;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_SHARPNESS;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.*;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREATSWORD;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class SoulWeapon implements ISoulWeapon {
     private IType currentType;
@@ -171,12 +172,7 @@ public class SoulWeapon implements ISoulWeapon {
 
         itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), attributeModifiers[0], MAINHAND);
         itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), attributeModifiers[1], MAINHAND);
-
-        if (type == GREATSWORD) {
-            itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(REACH_DISTANCE_UUID, "generic.reachDistance", 3, ADD), MAINHAND);
-        } else if (type == SWORD) {
-            itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(REACH_DISTANCE_UUID, "generic.reachDistance", 1.5, ADD), MAINHAND);
-        }
+        itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), attributeModifiers[2], MAINHAND);
 
         enchantments.forEach((final SoulEnchantment enchantment, final Integer level) -> itemStack.addEnchantment(enchantment.getEnchantment(), level));
 
@@ -186,8 +182,9 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public AttributeModifier[] getAttributeModifiers(final IType type) {
         return new AttributeModifier[]{
-            new AttributeModifier(ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttackSpeed(type), ADD),
-            new AttributeModifier(ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttackDamage(type), ADD)
+                new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttackSpeed(type), ADD),
+                new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttackDamage(type), ADD),
+                new AttributeModifier(SoulItemHelper.REACH_DISTANCE_UUID, "generic.reachDistance", this.currentType.getSoulItem().getReachDistance(), ADD)
         };
     }
 
@@ -227,9 +224,11 @@ public class SoulWeapon implements ISoulWeapon {
 
         if (this.getAttribute(CRITICAL, type) > 0) {
             tooltip.add(String.format(" %s%s%% %s", Mappings.CRITICAL_FORMAT, FORMAT.format(this.getAttribute(CRITICAL, type)), Mappings.CRITICAL_NAME));
-        } if (this.getAttribute(KNOCKBACK_ATTRIBUTE, type) > 0) {
+        }
+        if (this.getAttribute(KNOCKBACK_ATTRIBUTE, type) > 0) {
             tooltip.add(String.format(" %s%s %s", Mappings.KNOCKBACK_ATTRIBUTE_FORMAT, FORMAT.format(this.getAttribute(KNOCKBACK_ATTRIBUTE, type)), Mappings.KNOCKBACK_ATTRIBUTE_NAME));
-        } if (this.getAttribute(EFFICIENCY_ATTRIBUTE, type) > 0) {
+        }
+        if (this.getAttribute(EFFICIENCY_ATTRIBUTE, type) > 0) {
             tooltip.add(String.format(" %s%s %s", Mappings.WEAPON_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(EFFICIENCY_ATTRIBUTE, type)), Mappings.EFFICIENCY_NAME));
         }
 
@@ -239,7 +238,7 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public int getNextLevelXP(final IType type) {
         return this.getDatum(LEVEL, type) >= Configuration.maxLevel ?
-            1 : Configuration.initialWeaponXP + 4 * (int) Math.round(Math.pow(this.getDatum(LEVEL, type), 1.5));
+                1 : Configuration.initialWeaponXP + 4 * (int) Math.round(Math.pow(this.getDatum(LEVEL, type), 1.5));
     }
 
     @Override

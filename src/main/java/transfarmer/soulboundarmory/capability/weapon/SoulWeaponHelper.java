@@ -4,12 +4,9 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureAttribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
@@ -17,61 +14,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldServer;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 
-import java.util.UUID;
-
-import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_FIRE_ASPECT;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 
 public class SoulWeaponHelper {
-    public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
-    public static final UUID ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
-    public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
-    private static boolean datumEquality;
-
-    public static boolean areDataEqual(ItemStack itemStack0, ItemStack itemStack1) {
-        datumEquality = true;
-
-        itemStack0.getAttributeModifiers(MAINHAND).forEach((String key, AttributeModifier modifier0) -> {
-            if (!datumEquality) return;
-
-            itemStack1.getAttributeModifiers(MAINHAND).get(key).forEach((AttributeModifier modifier1) -> {
-                if (!datumEquality) return;
-
-                if (!modifier0.getID().equals(modifier1.getID()) || modifier0.getAmount() != modifier1.getAmount()) {
-                    datumEquality = false;
-                }
-            });
-        });
-
-        if (datumEquality) {
-            final NBTTagList enchantmentTagList0 = itemStack0.getEnchantmentTagList();
-            final NBTTagList enchantmentTagList1 = itemStack1.getEnchantmentTagList();
-            final int listEntries = Math.max(enchantmentTagList0.tagCount(), enchantmentTagList1.tagCount());
-
-            for (int i = 0; i < listEntries; i++) {
-                final NBTTagCompound tagCompound0 = enchantmentTagList0.getCompoundTagAt(i);
-                final NBTTagCompound tagCompound1 = enchantmentTagList1.getCompoundTagAt(i);
-
-                if (tagCompound0.getSize() == tagCompound1.getSize()) {
-                    final int compoundEntries = Math.max(tagCompound0.getSize(), tagCompound1.getSize());
-
-                    for (int j = 0; j < compoundEntries; j++) {
-                        for (final String key : tagCompound1.getKeySet()) {
-                            if (tagCompound0.getShort(key) != tagCompound1.getShort(key)) {
-                                return false;
-                            }
-                        }
-                    }
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        return datumEquality;
-    }
-
     public static boolean hasSoulWeapon(final EntityPlayer player) {
         final ItemStack[] inventory = player.inventory.mainInventory.toArray(new ItemStack[player.inventory.getSizeInventory() + 1]);
         inventory[player.inventory.getSizeInventory()] = player.getHeldItemOffhand();

@@ -46,7 +46,7 @@ public class SToolDatum implements IMessage {
         public IMessage onMessage(SToolDatum message, MessageContext context) {
             final EntityPlayer player = Minecraft.getMinecraft().player;
             final ISoulTool instance = SoulToolProvider.get(player);
-            final SoulDatum datum = SoulToolDatum.getDatum(message.datumIndex);
+            final SoulDatum datum = SoulToolDatum.get(message.datumIndex);
             final IType type = SoulToolType.getType(message.typeIndex);
 
             instance.addDatum(message.value, datum, type);

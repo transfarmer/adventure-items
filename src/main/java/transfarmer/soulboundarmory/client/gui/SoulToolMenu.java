@@ -11,8 +11,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
-import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
@@ -93,7 +93,7 @@ public class SoulToolMenu extends GuiScreen {
         final int ySep = 32;
         final GuiButton choiceButton = this.addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_PICK_NAME));
 
-        if (SoulToolHelper.hasSoulTool(this.mc.player) || !ItemHelper.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
+        if (SoulItemHelper.hasSoulTool(this.mc.player) || !ItemHelper.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
             choiceButton.enabled = false;
         }
     }
@@ -168,7 +168,7 @@ public class SoulToolMenu extends GuiScreen {
     }
 
     private void drawSelection(final int mouseX, final int mouseY) {
-        if (!SoulToolHelper.hasSoulTool(this.mc.player)) {
+        if (!SoulItemHelper.hasSoulTool(this.mc.player)) {
             this.drawCenteredString(this.fontRenderer, Mappings.MENU_CONFIRMATION,
                     Math.round(width / 2F), 40, 0xFFFFFF);
         }
@@ -255,7 +255,7 @@ public class SoulToolMenu extends GuiScreen {
         switch (button.id) {
             case 0:
                 final IType type = SoulToolType.getType(button.id);
-                final GuiScreen screen = !SoulToolHelper.hasSoulTool(this.mc.player)
+                final GuiScreen screen = !SoulItemHelper.hasSoulTool(this.mc.player)
                         ? null : new SoulToolMenu();
 
                 if (screen == null) {
@@ -370,7 +370,7 @@ public class SoulToolMenu extends GuiScreen {
 
         final int dWheel;
 
-        if ((dWheel = Mouse.getDWheel()) != 0 && SoulToolHelper.isSoulToolEquipped(this.mc.player)) {
+        if ((dWheel = Mouse.getDWheel()) != 0 && SoulItemHelper.isSoulToolEquipped(this.mc.player)) {
             this.mc.displayGuiScreen(new SoulToolMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, 2)));
         }
     }
