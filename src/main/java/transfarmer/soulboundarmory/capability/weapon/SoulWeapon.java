@@ -106,7 +106,7 @@ public class SoulWeapon implements ISoulWeapon {
 
                 return effective ? attackSpeed + 4 : attackSpeed;
             } else if (attribute.equals(ATTACK_DAMAGE)) {
-                float attackDamage = this.getAttribute(ATTACK_DAMAGE, type) + type.getSoulItem().getDamage();
+                float attackDamage = 1 + this.getAttribute(ATTACK_DAMAGE, type) + type.getSoulItem().getDamage();
 
                 return effective && this.getEnchantment(SOUL_SHARPNESS, type) > 0
                         ? attackDamage + 1 + (this.getEnchantment(SOUL_SHARPNESS, type) - 1) / 2F : attackDamage;

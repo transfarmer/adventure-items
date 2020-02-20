@@ -111,9 +111,8 @@ public class EntitySoulDagger extends EntityArrow {
 
             if (capability.getDatum(SKILLS, DAGGER) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
                     || capability.getDatum(SKILLS, DAGGER) >= 3
-                    && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed)
-                    || this.shootingEntity.getDistance(this) >= 256)
-            {
+                    && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed
+                    || this.shootingEntity.getDistance(this) >= 256)) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();
                 double multiplier = 1.8 / capability.getAttribute(ATTACK_SPEED, DAGGER, true, true);
                 final double dX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;

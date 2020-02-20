@@ -19,7 +19,6 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public class CToolData implements IMessage {
-    private String senderUUID;
     private int toolIndex;
     private int currentTab;
     private int boundSlot;
@@ -41,7 +40,7 @@ public class CToolData implements IMessage {
             this.currentTab = 0;
             this.boundSlot = -1;
         } else {
-            this.toolIndex = MathHelper.clamp(type.getIndex(), 0, SoulToolType.getAmount());
+            this.toolIndex = MathHelper.clamp(type.getIndex(), 0, SoulToolType.getAmount() - 1);
             this.currentTab = MathHelper.clamp(currentTab, 0, 2);
             this.boundSlot = boundSlot;
         }

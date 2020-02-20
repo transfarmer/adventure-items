@@ -43,7 +43,7 @@ public enum SoulToolType implements IType {
     }
 
     public static IType getType(final int index) {
-        return TYPES[index];
+        return index == -1 ? null : TYPES[index];
     }
 
     public static IType getType(final ItemStack itemStack) {
