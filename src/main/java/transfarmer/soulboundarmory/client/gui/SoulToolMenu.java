@@ -20,8 +20,8 @@ import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.network.server.tool.*;
 import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.util.ItemHelper;
 
@@ -31,9 +31,9 @@ import java.text.NumberFormat;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
+import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.HARVEST_LEVEL;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.*;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment.*;
 
 @SideOnly(CLIENT)
 public class SoulToolMenu extends GuiScreen {
@@ -41,7 +41,7 @@ public class SoulToolMenu extends GuiScreen {
     private final GUIFactory guiFactory = new GUIFactory();
     private final Renderer RENDERER = new Renderer();
     private final ISoulTool capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
-    private final IType toolType = this.capability.getCurrentType();
+    private final IType type = this.capability.getCurrentType();
 
     public SoulToolMenu() {
         this.mc = Minecraft.getMinecraft();
@@ -101,25 +101,25 @@ public class SoulToolMenu extends GuiScreen {
     private void showAttributes() {
         final GuiButton resetButton = this.addButton(this.guiFactory.resetButton(20));
         final GuiButton[] removePointButtons = this.addRemovePointButtons(23, this.capability.getAttributeAmount());
-        final GuiButton[] addPointButtons = this.addAddPointButtons(4, this.capability.getAttributeAmount(), this.capability.getDatum(ATTRIBUTE_POINTS, this.toolType));
-        resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.toolType) > 0;
+        final GuiButton[] addPointButtons = this.addAddPointButtons(4, this.capability.getAttributeAmount(), this.capability.getDatum(ATTRIBUTE_POINTS, this.type));
+        resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.type) > 0;
 
         for (int index = 0; index < this.capability.getAttributeAmount(); index++) {
-            removePointButtons[index].enabled = this.capability.getAttribute(SoulAttribute.get(this.toolType, index), this.toolType) > 0;
+            removePointButtons[index].enabled = this.capability.getAttribute(SoulAttribute.get(this.type, index), this.type) > 0;
         }
 
-        addPointButtons[HARVEST_LEVEL.getIndex()].enabled &= this.capability.getAttribute(HARVEST_LEVEL, this.toolType) < 3;
+        addPointButtons[HARVEST_LEVEL.getIndex()].enabled &= this.capability.getAttribute(HARVEST_LEVEL, this.type) < 3;
     }
 
     private void showEnchantments() {
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(21));
         final GuiButton[] removePointButtons = addRemovePointButtons(28, this.capability.getEnchantmentAmount());
-        resetButton.enabled = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.toolType) > 0;
+        resetButton.enabled = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.type) > 0;
 
-        this.addAddPointButtons(9, this.capability.getEnchantmentAmount(), this.capability.getDatum(ENCHANTMENT_POINTS, this.toolType));
+        this.addAddPointButtons(9, this.capability.getEnchantmentAmount(), this.capability.getDatum(ENCHANTMENT_POINTS, this.type));
 
         for (int index = 0; index < this.capability.getEnchantmentAmount(); index++) {
-            removePointButtons[index].enabled = this.capability.getEnchantment(SoulToolEnchantment.getEnchantment(index), this.toolType) > 0;
+            removePointButtons[index].enabled = this.capability.getEnchantment(SoulToolEnchantment.get(index), this.type) > 0;
         }
     }
 
@@ -177,39 +177,39 @@ public class SoulToolMenu extends GuiScreen {
     private void drawAttributes(final int mouseX, final int mouseY) {
         final String efficiency = String.format("%s%s: %%s", Mappings.WEAPON_EFFICIENCY_FORMAT, Mappings.EFFICIENCY_NAME);
         final String harvestLevel = String.format("%s%s: %%s (%s)", Mappings.HARVEST_LEVEL_FORMAT, Mappings.HARVEST_LEVEL_NAME,
-                Mappings.getMiningLevels()[Math.min((int) this.capability.getAttribute(HARVEST_LEVEL, this.toolType), 3)]);
+                Mappings.getMiningLevels()[Math.min((int) this.capability.getAttribute(HARVEST_LEVEL, this.type), 3)]);
         final String reachDistance = String.format("%s%s: %%s", Mappings.REACH_DISTANCE_FORMAT, Mappings.REACH_DISTANCE_NAME);
-        final int points = this.capability.getDatum(ATTRIBUTE_POINTS, this.toolType);
+        final int points = this.capability.getDatum(ATTRIBUTE_POINTS, this.type);
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.RENDERER.drawMiddleAttribute(efficiency, capability.getEffectiveEfficiency(this.toolType), 0);
-        this.RENDERER.drawMiddleAttribute(reachDistance, capability.getEffectiveReachDistance(this.toolType), 1);
-        this.RENDERER.drawMiddleAttribute(harvestLevel, capability.getAttribute(HARVEST_LEVEL, this.toolType), 2);
+        this.RENDERER.drawMiddleAttribute(efficiency, capability.getEffectiveEfficiency(this.type), 0);
+        this.RENDERER.drawMiddleAttribute(reachDistance, capability.getEffectiveReachDistance(this.type), 1);
+        this.RENDERER.drawMiddleAttribute(harvestLevel, capability.getAttribute(HARVEST_LEVEL, this.type), 2);
 
         this.drawXPBar(mouseX, mouseY);
     }
 
     private void drawEnchantments(final int mouseX, final int mouseY) {
-        final int points = this.capability.getDatum(ENCHANTMENT_POINTS, this.toolType);
+        final int points = this.capability.getDatum(ENCHANTMENT_POINTS, this.type);
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.EFFICIENCY_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_EFFICIENCY_ENCHANTMENT, this.toolType)), 0);
-        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.FORTUNE_NAME, this.capability.getEnchantment(SOUL_FORTUNE, this.toolType)), 1);
-        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.SILK_TOUCH_NAME, this.capability.getEnchantment(SOUL_SILK_TOUCH, this.toolType)), 2);
+        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.EFFICIENCY_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_EFFICIENCY, this.type)), 0);
+        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.FORTUNE_NAME, this.capability.getEnchantment(SOUL_FORTUNE, this.type)), 1);
+        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.SILK_TOUCH_NAME, this.capability.getEnchantment(SOUL_SILK_TOUCH, this.type)), 2);
 
         this.drawXPBar(mouseX, mouseY);
     }
 
     private void drawSkills(final int mouseX, final int mouseY) {
-        for (int i = 0; i < this.capability.getDatum(SKILLS, this.toolType); i++) {
+        for (int i = 0; i < this.capability.getDatum(SKILLS, this.type); i++) {
             this.drawCenteredString(this.fontRenderer, this.capability.getCurrentType().getSkills()[i],
                     this.width / 2, (i + 2) * this.height / 16, 0xFFFFFF);
         }
@@ -226,10 +226,10 @@ public class SoulToolMenu extends GuiScreen {
         GlStateManager.color(1F, 1F, 1F, 1F);
         this.mc.getTextureManager().bindTexture(XP_BAR);
         this.drawTexturedModalRect(barLeftX, barTopY, 0, 40, 182, 5);
-        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, Math.min(182, Math.round((float) capability.getDatum(XP, this.toolType) / capability.getNextLevelXP(this.toolType) * 182)), 5);
+        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, Math.min(182, Math.round((float) capability.getDatum(XP, this.type) / capability.getNextLevelXP(this.type) * 182)), 5);
         this.mc.getTextureManager().deleteTexture(XP_BAR);
 
-        final int level = this.capability.getDatum(LEVEL, this.toolType);
+        final int level = this.capability.getDatum(LEVEL, this.type);
         final String levelString = String.format("%d", level);
         final int levelLeftX = Math.round((width - this.fontRenderer.getStringWidth(levelString)) / 2F) + 1;
         final int levelTopY = height / 2 - 8;
@@ -241,11 +241,11 @@ public class SoulToolMenu extends GuiScreen {
 
         if (mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
                 && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT) {
-            this.drawHoveringText(String.format("%d/%d", capability.getDatum(LEVEL, this.toolType), Configuration.maxLevel), mouseX, mouseY);
+            this.drawHoveringText(String.format("%d/%d", capability.getDatum(LEVEL, this.type), Configuration.maxLevel), mouseX, mouseY);
         } else if (mouseX >= (width - 182) / 2 && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4) {
-            final String string = this.capability.getDatum(LEVEL, this.toolType) < Configuration.maxLevel
-                    ? String.format("%d/%d", capability.getDatum(XP, this.toolType), capability.getNextLevelXP(this.toolType))
-                    : String.format("%d", capability.getDatum(XP, this.toolType));
+            final String string = this.capability.getDatum(LEVEL, this.type) < Configuration.maxLevel
+                    ? String.format("%d/%d", capability.getDatum(XP, this.type), capability.getNextLevelXP(this.type))
+                    : String.format("%d", capability.getDatum(XP, this.type));
             this.drawHoveringText(string, mouseX, mouseY);
         }
     }
@@ -254,7 +254,7 @@ public class SoulToolMenu extends GuiScreen {
     public void actionPerformed(final GuiButton button) {
         switch (button.id) {
             case 0:
-                final SoulToolType type = SoulToolType.getType(button.id);
+                final IType type = SoulToolType.getType(button.id);
                 final GuiScreen screen = !SoulToolHelper.hasSoulTool(this.mc.player)
                         ? null : new SoulToolMenu();
 
@@ -279,10 +279,10 @@ public class SoulToolMenu extends GuiScreen {
                 int amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(ATTRIBUTE_POINTS, this.toolType);
+                    amount = this.capability.getDatum(ATTRIBUTE_POINTS, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolAttributePoints(amount, SoulToolAttribute.get(button.id - 4), this.toolType));
+                Main.CHANNEL.sendToServer(new SToolAttributePoints(amount, SoulToolAttribute.get(button.id - 4), this.type));
                 break;
             case 9:
             case 10:
@@ -294,10 +294,10 @@ public class SoulToolMenu extends GuiScreen {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(ENCHANTMENT_POINTS, this.toolType);
+                    amount = this.capability.getDatum(ENCHANTMENT_POINTS, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolEnchantmentPoints(amount, SoulToolEnchantment.getEnchantment(button.id - 9), this.toolType));
+                Main.CHANNEL.sendToServer(new SToolEnchantmentPoints(amount, SoulToolEnchantment.get(button.id - 9), this.type));
                 break;
             case 16:
             case 17:
@@ -306,10 +306,10 @@ public class SoulToolMenu extends GuiScreen {
                 this.mc.displayGuiScreen(new SoulToolMenu(button.id - 16));
                 break;
             case 20:
-                Main.CHANNEL.sendToServer(new SToolResetAttributes(this.toolType));
+                Main.CHANNEL.sendToServer(new SToolResetAttributes(this.type));
                 break;
             case 21:
-                Main.CHANNEL.sendToServer(new SToolResetEnchantments(this.toolType));
+                Main.CHANNEL.sendToServer(new SToolResetEnchantments(this.type));
                 break;
             case 22:
                 final int slot = this.mc.player.inventory.currentItem;
@@ -331,10 +331,10 @@ public class SoulToolMenu extends GuiScreen {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.toolType);
+                    amount = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolAttributePoints(-amount, SoulToolAttribute.get(button.id - 23), this.toolType));
+                Main.CHANNEL.sendToServer(new SToolAttributePoints(-amount, SoulToolAttribute.get(button.id - 23), this.type));
                 break;
             case 28:
             case 29:
@@ -346,10 +346,10 @@ public class SoulToolMenu extends GuiScreen {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.toolType);
+                    amount = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolEnchantmentPoints(-amount, SoulToolEnchantment.getEnchantment(button.id - 28), this.toolType));
+                Main.CHANNEL.sendToServer(new SToolEnchantmentPoints(-amount, SoulToolEnchantment.get(button.id - 28), this.type));
         }
     }
 

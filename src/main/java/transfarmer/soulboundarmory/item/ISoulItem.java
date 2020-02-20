@@ -5,5 +5,5 @@ public interface ISoulItem {
 
     float getAttackSpeed();
 
-    float getAttackDamage();
+    float getDamage();
 }

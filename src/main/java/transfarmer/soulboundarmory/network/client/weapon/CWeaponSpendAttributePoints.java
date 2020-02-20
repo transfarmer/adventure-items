@@ -48,12 +48,12 @@ public class CWeaponSpendAttributePoints implements IMessage {
         @Override
         public IMessage onMessage(final CWeaponSpendAttributePoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final IType weaponType = SoulWeaponType.getType(message.weaponIndex);
+            final IType type = SoulWeaponType.getType(message.weaponIndex);
             final SoulAttribute attribute = SoulWeaponAttribute.get(message.attributeIndex);
             final ISoulWeapon instance = SoulWeaponProvider.get(minecraft.player);
 
             minecraft.addScheduledTask(() -> {
-                instance.addAttribute(message.amount, attribute, weaponType);
+                instance.addAttribute(message.amount, attribute, type);
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
             });
 

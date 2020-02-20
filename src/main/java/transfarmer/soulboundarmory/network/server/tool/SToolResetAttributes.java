@@ -6,10 +6,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.network.client.tool.CToolResetAttributes;
 import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
-import transfarmer.soulboundarmory.network.client.tool.CToolResetAttributes;
 
 public class SToolResetAttributes implements IMessage {
     private int index;

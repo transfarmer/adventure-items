@@ -43,12 +43,12 @@ public class SWeaponAttributePoints implements IMessage {
         @Override
         public IMessage onMessage(final SWeaponAttributePoints message, final MessageContext context) {
             final SoulAttribute attribute = SoulWeaponAttribute.get(message.attributeIndex);
-            final IType weaponType = SoulWeaponType.getType(message.weaponIndex);
+            final IType type = SoulWeaponType.getType(message.weaponIndex);
             final ISoulWeapon instance = SoulWeaponProvider.get(context.getServerHandler().player);
 
-            instance.addAttribute(message.amount, attribute, weaponType);
+            instance.addAttribute(message.amount, attribute, type);
 
-            return new CWeaponSpendAttributePoints(message.amount, attribute, weaponType);
+            return new CWeaponSpendAttributePoints(message.amount, attribute, type);
         }
     }
 }

@@ -9,8 +9,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
-import transfarmer.soulboundarmory.statistics.IEnchantment;
 import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
@@ -23,7 +23,7 @@ public class CToolSpendEnchantmentPoints implements IMessage {
 
     public CToolSpendEnchantmentPoints() {}
 
-    public CToolSpendEnchantmentPoints(final int amount, final IEnchantment enchantment, final IType type) {
+    public CToolSpendEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final IType type) {
         this.amount = amount;
         this.enchantmentIndex = enchantment.getIndex();
         this.typeIndex = type.getIndex();
@@ -48,12 +48,12 @@ public class CToolSpendEnchantmentPoints implements IMessage {
         @Override
         public IMessage onMessage(final CToolSpendEnchantmentPoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final IEnchantment enchantment = SoulToolEnchantment.getEnchantment(message.enchantmentIndex);
-            final IType ToolType = SoulToolType.getType(message.typeIndex);
+            final SoulEnchantment enchantment = SoulToolEnchantment.get(message.enchantmentIndex);
+            final IType type = SoulToolType.getType(message.typeIndex);
             final ISoulTool instance = SoulToolProvider.get(Minecraft.getMinecraft().player);
 
             minecraft.addScheduledTask(() -> {
-                instance.addEnchantment(message.amount, enchantment, ToolType);
+                instance.addEnchantment(message.amount, enchantment, type);
                 minecraft.displayGuiScreen(new SoulToolMenu());
             });
 

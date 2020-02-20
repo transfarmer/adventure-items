@@ -2,9 +2,9 @@ package transfarmer.soulboundarmory.statistics.weapon;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.soulboundarmory.statistics.IType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public enum SoulWeaponType implements IType {
     private final ItemSoulWeapon item;
     private final int index;
     private final String[] SKILLS;
-    private static final SoulWeaponType[] TYPES = {GREATSWORD, SWORD, DAGGER};
+    private static final IType[] TYPES = {GREATSWORD, SWORD, DAGGER};
     private static final List<Item> SOUL_WEAPONS = new ArrayList<>(3);
     static {
         SOUL_WEAPONS.add(GREATSWORD.item);
@@ -62,19 +62,19 @@ public enum SoulWeaponType implements IType {
         return TYPES.length;
     }
 
-    public static SoulWeaponType getType(int index) {
+    public static IType getType(int index) {
         return index == -1 ? null : TYPES[index];
     }
 
-    public static SoulWeaponType getType(Item item) {
+    public static IType getType(Item item) {
         return getType(SOUL_WEAPONS.indexOf(item));
     }
 
-    public static SoulWeaponType getType(ItemStack itemStack) {
+    public static IType getType(ItemStack itemStack) {
         return getType(itemStack.getItem());
     }
 
-    public static SoulWeaponType[] getTypes() {
+    public static IType[] getTypes() {
         return TYPES;
     }
 

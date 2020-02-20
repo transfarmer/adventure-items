@@ -19,8 +19,9 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.soulboundarmory.network.client.tool.CToolLevelupMessage;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
@@ -60,7 +61,7 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
         if (entity instanceof EntityPlayer && this.isEffectiveAgainst(blockState)
                 && this.canHarvestBlock(blockState, (EntityPlayer) entity)) {
             final ISoulTool capability = SoulToolProvider.get(entity);
-            final SoulToolType type = SoulToolType.getType(itemStack);
+            final IType type = SoulToolType.getType(itemStack);
             final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5);
 
             if (capability.addDatum(xp, XP, type) && !world.isRemote && Configuration.levelupNotifications) {
@@ -82,14 +83,10 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
     }
 
     @Override
-    public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot) {
-        final Multimap<String, AttributeModifier> attributeModifiers = super.getItemAttributeModifiers(equipmentSlot);
+    public Multimap<String, AttributeModifier> getAttributeModifiers(final EntityEquipmentSlot equipmentSlot, final ItemStack itemStack) {
+        itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulToolHelper.REACH_DISTANCE_UUID, "generic.reachDistance", this.reachDistance, ADD), MAINHAND);
 
-        if (equipmentSlot == MAINHAND) {
-            attributeModifiers.put(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulToolHelper.REACH_DISTANCE_UUID, "generic.reachDistance", this.reachDistance, ADD));
-        }
-
-        return attributeModifiers;
+        return itemStack.getAttributeModifiers(MAINHAND);
     }
 
     @Override
@@ -140,7 +137,7 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
     }
 
     @Override
-    public float getAttackDamage() {
+    public float getDamage() {
         return this.attackDamage;
     }
 

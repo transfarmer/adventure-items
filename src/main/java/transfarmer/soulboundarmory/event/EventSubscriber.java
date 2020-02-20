@@ -56,13 +56,6 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
 import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
-import transfarmer.soulboundarmory.statistics.IType;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
@@ -72,6 +65,13 @@ import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.tool.CToolData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 import transfarmer.util.ItemHelper;
 
 import java.util.List;
@@ -89,7 +89,8 @@ import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.LEVEL;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.XP;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
@@ -364,7 +365,7 @@ public class EventSubscriber {
             if (item instanceof IItemSoulTool) {
                 if (((IItemSoulTool) item).isEffectiveAgainst(event.getState())) {
                     float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type);
-                    final int efficiency = capability.getEnchantment(SoulToolEnchantment.SOUL_EFFICIENCY_ENCHANTMENT, type);
+                    final int efficiency = capability.getEnchantment(SoulToolEnchantment.SOUL_EFFICIENCY, type);
                     final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
 
                     if (efficiency > 0) {
@@ -405,48 +406,35 @@ public class EventSubscriber {
             InventoryPlayer inventory = event.player.inventory;
 
             if (SoulToolHelper.isSoulToolEquipped(event.player)) {
-                final SoulToolType type = SoulToolType.getType(inventory.getCurrentItem().getItem());
+                final IType type = SoulToolType.getType(inventory.getCurrentItem().getItem());
 
                 if (type != instance.getCurrentType()) {
                     instance.setCurrentType(type);
                 }
             }
 
-            if (instance.getCurrentType() != null) {
-                int firstSlot = -1;
-
-                for (final ItemStack itemStack : inventory.mainInventory) {
-                    if (SoulToolHelper.isSoulTool(itemStack)) {
-                        final int index = inventory.mainInventory.indexOf(itemStack);
-
-                        if (itemStack.getItem() == instance.getCurrentType().getItem() && firstSlot == -1) {
-                            firstSlot = index;
-
-                            if (instance.getBoundSlot() != -1) {
-                                instance.bindSlot(index);
-                            }
-
-                            continue;
-                        }
-
-                        if (!event.player.isCreative() && index != firstSlot) {
-                            inventory.deleteStack(itemStack);
-                        }
-                    }
-                }
-            }
+            int firstSlot = -1;
 
             for (final ItemStack itemStack : inventory.mainInventory) {
-                if (!SoulToolHelper.isSoulTool(itemStack)) continue;
+                if (itemStack.getItem() instanceof IItemSoulTool) {
+                    final ItemStack newItemStack = instance.getItemStack(itemStack);
+                    final int index = inventory.mainInventory.indexOf(itemStack);
 
-                final ItemStack newItemStack = instance.getItemStack(itemStack);
+                    if (itemStack.getItem() == instance.getCurrentType().getItem() && firstSlot == -1) {
+                        firstSlot = index;
 
-                if (!SoulToolHelper.areDataEqual(itemStack, newItemStack)) {
-                    if (itemStack.hasDisplayName()) {
-                        newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                        if (instance.getBoundSlot() != -1) {
+                            instance.bindSlot(index);
+                        }
+                    } else if (!event.player.isCreative() && index != firstSlot) {
+                        inventory.deleteStack(itemStack);
+                    } else if (!SoulToolHelper.areDataEqual(itemStack, newItemStack)) {
+                        if (itemStack.hasDisplayName()) {
+                            newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                        }
+
+                        inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
                     }
-
-                    inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
                 }
             }
         }
@@ -491,16 +479,16 @@ public class EventSubscriber {
             }
 
             for (final ItemStack itemStack : inventory.mainInventory) {
-                if (!SoulWeaponHelper.isSoulWeapon(itemStack)) continue;
+                if (itemStack.getItem() instanceof ItemSoulWeapon) {
+                    final ItemStack newItemStack = weaponCapability.getItemStack(itemStack);
 
-                final ItemStack newItemStack = weaponCapability.getItemStack(itemStack);
+                    if (!SoulWeaponHelper.areDataEqual(itemStack, newItemStack)) {
+                        if (itemStack.hasDisplayName()) {
+                            newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                        }
 
-                if (!SoulWeaponHelper.areDataEqual(itemStack, newItemStack)) {
-                    if (itemStack.hasDisplayName()) {
-                        newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                        inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
                     }
-
-                    inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
                 }
             }
         }

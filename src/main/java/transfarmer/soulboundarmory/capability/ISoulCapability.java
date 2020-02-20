@@ -2,10 +2,7 @@ package transfarmer.soulboundarmory.capability;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulboundarmory.statistics.IEnchantment;
-import transfarmer.soulboundarmory.statistics.IType;
-import transfarmer.soulboundarmory.statistics.SoulAttribute;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.*;
 
 import java.util.List;
 import java.util.Map;
@@ -51,19 +48,19 @@ public interface ISoulCapability {
 
     void setAttribute(float value, SoulAttribute attribute, IType type);
 
-    void addAttribute(int amount, SoulAttribute attribute, IType toolType);
+    void addAttribute(int amount, SoulAttribute attribute, IType type);
 
     void setData(int[] data, IType type);
 
     void setAttributes(float[] attributes, IType type);
 
-    int getEnchantment(IEnchantment enchantment, IType type);
+    int getEnchantment(SoulEnchantment enchantment, IType type);
 
     void setEnchantments(int[] enchantments, IType type);
 
-    void addEnchantment(int amount, IEnchantment enchantment, IType toolType);
+    void addEnchantment(int amount, SoulEnchantment enchantment, IType type);
 
-    int getNextLevelXP(IType weaponType);
+    int getNextLevelXP(IType type);
 
     int getCurrentTab();
 
@@ -75,7 +72,7 @@ public interface ISoulCapability {
 
     void unbindSlot();
 
-    Map<IEnchantment, Integer> getEnchantments(IType type);
+    Map<SoulEnchantment, Integer> getEnchantments(IType type);
 
     AttributeModifier[] getAttributeModifiers(IType type);
 

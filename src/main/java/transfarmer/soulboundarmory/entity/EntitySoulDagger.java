@@ -28,8 +28,8 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
 import java.util.UUID;
 
+import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_FIRE_ASPECT;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment.FIRE_ASPECT;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 
 public class EntitySoulDagger extends EntityArrow {
@@ -295,8 +295,8 @@ public class EntitySoulDagger extends EntityArrow {
                             burnTime += 5;
                         }
 
-                        if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
-                            burnTime += capability.getEnchantment(FIRE_ASPECT, DAGGER) * 4;
+                        if (capability.getEnchantments(DAGGER).containsKey(SOUL_FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
+                            burnTime += capability.getEnchantment(SOUL_FIRE_ASPECT, DAGGER) * 4;
                         }
 
                         if (burnTime > 0 && !entity.isBurning()) {

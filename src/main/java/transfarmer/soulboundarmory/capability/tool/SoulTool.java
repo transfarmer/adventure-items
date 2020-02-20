@@ -6,10 +6,7 @@ import net.minecraft.item.ItemStack;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.statistics.IEnchantment;
-import transfarmer.soulboundarmory.statistics.IType;
-import transfarmer.soulboundarmory.statistics.SoulAttribute;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.*;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
@@ -164,7 +161,7 @@ public class SoulTool implements ISoulTool {
     }
 
     @Override
-    public int getEnchantment(final IEnchantment enchantment, final IType type) {
+    public int getEnchantment(final SoulEnchantment enchantment, final IType type) {
         return this.enchantments[type.getIndex()][enchantment.getIndex()];
     }
 
@@ -174,7 +171,7 @@ public class SoulTool implements ISoulTool {
     }
 
     @Override
-    public void addEnchantment(final int amount, final IEnchantment enchantment, final IType type) {
+    public void addEnchantment(final int amount, final SoulEnchantment enchantment, final IType type) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
@@ -220,10 +217,10 @@ public class SoulTool implements ISoulTool {
     public ItemStack getItemStack(final IType type) {
         final ItemStack itemStack = new ItemStack(type.getItem());
         final AttributeModifier[] attributeModifiers = this.getAttributeModifiers(type);
-        final Map<IEnchantment, Integer> enchantments = this.getEnchantments(type);
+        final Map<SoulEnchantment, Integer> enchantments = this.getEnchantments(type);
 
         itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), attributeModifiers[0], MAINHAND);
-        enchantments.forEach((final IEnchantment enchantment, final Integer level) -> itemStack.addEnchantment(enchantment.getEnchantment(), level));
+        enchantments.forEach((final SoulEnchantment enchantment, final Integer level) -> itemStack.addEnchantment(enchantment.getEnchantment(), level));
 
         return itemStack;
     }
@@ -236,10 +233,10 @@ public class SoulTool implements ISoulTool {
     }
 
     @Override
-    public Map<IEnchantment, Integer> getEnchantments(final IType type) {
-        final Map<IEnchantment, Integer> enchantments = new LinkedHashMap<>();
+    public Map<SoulEnchantment, Integer> getEnchantments(final IType type) {
+        final Map<SoulEnchantment, Integer> enchantments = new LinkedHashMap<>();
 
-        for (final IEnchantment enchantment : SoulToolEnchantment.getEnchantments()) {
+        for (final SoulEnchantment enchantment : SoulToolEnchantment.get()) {
             final int level = this.getEnchantment(enchantment, type);
 
             if (level > 0) {

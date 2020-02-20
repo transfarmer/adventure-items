@@ -20,7 +20,8 @@ public class SoulToolHelper {
     }
 
     public static boolean isSoulToolEquipped(final EntityPlayer player) {
-        return isSoulTool(player.getHeldItemMainhand()) || isSoulTool(player.getHeldItemOffhand());
+        return player.getHeldItemMainhand().getItem() instanceof IItemSoulTool
+                || player.getHeldItemOffhand().getItem() instanceof IItemSoulTool;
     }
 
     public static boolean hasSoulTool(final EntityPlayer player) {
@@ -72,13 +73,5 @@ public class SoulToolHelper {
         }
 
         return datumEquality;
-    }
-
-    public static void removeSoulTools(final EntityPlayer player) {
-        for (final ItemStack itemStack : player.inventory.mainInventory) {
-            if (isSoulTool(itemStack)) {
-                player.inventory.deleteStack(itemStack);
-            }
-        }
     }
 }

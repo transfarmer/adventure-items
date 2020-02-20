@@ -48,12 +48,12 @@ public class CToolSpendAttributePoints implements IMessage {
         @Override
         public IMessage onMessage(final CToolSpendAttributePoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final IType ToolType = SoulToolType.getType(message.ToolIndex);
+            final IType type = SoulToolType.getType(message.ToolIndex);
             final SoulAttribute attribute = SoulToolAttribute.get(message.attributeIndex);
             final ISoulTool instance = SoulToolProvider.get(Minecraft.getMinecraft().player);
 
             minecraft.addScheduledTask(() -> {
-                instance.addAttribute(message.amount, attribute, ToolType);
+                instance.addAttribute(message.amount, attribute, type);
                 minecraft.displayGuiScreen(new SoulToolMenu());
             });
 

@@ -15,9 +15,9 @@ import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 import java.util.UUID;

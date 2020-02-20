@@ -8,11 +8,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
 import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
 
 public class SWeaponDatum implements IMessage {
     private int value;

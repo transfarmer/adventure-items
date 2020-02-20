@@ -20,7 +20,7 @@ import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import java.util.UUID;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment.FIRE_ASPECT;
+import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_FIRE_ASPECT;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 
 public class SoulWeaponHelper {
@@ -129,8 +129,8 @@ public class SoulWeaponHelper {
                     burnTime += 5;
                 }
 
-                if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(target instanceof EntityEnderman)) {
-                    burnTime += capability.getEnchantment(FIRE_ASPECT, DAGGER) * 4;
+                if (capability.getEnchantments(DAGGER).containsKey(SOUL_FIRE_ASPECT) && !(target instanceof EntityEnderman)) {
+                    burnTime += capability.getEnchantment(SOUL_FIRE_ASPECT, DAGGER) * 4;
                 }
 
                 if (burnTime > 0 && !target.isBurning()) {

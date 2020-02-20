@@ -9,6 +9,7 @@ import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.network.client.tool.CToolSpendAttributePoints;
 import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
@@ -43,12 +44,12 @@ public class SToolAttributePoints implements IMessage {
         @Override
         public IMessage onMessage(final SToolAttributePoints message, final MessageContext context) {
             final SoulAttribute attribute = SoulToolAttribute.get(message.attributeIndex);
-            final IType toolType = SoulToolType.getType(message.ToolIndex);
+            final IType type = SoulToolType.getType(message.ToolIndex);
             final ISoulTool instance = SoulToolProvider.get(context.getServerHandler().player);
 
-            instance.addAttribute(message.amount, attribute, toolType);
+            instance.addAttribute(message.amount, attribute, type);
 
-            return new CToolSpendAttributePoints(message.amount, attribute, toolType);
+            return new CToolSpendAttributePoints(message.amount, attribute, type);
         }
     }
 }

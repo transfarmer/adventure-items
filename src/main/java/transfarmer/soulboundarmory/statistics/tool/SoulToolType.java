@@ -2,9 +2,9 @@ package transfarmer.soulboundarmory.statistics.tool;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ItemSoulPick;
+import transfarmer.soulboundarmory.statistics.IType;
 
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_PICK;
 
@@ -15,7 +15,7 @@ public enum SoulToolType implements IType {
     private final int index;
     private final String[] SKILLS;
 
-    private static final SoulToolType[] TYPES = {PICK};
+    private static final IType[] TYPES = {PICK};
 
     SoulToolType(final IItemSoulTool item, final int index, final String ... skills) {
         this.item = item;
@@ -43,22 +43,22 @@ public enum SoulToolType implements IType {
         return this.SKILLS;
     }
 
-    public static SoulToolType getType(final int index) {
+    public static IType getType(final int index) {
         if (index != -1) return TYPES[index];
         return null;
     }
 
-    public static SoulToolType getType(final ItemStack itemStack) {
+    public static IType getType(final ItemStack itemStack) {
         return getType(itemStack.getItem());
     }
 
-    public static SoulToolType getType(final Item item) {
+    public static IType getType(final Item item) {
         if (item instanceof ItemSoulPick) {
             return PICK;
         } else return null;
     }
 
-    public static SoulToolType[] getTypes() {
+    public static IType[] getTypes() {
         return TYPES;
     }
 

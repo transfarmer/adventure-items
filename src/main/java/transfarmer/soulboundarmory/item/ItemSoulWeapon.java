@@ -42,7 +42,7 @@ public abstract class ItemSoulWeapon extends ItemSword implements ISoulItem {
     }
 
     @Override
-    public float getAttackDamage() {
+    public float getDamage() {
         return this.attackDamage;
     }
 

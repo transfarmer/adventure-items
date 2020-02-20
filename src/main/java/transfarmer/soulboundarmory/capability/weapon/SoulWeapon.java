@@ -7,10 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.statistics.IEnchantment;
-import transfarmer.soulboundarmory.statistics.IType;
-import transfarmer.soulboundarmory.statistics.SoulAttribute;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.*;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
@@ -27,9 +24,9 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.*;
+import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_SHARPNESS;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.*;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment.SHARPNESS;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREATSWORD;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
@@ -147,15 +144,15 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public float getAttackDamage(final IType type) {
-        return this.attributes[type.getIndex()][ATTACK_DAMAGE.getIndex()] + type.getSoulItem().getAttackDamage();
+        return this.attributes[type.getIndex()][ATTACK_DAMAGE.getIndex()] + type.getSoulItem().getDamage();
     }
 
     @Override
     public float getEffectiveAttackDamage(final IType type) {
         float attackDamage = this.getAttackDamage(type);
 
-        if (this.getEnchantment(SHARPNESS, type) > 0) {
-            attackDamage += 1 + (this.getEnchantment(SHARPNESS, type) - 1) / 2F;
+        if (this.getEnchantment(SOUL_SHARPNESS, type) > 0) {
+            attackDamage += 1 + (this.getEnchantment(SOUL_SHARPNESS, type) - 1) / 2F;
         }
 
         return attackDamage;
@@ -170,7 +167,7 @@ public class SoulWeapon implements ISoulWeapon {
     public ItemStack getItemStack(final IType type) {
         final ItemStack itemStack = new ItemStack(type.getItem());
         final AttributeModifier[] attributeModifiers = getAttributeModifiers(type);
-        final Map<IEnchantment, Integer> enchantments = this.getEnchantments(type);
+        final Map<SoulEnchantment, Integer> enchantments = this.getEnchantments(type);
 
         itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), attributeModifiers[0], MAINHAND);
         itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), attributeModifiers[1], MAINHAND);
@@ -181,7 +178,7 @@ public class SoulWeapon implements ISoulWeapon {
             itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(REACH_DISTANCE_UUID, "generic.reachDistance", 1.5, ADD), MAINHAND);
         }
 
-        enchantments.forEach((final IEnchantment enchantment, final Integer level) -> itemStack.addEnchantment(enchantment.getEnchantment(), level));
+        enchantments.forEach((final SoulEnchantment enchantment, final Integer level) -> itemStack.addEnchantment(enchantment.getEnchantment(), level));
 
         return itemStack;
     }
@@ -195,10 +192,10 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public Map<IEnchantment, Integer> getEnchantments(final IType type) {
-        final Map<IEnchantment, Integer> enchantments = new LinkedHashMap<>();
+    public Map<SoulEnchantment, Integer> getEnchantments(final IType type) {
+        final Map<SoulEnchantment, Integer> enchantments = new LinkedHashMap<>();
 
-        for (final IEnchantment enchantment : SoulWeaponEnchantment.getEnchantments()) {
+        for (final SoulEnchantment enchantment : SoulWeaponEnchantment.get()) {
             final int level = this.getEnchantment(enchantment, type);
 
             if (level > 0) {
@@ -214,12 +211,12 @@ public class SoulWeapon implements ISoulWeapon {
     public List<String> getTooltip(final IType type) {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
         final List<String> tooltip = new ArrayList<>(7);
-        final Map<IEnchantment, Integer> enchantments = this.getEnchantments(type);
+        final Map<SoulEnchantment, Integer> enchantments = this.getEnchantments(type);
 
         float attackDamage = this.getAttackDamage(type) + 1;
 
-        if (enchantments.containsKey(SHARPNESS)) {
-            attackDamage += 1 + (enchantments.get(SHARPNESS) - 1) / 2F;
+        if (enchantments.containsKey(SOUL_SHARPNESS)) {
+            attackDamage += 1 + (enchantments.get(SOUL_SHARPNESS) - 1) / 2F;
         }
 
         tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_SPEED_FORMAT, FORMAT.format(this.getAttackSpeed(type) + 4), Mappings.ATTACK_SPEED_NAME));
@@ -285,12 +282,12 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int getEnchantment(final IEnchantment enchantment, final IType type) {
+    public int getEnchantment(final SoulEnchantment enchantment, final IType type) {
         return this.enchantments[type.getIndex()][enchantment.getIndex()];
     }
 
     @Override
-    public void addEnchantment(final int amount, final IEnchantment enchantment, final IType type) {
+    public void addEnchantment(final int amount, final SoulEnchantment enchantment, final IType type) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {

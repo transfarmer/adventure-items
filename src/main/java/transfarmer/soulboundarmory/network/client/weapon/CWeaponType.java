@@ -19,9 +19,9 @@ public class CWeaponType implements IMessage {
 
     public CWeaponType() {}
 
-    public CWeaponType(final int slot, final IType weaponType) {
+    public CWeaponType(final int slot, final IType type) {
         this.slot = slot;
-        this.weaponIndex = weaponType.getIndex();
+        this.weaponIndex = type.getIndex();
     }
 
     public void fromBytes(final ByteBuf buffer) {
