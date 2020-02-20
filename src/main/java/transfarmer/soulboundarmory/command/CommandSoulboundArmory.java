@@ -6,6 +6,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import transfarmer.soulboundarmory.Main;
@@ -13,6 +14,7 @@ import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
 
@@ -33,41 +35,49 @@ public class CommandSoulboundArmory extends CommandBase {
 
     @Override
     public String getUsage(final ICommandSender sender) {
-        return "commands.soulboundarmory.usage";
+        return "command.soulboundarmory.usage";
     }
 
     @Override
     public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) throws CommandException {
-        if (args.length < 2) {
+        if (args.length < 3) {
             throw new WrongUsageException(this.getUsage(null));
         } else {
             final String commandType = args[0];
 
             if (commandType.equals("xp")) {
-                final EntityPlayer player = (EntityPlayer) sender.getCommandSenderEntity();
-                final ISoulCapability capability = SoulItemHelper.getCapability(player, null);
-                final int amount = Integer.parseInt(args[1]);
+                final EntityPlayer player = server.getPlayerList().getPlayerByUsername(args[1]);
 
-                if (capability instanceof ISoulWeapon) {
-                    Main.CHANNEL.sendTo(new CWeaponDatum(amount, capability.getEnumXP(), capability.getCurrentType()), (EntityPlayerMP) sender.getCommandSenderEntity());
-                    capability.addDatum(amount, capability.getEnumXP(), capability.getCurrentType());
-                } else if (capability instanceof ISoulTool) {
-                    Main.CHANNEL.sendTo(new CToolDatum(amount, capability.getEnumXP(), capability.getCurrentType()), (EntityPlayerMP) sender.getCommandSenderEntity());
-                    capability.addDatum(amount, capability.getEnumXP(), capability.getCurrentType());
+                if (player != null) {
+                    final ISoulCapability capability = SoulItemHelper.getCapability(player, (Item) null);
+                    final int amount = Integer.parseInt(args[2]);
+
+                    if (capability instanceof ISoulWeapon) {
+                        Main.CHANNEL.sendTo(new CWeaponDatum(amount, SoulDatum.XP, capability.getCurrentType()), (EntityPlayerMP) sender.getCommandSenderEntity());
+                        capability.addDatum(amount, SoulDatum.XP, capability.getCurrentType());
+                    } else if (capability instanceof ISoulTool) {
+                        Main.CHANNEL.sendTo(new CToolDatum(amount, SoulDatum.XP, capability.getCurrentType()), (EntityPlayerMP) sender.getCommandSenderEntity());
+                        capability.addDatum(amount, SoulDatum.XP, capability.getCurrentType());
+                    }
                 }
             }
         }
     }
 
     @Override
-    public List<String> getTabCompletions(final MinecraftServer server, final ICommandSender sender, final String[] args, @Nullable BlockPos blockPos) {
-        final List<String> entries = new ArrayList<>();
-
+    public List<String> getTabCompletions(final MinecraftServer server, final ICommandSender sender, final String[] args, @Nullable final BlockPos blockPos) {
         switch (args.length) {
             case 1:
-                entries.add("xp");
+                return getListOfStringsMatchingLastWord(args, "xp");
+            case 2:
+                return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+            default:
+                return new ArrayList<>();
         }
+    }
 
-        return entries;
+    @Override
+    public boolean isUsernameIndex(final String[] args, final int index) {
+        return index == 1;
     }
 }

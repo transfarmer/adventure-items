@@ -1,7 +1,7 @@
-package transfarmer.soulboundarmory.data.weapon;
+package transfarmer.soulboundarmory.statistics.weapon;
 
 import net.minecraft.enchantment.Enchantment;
-import transfarmer.soulboundarmory.data.IEnchantment;
+import transfarmer.soulboundarmory.statistics.IEnchantment;
 
 public enum SoulWeaponEnchantment implements IEnchantment {
     SHARPNESS(0, Enchantment.getEnchantmentByLocation("sharpness")),

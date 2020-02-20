@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -12,16 +13,18 @@ import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.data.tool.SoulToolDatum;
-import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+
+import java.util.UUID;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public class CToolData implements IMessage {
-    private EntityPlayer sender;
+    private String senderUUID;
     private int toolIndex;
     private int currentTab;
     private int boundSlot;
@@ -39,11 +42,11 @@ public class CToolData implements IMessage {
                      final int[][] data, final float[][] attributes, final int[][] enchantments) {
         final ISoulCapability capability = SoulToolProvider.get(sender);
 
-        this.sender = sender;
+        this.senderUUID = sender.getUniqueID().toString();
 
         if (type == null) {
             this.toolIndex = -1;
-            this.currentTab = -1;
+            this.currentTab = 0;
             this.boundSlot = -1;
         } else {
             this.toolIndex = MathHelper.clamp(type.getIndex(), 0, capability.getItemAmount());
@@ -62,16 +65,19 @@ public class CToolData implements IMessage {
         }
     }
 
+    @SideOnly(CLIENT)
     public void fromBytes(ByteBuf buffer) {
         this.toolIndex = buffer.readInt();
         this.currentTab = buffer.readInt();
         this.boundSlot = buffer.readInt();
 
-        SoulItemHelper.forEach(SoulToolProvider.get(Minecraft.getMinecraft().player),
-                (final Integer toolIndex, final Integer valueIndex) -> this.data[toolIndex][valueIndex] = buffer.readInt(),
-                (final Integer toolIndex, final Integer valueIndex) -> this.attributes[toolIndex][valueIndex] = buffer.readFloat(),
-                (final Integer toolIndex, final Integer valueIndex) -> this.enchantments[toolIndex][valueIndex] = buffer.readInt()
-        );
+        if (Minecraft.getMinecraft().player != null) {
+            SoulItemHelper.forEach(SoulToolProvider.get(Minecraft.getMinecraft().player),
+                    (final Integer itemIndex, final Integer valueIndex) -> CToolData.this.data[itemIndex][valueIndex] = buffer.readInt(),
+                    (final Integer itemIndex, final Integer valueIndex) -> CToolData.this.attributes[itemIndex][valueIndex] = buffer.readFloat(),
+                    (final Integer itemIndex, final Integer valueIndex) -> CToolData.this.enchantments[itemIndex][valueIndex] = buffer.readInt()
+            );
+        }
     }
 
     public void toBytes(ByteBuf buffer) {
@@ -79,10 +85,10 @@ public class CToolData implements IMessage {
         buffer.writeInt(this.currentTab);
         buffer.writeInt(this.boundSlot);
 
-        SoulItemHelper.forEach(SoulToolProvider.get(this.sender),
-                (final Integer toolIndex, final Integer valueIndex) -> buffer.writeInt(this.data[toolIndex][valueIndex]),
-                (final Integer toolIndex, final Integer valueIndex) -> buffer.writeFloat(this.attributes[toolIndex][valueIndex]),
-                (final Integer toolIndex, final Integer valueIndex) -> buffer.writeInt(this.enchantments[toolIndex][valueIndex])
+        SoulItemHelper.forEach(SoulToolProvider.get(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(UUID.fromString(this.senderUUID))),
+                (final Integer itemIndex, final Integer valueIndex) -> buffer.writeInt(this.data[itemIndex][valueIndex]),
+                (final Integer itemIndex, final Integer valueIndex) -> buffer.writeFloat(this.attributes[itemIndex][valueIndex]),
+                (final Integer itemIndex, final Integer valueIndex) -> buffer.writeInt(this.enchantments[itemIndex][valueIndex])
         );
     }
 

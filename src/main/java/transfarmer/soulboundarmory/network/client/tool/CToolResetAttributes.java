@@ -9,8 +9,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
@@ -41,8 +42,8 @@ public class CToolResetAttributes implements IMessage {
                 final ISoulTool capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
                 final IType type = SoulToolType.getType(message.index);
 
-                capability.addDatum(capability.getDatum(capability.getEnumSpentAttributePoints(), type), capability.getEnumAttributePoints(), type);
-                capability.setDatum(0, capability.getEnumSpentAttributePoints(), type);
+                capability.addDatum(capability.getDatum(SoulDatum.SPENT_ATTRIBUTE_POINTS, type), SoulDatum.ATTRIBUTE_POINTS, type);
+                capability.setDatum(0, SoulDatum.SPENT_ATTRIBUTE_POINTS, type);
                 capability.setAttributes(new float[capability.getAttributeAmount()], type);
                 Minecraft.getMinecraft().displayGuiScreen(new SoulToolMenu());
             });

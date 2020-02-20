@@ -14,9 +14,7 @@ import transfarmer.soulboundarmory.entity.EntityReachModifier;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.ATTACK_DAMAGE_UUID;
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.ATTACK_SPEED_UUID;
-import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.REACH_DISTANCE_UUID;
+import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.*;
 
 public abstract class ItemSoulWeapon extends ItemSword implements ISoulItem {
     private final float attackDamage;

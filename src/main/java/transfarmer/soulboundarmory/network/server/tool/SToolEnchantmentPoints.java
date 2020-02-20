@@ -6,10 +6,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.data.IEnchantment;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.IEnchantment;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.soulboundarmory.network.client.tool.CToolSpendEnchantmentPoints;
 
 public class SToolEnchantmentPoints implements IMessage {

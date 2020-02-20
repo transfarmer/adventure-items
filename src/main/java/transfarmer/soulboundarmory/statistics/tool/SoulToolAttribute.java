@@ -1,7 +1,7 @@
-package transfarmer.soulboundarmory.data.tool;
+package transfarmer.soulboundarmory.statistics.tool;
 
-import transfarmer.soulboundarmory.data.IAttribute;
-import transfarmer.soulboundarmory.data.IType;
+import transfarmer.soulboundarmory.statistics.IAttribute;
+import transfarmer.soulboundarmory.statistics.IType;
 
 public enum SoulToolAttribute implements IAttribute {
     EFFICIENCY_ATTRIBUTE(0, 0.5F),

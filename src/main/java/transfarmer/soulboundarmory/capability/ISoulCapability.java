@@ -2,11 +2,12 @@ package transfarmer.soulboundarmory.capability;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulboundarmory.data.IAttribute;
-import transfarmer.soulboundarmory.data.IDatum;
-import transfarmer.soulboundarmory.data.IEnchantment;
-import transfarmer.soulboundarmory.data.IType;
+import transfarmer.soulboundarmory.statistics.IAttribute;
+import transfarmer.soulboundarmory.statistics.IEnchantment;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ISoulCapability {
@@ -24,25 +25,13 @@ public interface ISoulCapability {
 
     void setEnchantments(int[][] enchantments);
 
+    IType getType(ItemStack itemStack);
+
     IType getCurrentType();
 
     void setCurrentType(IType type);
 
     void setCurrentType(int index);
-
-    IDatum getEnumXP();
-
-    IDatum getEnumLevel();
-
-    IDatum getEnumAttributePoints();
-
-    IDatum getEnumEnchantmentPoints();
-
-    IDatum getEnumSpentAttributePoints();
-
-    IDatum getEnumSpentEnchantmentPoints();
-
-    IDatum getEnumSkills();
 
     int getItemAmount();
 
@@ -52,11 +41,11 @@ public interface ISoulCapability {
 
     int getEnchantmentAmount();
 
-    int getDatum(IDatum datum, IType type);
+    int getDatum(SoulDatum datum, IType type);
 
-    void setDatum(int amount, IDatum datum, IType type);
+    void setDatum(int amount, SoulDatum datum, IType type);
 
-    boolean addDatum(int amount, IDatum datum, IType type);
+    boolean addDatum(int amount, SoulDatum datum, IType type);
 
     float getAttribute(IAttribute attribute, IType type);
 
@@ -94,5 +83,5 @@ public interface ISoulCapability {
 
     ItemStack getItemStack(ItemStack itemStack);
 
-    String[] getTooltip(IType type);
+    List<String> getTooltip(IType type);
 }

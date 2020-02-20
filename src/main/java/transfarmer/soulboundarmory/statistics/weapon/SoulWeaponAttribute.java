@@ -1,7 +1,7 @@
-package transfarmer.soulboundarmory.data.weapon;
+package transfarmer.soulboundarmory.statistics.weapon;
 
-import transfarmer.soulboundarmory.data.IAttribute;
-import transfarmer.soulboundarmory.data.IType;
+import transfarmer.soulboundarmory.statistics.IAttribute;
+import transfarmer.soulboundarmory.statistics.IType;
 
 public enum SoulWeaponAttribute implements IAttribute {
     ATTACK_SPEED(0, 0.025F, 0.05F, 0.1F),

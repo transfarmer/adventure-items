@@ -6,10 +6,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.data.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.data.tool.SoulToolDatum;
-import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 public class SoulToolStorage implements IStorage<ISoulTool> {
     @Override

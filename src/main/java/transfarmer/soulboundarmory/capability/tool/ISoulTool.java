@@ -1,7 +1,7 @@
 package transfarmer.soulboundarmory.capability.tool;
 
 import transfarmer.soulboundarmory.capability.ISoulCapability;
-import transfarmer.soulboundarmory.data.IType;
+import transfarmer.soulboundarmory.statistics.IType;
 
 public interface ISoulTool extends ISoulCapability {
     float getEffectiveEfficiency(IType type);

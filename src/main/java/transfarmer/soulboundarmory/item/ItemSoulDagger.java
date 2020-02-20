@@ -11,8 +11,8 @@ import net.minecraft.world.World;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.SKILLS;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.DAGGER;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 
 public class ItemSoulDagger extends ItemSoulWeapon {
     public ItemSoulDagger() {

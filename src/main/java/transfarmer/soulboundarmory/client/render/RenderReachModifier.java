@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.render;
+package transfarmer.soulboundarmory.client.render;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.ResourceLocations.Client.REACH_MODIFIER;
+import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.REACH_MODIFIER;
 
 @SideOnly(CLIENT)
 public class RenderReachModifier<T extends Entity> extends Render<T> {

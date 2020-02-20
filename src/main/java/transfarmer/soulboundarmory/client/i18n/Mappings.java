@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.i18n;
+package transfarmer.soulboundarmory.client.i18n;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.SideOnly;

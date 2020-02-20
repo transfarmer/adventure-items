@@ -42,6 +42,10 @@ public class SoulItemHelper {
                 : null;
     }
 
+    public static ISoulCapability getCapability(final EntityPlayer player, @Nullable ItemStack itemStack) {
+        return getCapability(player, itemStack.getItem());
+    }
+
     public static boolean isSoulItem(final ItemStack itemStack) {
         return itemStack.getItem() instanceof ISoulItem;
     }

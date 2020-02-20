@@ -22,16 +22,15 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
 import java.util.UUID;
 
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.SKILLS;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment.FIRE_ASPECT;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.DAGGER;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment.FIRE_ASPECT;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 
 public class EntitySoulDagger extends EntityArrow {
     public ItemStack itemStack;
@@ -112,11 +111,10 @@ public class EntitySoulDagger extends EntityArrow {
                     || capability.getDatum(SKILLS, DAGGER) >= 3
                     && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed)) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();
-                double multiplier = 0.90;
+                double multiplier = 1.8 / capability.getEffectiveAttackSpeed(capability.getCurrentType());
 
                 if (this.ticksToSeek == -1 && !this.inGround) {
                     this.ticksToSeek = (int) Math.round(Math.log(0.05) / Math.log(multiplier));
-                    Main.LOGGER.error(this.ticksToSeek);
                 }
 
                 if (this.ticksToSeek > 0 && !this.inGround) {

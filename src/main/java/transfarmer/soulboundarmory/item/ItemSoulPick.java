@@ -19,15 +19,15 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.soulboundarmory.network.client.tool.CToolLevelupMessage;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
-import static transfarmer.soulboundarmory.data.tool.SoulToolAttribute.HARVEST_LEVEL;
-import static transfarmer.soulboundarmory.data.tool.SoulToolDatum.LEVEL;
-import static transfarmer.soulboundarmory.data.tool.SoulToolDatum.XP;
-import static transfarmer.soulboundarmory.data.tool.SoulToolType.PICK;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.HARVEST_LEVEL;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.LEVEL;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.XP;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolType.PICK;
 
 public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
     private final float reachDistance;
@@ -61,7 +61,7 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
                 && this.canHarvestBlock(blockState, (EntityPlayer) entity)) {
             final ISoulTool capability = SoulToolProvider.get(entity);
             final SoulToolType type = SoulToolType.getType(itemStack);
-            final int xp = Math.round(blockState.getBlockHardness(world, blockPos));
+            final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5);
 
             if (capability.addDatum(xp, XP, type) && !world.isRemote && Configuration.levelupNotifications) {
                 Main.CHANNEL.sendTo(new CToolLevelupMessage(itemStack, capability.getDatum(LEVEL, type)), (EntityPlayerMP) entity);

@@ -8,10 +8,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.data.IDatum;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.tool.SoulToolDatum;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
 
 public class SToolDatum implements IMessage {
@@ -21,7 +21,7 @@ public class SToolDatum implements IMessage {
 
     public SToolDatum() {}
 
-    public SToolDatum(final int value, final IDatum datum, final IType type) {
+    public SToolDatum(final int value, final SoulDatum datum, final IType type) {
         this.value = value;
         this.datumIndex = datum.getIndex();
         this.typeIndex = type.getIndex();
@@ -46,7 +46,7 @@ public class SToolDatum implements IMessage {
         public IMessage onMessage(SToolDatum message, MessageContext context) {
             final EntityPlayer player = Minecraft.getMinecraft().player;
             final ISoulTool instance = SoulToolProvider.get(player);
-            final IDatum datum = SoulToolDatum.getDatum(message.datumIndex);
+            final SoulDatum datum = SoulToolDatum.getDatum(message.datumIndex);
             final IType type = SoulToolType.getType(message.typeIndex);
 
             instance.addDatum(message.value, datum, type);

@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -13,16 +14,18 @@ import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
+
+import java.util.UUID;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public class CWeaponData implements IMessage {
-    private EntityPlayer sender;
+    private String senderUUID;
     private int weaponIndex;
     private int currentTab;
     private int cooldown;
@@ -41,11 +44,11 @@ public class CWeaponData implements IMessage {
                        final int[][] data, final float[][] attributes, final int[][] enchantments) {
         final ISoulCapability capability = SoulToolProvider.get(sender);
 
-        this.sender = sender;
+        this.senderUUID = sender.getUniqueID().toString();
 
         if (type == null) {
             this.weaponIndex = -1;
-            this.currentTab = -1;
+            this.currentTab = 1;
             this.boundSlot = -1;
             this.cooldown = 0;
         } else {
@@ -66,17 +69,20 @@ public class CWeaponData implements IMessage {
         }
     }
 
+    @SideOnly(CLIENT)
     public void fromBytes(final ByteBuf buffer) {
         this.weaponIndex = buffer.readInt();
         this.currentTab = buffer.readInt();
         this.cooldown = buffer.readInt();
         this.boundSlot = buffer.readInt();
 
-        SoulItemHelper.forEach(SoulWeaponProvider.get(Minecraft.getMinecraft().player),
-            (Integer weaponIndex, Integer valueIndex) -> this.data[weaponIndex][valueIndex] = buffer.readInt(),
-            (Integer weaponIndex, Integer valueIndex) -> this.attributes[weaponIndex][valueIndex] = buffer.readFloat(),
-            (Integer weaponIndex, Integer valueIndex) -> this.enchantments[weaponIndex][valueIndex] = buffer.readInt()
-        );
+        if (Minecraft.getMinecraft().player != null) {
+            SoulItemHelper.forEach(SoulWeaponProvider.get(Minecraft.getMinecraft().player),
+                    (final Integer itemIndex, final Integer valueIndex) -> this.data[itemIndex][valueIndex] = buffer.readInt(),
+                    (final Integer itemIndex, final Integer valueIndex) -> this.attributes[itemIndex][valueIndex] = buffer.readFloat(),
+                    (final Integer itemIndex, final Integer valueIndex) -> this.enchantments[itemIndex][valueIndex] = buffer.readInt()
+            );
+        }
     }
 
     public void toBytes(final ByteBuf buffer) {
@@ -85,10 +91,10 @@ public class CWeaponData implements IMessage {
         buffer.writeInt(this.cooldown);
         buffer.writeInt(this.boundSlot);
 
-        SoulItemHelper.forEach(SoulWeaponProvider.get(this.sender),
-            (Integer weaponIndex, Integer valueIndex) -> buffer.writeInt(this.data[weaponIndex][valueIndex]),
-            (Integer weaponIndex, Integer valueIndex) -> buffer.writeFloat(this.attributes[weaponIndex][valueIndex]),
-            (Integer weaponIndex, Integer valueIndex) -> buffer.writeInt(this.enchantments[weaponIndex][valueIndex])
+        SoulItemHelper.forEach(SoulWeaponProvider.get(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(UUID.fromString(this.senderUUID))),
+                (final Integer weaponIndex, final Integer valueIndex) -> buffer.writeInt(this.data[weaponIndex][valueIndex]),
+                (final Integer weaponIndex, final Integer valueIndex) -> buffer.writeFloat(this.attributes[weaponIndex][valueIndex]),
+                (final Integer weaponIndex, final Integer valueIndex) -> buffer.writeInt(this.enchantments[weaponIndex][valueIndex])
         );
     }
 

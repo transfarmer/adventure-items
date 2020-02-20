@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.data;
+package transfarmer.soulboundarmory.statistics;
 
 import net.minecraft.enchantment.Enchantment;
 

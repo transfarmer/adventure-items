@@ -22,7 +22,7 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
 import java.util.List;
 
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.SWORD;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class EntitySoulLightningBolt extends EntityLightningBolt {
     private EntityLivingBase caster;

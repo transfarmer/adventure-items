@@ -6,10 +6,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.data.IAttribute;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
+import transfarmer.soulboundarmory.statistics.IAttribute;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponSpendAttributePoints;
 
 public class SWeaponAttributePoints implements IMessage {

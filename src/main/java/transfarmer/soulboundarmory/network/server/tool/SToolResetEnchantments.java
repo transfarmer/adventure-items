@@ -6,8 +6,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.soulboundarmory.network.client.tool.CToolResetEnchantments;
 
 
@@ -37,8 +38,8 @@ public class SToolResetEnchantments implements IMessage {
             final ISoulTool capability = SoulToolProvider.get(context.getServerHandler().player);
             final IType type = SoulToolType.getType(message.index);
 
-            capability.addDatum(capability.getDatum(capability.getEnumSpentEnchantmentPoints(), type), capability.getEnumEnchantmentPoints(), type);
-            capability.setDatum(0, capability.getEnumSpentEnchantmentPoints(), type);
+            capability.addDatum(capability.getDatum(SoulDatum.SPENT_ENCHANTMENT_POINTS, type), SoulDatum.ENCHANTMENT_POINTS, type);
+            capability.setDatum(0, SoulDatum.SPENT_ENCHANTMENT_POINTS, type);
             capability.setEnchantments(new int[capability.getEnchantmentAmount()], type);
 
             return new CToolResetEnchantments(type);

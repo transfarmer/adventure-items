@@ -15,11 +15,11 @@ import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.KeyBindings;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.data.tool.SoulToolEnchantment;
-import transfarmer.soulboundarmory.data.tool.SoulToolType;
-import transfarmer.soulboundarmory.i18n.Mappings;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.network.server.tool.*;
 import transfarmer.util.ItemHelper;
@@ -29,11 +29,11 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.ResourceLocations.Client.XP_BAR;
-import static transfarmer.soulboundarmory.data.tool.SoulToolAttribute.HARVEST_LEVEL;
-import static transfarmer.soulboundarmory.data.tool.SoulToolAttribute.getAttribute;
-import static transfarmer.soulboundarmory.data.tool.SoulToolDatum.*;
-import static transfarmer.soulboundarmory.data.tool.SoulToolEnchantment.*;
+import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.HARVEST_LEVEL;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.getAttribute;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.*;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment.*;
 
 @SideOnly(CLIENT)
 public class SoulToolMenu extends GuiScreen {

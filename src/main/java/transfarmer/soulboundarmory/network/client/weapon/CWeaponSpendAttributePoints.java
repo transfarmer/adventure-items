@@ -9,10 +9,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
-import transfarmer.soulboundarmory.data.IAttribute;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
+import transfarmer.soulboundarmory.statistics.IAttribute;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 

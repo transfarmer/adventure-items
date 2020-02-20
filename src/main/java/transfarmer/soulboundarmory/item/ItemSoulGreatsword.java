@@ -13,8 +13,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.SKILLS;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.GREATSWORD;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREATSWORD;
 
 public class ItemSoulGreatsword extends ItemSoulWeapon {
     public ItemSoulGreatsword() {

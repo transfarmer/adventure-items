@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.i18n.Mappings;
+import transfarmer.soulboundarmory.client.i18n.Mappings;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 

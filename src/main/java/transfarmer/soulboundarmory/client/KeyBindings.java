@@ -3,7 +3,7 @@ package transfarmer.soulboundarmory.client;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
-import transfarmer.soulboundarmory.i18n.Mappings;
+import transfarmer.soulboundarmory.client.i18n.Mappings;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 

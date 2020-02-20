@@ -6,15 +6,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Configuration;
-import transfarmer.soulboundarmory.data.IAttribute;
-import transfarmer.soulboundarmory.data.IDatum;
-import transfarmer.soulboundarmory.data.IEnchantment;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
-import transfarmer.soulboundarmory.i18n.Mappings;
+import transfarmer.soulboundarmory.statistics.IAttribute;
+import transfarmer.soulboundarmory.statistics.IEnchantment;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
+import transfarmer.soulboundarmory.client.i18n.Mappings;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -27,15 +27,15 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper.*;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute.*;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.*;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment.SHARPNESS;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.GREATSWORD;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.SWORD;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.*;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment.SHARPNESS;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREATSWORD;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class SoulWeapon implements ISoulWeapon {
     private IType currentType;
-    private int currentTab = 0;
+    private int currentTab = 1;
     private int attackCooldown = 0;
     private int lightningCooldown = 60;
     private int boundSlot = -1;
@@ -71,6 +71,11 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
+    public IType getType(final ItemStack itemStack) {
+        return SoulWeaponType.getType(itemStack);
+    }
+
+    @Override
     public void setEnchantments(final int[] enchantments, final IType type) {
         this.enchantments[type.getIndex()] = enchantments;
     }
@@ -93,41 +98,6 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public IType getCurrentType() {
         return this.currentType;
-    }
-
-    @Override
-    public IDatum getEnumXP() {
-        return XP;
-    }
-
-    @Override
-    public IDatum getEnumLevel() {
-        return LEVEL;
-    }
-
-    @Override
-    public IDatum getEnumAttributePoints() {
-        return ATTRIBUTE_POINTS;
-    }
-
-    @Override
-    public IDatum getEnumEnchantmentPoints() {
-        return ENCHANTMENT_POINTS;
-    }
-
-    @Override
-    public IDatum getEnumSpentAttributePoints() {
-        return SPENT_ATTRIBUTE_POINTS;
-    }
-
-    @Override
-    public IDatum getEnumSpentEnchantmentPoints() {
-        return SPENT_ENCHANTMENT_POINTS;
-    }
-
-    @Override
-    public IDatum getEnumSkills() {
-        return SKILLS;
     }
 
     @Override
@@ -241,7 +211,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @SideOnly(CLIENT)
     @Override
-    public String[] getTooltip(final IType type) {
+    public List<String> getTooltip(final IType type) {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
         final List<String> tooltip = new ArrayList<>(7);
         final Map<IEnchantment, Integer> enchantments = this.getEnchantments(type);
@@ -266,7 +236,7 @@ public class SoulWeapon implements ISoulWeapon {
             tooltip.add(String.format(" %s%s %s", Mappings.WEAPON_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(EFFICIENCY, type)), Mappings.EFFICIENCY_NAME));
         }
 
-        return tooltip.toArray(new String[0]);
+        return tooltip;
     }
 
     @Override
@@ -276,43 +246,39 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int getDatum(IDatum datum, IType type) {
+    public int getDatum(SoulDatum datum, IType type) {
         return this.data[type.getIndex()][datum.getIndex()];
     }
 
     @Override
-    public void setDatum(final int value, final IDatum datum, final IType type) {
+    public void setDatum(final int value, final SoulDatum datum, final IType type) {
         this.data[type.getIndex()][datum.getIndex()] = value;
     }
 
     @Override
-    public boolean addDatum(int amount, IDatum datum, IType type) {
-        switch ((SoulWeaponDatum) datum) {
-            case XP:
-                this.data[type.getIndex()][XP.getIndex()] += amount;
+    public boolean addDatum(final int amount, final SoulDatum datum, final IType type) {
+        if (XP.equals(datum)) {
+            this.data[type.getIndex()][XP.getIndex()] += amount;
 
-                if (this.getDatum(XP, type) >= this.getNextLevelXP(type) && this.getDatum(LEVEL, type) < Configuration.maxLevel) {
-                    final int nextLevelXP = this.getNextLevelXP(type);
-                    this.addDatum(1, LEVEL, type);
-                    this.addDatum(-nextLevelXP, XP, type);
-                    return true;
-                }
+            if (this.getDatum(XP, type) >= this.getNextLevelXP(type) && this.getDatum(LEVEL, type) < Configuration.maxLevel) {
+                final int nextLevelXP = this.getNextLevelXP(type);
+                this.addDatum(1, LEVEL, type);
+                this.addDatum(-nextLevelXP, XP, type);
+                return true;
+            }
+        } else if (LEVEL.equals(datum)) {
+            final int level = ++this.data[type.getIndex()][LEVEL.getIndex()];
+            if (level % (Configuration.levelsPerEnchantment) == 0) {
+                this.addDatum(1, ENCHANTMENT_POINTS, type);
+            }
 
-                break;
-            case LEVEL:
-                final int level = ++this.data[type.getIndex()][LEVEL.getIndex()];
-                if (level % (Configuration.levelsPerEnchantment) == 0) {
-                    this.addDatum(1, ENCHANTMENT_POINTS, type);
-                }
+            if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(SKILLS, type) < type.getSkills().length) {
+                this.addDatum(1, SKILLS, type);
+            }
 
-                if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(SKILLS, type) < type.getSkills().length) {
-                    this.addDatum(1, SKILLS, type);
-                }
-
-                this.addDatum(1, ATTRIBUTE_POINTS, type);
-                break;
-            default:
-                this.data[type.getIndex()][datum.getIndex()] += amount;
+            this.addDatum(1, ATTRIBUTE_POINTS, type);
+        } else {
+            this.data[type.getIndex()][datum.getIndex()] += amount;
         }
 
         return false;

@@ -1,8 +1,8 @@
-package transfarmer.soulboundarmory.data.tool;
+package transfarmer.soulboundarmory.statistics.tool;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulboundarmory.data.IType;
+import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ItemSoulPick;
 

@@ -15,11 +15,11 @@ import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.KeyBindings;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
-import transfarmer.soulboundarmory.i18n.Mappings;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
+import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.network.server.weapon.*;
 import transfarmer.util.ItemHelper;
 
@@ -28,10 +28,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.ResourceLocations.Client.XP_BAR;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponAttribute.*;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.*;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment.*;
+import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.*;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment.*;
 
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends GuiScreen {

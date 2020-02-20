@@ -18,12 +18,12 @@ public class SoulWeaponProvider implements ICapabilitySerializable<NBTBase> {
 
     @Override
     @Nullable
-    public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+    public <T> T getCapability(final @Nonnull Capability<T> capability, final @Nullable EnumFacing facing) {
         return capability == CAPABILITY ? CAPABILITY.cast(this.instance) : null;
     }
 
     @Override
-    public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
+    public boolean hasCapability(final @Nonnull Capability<?> capability, final @Nullable EnumFacing facing) {
         return capability == CAPABILITY;
     }
 
@@ -33,7 +33,7 @@ public class SoulWeaponProvider implements ICapabilitySerializable<NBTBase> {
     }
 
     @Override
-    public void deserializeNBT(NBTBase nbt) {
+    public void deserializeNBT(final NBTBase nbt) {
         CAPABILITY.getStorage().readNBT(CAPABILITY, instance, null, nbt);
     }
 

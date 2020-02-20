@@ -20,8 +20,8 @@ import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import java.util.UUID;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponEnchantment.FIRE_ASPECT;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.DAGGER;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment.FIRE_ASPECT;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 
 public class SoulWeaponHelper {
     public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");

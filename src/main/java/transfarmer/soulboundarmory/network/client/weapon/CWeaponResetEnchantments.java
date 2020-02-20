@@ -9,8 +9,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
-import transfarmer.soulboundarmory.data.IType;
-import transfarmer.soulboundarmory.data.weapon.SoulWeaponType;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
@@ -41,8 +42,8 @@ public class CWeaponResetEnchantments implements IMessage {
                 final ISoulWeapon capability = SoulWeaponProvider.get(Minecraft.getMinecraft().player);
                 final IType type = SoulWeaponType.getType(message.index);
 
-                capability.addDatum(capability.getDatum(capability.getEnumSpentEnchantmentPoints(), type), capability.getEnumEnchantmentPoints(), type);
-                capability.setDatum(0, capability.getEnumSpentEnchantmentPoints(), type);
+                capability.addDatum(capability.getDatum(SoulDatum.SPENT_ENCHANTMENT_POINTS, type), SoulDatum.ENCHANTMENT_POINTS, type);
+                capability.setDatum(0, SoulDatum.SPENT_ENCHANTMENT_POINTS, type);
                 capability.setEnchantments(new int[capability.getEnchantmentAmount()], type);
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
             });

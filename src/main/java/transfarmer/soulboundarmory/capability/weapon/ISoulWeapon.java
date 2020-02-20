@@ -1,7 +1,7 @@
 package transfarmer.soulboundarmory.capability.weapon;
 
 import transfarmer.soulboundarmory.capability.ISoulCapability;
-import transfarmer.soulboundarmory.data.IType;
+import transfarmer.soulboundarmory.statistics.IType;
 
 public interface ISoulWeapon extends ISoulCapability {
     float getAttackSpeed(IType type);

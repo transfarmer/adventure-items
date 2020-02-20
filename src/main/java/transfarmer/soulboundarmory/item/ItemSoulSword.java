@@ -13,8 +13,8 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.world.ModWorld;
 
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponDatum.SKILLS;
-import static transfarmer.soulboundarmory.data.weapon.SoulWeaponType.SWORD;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class ItemSoulSword extends ItemSoulWeapon {
     public ItemSoulSword() {

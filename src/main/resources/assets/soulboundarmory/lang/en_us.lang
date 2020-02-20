@@ -49,6 +49,7 @@ miningLevel.soulboundarmory.coal=coal
 miningLevel.soulboundarmory.iron=iron
 miningLevel.soulboundarmory.diamond=diamond
 miningLevel.soulboundarmory.obsidian=obsidian
+command.soulboundarmory.usage=/sba xp <player> <amount>
 enchantment.level.11=XI
 enchantment.level.12=XII
 enchantment.level.13=XIII
