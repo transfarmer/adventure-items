@@ -6,15 +6,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Configuration;
-import transfarmer.soulboundarmory.statistics.IAttribute;
+import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.statistics.IEnchantment;
 import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
-import transfarmer.soulboundarmory.client.i18n.Mappings;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -101,24 +101,24 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public float getAttribute(final IAttribute attribute, final IType type) {
+    public float getAttribute(final SoulAttribute attribute, final IType type) {
         return this.attributes[type.getIndex()][attribute.getIndex()];
     }
 
     @Override
-    public void setAttribute(final float value, final IAttribute attribute, final IType type) {
+    public void setAttribute(final float value, final SoulAttribute attribute, final IType type) {
         this.attributes[type.getIndex()][attribute.getIndex()] = value;
     }
 
     @Override
-    public void addAttribute(final int amount, final IAttribute attribute, final IType type) {
+    public void addAttribute(final int amount, final SoulAttribute attribute, final IType type) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
             this.addDatum(-sign, ATTRIBUTE_POINTS, type);
             this.addDatum(sign, SPENT_ATTRIBUTE_POINTS, type);
 
-            if ((attribute == CRITICAL && this.getAttribute(CRITICAL, type) + sign * CRITICAL.getIncrease(type) >= 100)) {
+            if ((attribute.equals(CRITICAL) && this.getAttribute(CRITICAL, type) + sign * CRITICAL.getIncrease(type) >= 100)) {
                 this.setAttribute(100, attribute, type);
                 return;
             } else if (this.attributes[type.getIndex()][attribute.getIndex()] + sign * attribute.getIncrease(type) > 0.0001) {
@@ -137,7 +137,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public float getAttackSpeed(final IType type) {
-        return this.attributes[type.getIndex()][ATTACK_SPEED.index] + type.getSoulItem().getAttackSpeed();
+        return this.attributes[type.getIndex()][ATTACK_SPEED.getIndex()] + type.getSoulItem().getAttackSpeed();
     }
 
     @Override
@@ -147,7 +147,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public float getAttackDamage(final IType type) {
-        return this.attributes[type.getIndex()][ATTACK_DAMAGE.index] + type.getSoulItem().getAttackDamage();
+        return this.attributes[type.getIndex()][ATTACK_DAMAGE.getIndex()] + type.getSoulItem().getAttackDamage();
     }
 
     @Override
@@ -232,8 +232,8 @@ public class SoulWeapon implements ISoulWeapon {
             tooltip.add(String.format(" %s%s%% %s", Mappings.CRITICAL_FORMAT, FORMAT.format(this.getAttribute(CRITICAL, type)), Mappings.CRITICAL_NAME));
         } if (this.getAttribute(KNOCKBACK_ATTRIBUTE, type) > 0) {
             tooltip.add(String.format(" %s%s %s", Mappings.KNOCKBACK_ATTRIBUTE_FORMAT, FORMAT.format(this.getAttribute(KNOCKBACK_ATTRIBUTE, type)), Mappings.KNOCKBACK_ATTRIBUTE_NAME));
-        } if (this.getAttribute(EFFICIENCY, type) > 0) {
-            tooltip.add(String.format(" %s%s %s", Mappings.WEAPON_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(EFFICIENCY, type)), Mappings.EFFICIENCY_NAME));
+        } if (this.getAttribute(EFFICIENCY_ATTRIBUTE, type) > 0) {
+            tooltip.add(String.format(" %s%s %s", Mappings.WEAPON_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(EFFICIENCY_ATTRIBUTE, type)), Mappings.EFFICIENCY_NAME));
         }
 
         return tooltip;
@@ -246,7 +246,7 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int getDatum(SoulDatum datum, IType type) {
+    public int getDatum(final SoulDatum datum, final IType type) {
         return this.data[type.getIndex()][datum.getIndex()];
     }
 

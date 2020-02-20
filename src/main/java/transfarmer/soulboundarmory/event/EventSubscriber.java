@@ -384,7 +384,7 @@ public class EventSubscriber {
                     event.setNewSpeed((event.getOriginalSpeed() - 1 + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type)) / 8);
                 }
             } else if (item instanceof ItemSoulWeapon) {
-                final float breakSpeed = capability.getAttribute(EFFICIENCY, capability.getCurrentType());
+                final float breakSpeed = capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType());
 
                 event.setNewSpeed(event.getState().getMaterial() == Material.WEB
                         ? Math.max(15, breakSpeed)

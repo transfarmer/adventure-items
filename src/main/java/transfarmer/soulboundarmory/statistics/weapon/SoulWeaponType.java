@@ -27,8 +27,8 @@ public enum SoulWeaponType implements IType {
         SOUL_WEAPONS.add(DAGGER.item);
     }
 
-    SoulWeaponType(final Item item, final int index, final String ... skills) {
-        this.item = (ItemSoulWeapon) item;
+    SoulWeaponType(final ItemSoulWeapon item, final int index, final String ... skills) {
+        this.item = item;
         this.index = index;
         this.SKILLS = skills;
     }

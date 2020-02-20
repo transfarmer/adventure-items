@@ -15,12 +15,12 @@ import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.KeyBindings;
-import transfarmer.soulboundarmory.statistics.IType;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.network.server.weapon.*;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 import transfarmer.util.ItemHelper;
 
 import java.io.IOException;
@@ -116,11 +116,8 @@ public class SoulWeaponMenu extends GuiScreen {
 
         addPointButtons[2].enabled &= this.capability.getAttribute(CRITICAL, this.weaponType) < 100;
 
-        removePointButtons[0].enabled = this.capability.getAttribute(ATTACK_SPEED, this.weaponType) > 0;
-        removePointButtons[1].enabled = this.capability.getAttribute(ATTACK_DAMAGE, this.weaponType) > 0;
-
-        for (int index = 2; index < this.capability.getAttributeAmount(); index++) {
-            removePointButtons[index].enabled = this.capability.getAttribute(SoulWeaponAttribute.getAttribute(index), this.weaponType) > 0;
+        for (int index = 0; index < this.capability.getAttributeAmount(); index++) {
+            removePointButtons[index].enabled = this.capability.getAttribute(getAttribute(index), this.weaponType) > 0;
         }
     }
 
@@ -207,7 +204,7 @@ public class SoulWeaponMenu extends GuiScreen {
         renderer.drawMiddleAttribute(attackDamage, capability.getAttackDamage(this.weaponType) + 1, 1);
         renderer.drawMiddleAttribute(critical, capability.getAttribute(CRITICAL, this.weaponType), 2);
         renderer.drawMiddleAttribute(knockback, capability.getAttribute(KNOCKBACK_ATTRIBUTE, this.weaponType), 3);
-        renderer.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY, this.weaponType), 4);
+        renderer.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY_ATTRIBUTE, this.weaponType), 4);
 
         this.drawXPBar(mouseX, mouseY);
     }
@@ -307,7 +304,7 @@ public class SoulWeaponMenu extends GuiScreen {
                     amount = this.capability.getDatum(ATTRIBUTE_POINTS, this.weaponType);
                 }
 
-                Main.CHANNEL.sendToServer(new SWeaponAttributePoints(amount, SoulWeaponAttribute.getAttribute(button.id - 4), this.weaponType));
+                Main.CHANNEL.sendToServer(new SWeaponAttributePoints(amount, getAttribute(button.id - 4), this.weaponType));
                 break;
             case 9:
             case 10:
@@ -360,7 +357,7 @@ public class SoulWeaponMenu extends GuiScreen {
                     amount = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.weaponType);
                 }
 
-                Main.CHANNEL.sendToServer(new SWeaponAttributePoints(-amount, SoulWeaponAttribute.getAttribute(button.id - 23), this.weaponType));
+                Main.CHANNEL.sendToServer(new SWeaponAttributePoints(-amount, getAttribute(button.id - 23), this.weaponType));
                 break;
             case 28:
             case 29:
@@ -376,6 +373,23 @@ public class SoulWeaponMenu extends GuiScreen {
                 }
 
                 Main.CHANNEL.sendToServer(new SWeaponEnchantmentPoints(-amount, SoulWeaponEnchantment.getEnchantment(button.id - 28), this.weaponType));
+        }
+    }
+
+    private static SoulAttribute getAttribute(final int index) {
+        switch (index) {
+            case 0:
+                return ATTACK_SPEED;
+            case 1:
+                return ATTACK_DAMAGE;
+            case 2:
+                return CRITICAL;
+            case 3:
+                return KNOCKBACK_ATTRIBUTE;
+            case 4:
+                return EFFICIENCY_ATTRIBUTE;
+            default:
+                return null;
         }
     }
 

@@ -15,13 +15,14 @@ import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.KeyBindings;
-import transfarmer.soulboundarmory.statistics.IType;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.network.server.tool.*;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.util.ItemHelper;
 
 import java.io.IOException;
@@ -31,7 +32,6 @@ import java.text.NumberFormat;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.HARVEST_LEVEL;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.getAttribute;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.*;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment.*;
 
@@ -105,7 +105,7 @@ public class SoulToolMenu extends GuiScreen {
         resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.toolType) > 0;
 
         for (int index = 0; index < this.capability.getAttributeAmount(); index++) {
-            removePointButtons[index].enabled = this.capability.getAttribute(getAttribute(index), this.toolType) > 0;
+            removePointButtons[index].enabled = this.capability.getAttribute(SoulAttribute.get(this.toolType, index), this.toolType) > 0;
         }
 
         addPointButtons[HARVEST_LEVEL.getIndex()].enabled &= this.capability.getAttribute(HARVEST_LEVEL, this.toolType) < 3;
@@ -282,7 +282,7 @@ public class SoulToolMenu extends GuiScreen {
                     amount = this.capability.getDatum(ATTRIBUTE_POINTS, this.toolType);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolAttributePoints(amount, SoulToolAttribute.getAttribute(button.id - 4), this.toolType));
+                Main.CHANNEL.sendToServer(new SToolAttributePoints(amount, SoulToolAttribute.get(button.id - 4), this.toolType));
                 break;
             case 9:
             case 10:
@@ -334,7 +334,7 @@ public class SoulToolMenu extends GuiScreen {
                     amount = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.toolType);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolAttributePoints(-amount, SoulToolAttribute.getAttribute(button.id - 23), this.toolType));
+                Main.CHANNEL.sendToServer(new SToolAttributePoints(-amount, SoulToolAttribute.get(button.id - 23), this.toolType));
                 break;
             case 28:
             case 29:

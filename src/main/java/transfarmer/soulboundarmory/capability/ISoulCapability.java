@@ -2,9 +2,9 @@ package transfarmer.soulboundarmory.capability;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulboundarmory.statistics.IAttribute;
 import transfarmer.soulboundarmory.statistics.IEnchantment;
 import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 
 import java.util.List;
@@ -47,11 +47,11 @@ public interface ISoulCapability {
 
     boolean addDatum(int amount, SoulDatum datum, IType type);
 
-    float getAttribute(IAttribute attribute, IType type);
+    float getAttribute(SoulAttribute attribute, IType type);
 
-    void setAttribute(float value, IAttribute attribute, IType type);
+    void setAttribute(float value, SoulAttribute attribute, IType type);
 
-    void addAttribute(int amount, IAttribute attribute, IType toolType);
+    void addAttribute(int amount, SoulAttribute attribute, IType toolType);
 
     void setData(int[] data, IType type);
 

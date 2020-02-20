@@ -1,42 +1,27 @@
 package transfarmer.soulboundarmory.statistics.tool;
 
-import transfarmer.soulboundarmory.statistics.IAttribute;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
 
-public enum SoulToolAttribute implements IAttribute {
-    EFFICIENCY_ATTRIBUTE(0, 0.5F),
-    REACH_DISTANCE(1, 0.1F),
-    HARVEST_LEVEL(2, 0.2F);
+public class SoulToolAttribute extends SoulAttribute {
+    public static final SoulAttribute EFFICIENCY_ATTRIBUTE = new SoulToolAttribute(0, 0.5F);
+    public static final SoulAttribute REACH_DISTANCE = new SoulToolAttribute(1, 0.1F);
+    public static final SoulAttribute HARVEST_LEVEL = new SoulToolAttribute(2, 0.2F);
 
-    private final int index;
-    private final float[] increase;
+    protected static final SoulAttribute[] ATTRIBUTES = {
+            EFFICIENCY_ATTRIBUTE,
+            REACH_DISTANCE,
+            HARVEST_LEVEL,
+    };
 
-    private static final SoulToolAttribute[] ATTRIBUTES = {EFFICIENCY_ATTRIBUTE, REACH_DISTANCE, HARVEST_LEVEL};
-
-    SoulToolAttribute(final int index, final float ... increase) {
-        this.index = index;
-        this.increase = increase;
-    }
-
-    @Override
-    public int getIndex() {
-        return this.index;
-    }
-
-    @Override
-    public float getIncrease(final IType type) {
-        return this.increase[type.getIndex()];
+    protected SoulToolAttribute(final int index, final float... increase) {
+        super(index, increase);
     }
 
     public static String getName(final int index) {
-        return getAttribute(index).toString().toLowerCase();
+        return get(index).toString().toLowerCase();
     }
 
-    public static SoulToolAttribute[] getAttributes() {
-        return ATTRIBUTES;
-    }
-
-    public static SoulToolAttribute getAttribute(final int index) {
+    public static SoulAttribute get(final int index) {
         return ATTRIBUTES[index];
     }
 

@@ -1,5 +1,10 @@
 package transfarmer.soulboundarmory.statistics;
 
+import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
+
 public class SoulAttribute extends Statistic {
     public static final SoulAttribute EFFICIENCY_ATTRIBUTE = new SoulAttribute(0);
 
@@ -21,8 +26,11 @@ public class SoulAttribute extends Statistic {
             KNOCKBACK_ATTRIBUTE
     };
 
-    protected SoulAttribute(final int index) {
+    protected final float[] increase;
+
+    protected SoulAttribute(final int index, final float ... increase) {
         super(index);
+        this.increase = increase;
     }
 
     @Override
@@ -30,19 +38,19 @@ public class SoulAttribute extends Statistic {
         return obj instanceof SoulAttribute && ((SoulAttribute) obj).index == this.index;
     }
 
-    public static String getName(final int index) {
-        return get(index).toString().toLowerCase();
-    }
-
-    public static SoulAttribute[] get() {
-        return ATTRIBUTES;
-    }
-
-    public static SoulAttribute get(final int index) {
-        return ATTRIBUTES[index];
+    public static SoulAttribute get(final IType type, final int index) {
+        return type instanceof SoulWeaponType
+                ? SoulWeaponAttribute.get(index)
+                : type instanceof SoulToolType
+                ? SoulToolAttribute.get(index)
+                : null;
     }
 
     public static int getAmount() {
         return ATTRIBUTES.length;
+    }
+
+    public float getIncrease(final IType type) {
+        return this.increase[type.getIndex()];
     }
 }

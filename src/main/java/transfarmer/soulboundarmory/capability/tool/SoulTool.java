@@ -4,13 +4,16 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import transfarmer.soulboundarmory.Configuration;
-import transfarmer.soulboundarmory.statistics.IAttribute;
-import transfarmer.soulboundarmory.statistics.IEnchantment;
-import transfarmer.soulboundarmory.statistics.IType;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
-import transfarmer.soulboundarmory.statistics.tool.*;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
+import transfarmer.soulboundarmory.statistics.IEnchantment;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -121,12 +124,12 @@ public class SoulTool implements ISoulTool {
     }
 
     @Override
-    public float getAttribute(final IAttribute attribute, final IType type) {
+    public float getAttribute(final SoulAttribute attribute, final IType type) {
         return this.attributes[type.getIndex()][attribute.getIndex()];
     }
 
     @Override
-    public void setAttribute(final float value, final IAttribute attribute, final IType type) {
+    public void setAttribute(final float value, final SoulAttribute attribute, final IType type) {
         this.attributes[type.getIndex()][attribute.getIndex()] = value;
     }
 
@@ -136,14 +139,14 @@ public class SoulTool implements ISoulTool {
     }
 
     @Override
-    public void addAttribute(final int amount, final IAttribute attribute, final IType type) {
+    public void addAttribute(final int amount, final SoulAttribute attribute, final IType type) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
             this.addDatum(-sign, ATTRIBUTE_POINTS, type);
             this.addDatum(sign, SPENT_ATTRIBUTE_POINTS, type);
 
-            if (attribute == HARVEST_LEVEL && this.getAttribute(HARVEST_LEVEL, type) + sign * HARVEST_LEVEL.getIncrease(type) >= 2.9999) {
+            if (attribute.equals(HARVEST_LEVEL) && this.getAttribute(HARVEST_LEVEL, type) + sign * HARVEST_LEVEL.getIncrease(type) >= 2.9999) {
                 this.attributes[type.getIndex()][HARVEST_LEVEL.getIndex()] = 3;
                 return;
             } else if (this.attributes[type.getIndex()][attribute.getIndex()] + sign * attribute.getIncrease(type) > 0.0001) {
