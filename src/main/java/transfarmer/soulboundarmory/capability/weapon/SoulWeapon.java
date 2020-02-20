@@ -99,8 +99,31 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public float getAttribute(final SoulAttribute attribute, final IType type) {
+    public float getAttribute(final SoulAttribute attribute, final IType type, final boolean total, final boolean effective) {
+        if (total) {
+            if (attribute.equals(ATTACK_SPEED)) {
+                float attackSpeed = this.getAttribute(ATTACK_SPEED, type) + type.getSoulItem().getAttackSpeed();
+
+                return effective ? attackSpeed + 4 : attackSpeed;
+            } else if (attribute.equals(ATTACK_DAMAGE)) {
+                float attackDamage = this.getAttribute(ATTACK_DAMAGE, type) + type.getSoulItem().getDamage();
+
+                return effective && this.getEnchantment(SOUL_SHARPNESS, type) > 0
+                        ? attackDamage + 1 + (this.getEnchantment(SOUL_SHARPNESS, type) - 1) / 2F : attackDamage;
+            }
+        }
+
         return this.attributes[type.getIndex()][attribute.getIndex()];
+    }
+
+    @Override
+    public float getAttribute(final SoulAttribute attribute, final IType type, final boolean total) {
+        return this.getAttribute(attribute, type, total, false);
+    }
+
+    @Override
+    public float getAttribute(final SoulAttribute attribute, final IType type) {
+        return this.getAttribute(attribute, type, false, false);
     }
 
     @Override
@@ -133,31 +156,6 @@ public class SoulWeapon implements ISoulWeapon {
         this.data[type.getIndex()] = data;
     }
 
-    @Override
-    public float getAttackSpeed(final IType type) {
-        return this.attributes[type.getIndex()][ATTACK_SPEED.getIndex()] + type.getSoulItem().getAttackSpeed();
-    }
-
-    @Override
-    public float getEffectiveAttackSpeed(final IType type) {
-        return this.getAttackSpeed(type) + 4;
-    }
-
-    @Override
-    public float getAttackDamage(final IType type) {
-        return this.attributes[type.getIndex()][ATTACK_DAMAGE.getIndex()] + type.getSoulItem().getDamage();
-    }
-
-    @Override
-    public float getEffectiveAttackDamage(final IType type) {
-        float attackDamage = this.getAttackDamage(type);
-
-        if (this.getEnchantment(SOUL_SHARPNESS, type) > 0) {
-            attackDamage += 1 + (this.getEnchantment(SOUL_SHARPNESS, type) - 1) / 2F;
-        }
-
-        return attackDamage;
-    }
 
     @Override
     public ItemStack getItemStack(final ItemStack itemStack) {
@@ -182,8 +180,8 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public AttributeModifier[] getAttributeModifiers(final IType type) {
         return new AttributeModifier[]{
-                new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttackSpeed(type), ADD),
-                new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttackDamage(type), ADD),
+                new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttribute(ATTACK_SPEED, type, true), ADD),
+                new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttribute(ATTACK_DAMAGE, type, true), ADD),
                 new AttributeModifier(SoulItemHelper.REACH_DISTANCE_UUID, "generic.reachDistance", this.currentType.getSoulItem().getReachDistance(), ADD)
         };
     }
@@ -208,16 +206,9 @@ public class SoulWeapon implements ISoulWeapon {
     public List<String> getTooltip(final IType type) {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
         final List<String> tooltip = new ArrayList<>(7);
-        final Map<SoulEnchantment, Integer> enchantments = this.getEnchantments(type);
 
-        float attackDamage = this.getAttackDamage(type) + 1;
-
-        if (enchantments.containsKey(SOUL_SHARPNESS)) {
-            attackDamage += 1 + (enchantments.get(SOUL_SHARPNESS) - 1) / 2F;
-        }
-
-        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_SPEED_FORMAT, FORMAT.format(this.getAttackSpeed(type) + 4), Mappings.ATTACK_SPEED_NAME));
-        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_DAMAGE_FORMAT, FORMAT.format(attackDamage), Mappings.ATTACK_DAMAGE_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_SPEED_FORMAT, FORMAT.format(this.getAttribute(ATTACK_SPEED, type, true, true)), Mappings.ATTACK_SPEED_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_DAMAGE_FORMAT, FORMAT.format(this.getAttribute(ATTACK_DAMAGE, type, true, true)), Mappings.ATTACK_DAMAGE_NAME));
 
         tooltip.add("");
         tooltip.add("");
@@ -343,7 +334,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getCooldown(final IType type) {
-        return Math.round(20 / (4 + this.getAttackSpeed(type)));
+        return Math.round(20 / (4 + this.getAttribute(ATTACK_SPEED, type, true)));
     }
 
     @Override
@@ -393,7 +384,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public void resetLightningCooldown() {
-        this.lightningCooldown = Math.round(96 / this.getEffectiveAttackSpeed(this.currentType));
+        this.lightningCooldown = Math.round(96 / this.getAttribute(ATTACK_SPEED, this.currentType, true, true));
     }
 
     @Override

@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -35,7 +35,7 @@ public class CToolBindSlot implements IMessage {
         @Override
         public IMessage onMessage(final CToolBindSlot message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final ISoulTool capability = SoulToolProvider.get(minecraft.player);
+            final ISoulCapability capability = SoulToolProvider.get(minecraft.player);
 
             minecraft.addScheduledTask(() -> capability.bindSlot(message.slot));
 

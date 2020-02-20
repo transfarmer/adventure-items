@@ -22,12 +22,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
 import java.util.UUID;
 
+import static transfarmer.soulboundarmory.statistics.SoulAttribute.ATTACK_DAMAGE;
+import static transfarmer.soulboundarmory.statistics.SoulAttribute.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_FIRE_ASPECT;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
@@ -105,13 +107,18 @@ public class EntitySoulDagger extends EntityArrow {
 
         if (this.shootingEntity instanceof EntityPlayer) {
             final ISoulWeapon capability = SoulWeaponProvider.get(this.shootingEntity);
-            final float attackSpeed = 4 + capability.getAttackSpeed(DAGGER);
+            final float attackSpeed = capability.getAttribute(ATTACK_SPEED, DAGGER, true, true);
 
             if (capability.getDatum(SKILLS, DAGGER) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
                     || capability.getDatum(SKILLS, DAGGER) >= 3
-                    && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed)) {
+                    && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed)
+                    || this.shootingEntity.getDistance(this) >= 256)
+            {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();
-                double multiplier = 1.8 / capability.getEffectiveAttackSpeed(capability.getCurrentType());
+                double multiplier = 1.8 / capability.getAttribute(ATTACK_SPEED, DAGGER, true, true);
+                final double dX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
+                final double dY = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) / 2 - this.posY;
+                final double dZ = boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ) / 2 - this.posZ;
 
                 if (this.ticksToSeek == -1 && !this.inGround) {
                     this.ticksToSeek = (int) Math.round(Math.log(0.05) / Math.log(multiplier));
@@ -124,9 +131,6 @@ public class EntitySoulDagger extends EntityArrow {
 
                     this.ticksToSeek--;
                 } else {
-                    final double dX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
-                    final double dY = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) / 2 - this.posY;
-                    final double dZ = boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ) / 2 - this.posZ;
                     final Vec3d normalized = new Vec3d(dX, dY, dZ).normalize();
 
                     if (this.ticksToSeek != 0) {
@@ -276,7 +280,7 @@ public class EntitySoulDagger extends EntityArrow {
 
                 int burnTime = 0;
 
-                float attackDamage = 1 + capability.getAttackDamage(DAGGER);
+                float attackDamage = capability.getAttribute(ATTACK_DAMAGE, DAGGER, true, true);
                 final float attackDamageModifier = entity instanceof EntityLivingBase
                         ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
                         : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);
@@ -398,10 +402,10 @@ public class EntitySoulDagger extends EntityArrow {
 
     @Override
     public void onCollideWithPlayer(final EntityPlayer player) {
-        if (!this.world.isRemote && this.ticksExisted > 20 / (4 + SoulWeaponProvider.get(player).getAttackSpeed(DAGGER))
+        if (!this.world.isRemote && this.ticksExisted > 20 / (SoulWeaponProvider.get(player).getAttribute(ATTACK_SPEED, DAGGER, true, true))
                 && this.arrowShake <= 0 && player.getUniqueID().equals(this.shooterUUID) && (this.pickupStatus == PickupStatus.ALLOWED
                 || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
-            if (player.isCreative() && SoulWeaponHelper.hasSoulWeapon(player)) {
+            if (player.isCreative() && SoulItemHelper.hasSoulWeapon(player)) {
                 player.onItemPickup(this, 1);
                 this.setDead();
             } else if (player.inventory.addItemStackToInventory(this.getArrowStack())) {

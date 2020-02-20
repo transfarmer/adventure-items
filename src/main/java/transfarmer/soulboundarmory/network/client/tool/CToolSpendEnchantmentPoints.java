@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.statistics.IType;
@@ -50,7 +50,7 @@ public class CToolSpendEnchantmentPoints implements IMessage {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final SoulEnchantment enchantment = SoulToolEnchantment.get(message.enchantmentIndex);
             final IType type = SoulToolType.getType(message.typeIndex);
-            final ISoulTool instance = SoulToolProvider.get(Minecraft.getMinecraft().player);
+            final ISoulCapability instance = SoulToolProvider.get(Minecraft.getMinecraft().player);
 
             minecraft.addScheduledTask(() -> {
                 instance.addEnchantment(message.amount, enchantment, type);

@@ -14,12 +14,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolStorage;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponStorage;
+import transfarmer.soulboundarmory.client.render.RenderReachModifier;
+import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
 import transfarmer.soulboundarmory.command.CommandSoulboundArmory;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
@@ -27,8 +29,6 @@ import transfarmer.soulboundarmory.network.client.tool.*;
 import transfarmer.soulboundarmory.network.client.weapon.*;
 import transfarmer.soulboundarmory.network.server.tool.*;
 import transfarmer.soulboundarmory.network.server.weapon.*;
-import transfarmer.soulboundarmory.client.render.RenderReachModifier;
-import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
@@ -38,7 +38,7 @@ import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 public class Main {
     public static final String MOD_ID = "soulboundarmory";
     public static final String NAME = "soulbound armory";
-    public static final String VERSION = "2.1.10-beta";
+    public static final String VERSION = "2.1.11-beta";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
@@ -47,7 +47,7 @@ public class Main {
     @EventHandler
     public static void preInit(FMLPreInitializationEvent event) {
         CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
-        CapabilityManager.INSTANCE.register(ISoulTool.class, new SoulToolStorage(), SoulTool::new);
+        CapabilityManager.INSTANCE.register(ISoulCapability.class, new SoulToolStorage(), SoulTool::new);
 
         CHANNEL.registerMessage(SWeaponType.Handler.class, SWeaponType.class, id++, SERVER);
         CHANNEL.registerMessage(SWeaponAttributePoints.Handler.class, SWeaponAttributePoints.class, id++, SERVER);

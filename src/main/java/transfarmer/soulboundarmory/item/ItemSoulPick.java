@@ -16,8 +16,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.network.client.tool.CToolLevelupMessage;
 import transfarmer.soulboundarmory.statistics.IType;
@@ -60,7 +60,7 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
                                     final BlockPos blockPos, final EntityLivingBase entity) {
         if (entity instanceof EntityPlayer && this.isEffectiveAgainst(blockState)
                 && this.canHarvestBlock(blockState, (EntityPlayer) entity)) {
-            final ISoulTool capability = SoulToolProvider.get(entity);
+            final ISoulCapability capability = SoulToolProvider.get(entity);
             final IType type = SoulToolType.getType(itemStack);
             final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5);
 

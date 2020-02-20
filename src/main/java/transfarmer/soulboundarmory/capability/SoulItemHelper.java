@@ -7,7 +7,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
@@ -31,7 +30,7 @@ public class SoulItemHelper {
         try {
             if (cls.newInstance() instanceof ISoulWeapon) {
                 return SoulWeaponProvider.get(player);
-            } else if (cls.newInstance() instanceof ISoulTool) {
+            } else if (cls.newInstance() instanceof ISoulCapability) {
                 return SoulToolProvider.get(player);
             }
         } catch (InstantiationException | IllegalAccessException exception) {
@@ -64,6 +63,15 @@ public class SoulItemHelper {
     public static boolean isSoulToolEquipped(final EntityPlayer player) {
         return player.getHeldItemMainhand().getItem() instanceof IItemSoulTool
                 || player.getHeldItemOffhand().getItem() instanceof IItemSoulTool;
+    }
+
+    public static boolean isSoulWeaponEquipped(final EntityPlayer player) {
+        return player.getHeldItemMainhand().getItem() instanceof ItemSoulWeapon
+                || player.getHeldItemOffhand().getItem() instanceof ItemSoulWeapon;
+    }
+
+    public static boolean isSoulItemEquipped(final EntityPlayer player) {
+        return isSoulWeaponEquipped(player) || isSoulToolEquipped(player);
     }
 
     public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player, boolean hasReservedSlot) {
@@ -114,25 +122,42 @@ public class SoulItemHelper {
         return addItemStack(itemStack, player, false);
     }
 
-    public static void forEach(final ISoulCapability capability,
+    public static void forEach(final int itemAmount,
+                               final int datumAmount,
+                               final int attributeAmount,
+                               final int enchantmentAmount,
                                final BiConsumer<Integer, Integer> data,
                                final BiConsumer<Integer, Integer> attributes,
                                final BiConsumer<Integer, Integer> enchantments) {
-        for (int itemIndex = 0; itemIndex < capability.getItemAmount(); itemIndex++) {
-            for (int valueIndex = 0; valueIndex < Math.max(capability.getDatumAmount(), Math.max(capability.getAttributeAmount(), capability.getEnchantmentAmount())); valueIndex++) {
-                if (valueIndex < capability.getDatumAmount()) {
+        for (int itemIndex = 0; itemIndex < itemAmount; itemIndex++) {
+            for (int valueIndex = 0; valueIndex < Math.max(datumAmount, Math.max(attributeAmount, enchantmentAmount)); valueIndex++) {
+                if (valueIndex < datumAmount) {
                     data.accept(itemIndex, valueIndex);
                 }
 
-                if (valueIndex < capability.getAttributeAmount()) {
+                if (valueIndex < attributeAmount) {
                     attributes.accept(itemIndex, valueIndex);
                 }
 
-                if (valueIndex < capability.getEnchantmentAmount()) {
+                if (valueIndex < enchantmentAmount) {
                     enchantments.accept(itemIndex, valueIndex);
                 }
             }
         }
+    }
+
+    public static void forEach(final ISoulCapability capability,
+                               final BiConsumer<Integer, Integer> data,
+                               final BiConsumer<Integer, Integer> attributes,
+                               final BiConsumer<Integer, Integer> enchantments) {
+        forEach(capability.getItemAmount(),
+                capability.getDatumAmount(),
+                capability.getAttributeAmount(),
+                capability.getEnchantmentAmount(),
+                data,
+                attributes,
+                enchantments
+        );
     }
 
     public static boolean areEmpty(final ISoulCapability capability, final int[][] data, final float[][] attributes, final int[][] enchantments) {
@@ -199,4 +224,26 @@ public class SoulItemHelper {
 
         return player.getHeldItemOffhand().getItem() instanceof IItemSoulTool;
     }
+
+    public static boolean hasSoulWeapon(final EntityPlayer player) {
+        final ItemStack[] inventory = player.inventory.mainInventory.toArray(new ItemStack[player.inventory.getSizeInventory() + 1]);
+        inventory[player.inventory.getSizeInventory()] = player.getHeldItemOffhand();
+
+        for (final ItemStack itemStack : inventory) {
+            if (itemStack != null && itemStack.getItem() instanceof ItemSoulWeapon) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static void removeSoulWeapons(final EntityPlayer player) {
+        for (final ItemStack itemStack : player.inventory.mainInventory) {
+            if (itemStack.getItem() instanceof ItemSoulWeapon) {
+                player.inventory.deleteStack(itemStack);
+            }
+        }
+    }
+
 }

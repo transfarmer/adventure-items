@@ -3,18 +3,14 @@ package transfarmer.soulboundarmory.client.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Items;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.network.server.weapon.*;
 import transfarmer.soulboundarmory.statistics.IType;
@@ -23,25 +19,19 @@ import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 import transfarmer.util.ItemHelper;
 
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.*;
 
 @SideOnly(CLIENT)
-public class SoulWeaponMenu extends GuiScreen {
-    private final GuiButton[] tabs = new GuiButton[4];
-    private final GUIFactory guiFactory = new GUIFactory();
-    private final ISoulWeapon capability = SoulWeaponProvider.get(Minecraft.getMinecraft().player);
-    private final IType type = this.capability.getCurrentType();
-
+public class SoulWeaponMenu extends Menu {
     public SoulWeaponMenu() {
         this.mc = Minecraft.getMinecraft();
+        this.tabs = new GuiButton[4];
+        this.guiFactory = new GUIFactory();
+        this.capability = SoulWeaponProvider.get(this.mc.player);
+        this.type = this.capability.getCurrentType();
     }
 
     public SoulWeaponMenu(final int tab) {
@@ -54,7 +44,7 @@ public class SoulWeaponMenu extends GuiScreen {
     public void initGui() {
         if (this.capability.getCurrentType() != null) {
             final String text = this.mc.player.inventory.currentItem != capability.getBoundSlot()
-                ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
+                    ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
 
             this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, text));
             this.tabs[0] = addButton(guiFactory.tabButton(16, 0, Mappings.MENU_SELECTION));
@@ -94,12 +84,12 @@ public class SoulWeaponMenu extends GuiScreen {
         final int ySep = 32;
 
         final GuiButton[] weaponButtons = {
-            addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_GREATSWORD_NAME)),
-            addButton(new GuiButton(1, xCenter, yCenter, buttonWidth, buttonHeight, Mappings.SOUL_SWORD_NAME)),
-            addButton(new GuiButton(2, xCenter, yCenter + ySep, buttonWidth, buttonHeight, Mappings.SOUL_DAGGER_NAME))
+                addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_GREATSWORD_NAME)),
+                addButton(new GuiButton(1, xCenter, yCenter, buttonWidth, buttonHeight, Mappings.SOUL_SWORD_NAME)),
+                addButton(new GuiButton(2, xCenter, yCenter + ySep, buttonWidth, buttonHeight, Mappings.SOUL_DAGGER_NAME))
         };
 
-        if (SoulWeaponHelper.hasSoulWeapon(this.mc.player)) {
+        if (SoulItemHelper.hasSoulWeapon(this.mc.player)) {
             weaponButtons[capability.getCurrentType().getIndex()].enabled = false;
         } else if (this.capability.getCurrentType() != null && !ItemHelper.hasItem(Items.WOODEN_SWORD, this.mc.player)) {
             for (final GuiButton button : weaponButtons) {
@@ -133,9 +123,11 @@ public class SoulWeaponMenu extends GuiScreen {
         }
     }
 
-    private void showSkills() {}
+    private void showSkills() {
+    }
 
-    private void showTraits() {}
+    private void showTraits() {
+    }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -146,7 +138,7 @@ public class SoulWeaponMenu extends GuiScreen {
 
         switch (this.capability.getCurrentTab()) {
             case 0:
-                drawWeapons(RENDERER, mouseX, mouseY);
+                drawWeapons();
                 break;
             case 1:
                 drawAttributes(RENDERER, mouseX, mouseY);
@@ -159,31 +151,10 @@ public class SoulWeaponMenu extends GuiScreen {
         }
     }
 
-    private GuiButton[] addAddPointButtons(final int id, final int rows, final int points) {
-        final GuiButton[] buttons = new GuiButton[rows];
-
-        for (int row = 0; row < rows; row++) {
-            buttons[row] = addButton(guiFactory.addSquareButton(id + row, (width + 162) / 2, (row + 1) * height / 16 + 4, "+"));
-            buttons[row].enabled = points > 0;
-        }
-
-        return buttons;
-    }
-
-    private GuiButton[] addRemovePointButtons(final int id, final int rows) {
-        final GuiButton[] buttons = new GuiButton[rows];
-
-        for (int row = 0; row < rows; row++) {
-            buttons[row] = this.addButton(guiFactory.addSquareButton(id + row, (width + 162) / 2 - 20, (row + 1) * height / 16 + 4, "-"));
-        }
-
-        return buttons;
-    }
-
-    private void drawWeapons(final Renderer renderer, final int mouseX, final int mouseY) {
-        if (!SoulWeaponHelper.hasSoulWeapon(this.mc.player)) {
+    private void drawWeapons() {
+        if (!SoulItemHelper.hasSoulWeapon(this.mc.player)) {
             this.drawCenteredString(this.fontRenderer, Mappings.MENU_SELECTION,
-                Math.round(width / 2F), 40, 0xFFFFFF);
+                    Math.round(width / 2F), 40, 0xFFFFFF);
         }
     }
 
@@ -197,11 +168,11 @@ public class SoulWeaponMenu extends GuiScreen {
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
-                Math.round(width / 2F), 4, 0xFFFFFF);
+                    Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        renderer.drawMiddleAttribute(attackSpeed, capability.getAttackSpeed(this.type) + 4, 0);
-        renderer.drawMiddleAttribute(attackDamage, capability.getAttackDamage(this.type) + 1, 1);
+        renderer.drawMiddleAttribute(attackSpeed, capability.getAttribute(ATTACK_SPEED, this.type, true, true), 0);
+        renderer.drawMiddleAttribute(attackDamage, capability.getAttribute(ATTACK_DAMAGE, this.type, true, true), 1);
         renderer.drawMiddleAttribute(critical, capability.getAttribute(CRITICAL, this.type), 2);
         renderer.drawMiddleAttribute(knockback, capability.getAttribute(KNOCKBACK_ATTRIBUTE, this.type), 3);
         renderer.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY_ATTRIBUTE, this.type), 4);
@@ -214,7 +185,7 @@ public class SoulWeaponMenu extends GuiScreen {
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
-                Math.round(width / 2F), 4, 0xFFFFFF);
+                    Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
         renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SHARPNESS_NAME, this.capability.getEnchantment(SOUL_SHARPNESS, this.type)), 0);
@@ -231,43 +202,13 @@ public class SoulWeaponMenu extends GuiScreen {
     private void drawSkills(final Renderer renderer, final int mouseX, final int mouseY) {
         for (int i = 0; i < capability.getDatum(SKILLS, this.type); i++) {
             this.drawCenteredString(this.fontRenderer, capability.getCurrentType().getSkills()[i],
-                width / 2, (i + 2) * height / 16, 0xFFFFFF);
+                    width / 2, (i + 2) * height / 16, 0xFFFFFF);
         }
 
         this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawTraits(final Renderer renderer, final int mouseX, final int mouseY) {}
-
-    private void drawXPBar(int mouseX, int mouseY) {
-        final int barLeftX = (width - 182) / 2;
-        final int barTopY = (height - 4) / 2;
-
-        GlStateManager.color(1F, 1F, 1F, 1F);
-        this.mc.getTextureManager().bindTexture(XP_BAR);
-        this.drawTexturedModalRect(barLeftX, barTopY, 0, 40, 182, 5);
-        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, Math.min(182, Math.round((float) capability.getDatum(XP, this.type) / capability.getNextLevelXP(this.type) * 182)), 5);
-        this.mc.getTextureManager().deleteTexture(XP_BAR);
-
-        final int level = this.capability.getDatum(LEVEL, this.type);
-        final String levelString = String.format("%d", level);
-        final int levelLeftX = Math.round((width - this.fontRenderer.getStringWidth(levelString)) / 2F) + 1;
-        final int levelTopY = height / 2 - 8;
-        this.fontRenderer.drawString(levelString, levelLeftX + 1, levelTopY, 0);
-        this.fontRenderer.drawString(levelString, levelLeftX - 1, levelTopY, 0);
-        this.fontRenderer.drawString(levelString, levelLeftX, levelTopY + 1, 0);
-        this.fontRenderer.drawString(levelString, levelLeftX, levelTopY - 1, 0);
-        this.fontRenderer.drawString(levelString, levelLeftX, levelTopY, 0xEC00B8);
-
-        if (mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
-            && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT) {
-            this.drawHoveringText(String.format("%d/%d", capability.getDatum(LEVEL, this.type), Configuration.maxLevel), mouseX, mouseY);
-        } else if (mouseX >= (width - 182) / 2 && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4) {
-            final String string = this.capability.getDatum(LEVEL, this.type) < Configuration.maxLevel
-                ? String.format("%d/%d", capability.getDatum(XP, this.type), capability.getNextLevelXP(this.type))
-                : String.format("%d", capability.getDatum(XP, this.type));
-            this.drawHoveringText(string, mouseX, mouseY);
-        }
+    private void drawTraits(final Renderer renderer, final int mouseX, final int mouseY) {
     }
 
     @Override
@@ -277,8 +218,8 @@ public class SoulWeaponMenu extends GuiScreen {
             case 1:
             case 2:
                 final IType type = SoulWeaponType.getType(button.id);
-                final GuiScreen screen = !SoulWeaponHelper.hasSoulWeapon(this.mc.player)
-                    ? null : new SoulWeaponMenu();
+                final GuiScreen screen = !SoulItemHelper.hasSoulWeapon(this.mc.player)
+                        ? null : new SoulWeaponMenu();
 
                 if (screen == null) {
                     this.capability.setCurrentTab(1);
@@ -394,63 +335,13 @@ public class SoulWeaponMenu extends GuiScreen {
     }
 
     @Override
-    protected void keyTyped(final char typedChar, final int keyCode) {
-        if (keyCode == 1 || keyCode == KeyBindings.MENU_KEY.getKeyCode() || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) {
-            this.mc.displayGuiScreen(null);
-        }
-    }
-
-    @Override
     public void handleMouseInput() {
-        try {
-            super.handleMouseInput();
-        } catch (final IOException exception) {
-            exception.printStackTrace();
-        }
+        super.handleMouseInput();
 
         final int dWheel;
 
         if ((dWheel = Mouse.getDWheel()) != 0) {
             this.mc.displayGuiScreen(new SoulWeaponMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, 3)));
-        }
-    }
-
-    @Override
-    public boolean doesGuiPauseGame() {
-        return false;
-    }
-
-    public class GUIFactory {
-        public GuiButton tabButton(final int id, final int row, final String text) {
-            return new GuiButton(id, width / 24, height / 16 + Math.max(height / 16 * (Configuration.menuOffset - 1 + row), 30 * row), Math.max(96, Math.round(width / 7.5F)), 20, text);
-        }
-
-        public GuiButton centeredButton(final int id, final int y, final int buttonWidth, final String text) {
-            return new GuiButton(id, (width - buttonWidth) / 2, y, buttonWidth, 20, text);
-        }
-
-        public GuiButton addSquareButton(final int id, final int x, final int y, final String text) {
-            return new GuiButton(id, x - 10, y - 10, 20, 20, text);
-        }
-
-        public GuiButton resetButton(final int id) {
-            return new GuiButton(id, width - width / 24 - 112, height - height / 16 - 20, 112, 20, Mappings.MENU_BUTTON_RESET);
-        }
-    }
-
-    public class Renderer {
-        private final NumberFormat FORMAT = DecimalFormat.getInstance();
-
-        public void drawLeftAttribute(String name, float value, int row) {
-            drawString(fontRenderer, String.format(name, FORMAT.format(value)), width / 16, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
-        }
-
-        public void drawMiddleAttribute(String format, float value, int row) {
-            drawString(fontRenderer, String.format(format, FORMAT.format(value)), (width - 182) / 2, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
-        }
-
-        public void drawMiddleEnchantment(String entry, int row) {
-            drawString(fontRenderer, entry, (width - 182) / 2, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
         }
     }
 }

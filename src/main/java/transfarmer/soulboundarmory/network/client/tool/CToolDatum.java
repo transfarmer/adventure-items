@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
@@ -49,7 +49,7 @@ public class CToolDatum implements IMessage {
         public IMessage onMessage(CToolDatum message, MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 final EntityPlayer player = Minecraft.getMinecraft().player;
-                final ISoulTool instance = SoulToolProvider.get(player);
+                final ISoulCapability instance = SoulToolProvider.get(player);
 
                 instance.addDatum(message.value, SoulToolDatum.get(message.datumIndex), SoulToolType.getType(message.typeIndex));
             });

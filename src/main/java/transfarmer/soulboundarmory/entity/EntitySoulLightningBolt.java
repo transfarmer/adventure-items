@@ -1,27 +1,37 @@
 package transfarmer.soulboundarmory.entity;
 
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.stats.StatList;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
+import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
 import java.util.List;
 
+import static transfarmer.soulboundarmory.statistics.SoulAttribute.ATTACK_DAMAGE;
+import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_FIRE_ASPECT;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class EntitySoulLightningBolt extends EntityLightningBolt {
@@ -81,7 +91,7 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                     } else if (entity != this.caster && entity instanceof EntityLivingBase
                             && !ForgeEventFactory.onEntityStruckByLightning(entity, this)) {
                         final float attackDamage = this.caster instanceof EntityPlayer
-                                ? 1 + SoulWeaponProvider.get(this.caster).getEffectiveAttackDamage(SWORD) : 5;
+                                ? 1 + SoulWeaponProvider.get(this.caster).getAttribute(ATTACK_DAMAGE, SWORD, true, true) : 5;
 
                         entity.setFire(1);
 
@@ -90,8 +100,67 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                         }
 
                         if (this.caster instanceof EntityPlayer) {
-                            SoulWeaponHelper.delegateAttack(entity, this, (EntityPlayer) this.caster,
-                                    this.caster.getHeldItemMainhand(), attackDamage);
+                            final EntityPlayer player = (EntityPlayer) this.caster;
+                            final EntityLivingBase target = (EntityLivingBase) entity;
+                            final ItemStack itemStack = player.getHeldItemMainhand();
+                            final ISoulWeapon capability = SoulWeaponProvider.get(player);
+
+                            final DamageSource damageSource = DamageSource.causeThrownDamage(this, player);
+
+                            int burnTime = 0;
+
+                            final float attackDamageModifier = EnchantmentHelper.getModifierForCreature(itemStack, target.getCreatureAttribute());
+
+                            if (attackDamage > 0 || attackDamageModifier > 0) {
+                                final int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
+                                final float initialHealth = target.getHealth();
+
+                                burnTime += EnchantmentHelper.getFireAspectModifier(player);
+
+                                if (isBurning()) {
+                                    burnTime += 5;
+                                }
+
+                                if (capability.getEnchantments(DAGGER).containsKey(SOUL_FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
+                                    burnTime += capability.getEnchantment(SOUL_FIRE_ASPECT, DAGGER) * 4;
+                                }
+
+                                if (burnTime > 0 && !entity.isBurning()) {
+                                    entity.setFire(1);
+                                }
+
+                                if (entity.attackEntityFrom(damageSource, attackDamage)) {
+                                    if (knockbackModifier > 0) {
+                                        target.knockBack(player, knockbackModifier * 0.5F, MathHelper.sin(player.rotationYaw * 0.017453292F), -MathHelper.cos(player.rotationYaw * 0.017453292F));
+                                    }
+
+                                    if (attackDamageModifier > 0) {
+                                        player.onEnchantmentCritical(entity);
+                                    }
+
+                                    player.setLastAttackedEntity(entity);
+
+                                    EnchantmentHelper.applyThornEnchantments(target, player);
+
+                                    EnchantmentHelper.applyArthropodEnchantments(player, entity);
+
+                                    final float damageDealt = initialHealth - target.getHealth();
+                                    player.addStat(StatList.DAMAGE_DEALT, Math.round(damageDealt * 10));
+
+                                    if (burnTime > 0) {
+                                        entity.setFire(burnTime);
+                                    }
+
+                                    if (player.world instanceof WorldServer && damageDealt > 2) {
+                                        int k = (int) ((double) damageDealt * 0.5);
+                                        ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, entity.posX, entity.posY + entity.height * 0.5, entity.posZ, k, 0.1, 0, 0.1, 0.2);
+                                    }
+                                }
+                            } else {
+                                if (burnTime > 0) {
+                                    entity.extinguish();
+                                }
+                            }
                         } else {
                             entity.attackEntityFrom(DamageSource.causeIndirectDamage(this, this.caster), attackDamage);
                         }

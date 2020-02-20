@@ -4,14 +4,6 @@ import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.statistics.IType;
 
 public interface ISoulWeapon extends ISoulCapability {
-    float getAttackSpeed(IType type);
-
-    float getEffectiveAttackSpeed(IType type);
-
-    float getAttackDamage(IType type);
-
-    float getEffectiveAttackDamage(IType type);
-
     void resetCooldown(IType type);
 
     void addCooldown(int ticks);

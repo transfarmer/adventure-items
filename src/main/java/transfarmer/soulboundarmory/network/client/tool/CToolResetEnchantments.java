@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.statistics.IType;
@@ -39,7 +39,7 @@ public class CToolResetEnchantments implements IMessage {
         @Override
         public IMessage onMessage(final CToolResetEnchantments message, final MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
-                final ISoulTool capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
+                final ISoulCapability capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
                 final IType type = SoulToolType.getType(message.index);
 
                 capability.addDatum(capability.getDatum(SoulDatum.SPENT_ENCHANTMENT_POINTS, type), SoulDatum.ENCHANTMENT_POINTS, type);

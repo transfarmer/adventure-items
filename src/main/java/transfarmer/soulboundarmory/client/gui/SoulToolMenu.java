@@ -3,48 +3,40 @@ package transfarmer.soulboundarmory.client.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Items;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.network.server.tool.*;
 import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.util.ItemHelper;
 
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
+import static transfarmer.soulboundarmory.statistics.SoulAttribute.EFFICIENCY_ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.SoulAttribute.REACH_DISTANCE;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.HARVEST_LEVEL;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.*;
+import static transfarmer.soulboundarmory.statistics.SoulAttribute.HARVEST_LEVEL;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.*;
 
 @SideOnly(CLIENT)
-public class SoulToolMenu extends GuiScreen {
-    private final GuiButton[] tabs = new GuiButton[3];
-    private final GUIFactory guiFactory = new GUIFactory();
-    private final Renderer RENDERER = new Renderer();
-    private final ISoulTool capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
-    private final IType type = this.capability.getCurrentType();
-
+public class SoulToolMenu extends Menu {
     public SoulToolMenu() {
         this.mc = Minecraft.getMinecraft();
+        this.tabs = new GuiButton[3];
+        this.guiFactory = new GUIFactory();
+        this.RENDERER = new Renderer();
+        this.capability = SoulToolProvider.get(this.mc.player);
+        this.type = this.capability.getCurrentType();
     }
 
     public SoulToolMenu(final int tab) {
@@ -123,27 +115,6 @@ public class SoulToolMenu extends GuiScreen {
         }
     }
 
-    private GuiButton[] addAddPointButtons(final int id, final int rows, final int points) {
-        final GuiButton[] buttons = new GuiButton[rows];
-
-        for (int row = 0; row < rows; row++) {
-            buttons[row] = addButton(guiFactory.addSquareButton(id + row, (width + 162) / 2, (row + 1) * height / 16 + 4, "+"));
-            buttons[row].enabled = points > 0;
-        }
-
-        return buttons;
-    }
-
-    private GuiButton[] addRemovePointButtons(final int id, final int rows) {
-        final GuiButton[] buttons = new GuiButton[rows];
-
-        for (int row = 0; row < rows; row++) {
-            buttons[row] = this.addButton(guiFactory.addSquareButton(id + row, (width + 162) / 2 - 20, (row + 1) * height / 16 + 4, "-"));
-        }
-
-        return buttons;
-    }
-
     private void showSkills() {}
 
     private void showTraits() {}
@@ -186,8 +157,8 @@ public class SoulToolMenu extends GuiScreen {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.RENDERER.drawMiddleAttribute(efficiency, capability.getEffectiveEfficiency(this.type), 0);
-        this.RENDERER.drawMiddleAttribute(reachDistance, capability.getEffectiveReachDistance(this.type), 1);
+        this.RENDERER.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY_ATTRIBUTE, this.type, true, true), 0);
+        this.RENDERER.drawMiddleAttribute(reachDistance, capability.getAttribute(REACH_DISTANCE, this.type, true, true), 1);
         this.RENDERER.drawMiddleAttribute(harvestLevel, capability.getAttribute(HARVEST_LEVEL, this.type), 2);
 
         this.drawXPBar(mouseX, mouseY);
@@ -218,37 +189,6 @@ public class SoulToolMenu extends GuiScreen {
     }
 
     private void drawTraits(final int mouseX, final int mouseY) {}
-
-    private void drawXPBar(int mouseX, int mouseY) {
-        final int barLeftX = (width - 182) / 2;
-        final int barTopY = (height - 4) / 2;
-
-        GlStateManager.color(1F, 1F, 1F, 1F);
-        this.mc.getTextureManager().bindTexture(XP_BAR);
-        this.drawTexturedModalRect(barLeftX, barTopY, 0, 40, 182, 5);
-        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, Math.min(182, Math.round((float) capability.getDatum(XP, this.type) / capability.getNextLevelXP(this.type) * 182)), 5);
-        this.mc.getTextureManager().deleteTexture(XP_BAR);
-
-        final int level = this.capability.getDatum(LEVEL, this.type);
-        final String levelString = String.format("%d", level);
-        final int levelLeftX = Math.round((width - this.fontRenderer.getStringWidth(levelString)) / 2F) + 1;
-        final int levelTopY = height / 2 - 8;
-        this.fontRenderer.drawString(levelString, levelLeftX + 1, levelTopY, 0);
-        this.fontRenderer.drawString(levelString, levelLeftX - 1, levelTopY, 0);
-        this.fontRenderer.drawString(levelString, levelLeftX, levelTopY + 1, 0);
-        this.fontRenderer.drawString(levelString, levelLeftX, levelTopY - 1, 0);
-        this.fontRenderer.drawString(levelString, levelLeftX, levelTopY, 0xEC00B8);
-
-        if (mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
-                && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT) {
-            this.drawHoveringText(String.format("%d/%d", capability.getDatum(LEVEL, this.type), Configuration.maxLevel), mouseX, mouseY);
-        } else if (mouseX >= (width - 182) / 2 && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4) {
-            final String string = this.capability.getDatum(LEVEL, this.type) < Configuration.maxLevel
-                    ? String.format("%d/%d", capability.getDatum(XP, this.type), capability.getNextLevelXP(this.type))
-                    : String.format("%d", capability.getDatum(XP, this.type));
-            this.drawHoveringText(string, mouseX, mouseY);
-        }
-    }
 
     @Override
     public void actionPerformed(final GuiButton button) {
@@ -321,7 +261,7 @@ public class SoulToolMenu extends GuiScreen {
                 }
 
                 this.mc.displayGuiScreen(new SoulToolMenu());
-                Main.CHANNEL.sendToServer(new SToolBindSlot(slot));
+                Main.CHANNEL.sendToServer(new SToolBindSlot());
                 break;
             case 23:
             case 24:
@@ -354,63 +294,13 @@ public class SoulToolMenu extends GuiScreen {
     }
 
     @Override
-    protected void keyTyped(final char typedChar, final int keyCode) {
-        if (keyCode == 1 || keyCode == KeyBindings.MENU_KEY.getKeyCode() || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode()) {
-            this.mc.displayGuiScreen(null);
-        }
-    }
-
-    @Override
     public void handleMouseInput() {
-        try {
-            super.handleMouseInput();
-        } catch (final IOException exception) {
-            exception.printStackTrace();
-        }
+        super.handleMouseInput();
 
         final int dWheel;
 
         if ((dWheel = Mouse.getDWheel()) != 0 && SoulItemHelper.isSoulToolEquipped(this.mc.player)) {
             this.mc.displayGuiScreen(new SoulToolMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, 2)));
-        }
-    }
-
-    @Override
-    public boolean doesGuiPauseGame() {
-        return false;
-    }
-
-    public class GUIFactory {
-        public GuiButton tabButton(final int id, final int row, final String text) {
-            return new GuiButton(id, width / 24, height / 16 + Math.max(height / 16 * (Configuration.menuOffset - 1 + row), 30 * row), Math.max(96, Math.round(width / 7.5F)), 20, text);
-        }
-
-        public GuiButton centeredButton(final int id, final int y, final int buttonWidth, final String text) {
-            return new GuiButton(id, (width - buttonWidth) / 2, y, buttonWidth, 20, text);
-        }
-
-        public GuiButton addSquareButton(final int id, final int x, final int y, final String text) {
-            return new GuiButton(id, x - 10, y - 10, 20, 20, text);
-        }
-
-        public GuiButton resetButton(final int id) {
-            return new GuiButton(id, width - width / 24 - 112, height - height / 16 - 20, 112, 20, Mappings.MENU_BUTTON_RESET);
-        }
-    }
-
-    public class Renderer {
-        private final NumberFormat FORMAT = DecimalFormat.getInstance();
-
-        public void drawLeftAttribute(String name, float value, int row) {
-            drawString(fontRenderer, String.format(name, FORMAT.format(value)), width / 16, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
-        }
-
-        public void drawMiddleAttribute(String format, float value, int row) {
-            drawString(fontRenderer, String.format(format, FORMAT.format(value)), (width - 182) / 2, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
-        }
-
-        public void drawMiddleEnchantment(String entry, int row) {
-            drawString(fontRenderer, entry, (width - 182) / 2, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
         }
     }
 }

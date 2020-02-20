@@ -44,6 +44,10 @@ public interface ISoulCapability {
 
     boolean addDatum(int amount, SoulDatum datum, IType type);
 
+    float getAttribute(SoulAttribute attribute, IType type, boolean total, boolean effective);
+
+    float getAttribute(SoulAttribute attribute, IType type, boolean total);
+
     float getAttribute(SoulAttribute attribute, IType type);
 
     void setAttribute(float value, SoulAttribute attribute, IType type);

@@ -6,8 +6,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
@@ -36,7 +36,7 @@ public class SToolType implements IMessage {
         public IMessage onMessage(final SToolType message, final MessageContext context) {
             final IType toolType = SoulToolType.getType(message.index);
             final EntityPlayerMP player = context.getServerHandler().player;
-            final ISoulTool instance = SoulToolProvider.get(player);
+            final ISoulCapability instance = SoulToolProvider.get(player);
             instance.setCurrentType(toolType);
 
             if (!SoulItemHelper.hasSoulTool(player)) {

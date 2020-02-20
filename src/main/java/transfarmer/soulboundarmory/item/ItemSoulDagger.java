@@ -11,12 +11,13 @@ import net.minecraft.world.World;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 
+import static transfarmer.soulboundarmory.statistics.SoulAttribute.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 
 public class ItemSoulDagger extends ItemSoulWeapon {
     public ItemSoulDagger() {
-        super(1, -2, 3);
+        super(1, -2, 0);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class ItemSoulDagger extends ItemSoulWeapon {
         if (!world.isRemote) {
             final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack);
             final EntityPlayer player = (EntityPlayer) entity;
-            final float attackSpeed = 4 + SoulWeaponProvider.get(player).getAttackSpeed(DAGGER);
+            final float attackSpeed = 4 + SoulWeaponProvider.get(player).getAttribute(ATTACK_SPEED, DAGGER, true);
             final float velocity = Math.min(attackSpeed * (attackSpeed / 2) * (this.getMaxItemUseDuration(itemStack) - timeLeft) / 20, attackSpeed);
 
             if (!player.isCreative()) {

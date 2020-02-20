@@ -6,7 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
 import transfarmer.soulboundarmory.statistics.IType;
@@ -45,7 +45,7 @@ public class SToolDatum implements IMessage {
         @Override
         public IMessage onMessage(SToolDatum message, MessageContext context) {
             final EntityPlayer player = Minecraft.getMinecraft().player;
-            final ISoulTool instance = SoulToolProvider.get(player);
+            final ISoulCapability instance = SoulToolProvider.get(player);
             final SoulDatum datum = SoulToolDatum.get(message.datumIndex);
             final IType type = SoulToolType.getType(message.typeIndex);
 

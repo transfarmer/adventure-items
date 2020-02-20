@@ -6,15 +6,16 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @SuppressWarnings("ConstantConditions")
 public class SoulToolProvider implements ICapabilitySerializable<NBTBase> {
-    @CapabilityInject(ISoulTool.class)
-    private static final Capability<ISoulTool> CAPABILITY = null;
-    private final ISoulTool instance = CAPABILITY.getDefaultInstance();
+    @CapabilityInject(ISoulCapability.class)
+    private static final Capability<ISoulCapability> CAPABILITY = null;
+    private final ISoulCapability instance = CAPABILITY.getDefaultInstance();
 
     @Override
     @Nullable
@@ -37,7 +38,7 @@ public class SoulToolProvider implements ICapabilitySerializable<NBTBase> {
         CAPABILITY.getStorage().readNBT(CAPABILITY, instance, null, nbt);
     }
 
-    public static ISoulTool get(final Entity entity) {
+    public static ISoulCapability get(final Entity entity) {
         return entity == null ? null : entity.getCapability(CAPABILITY, null);
     }
 }

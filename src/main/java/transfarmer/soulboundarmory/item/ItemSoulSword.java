@@ -18,12 +18,7 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD
 
 public class ItemSoulSword extends ItemSoulWeapon {
     public ItemSoulSword() {
-        super(2, -2.4F, 4.5F);
-    }
-
-    @Override
-    public int getMaxItemUseDuration(final ItemStack itemStack) {
-        return 1200;
+        super(2, -2.4F, 1.5F);
     }
 
     @Override

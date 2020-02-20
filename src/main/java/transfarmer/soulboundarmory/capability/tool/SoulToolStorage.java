@@ -5,15 +5,16 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
-public class SoulToolStorage implements IStorage<ISoulTool> {
+public class SoulToolStorage implements IStorage<ISoulCapability> {
     @Override
-    public NBTBase writeNBT(Capability<ISoulTool> capability, ISoulTool instance, EnumFacing facing) {
+    public NBTBase writeNBT(Capability<ISoulCapability> capability, ISoulCapability instance, EnumFacing facing) {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("soultools.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().getIndex());
         tag.setInteger("soultools.capability.tab", instance.getCurrentTab());
@@ -44,7 +45,7 @@ public class SoulToolStorage implements IStorage<ISoulTool> {
     }
 
     @Override
-    public void readNBT(Capability<ISoulTool> capability, ISoulTool instance, EnumFacing facing, NBTBase nbt) {
+    public void readNBT(Capability<ISoulCapability> capability, ISoulCapability instance, EnumFacing facing, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soultools.capability.index"));
         instance.setCurrentTab(tag.getInteger("soultools.capability.tab"));

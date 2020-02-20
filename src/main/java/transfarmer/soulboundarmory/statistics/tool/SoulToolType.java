@@ -3,7 +3,6 @@ package transfarmer.soulboundarmory.statistics.tool;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.item.ItemSoulPick;
 import transfarmer.soulboundarmory.statistics.IType;
 
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_PICK;
@@ -44,8 +43,7 @@ public enum SoulToolType implements IType {
     }
 
     public static IType getType(final int index) {
-        if (index != -1) return TYPES[index];
-        return null;
+        return TYPES[index];
     }
 
     public static IType getType(final ItemStack itemStack) {
@@ -53,7 +51,7 @@ public enum SoulToolType implements IType {
     }
 
     public static IType getType(final Item item) {
-        if (item instanceof ItemSoulPick) {
+        if (item == SOULBOUND_PICK) {
             return PICK;
         } else return null;
     }

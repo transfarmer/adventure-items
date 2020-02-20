@@ -46,10 +46,8 @@ import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponHelper;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
@@ -99,7 +97,7 @@ public class EventSubscriber {
                 .entity(EntitySoulDagger.class)
                 .id(new ResourceLocation(Main.MOD_ID, "entity_soul_dagger"), 0)
                 .name("soul dagger")
-                .tracker(256, 1, true)
+                .tracker(512, 1, true)
                 .build()
         );
         entry.getRegistry().register(EntityEntryBuilder.create()
@@ -152,9 +150,9 @@ public class EventSubscriber {
 
     private static void updatePlayer(final EntityPlayer player) {
         final ISoulWeapon weaponCapability = SoulWeaponProvider.get(player);
-        final ISoulTool toolCapability = SoulToolProvider.get(player);
+        final ISoulCapability toolCapability = SoulToolProvider.get(player);
 
-        Main.CHANNEL.sendTo(new CWeaponData(player,
+        Main.CHANNEL.sendTo(new CWeaponData(
                 weaponCapability.getCurrentType(),
                 weaponCapability.getCurrentTab(),
                 weaponCapability.getAttackCooldown(),
@@ -163,7 +161,7 @@ public class EventSubscriber {
                 weaponCapability.getAttributes(),
                 weaponCapability.getEnchantments()), (EntityPlayerMP) player
         );
-        Main.CHANNEL.sendTo(new CToolData(player,
+        Main.CHANNEL.sendTo(new CToolData(
                 toolCapability.getCurrentType(),
                 toolCapability.getCurrentTab(),
                 toolCapability.getBoundSlot(),
@@ -253,7 +251,7 @@ public class EventSubscriber {
             }
 
             if (attacker instanceof EntityPlayer && weaponType != null) {
-                if (SoulWeaponHelper.isSoulWeaponEquipped((EntityPlayer) attacker)) {
+                if (SoulItemHelper.isSoulWeaponEquipped((EntityPlayer) attacker)) {
                     event.setStrength(event.getStrength() * (1 + instance.getAttribute(KNOCKBACK_ATTRIBUTE, weaponType) / 6));
                 }
             }
@@ -411,38 +409,40 @@ public class EventSubscriber {
                 }
             }
 
-            int firstSlot = -1;
+            if (instance.getCurrentType() != null) {
+                int firstSlot = -1;
 
-            for (final ItemStack itemStack : inventory.mainInventory) {
-                if (itemStack.getItem() instanceof IItemSoulTool) {
-                    final ItemStack newItemStack = instance.getItemStack(itemStack);
-                    final int index = inventory.mainInventory.indexOf(itemStack);
+                for (final ItemStack itemStack : inventory.mainInventory) {
+                    if (itemStack.getItem() instanceof IItemSoulTool) {
+                        final ItemStack newItemStack = instance.getItemStack(itemStack);
+                        final int index = inventory.mainInventory.indexOf(itemStack);
 
-                    if (itemStack.getItem() == instance.getCurrentType().getItem() && firstSlot == -1) {
-                        firstSlot = index;
+                        if (itemStack.getItem() == instance.getCurrentType().getItem() && firstSlot == -1) {
+                            firstSlot = index;
 
-                        if (instance.getBoundSlot() != -1) {
-                            instance.bindSlot(index);
-                        }
-
-                        if (!SoulItemHelper.areDataEqual(itemStack, newItemStack)) {
-                            if (itemStack.hasDisplayName()) {
-                                newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                            if (instance.getBoundSlot() != -1) {
+                                instance.bindSlot(index);
                             }
 
-                            inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
+                            if (!SoulItemHelper.areDataEqual(itemStack, newItemStack)) {
+                                if (itemStack.hasDisplayName()) {
+                                    newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                                }
+
+                                inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
+                            }
+                        } else if (!event.player.isCreative() && index != firstSlot) {
+                            inventory.deleteStack(itemStack);
                         }
-                    } else if (!event.player.isCreative() && index != firstSlot) {
-                        inventory.deleteStack(itemStack);
                     }
                 }
             }
         }
 
-        if (SoulWeaponHelper.hasSoulWeapon(event.player)) {
+        if (SoulItemHelper.hasSoulWeapon(event.player)) {
             InventoryPlayer inventory = event.player.inventory;
 
-            if (SoulWeaponHelper.isSoulWeaponEquipped(event.player)) {
+            if (SoulItemHelper.isSoulWeaponEquipped(event.player)) {
                 final IType type = SoulWeaponType.getType(inventory.getCurrentItem().getItem());
 
                 if (type != weaponCapability.getCurrentType()) {
@@ -458,7 +458,8 @@ public class EventSubscriber {
                 int firstSlot = -1;
 
                 for (final ItemStack itemStack : inventory.mainInventory) {
-                    if (SoulWeaponHelper.isSoulWeapon(itemStack)) {
+                    if (itemStack.getItem() instanceof ItemSoulWeapon) {
+                        final ItemStack newItemStack = weaponCapability.getItemStack(itemStack);
                         final int index = inventory.mainInventory.indexOf(itemStack);
 
                         if (itemStack.getItem() == weaponCapability.getCurrentType().getItem() && firstSlot == -1) {
@@ -468,26 +469,16 @@ public class EventSubscriber {
                                 weaponCapability.bindSlot(index);
                             }
 
-                            continue;
-                        }
+                            if (!SoulItemHelper.areDataEqual(itemStack, newItemStack)) {
+                                if (itemStack.hasDisplayName()) {
+                                    newItemStack.setStackDisplayName(itemStack.getDisplayName());
+                                }
 
-                        if (!event.player.isCreative() && index != firstSlot) {
+                                inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
+                            }
+                        } else if (!event.player.isCreative() && index != firstSlot) {
                             inventory.deleteStack(itemStack);
                         }
-                    }
-                }
-            }
-
-            for (final ItemStack itemStack : inventory.mainInventory) {
-                if (itemStack.getItem() instanceof ItemSoulWeapon) {
-                    final ItemStack newItemStack = weaponCapability.getItemStack(itemStack);
-
-                    if (!SoulItemHelper.areDataEqual(itemStack, newItemStack)) {
-                        if (itemStack.hasDisplayName()) {
-                            newItemStack.setStackDisplayName(itemStack.getDisplayName());
-                        }
-
-                        inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
                     }
                 }
             }
@@ -507,7 +498,7 @@ public class EventSubscriber {
             if (MENU_KEY.isPressed()) {
                 final EntityPlayer player = minecraft.player;
 
-                if (SoulWeaponHelper.isSoulWeaponEquipped(player)) {
+                if (SoulItemHelper.isSoulWeaponEquipped(player)) {
                     minecraft.displayGuiScreen(new SoulWeaponMenu());
                 } else if (SoulItemHelper.isSoulToolEquipped(player)) {
                     minecraft.displayGuiScreen(new SoulToolMenu());

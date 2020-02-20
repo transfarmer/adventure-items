@@ -24,21 +24,21 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
         final int[][] enchantments = instance.getEnchantments();
 
         SoulItemHelper.forEach(instance,
-            (Integer weaponIndex, Integer valueIndex) ->
-                tag.setInteger(String.format("soulweapons.datum.%s.%s",
-                    SoulWeaponType.getType(weaponIndex),
-                    SoulWeaponDatum.getName(valueIndex)),
-                    data[weaponIndex][valueIndex]),
-            (Integer weaponIndex, Integer valueIndex) ->
-                tag.setFloat(String.format("soulweapons.attribute.%s.%s",
-                    SoulWeaponType.getType(weaponIndex),
-                    SoulWeaponAttribute.getName(valueIndex)),
-                    attributes[weaponIndex][valueIndex]),
-            (Integer weaponIndex, Integer valueIndex) ->
-                tag.setInteger(String.format("soulweapons.enchantment.%s.%s",
-                    SoulWeaponType.getType(weaponIndex),
-                    SoulWeaponEnchantment.getName(valueIndex)),
-                    enchantments[weaponIndex][valueIndex])
+                (Integer weaponIndex, Integer valueIndex) ->
+                        tag.setInteger(String.format("soulweapons.datum.%s.%s",
+                                SoulWeaponType.getType(weaponIndex),
+                                SoulWeaponDatum.getName(valueIndex)),
+                                data[weaponIndex][valueIndex]),
+                (Integer weaponIndex, Integer valueIndex) ->
+                        tag.setFloat(String.format("soulweapons.attribute.%s.%s",
+                                SoulWeaponType.getType(weaponIndex),
+                                SoulWeaponAttribute.getName(valueIndex)),
+                                attributes[weaponIndex][valueIndex]),
+                (Integer weaponIndex, Integer valueIndex) ->
+                        tag.setInteger(String.format("soulweapons.enchantment.%s.%s",
+                                SoulWeaponType.getType(weaponIndex),
+                                SoulWeaponEnchantment.getName(valueIndex)),
+                                enchantments[weaponIndex][valueIndex])
         );
 
         return tag;
@@ -56,21 +56,21 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
         final int[][] enchantments = new int[instance.getItemAmount()][instance.getEnchantmentAmount()];
 
         SoulItemHelper.forEach(instance,
-            (Integer weaponIndex, Integer valueIndex) ->
-                data[weaponIndex][valueIndex] = tag.getInteger(String.format("soulweapons.datum.%s.%s",
-                    SoulWeaponType.getType(weaponIndex),
-                    SoulWeaponDatum.getName(valueIndex)
-                )),
-            (Integer weaponIndex, Integer valueIndex) ->
-                attributes[weaponIndex][valueIndex] = tag.getFloat(String.format("soulweapons.attribute.%s.%s",
-                        SoulWeaponType.getType(weaponIndex),
-                        SoulWeaponAttribute.getName(valueIndex)
-                )),
-            (Integer weaponIndex, Integer valueIndex) ->
-                enchantments[weaponIndex][valueIndex] = tag.getInteger(String.format("soulweapons.enchantment.%s.%s",
-                        SoulWeaponType.getType(weaponIndex),
-                        SoulWeaponEnchantment.getName(valueIndex)
-                ))
+                (Integer weaponIndex, Integer valueIndex) ->
+                        data[weaponIndex][valueIndex] = tag.getInteger(String.format("soulweapons.datum.%s.%s",
+                                SoulWeaponType.getType(weaponIndex),
+                                SoulWeaponDatum.getName(valueIndex)
+                        )),
+                (Integer weaponIndex, Integer valueIndex) ->
+                        attributes[weaponIndex][valueIndex] = tag.getFloat(String.format("soulweapons.attribute.%s.%s",
+                                SoulWeaponType.getType(weaponIndex),
+                                SoulWeaponAttribute.getName(valueIndex)
+                        )),
+                (Integer weaponIndex, Integer valueIndex) ->
+                        enchantments[weaponIndex][valueIndex] = tag.getInteger(String.format("soulweapons.enchantment.%s.%s",
+                                SoulWeaponType.getType(weaponIndex),
+                                SoulWeaponEnchantment.getName(valueIndex)
+                        ))
         );
 
         instance.setStatistics(data, attributes, enchantments);

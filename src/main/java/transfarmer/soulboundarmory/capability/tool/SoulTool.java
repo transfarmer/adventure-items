@@ -4,9 +4,13 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.statistics.*;
+import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
@@ -25,7 +29,7 @@ import static transfarmer.soulboundarmory.capability.SoulItemHelper.REACH_DISTAN
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.*;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.*;
 
-public class SoulTool implements ISoulTool {
+public class SoulTool implements ISoulCapability {
     private IType currentType;
     private int[][] data = new int[this.getItemAmount()][this.getDatumAmount()];
     private float[][] attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
@@ -121,8 +125,26 @@ public class SoulTool implements ISoulTool {
     }
 
     @Override
-    public float getAttribute(final SoulAttribute attribute, final IType type) {
+    public float getAttribute(final SoulAttribute attribute, final IType type, final boolean total, final boolean effective) {
+        if (total) {
+            if (attribute.equals(EFFICIENCY_ATTRIBUTE)) {
+                return this.getAttribute(EFFICIENCY_ATTRIBUTE, type) + ((IItemSoulTool) type.getSoulItem()).getEfficiency();
+            } else if (attribute.equals(REACH_DISTANCE)) {
+                return 3 + this.getAttribute(REACH_DISTANCE, type) + type.getSoulItem().getReachDistance();
+            }
+        }
+
         return this.attributes[type.getIndex()][attribute.getIndex()];
+    }
+
+    @Override
+    public float getAttribute(final SoulAttribute attribute, final IType type, final boolean total) {
+        return this.getAttribute(attribute, type, total, false);
+    }
+
+    @Override
+    public float getAttribute(final SoulAttribute attribute, final IType type) {
+        return this.getAttribute(attribute, type, false, false);
     }
 
     @Override
@@ -204,11 +226,6 @@ public class SoulTool implements ISoulTool {
     }
 
     @Override
-    public float getEffectiveEfficiency(final IType type) {
-        return this.getAttribute(EFFICIENCY_ATTRIBUTE, type) + ((IItemSoulTool) type.getSoulItem()).getEfficiency();
-    }
-
-    @Override
     public ItemStack getItemStack(final ItemStack itemStack) {
         return this.getItemStack(SoulToolType.getType(itemStack));
     }
@@ -252,8 +269,8 @@ public class SoulTool implements ISoulTool {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
         final List<String> tooltip = new ArrayList<>(5);
 
-        tooltip.add(String.format(" %s%s %s", Mappings.REACH_DISTANCE_FORMAT, FORMAT.format(this.getEffectiveReachDistance(type)), Mappings.REACH_DISTANCE_NAME));
-        tooltip.add(String.format(" %s%s %s", Mappings.TOOL_EFFICIENCY_FORMAT, FORMAT.format(this.getEffectiveEfficiency(type)), Mappings.EFFICIENCY_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.REACH_DISTANCE_FORMAT, FORMAT.format(this.getAttribute(REACH_DISTANCE, type, true, true)), Mappings.REACH_DISTANCE_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.TOOL_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(EFFICIENCY_ATTRIBUTE, type, true, true)), Mappings.EFFICIENCY_NAME));
         tooltip.add(String.format(" %s%s %s", Mappings.HARVEST_LEVEL_FORMAT, FORMAT.format(this.getAttribute(HARVEST_LEVEL, type)), Mappings.HARVEST_LEVEL_NAME));
 
         tooltip.add("");
@@ -295,11 +312,6 @@ public class SoulTool implements ISoulTool {
     @Override
     public void unbindSlot() {
         this.boundSlot = -1;
-    }
-
-    @Override
-    public float getEffectiveReachDistance(final IType type) {
-        return 3 + this.getAttribute(REACH_DISTANCE, type) + type.getSoulItem().getReachDistance();
     }
 
     @Override

@@ -18,7 +18,7 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREAT
 
 public class ItemSoulGreatsword extends ItemSoulWeapon {
     public ItemSoulGreatsword() {
-        super(3, -2.8F, 6);
+        super(3, -2.8F, 3);
     }
 
     @Override

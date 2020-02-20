@@ -4,7 +4,6 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
@@ -12,13 +11,13 @@ import net.minecraft.util.math.BlockPos;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.tool.ISoulTool;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,11 +32,13 @@ public class CommandSoulboundArmory extends CommandBase {
         return 2;
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public String getUsage(final ICommandSender sender) {
         return "command.soulboundarmory.usage";
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) throws CommandException {
         if (args.length < 3) {
@@ -46,17 +47,17 @@ public class CommandSoulboundArmory extends CommandBase {
             final String commandType = args[0];
 
             if (commandType.equals("xp")) {
-                final EntityPlayer player = server.getPlayerList().getPlayerByUsername(args[1]);
+                final EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(args[1]);
 
                 if (player != null) {
                     final ISoulCapability capability = SoulItemHelper.getCapability(player, (Item) null);
                     final int amount = Integer.parseInt(args[2]);
 
                     if (capability instanceof ISoulWeapon) {
-                        Main.CHANNEL.sendTo(new CWeaponDatum(amount, SoulDatum.XP, capability.getCurrentType()), (EntityPlayerMP) sender.getCommandSenderEntity());
+                        Main.CHANNEL.sendTo(new CWeaponDatum(amount, SoulDatum.XP, capability.getCurrentType()), player);
                         capability.addDatum(amount, SoulDatum.XP, capability.getCurrentType());
-                    } else if (capability instanceof ISoulTool) {
-                        Main.CHANNEL.sendTo(new CToolDatum(amount, SoulDatum.XP, capability.getCurrentType()), (EntityPlayerMP) sender.getCommandSenderEntity());
+                    } else if (capability instanceof ISoulCapability) {
+                        Main.CHANNEL.sendTo(new CToolDatum(amount, SoulDatum.XP, capability.getCurrentType()), player);
                         capability.addDatum(amount, SoulDatum.XP, capability.getCurrentType());
                     }
                 }
