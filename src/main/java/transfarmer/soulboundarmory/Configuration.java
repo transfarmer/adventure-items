@@ -33,7 +33,7 @@ public class Configuration {
     @Comment("the offset for soul weapon menu entries from the top multiplied by ((height of Minecraft window) / 16)")
     public static int menuOffset = 1;
 
-    @Comment("set this to \"false\" in order to prevent items picked up with full inventory and empty offhand from appearing in the offhand.")
+    @Comment("Set this to \"false\" in order to prevent items picked up with full inventory and empty offhand from appearing in the offhand.")
     public static boolean addToOffhand = true;
 
     public static class Multipliers {
@@ -55,7 +55,7 @@ public class Configuration {
         @Comment("hardcore mode XP multiplier")
         public float hardcoreMultiplier = 2;
 
-        @Comment("baby zombie (includes zombie pigmen) XP multiplier")
+        @Comment("baby zombie (including baby zombie pigmen) XP multiplier")
         public float babyZombieMultiplier = 2;
     }
 }

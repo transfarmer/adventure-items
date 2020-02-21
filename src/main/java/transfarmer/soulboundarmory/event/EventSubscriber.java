@@ -68,6 +68,7 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -394,14 +395,17 @@ public class EventSubscriber {
     public static void onPlayerTick(final PlayerTickEvent event) {
         if (event.phase != END) return;
 
-        ISoulWeapon weaponCapability = SoulWeaponProvider.get(event.player);
+        final ISoulWeapon weaponCapability = SoulWeaponProvider.get(event.player);
 
         if (SoulItemHelper.hasSoulTool(event.player)) {
-            ISoulCapability instance = SoulToolProvider.get(event.player);
-            InventoryPlayer inventory = event.player.inventory;
+            final ISoulCapability instance = SoulToolProvider.get(event.player);
+            final InventoryPlayer inventory = event.player.inventory;
+            final List<ItemStack> mainInventory = new ArrayList<>(event.player.inventory.mainInventory);
+            final ItemStack equippedSoulItemStack = SoulItemHelper.getEquippedSoulItemStack(event.player, IItemSoulTool.class);
+            mainInventory.add(event.player.getHeldItemOffhand());
 
-            if (event.player.getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
-                final IType type = SoulToolType.getType(inventory.getCurrentItem().getItem());
+            if (equippedSoulItemStack != null) {
+                final IType type = SoulToolType.getType(equippedSoulItemStack);
 
                 if (type != instance.getCurrentType()) {
                     instance.setCurrentType(type);
@@ -411,13 +415,13 @@ public class EventSubscriber {
             if (instance.getCurrentType() != null) {
                 int firstSlot = -1;
 
-                for (final ItemStack itemStack : inventory.mainInventory) {
+                for (final ItemStack itemStack : mainInventory) {
                     if (itemStack.getItem() instanceof IItemSoulTool) {
                         final ItemStack newItemStack = instance.getItemStack(itemStack);
-                        final int index = inventory.mainInventory.indexOf(itemStack);
+                        final int index = mainInventory.indexOf(itemStack);
 
-                        if (itemStack.getItem() == instance.getCurrentType().getItem() && firstSlot == -1) {
-                            firstSlot = index;
+                        if (itemStack.getItem() == instance.getCurrentType().getItem() && (firstSlot == -1 || index == 36)) {
+                            firstSlot = index == 36 ? 40 : index;
 
                             if (instance.getBoundSlot() != -1) {
                                 instance.bindSlot(index);
@@ -428,7 +432,7 @@ public class EventSubscriber {
                                     newItemStack.setStackDisplayName(itemStack.getDisplayName());
                                 }
 
-                                inventory.setInventorySlotContents(inventory.mainInventory.indexOf(itemStack), newItemStack);
+                                inventory.setInventorySlotContents(firstSlot, newItemStack);
                             }
                         } else if (!event.player.isCreative() && index != firstSlot) {
                             inventory.deleteStack(itemStack);
@@ -503,7 +507,15 @@ public class EventSubscriber {
                     minecraft.displayGuiScreen(new SoulToolMenu());
                 } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_SWORD) {
                     minecraft.displayGuiScreen(new SoulWeaponMenu(0));
-                } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_SWORD) {
+                } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_PICKAXE) {
+                    minecraft.displayGuiScreen(new SoulToolMenu(-1));
+                } else if (player.getHeldItemOffhand().getItem() instanceof ItemSoulWeapon) {
+                    minecraft.displayGuiScreen(new SoulWeaponMenu());
+                } else if (player.getHeldItemOffhand().getItem() instanceof IItemSoulTool) {
+                    minecraft.displayGuiScreen(new SoulToolMenu());
+                } else if (player.getHeldItemOffhand().getItem() == Items.WOODEN_SWORD) {
+                    minecraft.displayGuiScreen(new SoulWeaponMenu(0));
+                } else if (player.getHeldItemOffhand().getItem() == Items.WOODEN_PICKAXE) {
                     minecraft.displayGuiScreen(new SoulToolMenu(-1));
                 }
             }

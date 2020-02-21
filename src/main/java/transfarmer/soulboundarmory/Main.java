@@ -38,7 +38,7 @@ import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 public class Main {
     public static final String MOD_ID = "soulboundarmory";
     public static final String NAME = "soulbound armory";
-    public static final String VERSION = "2.1.12-beta";
+    public static final String VERSION = "2.1.13-beta";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);

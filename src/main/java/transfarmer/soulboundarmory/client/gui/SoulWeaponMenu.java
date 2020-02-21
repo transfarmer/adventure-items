@@ -1,15 +1,12 @@
 package transfarmer.soulboundarmory.client.gui;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.network.server.weapon.*;
 import transfarmer.soulboundarmory.statistics.IType;
@@ -26,11 +23,7 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.*;
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends Menu {
     public SoulWeaponMenu() {
-        this.mc = Minecraft.getMinecraft();
-        this.tabs = new GuiButton[4];
-        this.guiFactory = new GUIFactory();
-        this.capability = SoulWeaponProvider.get(this.mc.player);
-        this.type = this.capability.getCurrentType();
+        super(4);
     }
 
     public SoulWeaponMenu(final int tab) {
@@ -41,7 +34,7 @@ public class SoulWeaponMenu extends Menu {
 
     @Override
     public void initGui() {
-        if (this.capability.getCurrentType() != null) {
+        if (SoulItemHelper.isSoulWeaponEquipped(this.mc.player)) {
             final String text = this.mc.player.inventory.currentItem != capability.getBoundSlot()
                     ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
 
@@ -51,28 +44,26 @@ public class SoulWeaponMenu extends Menu {
             this.tabs[2] = addButton(guiFactory.tabButton(18, 2, Mappings.MENU_BUTTON_ENCHANTMENTS));
             this.tabs[3] = addButton(guiFactory.tabButton(19, 3, Mappings.MENU_BUTTON_SKILLS));
             this.tabs[this.capability.getCurrentTab()].enabled = false;
-
-            Mouse.getDWheel();
         }
 
         switch (this.capability.getCurrentTab()) {
             case 0:
-                showWeapons();
+                this.showWeapons();
                 break;
             case 1:
-                showAttributes();
+                this.showAttributes();
                 break;
             case 2:
-                showEnchantments();
+                this.showEnchantments();
                 break;
             case 3:
-                showSkills();
+                this.showSkills();
                 break;
             case 4:
-                showTraits();
+                this.showTraits();
         }
 
-        addButton(guiFactory.centeredButton(3, 3 * height / 4, width / 8, "close"));
+        this.addButton(guiFactory.centeredButton(3, 3 * height / 4, width / 8, "close"));
     }
 
     private void showWeapons() {
@@ -83,9 +74,9 @@ public class SoulWeaponMenu extends Menu {
         final int ySep = 32;
 
         final GuiButton[] weaponButtons = {
-                addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_GREATSWORD_NAME)),
-                addButton(new GuiButton(1, xCenter, yCenter, buttonWidth, buttonHeight, Mappings.SOUL_SWORD_NAME)),
-                addButton(new GuiButton(2, xCenter, yCenter + ySep, buttonWidth, buttonHeight, Mappings.SOUL_DAGGER_NAME))
+                this.addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_GREATSWORD_NAME)),
+                this.addButton(new GuiButton(1, xCenter, yCenter, buttonWidth, buttonHeight, Mappings.SOUL_SWORD_NAME)),
+                this.addButton(new GuiButton(2, xCenter, yCenter + ySep, buttonWidth, buttonHeight, Mappings.SOUL_DAGGER_NAME))
         };
 
         if (SoulItemHelper.hasSoulWeapon(this.mc.player)) {
@@ -130,8 +121,6 @@ public class SoulWeaponMenu extends Menu {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        final Renderer RENDERER = new Renderer();
-
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -140,13 +129,13 @@ public class SoulWeaponMenu extends Menu {
                 drawWeapons();
                 break;
             case 1:
-                drawAttributes(RENDERER, mouseX, mouseY);
+                drawAttributes(mouseX, mouseY);
                 break;
             case 2:
-                drawEnchantments(RENDERER, mouseX, mouseY);
+                drawEnchantments(mouseX, mouseY);
                 break;
             case 3:
-                drawSkills(RENDERER, mouseX, mouseY);
+                drawSkills(mouseX, mouseY);
         }
     }
 
@@ -157,7 +146,7 @@ public class SoulWeaponMenu extends Menu {
         }
     }
 
-    private void drawAttributes(final Renderer renderer, final int mouseX, final int mouseY) {
+    private void drawAttributes(final int mouseX, final int mouseY) {
         final String attackSpeed = String.format("%s%s: %%s", Mappings.ATTACK_SPEED_FORMAT, Mappings.ATTACK_SPEED_NAME);
         final String attackDamage = String.format("%s%s: %%s", Mappings.ATTACK_DAMAGE_FORMAT, Mappings.ATTACK_DAMAGE_NAME);
         final String critical = String.format("%s%s: %%s%%%%", Mappings.CRITICAL_FORMAT, Mappings.CRITICAL_NAME);
@@ -170,16 +159,16 @@ public class SoulWeaponMenu extends Menu {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        renderer.drawMiddleAttribute(attackSpeed, capability.getAttribute(ATTACK_SPEED, this.type, true, true), 0);
-        renderer.drawMiddleAttribute(attackDamage, capability.getAttribute(ATTACK_DAMAGE, this.type, true, true), 1);
-        renderer.drawMiddleAttribute(critical, capability.getAttribute(CRITICAL, this.type), 2);
-        renderer.drawMiddleAttribute(knockback, capability.getAttribute(KNOCKBACK_ATTRIBUTE, this.type), 3);
-        renderer.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY_ATTRIBUTE, this.type), 4);
+        this.renderer.drawMiddleAttribute(attackSpeed, capability.getAttribute(ATTACK_SPEED, this.type, true, true), 0);
+        this.renderer.drawMiddleAttribute(attackDamage, capability.getAttribute(ATTACK_DAMAGE, this.type, true, true), 1);
+        this.renderer.drawMiddleAttribute(critical, capability.getAttribute(CRITICAL, this.type), 2);
+        this.renderer.drawMiddleAttribute(knockback, capability.getAttribute(KNOCKBACK_ATTRIBUTE, this.type), 3);
+        this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY_ATTRIBUTE, this.type), 4);
 
         this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawEnchantments(final Renderer renderer, final int mouseX, final int mouseY) {
+    private void drawEnchantments(final int mouseX, final int mouseY) {
         final int points = this.capability.getDatum(ENCHANTMENT_POINTS, this.type);
 
         if (points > 0) {
@@ -187,18 +176,18 @@ public class SoulWeaponMenu extends Menu {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SHARPNESS_NAME, this.capability.getEnchantment(SOUL_SHARPNESS, this.type)), 0);
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SWEEPING_EDGE_NAME, this.capability.getEnchantment(SOUL_SWEEPING_EDGE, this.type)), 1);
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.LOOTING_NAME, this.capability.getEnchantment(SOUL_LOOTING, this.type)), 2);
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.FIRE_ASPECT_NAME, this.capability.getEnchantment(SOUL_FIRE_ASPECT, this.type)), 3);
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.KNOCKBACK_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_KNOCKBACK, this.type)), 4);
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SMITE_NAME, this.capability.getEnchantment(SOUL_SMITE, this.type)), 5);
-        renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.BANE_OF_ARTHROPODS_NAME, this.capability.getEnchantment(SOUL_BANE_OF_ARTHROPODS, this.type)), 6);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SHARPNESS_NAME, this.capability.getEnchantment(SOUL_SHARPNESS, this.type)), 0);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SWEEPING_EDGE_NAME, this.capability.getEnchantment(SOUL_SWEEPING_EDGE, this.type)), 1);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.LOOTING_NAME, this.capability.getEnchantment(SOUL_LOOTING, this.type)), 2);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.FIRE_ASPECT_NAME, this.capability.getEnchantment(SOUL_FIRE_ASPECT, this.type)), 3);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.KNOCKBACK_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_KNOCKBACK, this.type)), 4);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SMITE_NAME, this.capability.getEnchantment(SOUL_SMITE, this.type)), 5);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.BANE_OF_ARTHROPODS_NAME, this.capability.getEnchantment(SOUL_BANE_OF_ARTHROPODS, this.type)), 6);
 
         this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawSkills(final Renderer renderer, final int mouseX, final int mouseY) {
+    private void drawSkills(final int mouseX, final int mouseY) {
         for (int i = 0; i < capability.getDatum(SKILLS, this.type); i++) {
             this.drawCenteredString(this.fontRenderer, capability.getCurrentType().getSkills()[i],
                     width / 2, (i + 2) * height / 16, 0xFFFFFF);
@@ -207,11 +196,11 @@ public class SoulWeaponMenu extends Menu {
         this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawTraits(final Renderer renderer, final int mouseX, final int mouseY) {
+    private void drawTraits(final int mouseX, final int mouseY) {
     }
 
     @Override
-    public void actionPerformed(GuiButton button) {
+    public void actionPerformed(final GuiButton button) {
         switch (button.id) {
             case 0:
             case 1:

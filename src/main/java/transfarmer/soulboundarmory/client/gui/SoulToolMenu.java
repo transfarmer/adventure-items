@@ -1,6 +1,5 @@
 package transfarmer.soulboundarmory.client.gui;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Items;
@@ -8,9 +7,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.network.server.tool.*;
 import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
@@ -27,12 +24,7 @@ import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
 @SideOnly(CLIENT)
 public class SoulToolMenu extends Menu {
     public SoulToolMenu() {
-        this.mc = Minecraft.getMinecraft();
-        this.tabs = new GuiButton[3];
-        this.guiFactory = new GUIFactory();
-        this.RENDERER = new Renderer();
-        this.capability = SoulToolProvider.get(this.mc.player);
-        this.type = this.capability.getCurrentType();
+        super(3);
     }
 
     public SoulToolMenu(final int tab) {
@@ -43,9 +35,10 @@ public class SoulToolMenu extends Menu {
 
     @Override
     public void initGui() {
-        if (this.mc.player.getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
-            final String text = this.mc.player.inventory.currentItem != capability.getBoundSlot()
-                    ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
+        if (SoulItemHelper.isSoulToolEquipped(this.mc.player)) {
+            final String text = this.mc.player.inventory.currentItem != this.capability.getBoundSlot()
+                    ? Mappings.MENU_BUTTON_BIND
+                    : Mappings.MENU_BUTTON_UNBIND;
 
             this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, text));
             this.tabs[0] = addButton(guiFactory.tabButton(16, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
@@ -153,9 +146,9 @@ public class SoulToolMenu extends Menu {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.RENDERER.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY_ATTRIBUTE, this.type, true, true), 0);
-        this.RENDERER.drawMiddleAttribute(reachDistance, capability.getAttribute(REACH_DISTANCE, this.type, true, true), 1);
-        this.RENDERER.drawMiddleAttribute(harvestLevel, capability.getAttribute(HARVEST_LEVEL, this.type), 2);
+        this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY_ATTRIBUTE, this.type, true, true), 0);
+        this.renderer.drawMiddleAttribute(reachDistance, capability.getAttribute(REACH_DISTANCE, this.type, true, true), 1);
+        this.renderer.drawMiddleAttribute(harvestLevel, capability.getAttribute(HARVEST_LEVEL, this.type), 2);
 
         this.drawXPBar(mouseX, mouseY);
     }
@@ -168,9 +161,9 @@ public class SoulToolMenu extends Menu {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.EFFICIENCY_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_EFFICIENCY, this.type)), 0);
-        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.FORTUNE_NAME, this.capability.getEnchantment(SOUL_FORTUNE, this.type)), 1);
-        this.RENDERER.drawMiddleEnchantment(String.format("%s: %s", Mappings.SILK_TOUCH_NAME, this.capability.getEnchantment(SOUL_SILK_TOUCH, this.type)), 2);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.EFFICIENCY_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_EFFICIENCY, this.type)), 0);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.FORTUNE_NAME, this.capability.getEnchantment(SOUL_FORTUNE, this.type)), 1);
+        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SILK_TOUCH_NAME, this.capability.getEnchantment(SOUL_SILK_TOUCH, this.type)), 2);
 
         this.drawXPBar(mouseX, mouseY);
     }

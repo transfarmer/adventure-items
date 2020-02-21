@@ -27,15 +27,11 @@ public class SoulItemHelper {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
     private static boolean datumEquality;
 
-    public static ISoulCapability getCapability(final Class<ISoulCapability> cls, final EntityPlayer player) {
-        try {
-            if (cls.newInstance() instanceof ISoulWeapon) {
-                return SoulWeaponProvider.get(player);
-            } else if (cls.newInstance() instanceof ISoulCapability) {
-                return SoulToolProvider.get(player);
-            }
-        } catch (InstantiationException | IllegalAccessException exception) {
-            exception.printStackTrace();
+    public static ISoulCapability getCapability(final Class<? extends ISoulCapability> cls, final EntityPlayer player) {
+        if (cls == ISoulWeapon.class) {
+            return SoulWeaponProvider.get(player);
+        } else if (cls == ISoulCapability.class) {
+            return SoulToolProvider.get(player);
         }
 
         return null;
@@ -44,6 +40,10 @@ public class SoulItemHelper {
     public static ISoulCapability getCapability(final EntityPlayer player, @Nullable Item item) {
         if (item == null) {
             item = player.getHeldItemMainhand().getItem();
+
+            if (!(item instanceof ISoulItem)) {
+                item = player.getHeldItemOffhand().getItem();
+            }
         }
 
         return item instanceof ItemSoulWeapon
@@ -70,6 +70,22 @@ public class SoulItemHelper {
     public static boolean isSoulItemEquipped(final EntityPlayer player) {
         return player.getHeldItemMainhand().getItem() instanceof ISoulItem
                 || player.getHeldItemOffhand().getItem() instanceof ISoulItem;
+    }
+
+    public static ItemStack getEquippedSoulItemStack(final EntityPlayer player, final Class<? extends ISoulItem> cls) {
+        final ItemStack mainhandStack = player.getHeldItemMainhand();
+
+        if (cls.isInstance(mainhandStack.getItem())) {
+            return mainhandStack;
+        }
+
+        final ItemStack offhandStack = player.getHeldItemOffhand();
+
+        if (cls.isInstance(offhandStack.getItem())) {
+            return offhandStack;
+        }
+
+        return null;
     }
 
     public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player, boolean hasReservedSlot) {

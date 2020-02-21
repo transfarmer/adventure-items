@@ -1,15 +1,17 @@
 package transfarmer.soulboundarmory.client.gui;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.item.Item;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.statistics.IType;
 
 import java.io.IOException;
@@ -24,9 +26,18 @@ import static transfarmer.soulboundarmory.statistics.SoulDatum.XP;
 public abstract class Menu extends GuiScreen {
     protected GuiButton[] tabs;
     protected GUIFactory guiFactory;
-    protected Renderer RENDERER;
+    protected Renderer renderer;
     protected ISoulCapability capability;
     protected IType type;
+
+    public Menu(final int tabs) {
+        this.mc = Minecraft.getMinecraft();
+        this.guiFactory = new GUIFactory();
+        this.renderer = new Renderer();
+        this.tabs = new GuiButton[tabs];
+        this.capability = SoulItemHelper.getCapability(Minecraft.getMinecraft().player, (Item) null);
+        this.type = this.capability.getCurrentType();
+    }
 
     protected GuiButton[] addAddPointButtons(final int id, final int rows, final int points) {
         final GuiButton[] buttons = new GuiButton[rows];
@@ -97,7 +108,7 @@ public abstract class Menu extends GuiScreen {
 
         final int dWheel = Mouse.getDWheel();
 
-        if (dWheel != 0 && this.mc.player.getHeldItemMainhand().getItem() instanceof ISoulItem) {
+        if (dWheel != 0 && this.capability != null) {
             try {
                 this.mc.displayGuiScreen(this.getClass().getDeclaredConstructor(int.class).newInstance(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, this.tabs.length - 1)));
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException exception) {
@@ -131,10 +142,6 @@ public abstract class Menu extends GuiScreen {
 
     public class Renderer {
         private final NumberFormat FORMAT = DecimalFormat.getInstance();
-
-        public void drawLeftAttribute(String name, float value, int row) {
-            drawString(fontRenderer, String.format(name, FORMAT.format(value)), width / 16, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
-        }
 
         public void drawMiddleAttribute(String format, float value, int row) {
             drawString(fontRenderer, String.format(format, FORMAT.format(value)), (width - 182) / 2, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
