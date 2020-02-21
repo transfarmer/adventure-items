@@ -33,6 +33,9 @@ public class Configuration {
     @Comment("the offset for soul weapon menu entries from the top multiplied by ((height of Minecraft window) / 16)")
     public static int menuOffset = 1;
 
+    @Comment("set this to \"false\" in order to prevent items picked up with full inventory and empty offhand from appearing in the offhand.")
+    public static boolean addToOffhand = true;
+
     public static class Multipliers {
         @Comment("armor XP multiplier = 1 + (armorMultiplier * armor)")
         public float armorMultiplier = 0.2F;

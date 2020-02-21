@@ -67,7 +67,6 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
-import transfarmer.util.ItemHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -401,7 +400,7 @@ public class EventSubscriber {
             ISoulCapability instance = SoulToolProvider.get(event.player);
             InventoryPlayer inventory = event.player.inventory;
 
-            if (SoulItemHelper.isSoulToolEquipped(event.player)) {
+            if (event.player.getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
                 final IType type = SoulToolType.getType(inventory.getCurrentItem().getItem());
 
                 if (type != instance.getCurrentType()) {
@@ -442,7 +441,7 @@ public class EventSubscriber {
         if (SoulItemHelper.hasSoulWeapon(event.player)) {
             InventoryPlayer inventory = event.player.inventory;
 
-            if (SoulItemHelper.isSoulWeaponEquipped(event.player)) {
+            if (event.player.getHeldItemMainhand().getItem() instanceof ItemSoulWeapon) {
                 final IType type = SoulWeaponType.getType(inventory.getCurrentItem().getItem());
 
                 if (type != weaponCapability.getCurrentType()) {
@@ -498,13 +497,13 @@ public class EventSubscriber {
             if (MENU_KEY.isPressed()) {
                 final EntityPlayer player = minecraft.player;
 
-                if (SoulItemHelper.isSoulWeaponEquipped(player)) {
+                if (player.getHeldItemMainhand().getItem() instanceof ItemSoulWeapon) {
                     minecraft.displayGuiScreen(new SoulWeaponMenu());
-                } else if (SoulItemHelper.isSoulToolEquipped(player)) {
+                } else if (player.getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
                     minecraft.displayGuiScreen(new SoulToolMenu());
-                } else if (ItemHelper.isItemEquipped(Items.WOODEN_SWORD, player)) {
+                } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_SWORD) {
                     minecraft.displayGuiScreen(new SoulWeaponMenu(0));
-                } else if (ItemHelper.isItemEquipped(Items.WOODEN_PICKAXE, player)) {
+                } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_SWORD) {
                     minecraft.displayGuiScreen(new SoulToolMenu(-1));
                 }
             }
@@ -519,13 +518,12 @@ public class EventSubscriber {
         if (player != null) {
             final ItemStack itemStack = event.getItemStack();
 
-            if (SoulItemHelper.isSoulItem(itemStack)) {
+            if (itemStack.getItem() instanceof ISoulItem) {
                 final ISoulCapability capability = SoulItemHelper.getCapability(player, itemStack.getItem());
                 final IType type = capability.getType(itemStack);
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
 
-                Minecraft.getMinecraft().addScheduledTask(() -> {
                     final String[] prior = tooltip.subList(0, startIndex).toArray(new String[0]);
                     final String[] posterior = tooltip.subList(startIndex + itemStack.getAttributeModifiers(MAINHAND).size(), tooltip.size()).toArray(new String[0]);
 
@@ -533,7 +531,6 @@ public class EventSubscriber {
                     tooltip.addAll(Arrays.asList(prior));
                     tooltip.addAll(capability.getTooltip(type));
                     tooltip.addAll(Arrays.asList(posterior));
-                });
             }
         }
     }

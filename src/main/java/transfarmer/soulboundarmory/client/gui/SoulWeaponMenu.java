@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Items;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -331,17 +330,6 @@ public class SoulWeaponMenu extends Menu {
                 return EFFICIENCY_ATTRIBUTE;
             default:
                 return null;
-        }
-    }
-
-    @Override
-    public void handleMouseInput() {
-        super.handleMouseInput();
-
-        final int dWheel;
-
-        if ((dWheel = Mouse.getDWheel()) != 0) {
-            this.mc.displayGuiScreen(new SoulWeaponMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, 3)));
         }
     }
 }

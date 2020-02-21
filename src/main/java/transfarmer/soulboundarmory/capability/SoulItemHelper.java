@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
@@ -56,8 +57,9 @@ public class SoulItemHelper {
         return getCapability(player, itemStack.getItem());
     }
 
-    public static boolean isSoulItem(final ItemStack itemStack) {
-        return itemStack.getItem() instanceof ISoulItem;
+    public static boolean isSoulWeaponEquipped(final EntityPlayer player) {
+        return player.getHeldItemMainhand().getItem() instanceof ItemSoulWeapon
+                || player.getHeldItemOffhand().getItem() instanceof ItemSoulWeapon;
     }
 
     public static boolean isSoulToolEquipped(final EntityPlayer player) {
@@ -65,25 +67,21 @@ public class SoulItemHelper {
                 || player.getHeldItemOffhand().getItem() instanceof IItemSoulTool;
     }
 
-    public static boolean isSoulWeaponEquipped(final EntityPlayer player) {
-        return player.getHeldItemMainhand().getItem() instanceof ItemSoulWeapon
-                || player.getHeldItemOffhand().getItem() instanceof ItemSoulWeapon;
-    }
-
     public static boolean isSoulItemEquipped(final EntityPlayer player) {
-        return isSoulWeaponEquipped(player) || isSoulToolEquipped(player);
+        return player.getHeldItemMainhand().getItem() instanceof ISoulItem
+                || player.getHeldItemOffhand().getItem() instanceof ISoulItem;
     }
 
     public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player, boolean hasReservedSlot) {
         final int weaponBoundSlot = SoulWeaponProvider.get(player).getBoundSlot();
         final int toolBoundSlot = SoulToolProvider.get(player).getBoundSlot();
 
-        if (!isSoulItem(itemStack)) {
+        if (!(itemStack.getItem() instanceof ISoulItem)) {
             hasReservedSlot = false;
         }
 
         final InventoryPlayer inventory = player.inventory;
-        final ItemStack[] mainInventory = inventory.mainInventory.toArray(new ItemStack[40]);
+        final ItemStack[] mainInventory = inventory.mainInventory.toArray(new ItemStack[37]);
         mainInventory[mainInventory.length - 1] = player.getHeldItemOffhand();
 
         if (!hasReservedSlot) {
@@ -105,15 +103,14 @@ public class SoulItemHelper {
 
             for (int index = 0; index < mainInventory.length; index++) {
                 if (index != weaponBoundSlot && index != toolBoundSlot && mainInventory[index].isEmpty()) {
-                    return inventory.add(index, itemStack);
+                    return inventory.add(index == 36 && Configuration.addToOffhand ? 40 : index, itemStack);
                 }
             }
 
             return false;
         }
 
-        final ISoulCapability capability = getCapability(player, itemStack.getItem());
-        final int boundSlot = capability.getBoundSlot();
+        final int boundSlot = getCapability(player, itemStack.getItem()).getBoundSlot();
 
         if (boundSlot >= 0 && inventory.getStackInSlot(boundSlot).isEmpty()) {
             return inventory.add(boundSlot, itemStack);

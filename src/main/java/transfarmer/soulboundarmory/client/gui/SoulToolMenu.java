@@ -4,10 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Items;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
@@ -22,11 +20,9 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.util.ItemHelper;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.statistics.SoulAttribute.EFFICIENCY_ATTRIBUTE;
-import static transfarmer.soulboundarmory.statistics.SoulAttribute.REACH_DISTANCE;
-import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
-import static transfarmer.soulboundarmory.statistics.SoulAttribute.HARVEST_LEVEL;
+import static transfarmer.soulboundarmory.statistics.SoulAttribute.*;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.*;
+import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
 
 @SideOnly(CLIENT)
 public class SoulToolMenu extends Menu {
@@ -290,17 +286,6 @@ public class SoulToolMenu extends Menu {
                 }
 
                 Main.CHANNEL.sendToServer(new SToolEnchantmentPoints(-amount, SoulToolEnchantment.get(button.id - 28), this.type));
-        }
-    }
-
-    @Override
-    public void handleMouseInput() {
-        super.handleMouseInput();
-
-        final int dWheel;
-
-        if ((dWheel = Mouse.getDWheel()) != 0 && SoulItemHelper.isSoulToolEquipped(this.mc.player)) {
-            this.mc.displayGuiScreen(new SoulToolMenu(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, 2)));
         }
     }
 }

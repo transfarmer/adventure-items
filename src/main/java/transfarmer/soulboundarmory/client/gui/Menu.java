@@ -3,13 +3,17 @@ package transfarmer.soulboundarmory.client.gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.math.MathHelper;
+import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
+import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.statistics.IType;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -91,6 +95,15 @@ public abstract class Menu extends GuiScreen {
             exception.printStackTrace();
         }
 
+        final int dWheel = Mouse.getDWheel();
+
+        if (dWheel != 0 && this.mc.player.getHeldItemMainhand().getItem() instanceof ISoulItem) {
+            try {
+                this.mc.displayGuiScreen(this.getClass().getDeclaredConstructor(int.class).newInstance(MathHelper.clamp(this.capability.getCurrentTab() - (int) Math.signum(dWheel), 0, this.tabs.length - 1)));
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException exception) {
+                exception.printStackTrace();
+            }
+        }
     }
 
     @Override
