@@ -226,9 +226,15 @@ public class EventSubscriber {
                     weaponType = SWORD;
                 } else return;
 
-                if (weaponType != null && instance.getAttribute(CRITICAL, weaponType) > new Random().nextInt(100)) {
-                    event.setAmount(2 * event.getAmount());
+                final float attackDamage = weaponType != null && instance.getAttribute(CRITICAL, weaponType) > new Random().nextInt(100)
+                        ? 2 * event.getAmount()
+                        : event.getAmount();
+
+                if (weaponType == SWORD) {
+                    ((EntityPlayer) trueSource).getFoodStats().addStats((int) attackDamage / 5, attackDamage / 5);
                 }
+
+                event.setAmount(attackDamage);
             }
         }
     }

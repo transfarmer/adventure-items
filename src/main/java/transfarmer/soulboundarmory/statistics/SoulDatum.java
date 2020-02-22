@@ -16,7 +16,7 @@ public class SoulDatum extends Statistic {
             ATTRIBUTE_POINTS,
             SPENT_ATTRIBUTE_POINTS,
             ENCHANTMENT_POINTS,
-            SPENT_ENCHANTMENT_POINTS
+            SPENT_ENCHANTMENT_POINTS,
     };
 
     protected SoulDatum(final int index, final String name) {

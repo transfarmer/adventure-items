@@ -15,14 +15,13 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class ModWorld extends WorldClient {
-    public ModWorld(final NetHandlerPlayClient netHandler, final WorldSettings settings, final int dimension, final EnumDifficulty difficulty, final Profiler profilerIn) {
-        super(netHandler, settings, dimension, difficulty, profilerIn);
-    }
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
+public class ModWorld {
     public static RayTraceResult rayTraceAll(final World world, final EntityPlayer player) {
         final float partialTicks = 1;
 
@@ -57,10 +56,18 @@ public class ModWorld extends WorldClient {
         return null;
     }
 
-    public void sendBlockBreakProgress(final int breakerId, BlockPos pos, final int progress) {
-        for (int index = 0; index < this.eventListeners.size(); ++index) {
-            IWorldEventListener worldEventListener = this.eventListeners.get(index);
-            worldEventListener.sendBlockBreakProgress(breakerId, pos, progress);
+    @SideOnly(CLIENT)
+    public static class ModWorldClient extends WorldClient {
+        public ModWorldClient(final NetHandlerPlayClient netHandler, final WorldSettings settings, final int dimension, final EnumDifficulty difficulty, final Profiler profilerIn) {
+            super(netHandler, settings, dimension, difficulty, profilerIn);
+        }
+
+        @Override
+        public void sendBlockBreakProgress(final int breakerId, BlockPos pos, final int progress) {
+            for (int index = 0; index < this.eventListeners.size(); ++index) {
+                IWorldEventListener worldEventListener = this.eventListeners.get(index);
+                worldEventListener.sendBlockBreakProgress(breakerId, pos, progress);
+            }
         }
     }
 }
