@@ -1,14 +1,12 @@
 package transfarmer.soulboundarmory.item;
 
 import com.google.common.collect.Multimap;
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
@@ -19,9 +17,11 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.network.client.tool.CToolLevelupMessage;
+import transfarmer.soulboundarmory.network.client.CLevelupMessage;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+
+import javax.annotation.Nullable;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
@@ -32,6 +32,7 @@ import static transfarmer.soulboundarmory.statistics.tool.SoulToolType.PICK;
 
 public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
     private final float reachDistance;
+    private final String toolClass = "pickaxe";
 
     public ItemSoulPick() {
         super(ToolMaterial.DIAMOND);
@@ -54,6 +55,19 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
         return material == Material.IRON || material == Material.ANVIL || material == Material.ROCK;
     }
 
+    @Override
+    public int getHarvestLevel(ItemStack stack, String toolClass, @Nullable EntityPlayer player, @Nullable IBlockState blockState) {
+        if (player != null) {
+            return (int) SoulToolProvider.get(player).getAttribute(HARVEST_LEVEL, PICK);
+        }
+
+        return 0;
+    }
+
+    @Override
+    public boolean canHarvestBlock(final IBlockState blockState, final EntityPlayer player) {
+        return this.getHarvestLevel(null, this.toolClass, player, blockState) >= blockState.getBlock().getHarvestLevel(blockState);
+    }
 
     @Override
     public boolean onBlockDestroyed(final ItemStack itemStack, final World world, final IBlockState blockState,
@@ -65,7 +79,7 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
             final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5);
 
             if (capability.addDatum(xp, XP, type) && !world.isRemote && Configuration.levelupNotifications) {
-                Main.CHANNEL.sendTo(new CToolLevelupMessage(itemStack, capability.getDatum(LEVEL, type)), (EntityPlayerMP) entity);
+                Main.CHANNEL.sendTo(new CLevelupMessage(itemStack, capability.getDatum(LEVEL, type)), (EntityPlayerMP) entity);
             }
         }
 
@@ -87,48 +101,6 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
         itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulItemHelper.REACH_DISTANCE_UUID, "generic.reachDistance", this.reachDistance, ADD), MAINHAND);
 
         return itemStack.getAttributeModifiers(MAINHAND);
-    }
-
-    @Override
-    public boolean canHarvestBlock(final IBlockState blockState, final EntityPlayer player) {
-        final Block block = blockState.getBlock();
-        final float harvestLevel = SoulToolProvider.get(player).getAttribute(HARVEST_LEVEL, PICK);
-
-        if (block == Blocks.OBSIDIAN) {
-            return harvestLevel >= 3;
-        } else if (block != Blocks.DIAMOND_BLOCK && block != Blocks.DIAMOND_ORE) {
-            if (block != Blocks.EMERALD_ORE && block != Blocks.EMERALD_BLOCK) {
-                if (block != Blocks.GOLD_BLOCK && block != Blocks.GOLD_ORE) {
-                    if (block != Blocks.IRON_BLOCK && block != Blocks.IRON_ORE) {
-                        if (block != Blocks.LAPIS_BLOCK && block != Blocks.LAPIS_ORE) {
-                            if (block != Blocks.REDSTONE_ORE && block != Blocks.LIT_REDSTONE_ORE) {
-                                final Material material = blockState.getMaterial();
-
-                                if (material == Material.ROCK) {
-                                    return true;
-                                } else if (material == Material.IRON) {
-                                    return true;
-                                } else {
-                                    return material == Material.ANVIL;
-                                }
-                            } else {
-                                return harvestLevel >= 2;
-                            }
-                        } else {
-                            return harvestLevel >= 1;
-                        }
-                    } else {
-                        return harvestLevel >= 1;
-                    }
-                } else {
-                    return harvestLevel >= 2;
-                }
-            } else {
-                return harvestLevel >= 2;
-            }
-        } else {
-            return harvestLevel >= 2;
-        }
     }
 
     @Override

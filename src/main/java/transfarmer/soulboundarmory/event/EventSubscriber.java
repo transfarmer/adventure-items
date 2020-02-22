@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent.Register;
@@ -30,8 +29,6 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
-import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
@@ -52,13 +49,13 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
 import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
-import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.soulboundarmory.network.client.CLevelupMessage;
 import transfarmer.soulboundarmory.network.client.tool.CToolData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
@@ -315,10 +312,7 @@ public class EventSubscriber {
                     }
 
                     if (instance.addDatum(xp, XP, weaponType) && levelupNotifications) {
-                        if (FMLCommonHandler.instance().getSide().isClient()) {
-                            source.sendMessage(new TextComponentString(String.format(Mappings.MESSAGE_LEVEL_UP,
-                                    displayName, instance.getDatum(LEVEL, weaponType))));
-                        }
+                        Main.CHANNEL.sendTo(new CLevelupMessage(displayName, instance.getDatum(LEVEL, weaponType)), (EntityPlayerMP) source);
                     }
 
                     Main.CHANNEL.sendTo(new CWeaponDatum(xp, XP, weaponType), (EntityPlayerMP) source);
@@ -332,22 +326,6 @@ public class EventSubscriber {
         event.setResult(ALLOW);
 
         SoulItemHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
-    }
-
-    @SubscribeEvent
-    public static void onHarvestDrops(final HarvestDropsEvent event) {
-        if (event.getHarvester() != null) {
-            final EntityPlayer player = event.getHarvester();
-            final Item item = player.getHeldItemMainhand().getItem();
-
-            if (item instanceof IItemSoulTool) {
-                if (((IItemSoulTool) item).canHarvestBlock(event.getState(), player)) {
-                    event.setDropChance(1);
-                } else if (((IItemSoulTool) item).isEffectiveAgainst(event.getState())) {
-                    event.setDropChance(0);
-                }
-            }
-        }
     }
 
     @SubscribeEvent

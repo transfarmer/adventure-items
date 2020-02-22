@@ -33,6 +33,10 @@ public class SoulWeaponType extends SoulType {
         return TYPES.length;
     }
 
+    public static SoulType get(final int index) {
+        return index == -1 ? null : TYPES[index];
+    }
+
     public static SoulType get(final Item item) {
         return TYPES[ITEMS.indexOf(item)];
     }

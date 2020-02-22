@@ -25,6 +25,7 @@ import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
 import transfarmer.soulboundarmory.command.CommandSoulboundArmory;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
+import transfarmer.soulboundarmory.network.client.CLevelupMessage;
 import transfarmer.soulboundarmory.network.client.tool.*;
 import transfarmer.soulboundarmory.network.client.weapon.*;
 import transfarmer.soulboundarmory.network.server.tool.*;
@@ -38,7 +39,7 @@ import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 public class Main {
     public static final String MOD_ID = "soulboundarmory";
     public static final String NAME = "soulbound armory";
-    public static final String VERSION = "2.1.15-beta";
+    public static final String VERSION = "2.1.17-beta";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
@@ -81,7 +82,7 @@ public class Main {
         CHANNEL.registerMessage(CToolBindSlot.Handler.class, CToolBindSlot.class, id++, CLIENT);
         CHANNEL.registerMessage(CToolDatum.Handler.class, CToolDatum.class, id++, CLIENT);
         CHANNEL.registerMessage(CToolData.Handler.class, CToolData.class, id++, CLIENT);
-        CHANNEL.registerMessage(CToolLevelupMessage.Handler.class, CToolLevelupMessage.class, id++, CLIENT);
+        CHANNEL.registerMessage(CLevelupMessage.Handler.class, CLevelupMessage.class, id++, CLIENT);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(MENU_KEY);

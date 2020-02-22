@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.network.client.tool;
+package transfarmer.soulboundarmory.network.client;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -14,15 +14,19 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class CToolLevelupMessage implements IMessage {
+public class CLevelupMessage implements IMessage {
     String stackName;
     int level;
 
-    public CToolLevelupMessage() {}
+    public CLevelupMessage() {}
 
-    public CToolLevelupMessage(final ItemStack itemStack, final int level) {
-        this.stackName = itemStack.getDisplayName();
+    public CLevelupMessage(final String stackName, final int level) {
+        this.stackName = stackName;
         this.level = level;
+    }
+
+    public CLevelupMessage(final ItemStack itemStack, final int level) {
+        this(itemStack.getDisplayName(), level);
     }
 
     @Override
@@ -37,10 +41,10 @@ public class CToolLevelupMessage implements IMessage {
         buffer.writeInt(this.level);
     }
 
-    public static final class Handler implements IMessageHandler <CToolLevelupMessage, IMessage> {
+    public static final class Handler implements IMessageHandler <CLevelupMessage, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final CToolLevelupMessage message, final MessageContext context) {
+        public IMessage onMessage(final CLevelupMessage message, final MessageContext context) {
             ((EntityPlayer) Minecraft.getMinecraft().player).sendMessage(
                     new TextComponentString(String.format(Mappings.MESSAGE_LEVEL_UP, message.stackName, message.level)));
 

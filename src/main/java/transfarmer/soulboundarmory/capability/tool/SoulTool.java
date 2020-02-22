@@ -228,9 +228,6 @@ public class SoulTool implements ISoulCapability {
 
     @Override
     public void setCurrentType(final SoulType type) {
-        if (type == null) {
-            throw new NullPointerException();
-        }
         this.currentType = type;
     }
 
