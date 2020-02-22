@@ -3,7 +3,6 @@ package transfarmer.soulboundarmory.capability.weapon;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -418,50 +417,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public void update() {
-        if (this.hasSoulItem()) {
-            final Class<? extends ISoulItem> baseItemClass = this.getBaseItemClass();
-            final InventoryPlayer inventory = this.getPlayer().inventory;
-            final ItemStack equippedItemStack = this.getEquippedItemStack();
-            final List<ItemStack> mainInventory = new ArrayList<>(this.getPlayer().inventory.mainInventory);
-            mainInventory.add(this.getPlayer().getHeldItemOffhand());
-
-            if (equippedItemStack != null && baseItemClass.isInstance(equippedItemStack.getItem())) {
-                final SoulType type = SoulType.get(equippedItemStack);
-
-                if (type != this.getCurrentType()) {
-                    this.setCurrentType(type);
-                }
-            }
-
-            if (this.getCurrentType() != null) {
-                int firstSlot = -1;
-
-                for (final ItemStack itemStack : mainInventory) {
-                    if (baseItemClass.isInstance(itemStack.getItem())) {
-                        final ItemStack newItemStack = this.getItemStack(itemStack);
-                        final int index = mainInventory.indexOf(itemStack);
-
-                        if (itemStack.getItem() == this.getCurrentType().getItem() && (firstSlot == -1 || index == 36)) {
-                            firstSlot = index == 36 ? 40 : index;
-
-                            if (this.getBoundSlot() != -1) {
-                                this.bindSlot(index);
-                            }
-
-                            if (!SoulItemHelper.areDataEqual(itemStack, newItemStack)) {
-                                if (itemStack.hasDisplayName()) {
-                                    newItemStack.setStackDisplayName(itemStack.getDisplayName());
-                                }
-
-                                inventory.setInventorySlotContents(firstSlot, newItemStack);
-                            }
-                        } else if (!this.getPlayer().isCreative() && index != firstSlot) {
-                            inventory.deleteStack(itemStack);
-                        }
-                    }
-                }
-            }
-        }
+        ISoulWeapon.super.update();
 
         if (this.getAttackCooldown() > 0) {
             this.decrementCooldown();

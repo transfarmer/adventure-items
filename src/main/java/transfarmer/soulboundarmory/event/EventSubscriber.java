@@ -65,6 +65,7 @@ import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
+import transfarmer.util.ItemHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -78,6 +79,7 @@ import static transfarmer.soulboundarmory.Configuration.*;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_TOOL;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_WEAPON;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
+import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.LEVEL;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.XP;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
@@ -263,8 +265,8 @@ public class EventSubscriber {
             final IAttributeInstance armor = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR);
             final Entity trueSource = event.getSource().getTrueSource();
             final ISoulWeapon instance;
-            final String displayName;
             final SoulType weaponType;
+            final String displayName;
             Entity source = event.getSource().getImmediateSource();
 
             if (trueSource instanceof EntityPlayer) {
@@ -274,16 +276,14 @@ public class EventSubscriber {
                     weaponType = DAGGER;
                     displayName = ((EntitySoulDagger) source).itemStack.getDisplayName();
                     source = ((EntitySoulDagger) source).shootingEntity;
-                } else {
-                    if (source instanceof EntityPlayer) {
-                        weaponType = instance.getCurrentType();
-                    } else if (source instanceof EntitySoulLightningBolt) {
-                        weaponType = SWORD;
-                        source = ((EntitySoulLightningBolt) source).getCaster();
-                    } else return;
-
+                } else if (source instanceof EntitySoulLightningBolt) {
+                    weaponType = SWORD;
+                    source = ((EntitySoulLightningBolt) source).getCaster();
+                    displayName = ItemHelper.getEquippedItemStack((EntityPlayer) source, SOULBOUND_SWORD).getDisplayName();
+                } else if (source instanceof EntityPlayer) {
+                    weaponType = instance.getCurrentType();
                     displayName = ((EntityPlayerMP) source).getHeldItemMainhand().getDisplayName();
-                }
+                } else return;
             } else return;
 
             if (source instanceof EntityPlayer && weaponType != null) {
@@ -451,13 +451,13 @@ public class EventSubscriber {
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
 
-                    final String[] prior = tooltip.subList(0, startIndex).toArray(new String[0]);
-                    final String[] posterior = tooltip.subList(startIndex + itemStack.getAttributeModifiers(MAINHAND).size(), tooltip.size()).toArray(new String[0]);
+                final String[] prior = tooltip.subList(0, startIndex).toArray(new String[0]);
+                final String[] posterior = tooltip.subList(startIndex + itemStack.getAttributeModifiers(MAINHAND).size(), tooltip.size()).toArray(new String[0]);
 
-                    tooltip.clear();
-                    tooltip.addAll(Arrays.asList(prior));
-                    tooltip.addAll(capability.getTooltip(type));
-                    tooltip.addAll(Arrays.asList(posterior));
+                tooltip.clear();
+                tooltip.addAll(Arrays.asList(prior));
+                tooltip.addAll(capability.getTooltip(type));
+                tooltip.addAll(Arrays.asList(posterior));
             }
         }
     }

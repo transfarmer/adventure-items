@@ -35,8 +35,9 @@ public class SoulWeaponMenu extends Menu {
     @Override
     public void initGui() {
         if (SoulItemHelper.isSoulWeaponEquipped(this.mc.player)) {
-            final String text = this.mc.player.inventory.currentItem != capability.getBoundSlot()
-                    ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND;
+            final String text = this.slot != capability.getBoundSlot()
+                    ? Mappings.MENU_BUTTON_BIND
+                    : Mappings.MENU_BUTTON_UNBIND;
 
             this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, text));
             this.tabs[0] = addButton(guiFactory.tabButton(16, 0, Mappings.MENU_SELECTION));
@@ -113,11 +114,9 @@ public class SoulWeaponMenu extends Menu {
         }
     }
 
-    private void showSkills() {
-    }
+    private void showSkills() {}
 
-    private void showTraits() {
-    }
+    private void showTraits() {}
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -207,7 +206,8 @@ public class SoulWeaponMenu extends Menu {
             case 2:
                 final SoulType type = SoulWeaponType.get(button.id);
                 final GuiScreen screen = !SoulItemHelper.hasSoulWeapon(this.mc.player)
-                        ? null : new SoulWeaponMenu();
+                        ? null
+                        : new SoulWeaponMenu();
 
                 if (screen == null) {
                     this.capability.setCurrentTab(1);

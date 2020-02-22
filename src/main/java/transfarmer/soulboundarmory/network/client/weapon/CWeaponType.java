@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.statistics.SoulType;
 
@@ -24,6 +25,7 @@ public class CWeaponType implements IMessage {
         this.weaponIndex = type.getIndex();
     }
 
+    @SideOnly(CLIENT)
     public void fromBytes(final ByteBuf buffer) {
         this.slot = buffer.readInt();
         this.weaponIndex = buffer.readInt();
@@ -40,8 +42,9 @@ public class CWeaponType implements IMessage {
         public IMessage onMessage(final CWeaponType message, final MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 final EntityPlayer player = Minecraft.getMinecraft().player;
+                final ISoulWeapon capability = SoulWeaponProvider.get(player);
 
-                SoulWeaponProvider.get(player).setCurrentType(message.weaponIndex);
+                capability.setCurrentType(message.weaponIndex);
                 player.inventory.setInventorySlotContents(message.slot,
                     new ItemStack(SoulWeaponProvider.get(player).getCurrentType().getItem()));
             });

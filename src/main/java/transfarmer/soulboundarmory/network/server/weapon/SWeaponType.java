@@ -56,6 +56,8 @@ public class SWeaponType implements IMessage {
 
                 if (boundSlotItem.getItem() != Items.AIR && !(boundSlotItem.getItem() instanceof ItemSoulWeapon)) {
                     slot = -1;
+                } else if (boundSlotItem.getItem() instanceof ItemSoulWeapon) {
+                    player.inventory.deleteStack(boundSlotItem);
                 }
             }
 

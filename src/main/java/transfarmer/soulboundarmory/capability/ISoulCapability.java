@@ -167,7 +167,7 @@ public interface ISoulCapability {
                             firstSlot = index == 36 ? 40 : index;
 
                             if (this.getBoundSlot() != -1) {
-                                this.bindSlot(index);
+                                this.bindSlot(firstSlot);
                             }
 
                             if (!SoulItemHelper.areDataEqual(itemStack, newItemStack)) {
