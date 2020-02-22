@@ -18,7 +18,7 @@ public class SoulType extends Statistic {
     public static final SoulType SWORD = new SoulType(1, SOULBOUND_SWORD, "sword", "summon lightning");
     public static final SoulType DAGGER = new SoulType(2, SOULBOUND_DAGGER, "dagger", "throwing", "perforation", "return", "sneak return");
 
-    public static final SoulType PICK = new SoulType(0, SOULBOUND_PICK, "pick");
+    public static final SoulType PICK = new SoulType(0, SOULBOUND_PICK, "pick", "ambidexterity");
 
     protected static final SoulType[] TYPES = {
             GREATSWORD,

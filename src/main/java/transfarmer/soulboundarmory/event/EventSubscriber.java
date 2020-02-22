@@ -31,6 +31,7 @@ import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
@@ -314,8 +315,10 @@ public class EventSubscriber {
                     }
 
                     if (instance.addDatum(xp, XP, weaponType) && levelupNotifications) {
-                        source.sendMessage(new TextComponentString(String.format(Mappings.MESSAGE_LEVEL_UP,
-                                displayName, instance.getDatum(LEVEL, weaponType))));
+                        if (FMLCommonHandler.instance().getSide().isClient()) {
+                            source.sendMessage(new TextComponentString(String.format(Mappings.MESSAGE_LEVEL_UP,
+                                    displayName, instance.getDatum(LEVEL, weaponType))));
+                        }
                     }
 
                     Main.CHANNEL.sendTo(new CWeaponDatum(xp, XP, weaponType), (EntityPlayerMP) source);
@@ -406,6 +409,24 @@ public class EventSubscriber {
         weaponCapability.update();
         toolCapability.update();
     }
+
+    /*
+    @SideOnly(CLIENT)
+    @SubscribeEvent
+    public static void onLeftClickBlock(final LeftClickBlock event) {
+        final EntityPlayer player = event.getEntityPlayer();
+        final ISoulCapability capability = SoulItemHelper.getCapability(player, player.getHeldItemOffhand());
+        final Minecraft minecraft = Minecraft.getMinecraft();
+
+        if (capability instanceof SoulTool && capability.getDatum(SKILLS, capability.getCurrentType()) >= 1) {
+            final BlockPos blockPos = minecraft.objectMouseOver.getBlockPos();
+
+            if (!minecraft.world.isAirBlock(blockPos)) {
+                ModPlayerControllerMP.modController.clickBlockOffhand(blockPos, event.getFace());
+            }
+        }
+    }
+    */
 
     @SideOnly(CLIENT)
     @SubscribeEvent
