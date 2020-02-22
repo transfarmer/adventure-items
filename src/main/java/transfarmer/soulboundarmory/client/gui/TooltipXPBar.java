@@ -8,8 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.SoulType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
@@ -21,7 +21,7 @@ public class TooltipXPBar extends Gui {
         final Minecraft minecraft = Minecraft.getMinecraft();
         final FontRenderer fontRenderer = minecraft.fontRenderer;
         final ISoulCapability capability = SoulItemHelper.getCapability(minecraft.player, itemStack.getItem());
-        final IType type = capability.getType(itemStack);
+        final SoulType type = capability.getType(itemStack);
         final int originalEnchantments = itemStack.getEnchantmentTagList().tagCount();
         int level = capability.getDatum(LEVEL, type);
         int barLeftX = tooltipX + 44;

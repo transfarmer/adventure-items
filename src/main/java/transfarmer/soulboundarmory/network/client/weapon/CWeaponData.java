@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
@@ -34,7 +34,7 @@ public class CWeaponData implements IMessage {
         this.enchantments = new int[SoulWeaponType.getAmount()][SoulWeaponEnchantment.getAmount()];
     }
 
-    public CWeaponData(final IType type, final int currentTab, final int cooldown, final int boundSlot,
+    public CWeaponData(final SoulType type, final int currentTab, final int cooldown, final int boundSlot,
                        final int[][] data, final float[][] attributes, final int[][] enchantments) {
         if (type == null) {
             this.weaponIndex = -1;

@@ -14,12 +14,8 @@ public class SoulWeaponEnchantment extends SoulEnchantment {
             SOUL_BANE_OF_ARTHROPODS,
     };
 
-    protected SoulWeaponEnchantment(final int index, final Enchantment enchantment) {
-        super(index, enchantment);
-    }
-
-    public static String getName(final int index) {
-        return get(index).toString().toLowerCase();
+    protected SoulWeaponEnchantment(final int index, final Enchantment enchantment, final String name) {
+        super(index, enchantment, name);
     }
 
     public static SoulEnchantment[] get() {

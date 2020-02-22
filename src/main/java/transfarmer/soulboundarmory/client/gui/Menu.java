@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Configuration;
@@ -12,7 +13,9 @@ import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.statistics.SoulType;
+import transfarmer.util.ItemHelper;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -24,19 +27,30 @@ import static transfarmer.soulboundarmory.statistics.SoulDatum.LEVEL;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.XP;
 
 public abstract class Menu extends GuiScreen {
-    protected GuiButton[] tabs;
-    protected GUIFactory guiFactory;
-    protected Renderer renderer;
-    protected ISoulCapability capability;
-    protected IType type;
+    protected final GUIFactory guiFactory;
+    protected final Renderer renderer;
+    protected final GuiButton[] tabs;
+    protected final Item[] consumableItems;
+    protected final ISoulCapability capability;
+    protected final SoulType type;
+    protected final int slot;
 
-    public Menu(final int tabs) {
+    public Menu(final int tabs, final Item... consumableItems) {
         this.mc = Minecraft.getMinecraft();
         this.guiFactory = new GUIFactory();
         this.renderer = new Renderer();
         this.tabs = new GuiButton[tabs];
-        this.capability = SoulItemHelper.getCapability(Minecraft.getMinecraft().player, (Item) null);
+        this.consumableItems = consumableItems;
+
+        ItemStack equippedItemStack = ItemHelper.getClassEquippedItemStack(this.mc.player, ISoulItem.class);
+
+        if (equippedItemStack == null) {
+            equippedItemStack = ItemHelper.getEquippedItemStack(this.mc.player, this.consumableItems);
+        }
+
+        this.capability = SoulItemHelper.getCapability(this.mc.player, equippedItemStack);
         this.type = this.capability.getCurrentType();
+        this.slot = this.mc.player.inventory.getSlotFor(equippedItemStack);
     }
 
     protected GuiButton[] addAddPointButtons(final int id, final int rows, final int points) {

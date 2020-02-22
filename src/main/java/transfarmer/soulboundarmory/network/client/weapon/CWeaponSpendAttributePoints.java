@@ -9,8 +9,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
@@ -23,7 +23,7 @@ public class CWeaponSpendAttributePoints implements IMessage {
 
     public CWeaponSpendAttributePoints() {}
 
-    public CWeaponSpendAttributePoints(final int amount, final SoulAttribute attribute, final IType type) {
+    public CWeaponSpendAttributePoints(final int amount, final SoulAttribute attribute, final SoulType type) {
         this.amount = amount;
         this.attributeIndex = attribute.getIndex();
         this.weaponIndex = type.getIndex();
@@ -48,7 +48,7 @@ public class CWeaponSpendAttributePoints implements IMessage {
         @Override
         public IMessage onMessage(final CWeaponSpendAttributePoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final IType type = SoulWeaponType.getType(message.weaponIndex);
+            final SoulType type = SoulWeaponType.get(message.weaponIndex);
             final SoulAttribute attribute = SoulWeaponAttribute.get(message.attributeIndex);
             final ISoulWeapon instance = SoulWeaponProvider.get(minecraft.player);
 

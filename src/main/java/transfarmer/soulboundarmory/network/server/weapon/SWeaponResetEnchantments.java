@@ -7,8 +7,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponResetEnchantments;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 public class SWeaponResetEnchantments implements IMessage {
@@ -17,7 +17,7 @@ public class SWeaponResetEnchantments implements IMessage {
     public SWeaponResetEnchantments() {
     }
 
-    public SWeaponResetEnchantments(final IType type) {
+    public SWeaponResetEnchantments(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -35,7 +35,7 @@ public class SWeaponResetEnchantments implements IMessage {
         @Override
         public IMessage onMessage(final SWeaponResetEnchantments message, final MessageContext context) {
             final ISoulWeapon capability = SoulWeaponProvider.get(context.getServerHandler().player);
-            final IType type = SoulWeaponType.getType(message.index);
+            final SoulType type = SoulWeaponType.get(message.index);
 
             capability.addDatum(capability.getDatum(SoulDatum.SPENT_ENCHANTMENT_POINTS, type), SoulDatum.ENCHANTMENT_POINTS, type);
             capability.setDatum(0, SoulDatum.SPENT_ENCHANTMENT_POINTS, type);

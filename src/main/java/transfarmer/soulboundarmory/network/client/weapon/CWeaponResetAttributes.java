@@ -10,8 +10,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -21,7 +21,7 @@ public class CWeaponResetAttributes implements IMessage {
 
     public CWeaponResetAttributes() {}
 
-    public CWeaponResetAttributes(final IType type) {
+    public CWeaponResetAttributes(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -41,7 +41,7 @@ public class CWeaponResetAttributes implements IMessage {
         public IMessage onMessage(final CWeaponResetAttributes message, final MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 final ISoulCapability capability = SoulItemHelper.getCapability(Minecraft.getMinecraft().player, (Item) null);
-                final IType type = SoulWeaponType.getType(message.index);
+                final SoulType type = SoulWeaponType.get(message.index);
 
                 capability.addDatum(capability.getDatum(SoulDatum.SPENT_ATTRIBUTE_POINTS, type), SoulDatum.ATTRIBUTE_POINTS, type);
                 capability.setDatum(0, SoulDatum.SPENT_ATTRIBUTE_POINTS, type);

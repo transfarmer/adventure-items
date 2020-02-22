@@ -7,8 +7,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.network.client.tool.CToolSpendEnchantmentPoints;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
@@ -19,7 +19,7 @@ public class SToolEnchantmentPoints implements IMessage {
 
     public SToolEnchantmentPoints() {}
 
-    public SToolEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final IType type) {
+    public SToolEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
         this.amount = amount;
         this.enchantmentIndex = enchantment.getIndex();
         this.typeIndex = type.getIndex();
@@ -44,7 +44,7 @@ public class SToolEnchantmentPoints implements IMessage {
         public IMessage onMessage(final SToolEnchantmentPoints message, final MessageContext context) {
             final ISoulCapability instance = SoulToolProvider.get(context.getServerHandler().player);
             final SoulEnchantment enchantment = SoulToolEnchantment.get(message.enchantmentIndex);
-            final IType toolType = SoulToolType.getType(message.typeIndex);
+            final SoulType toolType = SoulToolType.get(message.typeIndex);
 
             instance.addEnchantment(message.amount, enchantment, toolType);
 

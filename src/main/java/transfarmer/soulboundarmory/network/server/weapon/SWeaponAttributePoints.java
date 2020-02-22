@@ -7,8 +7,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponSpendAttributePoints;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
@@ -19,7 +19,7 @@ public class SWeaponAttributePoints implements IMessage {
 
     public SWeaponAttributePoints() {}
 
-    public SWeaponAttributePoints(final int amount, final SoulAttribute attribute, final IType type) {
+    public SWeaponAttributePoints(final int amount, final SoulAttribute attribute, final SoulType type) {
         this.amount = amount;
         this.attributeIndex = attribute.getIndex();
         this.weaponIndex = type.getIndex();
@@ -43,7 +43,7 @@ public class SWeaponAttributePoints implements IMessage {
         @Override
         public IMessage onMessage(final SWeaponAttributePoints message, final MessageContext context) {
             final SoulAttribute attribute = SoulWeaponAttribute.get(message.attributeIndex);
-            final IType type = SoulWeaponType.getType(message.weaponIndex);
+            final SoulType type = SoulWeaponType.get(message.weaponIndex);
             final ISoulWeapon instance = SoulWeaponProvider.get(context.getServerHandler().player);
 
             instance.addAttribute(message.amount, attribute, type);

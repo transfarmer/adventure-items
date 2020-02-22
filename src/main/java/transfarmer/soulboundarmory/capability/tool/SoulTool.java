@@ -2,15 +2,18 @@ package transfarmer.soulboundarmory.capability.tool;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
@@ -18,10 +21,7 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
@@ -30,12 +30,23 @@ import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.*;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.*;
 
 public class SoulTool implements ISoulCapability {
-    private IType currentType;
+    private EntityPlayer player;
+    private SoulType currentType;
     private int[][] data = new int[this.getItemAmount()][this.getDatumAmount()];
     private float[][] attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
     private int[][] enchantments = new int[this.getItemAmount()][this.getEnchantmentAmount()];
     private int boundSlot = -1;
     private int currentTab = 0;
+
+    @Override
+    public EntityPlayer getPlayer() {
+        return this.player;
+    }
+
+    @Override
+    public void setPlayer(final EntityPlayer player) {
+        this.player = player;
+    }
 
     @Override
     public void setStatistics(final int[][] data, final float[][] attributes, final int[][] enchantments) {
@@ -75,22 +86,22 @@ public class SoulTool implements ISoulCapability {
     }
 
     @Override
-    public IType getType(final ItemStack itemStack) {
-        return SoulToolType.getType(itemStack);
+    public SoulType getType(final ItemStack itemStack) {
+        return SoulToolType.get(itemStack);
     }
 
     @Override
-    public IType getCurrentType() {
+    public SoulType getCurrentType() {
         return this.currentType;
     }
 
     @Override
-    public int getDatum(final SoulDatum datum, final IType type) {
+    public int getDatum(final SoulDatum datum, final SoulType type) {
         return this.data[type.getIndex()][datum.getIndex()];
     }
 
     @Override
-    public boolean addDatum(final int amount, final SoulDatum datum, final IType type) {
+    public boolean addDatum(final int amount, final SoulDatum datum, final SoulType type) {
         if (XP.equals(datum)) {
             this.data[type.getIndex()][XP.getIndex()] += amount;
 
@@ -120,12 +131,12 @@ public class SoulTool implements ISoulCapability {
     }
 
     @Override
-    public void setDatum(final int amount, final SoulDatum datum, final IType type) {
+    public void setDatum(final int amount, final SoulDatum datum, final SoulType type) {
         this.data[type.getIndex()][datum.getIndex()] = amount;
     }
 
     @Override
-    public float getAttribute(final SoulAttribute attribute, final IType type, final boolean total, final boolean effective) {
+    public float getAttribute(final SoulAttribute attribute, final SoulType type, final boolean total, final boolean effective) {
         if (total) {
             if (attribute.equals(EFFICIENCY_ATTRIBUTE)) {
                 return this.getAttribute(EFFICIENCY_ATTRIBUTE, type) + ((IItemSoulTool) type.getSoulItem()).getEfficiency();
@@ -138,27 +149,27 @@ public class SoulTool implements ISoulCapability {
     }
 
     @Override
-    public float getAttribute(final SoulAttribute attribute, final IType type, final boolean total) {
+    public float getAttribute(final SoulAttribute attribute, final SoulType type, final boolean total) {
         return this.getAttribute(attribute, type, total, false);
     }
 
     @Override
-    public float getAttribute(final SoulAttribute attribute, final IType type) {
+    public float getAttribute(final SoulAttribute attribute, final SoulType type) {
         return this.getAttribute(attribute, type, false, false);
     }
 
     @Override
-    public void setAttribute(final float value, final SoulAttribute attribute, final IType type) {
+    public void setAttribute(final float value, final SoulAttribute attribute, final SoulType type) {
         this.attributes[type.getIndex()][attribute.getIndex()] = value;
     }
 
     @Override
-    public void setAttributes(final float[] attributes, final IType type) {
+    public void setAttributes(final float[] attributes, final SoulType type) {
         this.attributes[type.getIndex()] = attributes;
     }
 
     @Override
-    public void addAttribute(final int amount, final SoulAttribute attribute, final IType type) {
+    public void addAttribute(final int amount, final SoulAttribute attribute, final SoulType type) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
@@ -178,22 +189,22 @@ public class SoulTool implements ISoulCapability {
     }
 
     @Override
-    public void setData(final int[] data, final IType type) {
+    public void setData(final int[] data, final SoulType type) {
         this.data[type.getIndex()] = data;
     }
 
     @Override
-    public int getEnchantment(final SoulEnchantment enchantment, final IType type) {
+    public int getEnchantment(final SoulEnchantment enchantment, final SoulType type) {
         return this.enchantments[type.getIndex()][enchantment.getIndex()];
     }
 
     @Override
-    public void setEnchantments(final int[] enchantments, final IType type) {
+    public void setEnchantments(final int[] enchantments, final SoulType type) {
         this.enchantments[type.getIndex()] = enchantments;
     }
 
     @Override
-    public void addEnchantment(final int amount, final SoulEnchantment enchantment, final IType type) {
+    public void addEnchantment(final int amount, final SoulEnchantment enchantment, final SoulType type) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
@@ -209,29 +220,32 @@ public class SoulTool implements ISoulCapability {
     }
 
     @Override
-    public int getNextLevelXP(final IType type) {
+    public int getNextLevelXP(final SoulType type) {
         return this.getDatum(LEVEL, type) >= Configuration.maxLevel
                 ? 1
                 : Configuration.initialToolXP + (int) Math.round(4 * Math.pow(this.getDatum(LEVEL, type), 1.25));
     }
 
     @Override
-    public void setCurrentType(final IType type) {
+    public void setCurrentType(final SoulType type) {
+        if (type == null) {
+            throw new NullPointerException();
+        }
         this.currentType = type;
     }
 
     @Override
     public void setCurrentType(final int index) {
-        this.currentType = SoulToolType.getType(index);
+        this.currentType = SoulToolType.get(index);
     }
 
     @Override
     public ItemStack getItemStack(final ItemStack itemStack) {
-        return this.getItemStack(SoulToolType.getType(itemStack));
+        return this.getItemStack(SoulToolType.get(itemStack));
     }
 
     @Override
-    public ItemStack getItemStack(final IType type) {
+    public ItemStack getItemStack(final SoulType type) {
         final ItemStack itemStack = new ItemStack(type.getItem());
         final AttributeModifier[] attributeModifiers = this.getAttributeModifiers(type);
         final Map<SoulEnchantment, Integer> enchantments = this.getEnchantments(type);
@@ -243,14 +257,14 @@ public class SoulTool implements ISoulCapability {
     }
 
     @Override
-    public AttributeModifier[] getAttributeModifiers(final IType type) {
+    public AttributeModifier[] getAttributeModifiers(final SoulType type) {
         return new AttributeModifier[]{
                 new AttributeModifier(REACH_DISTANCE_UUID, "generic.reachDistance", this.getAttribute(REACH_DISTANCE, type) + type.getSoulItem().getReachDistance(), ADD)
         };
     }
 
     @Override
-    public Map<SoulEnchantment, Integer> getEnchantments(final IType type) {
+    public Map<SoulEnchantment, Integer> getEnchantments(final SoulType type) {
         final Map<SoulEnchantment, Integer> enchantments = new LinkedHashMap<>();
 
         for (final SoulEnchantment enchantment : SoulToolEnchantment.get()) {
@@ -265,7 +279,7 @@ public class SoulTool implements ISoulCapability {
     }
 
     @Override
-    public List<String> getTooltip(final IType type) {
+    public List<String> getTooltip(final SoulType type) {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
         final List<String> tooltip = new ArrayList<>(5);
 
@@ -277,6 +291,11 @@ public class SoulTool implements ISoulCapability {
         tooltip.add("");
 
         return tooltip;
+    }
+
+    @Override
+    public List<Item> getConsumableItems() {
+        return Arrays.asList(Items.WOODEN_PICKAXE);
     }
 
     @Override
@@ -322,5 +341,10 @@ public class SoulTool implements ISoulCapability {
     @Override
     public void setCurrentTab(final int tab) {
         this.currentTab = tab;
+    }
+
+    @Override
+    public Class<? extends ISoulItem> getBaseItemClass() {
+        return IItemSoulTool.class;
     }
 }

@@ -20,7 +20,7 @@ import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.network.client.tool.CToolLevelupMessage;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
@@ -61,7 +61,7 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
         if (entity instanceof EntityPlayer && this.isEffectiveAgainst(blockState)
                 && this.canHarvestBlock(blockState, (EntityPlayer) entity)) {
             final ISoulCapability capability = SoulToolProvider.get(entity);
-            final IType type = SoulToolType.getType(itemStack);
+            final SoulType type = SoulToolType.get(itemStack);
             final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5);
 
             if (capability.addDatum(xp, XP, type) && !world.isRemote && Configuration.levelupNotifications) {

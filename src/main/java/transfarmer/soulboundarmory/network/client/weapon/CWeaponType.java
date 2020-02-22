@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
@@ -19,7 +19,7 @@ public class CWeaponType implements IMessage {
 
     public CWeaponType() {}
 
-    public CWeaponType(final int slot, final IType type) {
+    public CWeaponType(final int slot, final SoulType type) {
         this.slot = slot;
         this.weaponIndex = type.getIndex();
     }

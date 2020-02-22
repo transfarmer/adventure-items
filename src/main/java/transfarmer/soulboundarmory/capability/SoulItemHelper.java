@@ -3,6 +3,7 @@ package transfarmer.soulboundarmory.capability;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -46,46 +47,20 @@ public class SoulItemHelper {
             }
         }
 
-        return item instanceof ItemSoulWeapon
+        return item instanceof ItemSoulWeapon || item == Items.WOODEN_SWORD
                 ? SoulWeaponProvider.get(player)
-                : item instanceof IItemSoulTool
+                : item instanceof IItemSoulTool || item == Items.WOODEN_PICKAXE
                 ? SoulToolProvider.get(player)
                 : null;
     }
 
-    public static ISoulCapability getCapability(final EntityPlayer player, @Nullable ItemStack itemStack) {
+    public static ISoulCapability getCapability(final EntityPlayer player, ItemStack itemStack) {
         return getCapability(player, itemStack.getItem());
     }
 
     public static boolean isSoulWeaponEquipped(final EntityPlayer player) {
         return player.getHeldItemMainhand().getItem() instanceof ItemSoulWeapon
                 || player.getHeldItemOffhand().getItem() instanceof ItemSoulWeapon;
-    }
-
-    public static boolean isSoulToolEquipped(final EntityPlayer player) {
-        return player.getHeldItemMainhand().getItem() instanceof IItemSoulTool
-                || player.getHeldItemOffhand().getItem() instanceof IItemSoulTool;
-    }
-
-    public static boolean isSoulItemEquipped(final EntityPlayer player) {
-        return player.getHeldItemMainhand().getItem() instanceof ISoulItem
-                || player.getHeldItemOffhand().getItem() instanceof ISoulItem;
-    }
-
-    public static ItemStack getEquippedSoulItemStack(final EntityPlayer player, final Class<? extends ISoulItem> cls) {
-        final ItemStack mainhandStack = player.getHeldItemMainhand();
-
-        if (cls.isInstance(mainhandStack.getItem())) {
-            return mainhandStack;
-        }
-
-        final ItemStack offhandStack = player.getHeldItemOffhand();
-
-        if (cls.isInstance(offhandStack.getItem())) {
-            return offhandStack;
-        }
-
-        return null;
     }
 
     public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player, boolean hasReservedSlot) {
@@ -230,14 +205,6 @@ public class SoulItemHelper {
         return datumEquality;
     }
 
-    public static boolean hasSoulTool(final EntityPlayer player) {
-        for (final ItemStack itemStack : player.inventory.mainInventory) {
-            if (itemStack.getItem() instanceof IItemSoulTool) return true;
-        }
-
-        return player.getHeldItemOffhand().getItem() instanceof IItemSoulTool;
-    }
-
     public static boolean hasSoulWeapon(final EntityPlayer player) {
         final ItemStack[] inventory = player.inventory.mainInventory.toArray(new ItemStack[player.inventory.getSizeInventory() + 1]);
         inventory[player.inventory.getSizeInventory()] = player.getHeldItemOffhand();
@@ -258,5 +225,4 @@ public class SoulItemHelper {
             }
         }
     }
-
 }

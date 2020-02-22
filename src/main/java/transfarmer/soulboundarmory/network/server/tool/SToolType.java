@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 public class SToolType implements IMessage {
@@ -17,7 +17,7 @@ public class SToolType implements IMessage {
 
     public SToolType() {}
 
-    public SToolType(final IType type) {
+    public SToolType(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -34,16 +34,16 @@ public class SToolType implements IMessage {
     public static final class Handler implements IMessageHandler<SToolType, IMessage> {
         @Override
         public IMessage onMessage(final SToolType message, final MessageContext context) {
-            final IType toolType = SoulToolType.getType(message.index);
+            final SoulType toolType = SoulToolType.get(message.index);
             final EntityPlayerMP player = context.getServerHandler().player;
-            final ISoulCapability instance = SoulToolProvider.get(player);
-            instance.setCurrentType(toolType);
+            final ISoulCapability capability = SoulToolProvider.get(player);
+            capability.setCurrentType(toolType);
 
-            if (!SoulItemHelper.hasSoulTool(player)) {
+            if (!capability.hasSoulItem()) {
                 player.inventory.deleteStack(player.getHeldItemMainhand());
             }
 
-            SoulItemHelper.addItemStack(new ItemStack(instance.getCurrentType().getItem()), player);
+            SoulItemHelper.addItemStack(new ItemStack(capability.getCurrentType().getItem()), player);
 
             return null;
         }

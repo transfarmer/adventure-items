@@ -9,17 +9,17 @@ import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 import static net.minecraft.init.Enchantments.*;
 
 public class SoulEnchantment extends Statistic {
-    public static final SoulEnchantment SOUL_SHARPNESS = new SoulEnchantment(0, SHARPNESS);
-    public static final SoulEnchantment SOUL_SWEEPING_EDGE = new SoulEnchantment(1, SWEEPING);
-    public static final SoulEnchantment SOUL_LOOTING = new SoulEnchantment(2, LOOTING);
-    public static final SoulEnchantment SOUL_FIRE_ASPECT = new SoulEnchantment(3, FIRE_ASPECT);
-    public static final SoulEnchantment SOUL_KNOCKBACK = new SoulEnchantment(4, KNOCKBACK);
-    public static final SoulEnchantment SOUL_SMITE = new SoulEnchantment(5, SMITE);
-    public static final SoulEnchantment SOUL_BANE_OF_ARTHROPODS = new SoulEnchantment(6, BANE_OF_ARTHROPODS);
+    public static final SoulEnchantment SOUL_SHARPNESS = new SoulEnchantment(0, SHARPNESS, "sharpness");
+    public static final SoulEnchantment SOUL_SWEEPING_EDGE = new SoulEnchantment(1, SWEEPING, "sweepingEdge");
+    public static final SoulEnchantment SOUL_LOOTING = new SoulEnchantment(2, LOOTING, "looting");
+    public static final SoulEnchantment SOUL_FIRE_ASPECT = new SoulEnchantment(3, FIRE_ASPECT, "fireAspect");
+    public static final SoulEnchantment SOUL_KNOCKBACK = new SoulEnchantment(4, KNOCKBACK, "knockback");
+    public static final SoulEnchantment SOUL_SMITE = new SoulEnchantment(5, SMITE, "smite");
+    public static final SoulEnchantment SOUL_BANE_OF_ARTHROPODS = new SoulEnchantment(6, BANE_OF_ARTHROPODS, "baneOfArthropods");
 
-    public static final SoulEnchantment SOUL_EFFICIENCY = new SoulEnchantment(0, EFFICIENCY);
-    public static final SoulEnchantment SOUL_FORTUNE = new SoulEnchantment(1, FORTUNE);
-    public static final SoulEnchantment SOUL_SILK_TOUCH = new SoulEnchantment(2, SILK_TOUCH);
+    public static final SoulEnchantment SOUL_EFFICIENCY = new SoulEnchantment(0, EFFICIENCY, "efficiency");
+    public static final SoulEnchantment SOUL_FORTUNE = new SoulEnchantment(1, FORTUNE, "fortune");
+    public static final SoulEnchantment SOUL_SILK_TOUCH = new SoulEnchantment(2, SILK_TOUCH, "silkTouch");
 
     protected static final SoulEnchantment[] ENCHANTMENTS = {
             SOUL_SHARPNESS,
@@ -36,21 +36,16 @@ public class SoulEnchantment extends Statistic {
 
     private final Enchantment enchantment;
 
-    protected SoulEnchantment(final int index, final Enchantment enchantment) {
-        super(index);
+    protected SoulEnchantment(final int index, final Enchantment enchantment, final String name) {
+        super(index, name);
         this.enchantment = enchantment;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return obj instanceof SoulEnchantment && ((SoulEnchantment) obj).index == this.index;
     }
 
     public static SoulEnchantment[] get() {
         return ENCHANTMENTS;
     }
 
-    public static SoulEnchantment get(final IType type, final int index) {
+    public static SoulEnchantment get(final SoulType type, final int index) {
         return type instanceof SoulWeaponType
                 ? SoulWeaponEnchantment.get(index)
                 : type instanceof SoulToolType

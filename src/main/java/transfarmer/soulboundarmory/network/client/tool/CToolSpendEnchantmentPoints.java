@@ -9,8 +9,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
@@ -23,7 +23,7 @@ public class CToolSpendEnchantmentPoints implements IMessage {
 
     public CToolSpendEnchantmentPoints() {}
 
-    public CToolSpendEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final IType type) {
+    public CToolSpendEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
         this.amount = amount;
         this.enchantmentIndex = enchantment.getIndex();
         this.typeIndex = type.getIndex();
@@ -49,7 +49,7 @@ public class CToolSpendEnchantmentPoints implements IMessage {
         public IMessage onMessage(final CToolSpendEnchantmentPoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final SoulEnchantment enchantment = SoulToolEnchantment.get(message.enchantmentIndex);
-            final IType type = SoulToolType.getType(message.typeIndex);
+            final SoulType type = SoulToolType.get(message.typeIndex);
             final ISoulCapability instance = SoulToolProvider.get(Minecraft.getMinecraft().player);
 
             minecraft.addScheduledTask(() -> {

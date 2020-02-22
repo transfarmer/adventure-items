@@ -1,18 +1,18 @@
 package transfarmer.soulboundarmory.capability.weapon;
 
 import transfarmer.soulboundarmory.capability.ISoulCapability;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulType;
 
 public interface ISoulWeapon extends ISoulCapability {
-    void resetCooldown(IType type);
+    void resetCooldown(SoulType type);
 
-    void addCooldown(int ticks);
+    void decrementCooldown();
 
     int getAttackCooldown();
 
-    int getCooldown(IType type);
+    int getCooldown(SoulType type);
 
-    float getAttackRatio(IType type);
+    float getAttackRatio(SoulType type);
 
     void setAttackCooldown(int ticks);
 

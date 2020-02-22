@@ -1,13 +1,13 @@
 package transfarmer.soulboundarmory.statistics;
 
 public class SoulDatum extends Statistic {
-    public static final SoulDatum XP = new SoulDatum(0);
-    public static final SoulDatum LEVEL = new SoulDatum(1);
-    public static final SoulDatum SKILLS = new SoulDatum(2);
-    public static final SoulDatum ATTRIBUTE_POINTS = new SoulDatum(3);
-    public static final SoulDatum SPENT_ATTRIBUTE_POINTS = new SoulDatum(4);
-    public static final SoulDatum ENCHANTMENT_POINTS = new SoulDatum(5);
-    public static final SoulDatum SPENT_ENCHANTMENT_POINTS = new SoulDatum(6);
+    public static final SoulDatum XP = new SoulDatum(0, "xp");
+    public static final SoulDatum LEVEL = new SoulDatum(1, "level");
+    public static final SoulDatum SKILLS = new SoulDatum(2, "skills");
+    public static final SoulDatum ATTRIBUTE_POINTS = new SoulDatum(3, "attributePoints");
+    public static final SoulDatum SPENT_ATTRIBUTE_POINTS = new SoulDatum(4, "spentAttributePoints");
+    public static final SoulDatum ENCHANTMENT_POINTS = new SoulDatum(5, "enchantmentPoints");
+    public static final SoulDatum SPENT_ENCHANTMENT_POINTS = new SoulDatum(6, "spentEnchantmentPoints");
 
     protected static final SoulDatum[] DATA = {
             XP,
@@ -19,17 +19,8 @@ public class SoulDatum extends Statistic {
             SPENT_ENCHANTMENT_POINTS
     };
 
-    protected SoulDatum(final int index) {
-        super(index);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return obj instanceof SoulDatum && ((SoulDatum) obj).index == this.index;
-    }
-
-    public static String getName(final int index) {
-        return get(index).toString().toLowerCase();
+    protected SoulDatum(final int index, final String name) {
+        super(index, name);
     }
 
     public static SoulDatum[] get() {

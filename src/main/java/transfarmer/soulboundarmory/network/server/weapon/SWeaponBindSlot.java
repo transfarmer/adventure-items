@@ -9,8 +9,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponBindSlot;
+import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 public class SWeaponBindSlot implements IMessage {
     private int slot;
@@ -44,7 +44,7 @@ public class SWeaponBindSlot implements IMessage {
             } else {
                 if (inventory.get(message.slot).isEmpty()) {
                     for (final ItemStack itemStack : inventory) {
-                        if (SoulWeaponType.getType(itemStack) == capability.getCurrentType()) {
+                        if (SoulWeaponType.get(itemStack) == capability.getCurrentType()) {
                             inventory.set(capability.getBoundSlot(), ItemStack.EMPTY);
                             player.inventory.setInventorySlotContents(message.slot, itemStack);
                         }

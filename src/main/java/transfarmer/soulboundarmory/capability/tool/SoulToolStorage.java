@@ -26,18 +26,18 @@ public class SoulToolStorage implements IStorage<ISoulCapability> {
         SoulItemHelper.forEach(instance,
             (Integer toolIndex, Integer valueIndex) ->
                 tag.setInteger(String.format("soultools.datum.%s.%s",
-                    SoulToolType.getType(toolIndex),
-                    SoulToolDatum.getName(valueIndex)),
+                    SoulToolType.get(toolIndex),
+                    SoulToolDatum.get(valueIndex)),
                     data[toolIndex][valueIndex]),
             (Integer toolIndex, Integer valueIndex) ->
                 tag.setFloat(String.format("soultools.attribute.%s.%s",
-                    SoulToolType.getType(toolIndex),
-                    SoulToolAttribute.getName(valueIndex)),
+                    SoulToolType.get(toolIndex),
+                    SoulToolAttribute.get(valueIndex)),
                     attributes[toolIndex][valueIndex]),
             (Integer toolIndex, Integer valueIndex) ->
                 tag.setInteger(String.format("soultools.enchantment.%s.%s",
-                    SoulToolType.getType(toolIndex),
-                    SoulToolEnchantment.getName(valueIndex)),
+                    SoulToolType.get(toolIndex),
+                    SoulToolEnchantment.get(valueIndex)),
                     enchantments[toolIndex][valueIndex])
         );
 
@@ -57,18 +57,18 @@ public class SoulToolStorage implements IStorage<ISoulCapability> {
         SoulItemHelper.forEach(instance,
             (Integer toolIndex, Integer valueIndex) ->
                 data[toolIndex][valueIndex] = tag.getInteger(String.format("soultools.datum.%s.%s",
-                    SoulToolType.getType(toolIndex),
-                    SoulToolDatum.getName(valueIndex)
+                    SoulToolType.get(toolIndex),
+                    SoulToolDatum.get(valueIndex)
                 )),
             (Integer toolIndex, Integer valueIndex) ->
                 attributes[toolIndex][valueIndex] = tag.getFloat(String.format("soultools.attribute.%s.%s",
-                        SoulToolType.getType(toolIndex),
-                        SoulToolAttribute.getName(valueIndex)
+                        SoulToolType.get(toolIndex),
+                        SoulToolAttribute.get(valueIndex)
                 )),
             (Integer toolIndex, Integer valueIndex) ->
                 enchantments[toolIndex][valueIndex] = tag.getInteger(String.format("soultools.enchantment.%s.%s",
-                        SoulToolType.getType(toolIndex),
-                        SoulToolEnchantment.getName(valueIndex)
+                        SoulToolType.get(toolIndex),
+                        SoulToolEnchantment.get(valueIndex)
                 ))
         );
 

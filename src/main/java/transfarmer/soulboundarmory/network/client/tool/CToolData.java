@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
@@ -33,7 +33,7 @@ public class CToolData implements IMessage {
         this.enchantments = new int[SoulToolType.getAmount()][SoulToolEnchantment.getAmount()];
     }
 
-    public CToolData(final IType type, final int currentTab, final int boundSlot,
+    public CToolData(final SoulType type, final int currentTab, final int boundSlot,
                      final int[][] data, final float[][] attributes, final int[][] enchantments) {
         if (type == null) {
             this.toolIndex = -1;

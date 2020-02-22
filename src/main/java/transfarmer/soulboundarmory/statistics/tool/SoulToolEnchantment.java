@@ -10,12 +10,8 @@ public class SoulToolEnchantment extends SoulEnchantment {
             SOUL_SILK_TOUCH,
     };
 
-    protected SoulToolEnchantment(final int index, final Enchantment enchantment) {
-        super(index, enchantment);
-    }
-
-    public static String getName(final int index) {
-        return get(index).toString().toLowerCase();
+    protected SoulToolEnchantment(final int index, final Enchantment enchantment, final String name) {
+        super(index, enchantment, name);
     }
 
     public static SoulEnchantment[] get() {

@@ -12,7 +12,7 @@ import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponType;
-import transfarmer.soulboundarmory.statistics.IType;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 public class SWeaponType implements IMessage {
@@ -22,7 +22,7 @@ public class SWeaponType implements IMessage {
         this.index = -1;
     }
 
-    public SWeaponType(final IType type) {
+    public SWeaponType(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -39,7 +39,7 @@ public class SWeaponType implements IMessage {
     public static final class Handler implements IMessageHandler<SWeaponType, IMessage> {
         @Override
         public IMessage onMessage(SWeaponType message, MessageContext context) {
-            final IType type = SoulWeaponType.getType(message.index);
+            final SoulType type = SoulWeaponType.get(message.index);
             final EntityPlayerMP player = context.getServerHandler().player;
             final ISoulWeapon instance = SoulWeaponProvider.get(player);
             int slot = instance.getBoundSlot();

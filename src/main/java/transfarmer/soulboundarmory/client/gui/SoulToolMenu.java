@@ -6,11 +6,11 @@ import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
+import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.network.server.tool.*;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
@@ -24,7 +24,7 @@ import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
 @SideOnly(CLIENT)
 public class SoulToolMenu extends Menu {
     public SoulToolMenu() {
-        super(3);
+        super(3, Items.WOODEN_PICKAXE);
     }
 
     public SoulToolMenu(final int tab) {
@@ -35,7 +35,7 @@ public class SoulToolMenu extends Menu {
 
     @Override
     public void initGui() {
-        if (SoulItemHelper.isSoulToolEquipped(this.mc.player)) {
+        if (ItemHelper.getClassEquippedItemStack(this.mc.player, IItemSoulTool.class) != null) {
             final String text = this.mc.player.inventory.currentItem != this.capability.getBoundSlot()
                     ? Mappings.MENU_BUTTON_BIND
                     : Mappings.MENU_BUTTON_UNBIND;
@@ -74,7 +74,7 @@ public class SoulToolMenu extends Menu {
         final int ySep = 32;
         final GuiButton choiceButton = this.addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_PICK_NAME));
 
-        if (SoulItemHelper.hasSoulTool(this.mc.player) || !ItemHelper.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
+        if (this.capability.hasSoulItem() || !ItemHelper.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
             choiceButton.enabled = false;
         }
     }
@@ -128,7 +128,7 @@ public class SoulToolMenu extends Menu {
     }
 
     private void drawSelection(final int mouseX, final int mouseY) {
-        if (!SoulItemHelper.hasSoulTool(this.mc.player)) {
+        if (!this.capability.hasSoulItem()) {
             this.drawCenteredString(this.fontRenderer, Mappings.MENU_CONFIRMATION,
                     Math.round(width / 2F), 40, 0xFFFFFF);
         }
@@ -137,7 +137,7 @@ public class SoulToolMenu extends Menu {
     private void drawAttributes(final int mouseX, final int mouseY) {
         final String efficiency = String.format("%s%s: %%s", Mappings.WEAPON_EFFICIENCY_FORMAT, Mappings.EFFICIENCY_NAME);
         final String harvestLevel = String.format("%s%s: %%s (%s)", Mappings.HARVEST_LEVEL_FORMAT, Mappings.HARVEST_LEVEL_NAME,
-                Mappings.getMiningLevels()[Math.min((int) this.capability.getAttribute(HARVEST_LEVEL, this.type), 3)]);
+                Mappings.getMiningLevels()[(int) this.capability.getAttribute(HARVEST_LEVEL, this.type)]);
         final String reachDistance = String.format("%s%s: %%s", Mappings.REACH_DISTANCE_FORMAT, Mappings.REACH_DISTANCE_NAME);
         final int points = this.capability.getDatum(ATTRIBUTE_POINTS, this.type);
 
@@ -183,9 +183,8 @@ public class SoulToolMenu extends Menu {
     public void actionPerformed(final GuiButton button) {
         switch (button.id) {
             case 0:
-                final IType type = SoulToolType.getType(button.id);
-                final GuiScreen screen = !SoulItemHelper.hasSoulTool(this.mc.player)
-                        ? null : new SoulToolMenu();
+                final SoulType type = SoulToolType.get(button.id);
+                final GuiScreen screen = !this.capability.hasSoulItem() ? null : new SoulToolMenu();
 
                 if (screen == null) {
                     this.capability.setCurrentTab(0);
@@ -241,16 +240,14 @@ public class SoulToolMenu extends Menu {
                 Main.CHANNEL.sendToServer(new SToolResetEnchantments(this.type));
                 break;
             case 22:
-                final int slot = this.mc.player.inventory.currentItem;
-
-                if (capability.getBoundSlot() == slot) {
+                if (capability.getBoundSlot() == this.slot) {
                     capability.unbindSlot();
                 } else {
-                    capability.bindSlot(slot);
+                    capability.bindSlot(this.slot);
                 }
 
                 this.mc.displayGuiScreen(new SoulToolMenu());
-                Main.CHANNEL.sendToServer(new SToolBindSlot());
+                Main.CHANNEL.sendToServer(new SToolBindSlot(this.slot));
                 break;
             case 23:
             case 24:

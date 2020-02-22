@@ -9,8 +9,8 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.network.server.weapon.*;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 import transfarmer.util.ItemHelper;
@@ -23,7 +23,7 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.*;
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends Menu {
     public SoulWeaponMenu() {
-        super(4);
+        super(4, Items.WOODEN_SWORD);
     }
 
     public SoulWeaponMenu(final int tab) {
@@ -205,7 +205,7 @@ public class SoulWeaponMenu extends Menu {
             case 0:
             case 1:
             case 2:
-                final IType type = SoulWeaponType.getType(button.id);
+                final SoulType type = SoulWeaponType.get(button.id);
                 final GuiScreen screen = !SoulItemHelper.hasSoulWeapon(this.mc.player)
                         ? null : new SoulWeaponMenu();
 
@@ -264,16 +264,14 @@ public class SoulWeaponMenu extends Menu {
                 Main.CHANNEL.sendToServer(new SWeaponResetEnchantments(this.type));
                 break;
             case 22:
-                final int slot = this.mc.player.inventory.currentItem;
-
-                if (capability.getBoundSlot() == slot) {
+                if (capability.getBoundSlot() == this.slot) {
                     capability.unbindSlot();
                 } else {
-                    capability.bindSlot(slot);
+                    capability.bindSlot(this.slot);
                 }
 
                 this.mc.displayGuiScreen(new SoulWeaponMenu());
-                Main.CHANNEL.sendToServer(new SWeaponBindSlot(slot));
+                Main.CHANNEL.sendToServer(new SWeaponBindSlot(this.slot));
                 break;
             case 23:
             case 24:

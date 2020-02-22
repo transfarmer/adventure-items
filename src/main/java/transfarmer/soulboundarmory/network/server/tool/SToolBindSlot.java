@@ -10,28 +10,37 @@ import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.network.client.tool.CToolBindSlot;
 
 public class SToolBindSlot implements IMessage {
+    private int slot;
+
     public SToolBindSlot() {}
 
-    @Override
-    public void fromBytes(final ByteBuf buffer) {}
+    public SToolBindSlot(final int slot) {
+        this.slot = slot;
+    }
 
     @Override
-    public void toBytes(final ByteBuf buffer) {}
+    public void fromBytes(final ByteBuf buffer) {
+        this.slot = buffer.readInt();
+    }
+
+    @Override
+    public void toBytes(final ByteBuf buffer) {
+        buffer.writeInt(this.slot);
+    }
 
     public static final class Handler implements IMessageHandler<SToolBindSlot, IMessage> {
         @Override
         public IMessage onMessage(final SToolBindSlot message, final MessageContext context) {
             final EntityPlayer player = context.getServerHandler().player;
             final ISoulCapability capability = SoulToolProvider.get(player);
-            final int slot = player.inventory.currentItem;
 
-            if (capability.getBoundSlot() == slot) {
+            if (capability.getBoundSlot() == message.slot) {
                 capability.unbindSlot();
             } else {
-                capability.bindSlot(slot);
+                capability.bindSlot(message.slot);
             }
 
-            return new CToolBindSlot(slot);
+            return new CToolBindSlot(message.slot);
         }
     }
 }

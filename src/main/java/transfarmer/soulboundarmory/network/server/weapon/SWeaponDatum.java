@@ -9,8 +9,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
-import transfarmer.soulboundarmory.statistics.IType;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
@@ -21,7 +21,7 @@ public class SWeaponDatum implements IMessage {
 
     public SWeaponDatum() {}
 
-    public SWeaponDatum(final int value, final SoulDatum datum, final IType type) {
+    public SWeaponDatum(final int value, final SoulDatum datum, final SoulType type) {
         this.value = value;
         this.datumIndex = datum.getIndex();
         this.typeIndex = type.getIndex();
@@ -47,7 +47,7 @@ public class SWeaponDatum implements IMessage {
             final EntityPlayer player = Minecraft.getMinecraft().player;
             final ISoulWeapon instance = SoulWeaponProvider.get(player);
             final SoulDatum datum = SoulWeaponDatum.get(message.datumIndex);
-            final IType type = SoulWeaponType.getType(message.typeIndex);
+            final SoulType type = SoulWeaponType.get(message.typeIndex);
 
             instance.addDatum(message.value, datum, type);
 
