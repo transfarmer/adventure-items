@@ -19,6 +19,7 @@ menu.soulboundarmory.reset=reset
 menu.soulboundarmory.bind=bind current slot
 menu.soulboundarmory.unbind=unbind current slot
 menu.soulboundarmory.points=unspent points
+menu.soulboundarmory.close=close
 format.soulboundarmory.attackDamage=§6
 format.soulboundarmory.attackSpeed=§c
 format.soulboundarmory.critical=§e
