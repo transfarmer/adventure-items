@@ -64,7 +64,7 @@ public class SoulWeaponMenu extends Menu {
                 this.showTraits();
         }
 
-        this.addButton(guiFactory.centeredButton(3, 3 * height / 4, width / 8, "close"));
+        this.addButton(guiFactory.centeredButton(3, 3 * height / 4, width / 8, Mappings.MENU_CLOSE));
     }
 
     private void showWeapons() {

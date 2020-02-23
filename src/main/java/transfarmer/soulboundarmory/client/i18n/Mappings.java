@@ -23,6 +23,7 @@ public class Mappings {
     public static final String MENU_BUTTON_BIND = I18n.format("menu.soulboundarmory.bind");
     public static final String MENU_BUTTON_UNBIND = I18n.format("menu.soulboundarmory.unbind");
     public static final String MENU_POINTS = I18n.format("menu.soulboundarmory.points");
+    public static final String MENU_CLOSE = I18n.format("menu.soulboundarmory.close");
     public static final String ATTACK_SPEED_FORMAT = I18n.format("format.soulboundarmory.attackSpeed");
     public static final String ATTACK_DAMAGE_FORMAT = I18n.format("format.soulboundarmory.attackDamage");
     public static final String CRITICAL_FORMAT = I18n.format("format.soulboundarmory.critical");

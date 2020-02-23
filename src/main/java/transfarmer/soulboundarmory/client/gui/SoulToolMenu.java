@@ -63,7 +63,7 @@ public class SoulToolMenu extends Menu {
                 this.showConfirmation();
         }
 
-        this.addButton(this.guiFactory.centeredButton(3, 3 * height / 4, width / 8, "close"));
+        this.addButton(this.guiFactory.centeredButton(3, 3 * height / 4, width / 8, Mappings.MENU_CLOSE));
     }
 
     private void showConfirmation() {

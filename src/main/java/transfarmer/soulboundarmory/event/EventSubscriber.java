@@ -29,6 +29,7 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
@@ -71,6 +72,7 @@ import java.util.Random;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
+import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Configuration.*;
@@ -392,6 +394,16 @@ public class EventSubscriber {
 
         weaponCapability.update();
         toolCapability.update();
+    }
+
+    @SubscribeEvent
+    public static void onRightClickBlock(final RightClickBlock event) {
+        final EntityPlayer player = event.getEntityPlayer();
+        final ItemStack stackMainhand = player.getHeldItemMainhand();
+
+        if (stackMainhand.getItem() instanceof ItemSoulWeapon && stackMainhand != event.getItemStack()) {
+            event.setUseItem(DENY);
+        }
     }
 
     /*

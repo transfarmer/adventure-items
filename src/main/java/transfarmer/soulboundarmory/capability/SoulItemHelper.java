@@ -110,6 +110,10 @@ public class SoulItemHelper {
         return addItemStack(itemStack, player, false);
     }
 
+    public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player) {
+        return addItemStack(itemStack, player, true);
+    }
+
     public static void forEach(final int itemAmount,
                                final int datumAmount,
                                final int attributeAmount,
@@ -156,10 +160,6 @@ public class SoulItemHelper {
         }
 
         return false;
-    }
-
-    public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player) {
-        return addItemStack(itemStack, player, true);
     }
 
     public static boolean areDataEqual(ItemStack itemStack0, ItemStack itemStack1) {
