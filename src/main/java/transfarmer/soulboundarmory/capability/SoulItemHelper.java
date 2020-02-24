@@ -15,8 +15,11 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.util.ListUtils;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -64,37 +67,43 @@ public class SoulItemHelper {
     }
 
     public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player, boolean hasReservedSlot) {
-        final int weaponBoundSlot = SoulWeaponProvider.get(player).getBoundSlot();
-        final int toolBoundSlot = SoulToolProvider.get(player).getBoundSlot();
+        final InventoryPlayer inventory = player.inventory;
 
         if (!(itemStack.getItem() instanceof ISoulItem)) {
             hasReservedSlot = false;
         }
 
-        final InventoryPlayer inventory = player.inventory;
-        final ItemStack[] mainInventory = inventory.mainInventory.toArray(new ItemStack[37]);
-        mainInventory[mainInventory.length - 1] = player.getHeldItemOffhand();
-
         if (!hasReservedSlot) {
+            final int weaponBoundSlot = SoulWeaponProvider.get(player).getBoundSlot();
+            final int toolBoundSlot = SoulToolProvider.get(player).getBoundSlot();
             final int slot = inventory.storeItemStack(itemStack);
+            final int size = inventory.mainInventory.size();
+            final List<ItemStack> mergedInventory = ListUtils.merge(new ArrayList<>(size + 1), inventory.mainInventory, inventory.offHandInventory);
 
             if (slot != -1) {
-                final ItemStack slotStack = inventory.getStackInSlot(slot);
+                final ItemStack slotStack = slot != 40 ? mergedInventory.get(slot) : mergedInventory.get(size);
                 final int transferred = Math.min(slotStack.getMaxStackSize() - slotStack.getCount(), itemStack.getCount());
 
                 itemStack.setCount(itemStack.getCount() - transferred);
                 slotStack.setCount(slotStack.getCount() + transferred);
 
-                if (itemStack.getCount() > 0) {
+                if (!itemStack.isEmpty()) {
                     return addItemStack(itemStack, player, false);
                 }
 
                 return true;
             }
 
-            for (int index = 0; index < mainInventory.length; index++) {
-                if (index != weaponBoundSlot && index != toolBoundSlot && mainInventory[index].isEmpty()) {
-                    return inventory.add(index == 36 && Configuration.addToOffhand ? 40 : index, itemStack);
+            for (int index = 0; index < mergedInventory.size(); index++) {
+                if (index != weaponBoundSlot && index != toolBoundSlot && mergedInventory.get(index).isEmpty()) {
+                    if (index != size) {
+                        return inventory.add(index, itemStack);
+                    }
+
+                    if (player.getHeldItemOffhand().isEmpty() && Configuration.addToOffhand) {
+                        inventory.setInventorySlotContents(size + 4, itemStack);
+                        itemStack.setCount(0);
+                    }
                 }
             }
 
