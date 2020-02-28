@@ -9,7 +9,7 @@ import java.util.List;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_PICK;
 
 public class SoulToolType extends SoulType {
-    public static final SoulType PICK = new SoulToolType(0, SOULBOUND_PICK, "pick", "ambidexterity");
+    public static final SoulType PICK = new SoulToolType(0, SOULBOUND_PICK, "pick", "teleportation", "ambidexterity");
 
     public static final SoulType[] TYPES = {
             PICK

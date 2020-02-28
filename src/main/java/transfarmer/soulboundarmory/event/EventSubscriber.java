@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.event;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -30,6 +31,7 @@ import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
@@ -55,6 +57,7 @@ import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.item.ItemSoulPick;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.CLevelupMessage;
 import transfarmer.soulboundarmory.network.client.tool.CToolData;
@@ -80,8 +83,8 @@ import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_TOOL;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_WEAPON;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.LEVEL;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.XP;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.*;
+import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
@@ -403,6 +406,21 @@ public class EventSubscriber {
 
         if (stackMainhand.getItem() instanceof ItemSoulWeapon && stackMainhand != event.getItemStack()) {
             event.setUseItem(DENY);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onBreak(final HarvestDropsEvent event) {
+        final EntityPlayer player = event.getHarvester();
+
+        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulPick && SoulToolProvider.get(player).getDatum(SKILLS, PICK) >= 1) {
+            event.setDropChance(0);
+
+            final List<ItemStack> drops = event.getDrops();
+
+            for (final ItemStack drop : drops) {
+                Block.spawnAsEntity(event.getWorld(), player.getPosition(), drop);
+            }
         }
     }
 

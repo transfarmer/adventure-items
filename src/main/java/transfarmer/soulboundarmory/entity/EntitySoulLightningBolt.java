@@ -2,14 +2,9 @@ package transfarmer.soulboundarmory.entity;
 
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.entity.item.EntityArmorStand;
-import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityEnderman;
-import net.minecraft.entity.passive.EntityPig;
-import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -80,20 +75,18 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
             if (this.world.isRemote) {
                 this.world.setLastLightningBolt(2);
             } else {
-                final double radius = 3.0D;
-                final List<Entity> nearbyEntities = this.world.getEntitiesWithinAABBExcludingEntity(this, new AxisAlignedBB(this.posX - radius, this.posY - radius, this.posZ - radius, this.posX + radius, this.posY + 6.0D + radius, this.posZ + radius));
+                final double radius = 3;
+                final List<Entity> nearbyEntities = this.world.getEntitiesWithinAABBExcludingEntity(this, new AxisAlignedBB(this.posX - radius, this.posY - radius, this.posZ - radius, this.posX + radius, this.posY + 6 + radius, this.posZ + radius));
 
                 for (final Entity entity : nearbyEntities) {
-                    if (entity instanceof EntityArmorStand || entity instanceof EntityCreeper
-                            || entity instanceof EntityHanging || entity instanceof EntityPig
-                            || entity instanceof EntityVillager) {
-                        entity.onStruckByLightning(this);
-                    } else if (entity != this.caster && entity instanceof EntityLivingBase
-                            && !ForgeEventFactory.onEntityStruckByLightning(entity, this)) {
-                        final float attackDamage = this.caster instanceof EntityPlayer
-                                ? 1 + SoulWeaponProvider.get(this.caster).getAttribute(ATTACK_DAMAGE, SWORD, true, true) : 5;
+                    final float attackDamage = this.caster instanceof EntityPlayer
+                            ? SoulWeaponProvider.get(this.caster).getAttribute(ATTACK_DAMAGE, SWORD, true, true) - 5
+                            : 5;
 
+                    if (entity != this.caster && entity instanceof EntityLivingBase
+                            && !ForgeEventFactory.onEntityStruckByLightning(entity, this)) {
                         entity.setFire(1);
+                        entity.onStruckByLightning(this);
 
                         if (!entity.isBurning()) {
                             this.setFire(8);

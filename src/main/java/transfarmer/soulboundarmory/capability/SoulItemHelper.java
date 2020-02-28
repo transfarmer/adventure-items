@@ -8,6 +8,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.NonNullList;
 import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
@@ -18,7 +19,6 @@ import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.util.ListUtils;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -78,7 +78,7 @@ public class SoulItemHelper {
             final int toolBoundSlot = SoulToolProvider.get(player).getBoundSlot();
             final int slot = inventory.storeItemStack(itemStack);
             final int size = inventory.mainInventory.size();
-            final List<ItemStack> mergedInventory = ListUtils.merge(new ArrayList<>(size + 1), inventory.mainInventory, inventory.offHandInventory);
+            final List<ItemStack> mergedInventory = ListUtils.merge(NonNullList.create(), inventory.mainInventory, inventory.offHandInventory);
 
             if (slot != -1) {
                 final ItemStack slotStack = slot != 40 ? mergedInventory.get(slot) : mergedInventory.get(size);
