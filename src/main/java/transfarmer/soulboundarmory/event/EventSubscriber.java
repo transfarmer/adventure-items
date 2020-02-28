@@ -416,9 +416,7 @@ public class EventSubscriber {
         if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulPick && SoulToolProvider.get(player).getDatum(SKILLS, PICK) >= 1) {
             event.setDropChance(0);
 
-            final List<ItemStack> drops = event.getDrops();
-
-            for (final ItemStack drop : drops) {
+            for (final ItemStack drop : event.getDrops()) {
                 Block.spawnAsEntity(event.getWorld(), player.getPosition(), drop);
             }
         }
