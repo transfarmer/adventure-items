@@ -37,7 +37,8 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGE
 public class EntitySoulDagger extends EntityArrow {
     public ItemStack itemStack;
     private UUID shooterUUID;
-    private boolean clone;
+    private boolean spawnClone;
+    private boolean isClone;
     private float attackDamageRatio;
     private int ticksToSeek = -1;
     private int ticksSeeking;
@@ -56,7 +57,7 @@ public class EntitySoulDagger extends EntityArrow {
         super(world, x, y, z);
     }
 
-    public EntitySoulDagger(final World world, final EntityLivingBase shooter, final ItemStack itemStack) {
+    public EntitySoulDagger(final World world, final EntityLivingBase shooter, final ItemStack itemStack, final boolean spawnClone) {
         this(world, shooter.posX, shooter.posY + shooter.getEyeHeight() - 0.1, shooter.posZ);
         this.shootingEntity = shooter;
         this.itemStack = itemStack;
@@ -66,15 +67,33 @@ public class EntitySoulDagger extends EntityArrow {
         }
 
         this.shooterUUID = UUID.fromString(shooter.getUniqueID().toString());
+        this.spawnClone = spawnClone;
+    }
+
+    public EntitySoulDagger(final EntitySoulDagger original) {
+        this(original.world, (EntityLivingBase) original.shootingEntity, original.itemStack, false);
+
+        this.isClone = true;
+        this.posX = original.posX;
+        this.posY = original.posY;
+        this.posZ = original.posZ;
+        this.motionX = original.motionX;
+        this.motionY = original.motionY;
+        this.motionZ = original.motionZ;
+        this.rotationPitch = original.rotationPitch;
+        this.rotationYaw = original.rotationYaw;
+        this.prevRotationPitch = original.prevRotationPitch;
+        this.prevRotationYaw = original.prevRotationYaw;
+        this.attackDamageRatio = original.attackDamageRatio;
     }
 
     @Override
     protected ItemStack getArrowStack() {
-        if (this.shootingEntity instanceof EntityPlayer) {
-            return SoulWeaponProvider.get(this.shootingEntity).getItemStack(DAGGER);
-        }
-
-        return this.itemStack;
+        return this.itemStack != null
+                ? this.itemStack
+                : this.shootingEntity instanceof EntityPlayer
+                ? SoulWeaponProvider.get(this.shootingEntity).getItemStack(DAGGER)
+                : null;
     }
 
     @Override
@@ -109,10 +128,10 @@ public class EntitySoulDagger extends EntityArrow {
             final ISoulWeapon capability = SoulWeaponProvider.get(this.shootingEntity);
             final float attackSpeed = capability.getAttribute(ATTACK_SPEED, DAGGER, true, true);
 
-            if (capability.getDatum(SKILLS, DAGGER) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
+            if ((capability.getDatum(SKILLS, DAGGER) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
                     || capability.getDatum(SKILLS, DAGGER) >= 3
                     && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed
-                    || this.shootingEntity.getDistance(this) >= 256)) {
+                    || this.shootingEntity.getDistance(this) >= 256)) && !this.isClone) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();
                 double multiplier = 1.8 / capability.getAttribute(ATTACK_SPEED, DAGGER, true, true);
                 final double dX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
@@ -269,6 +288,21 @@ public class EntitySoulDagger extends EntityArrow {
         final Entity entity = result.entityHit;
 
         if (entity != null) {
+            if (this.spawnClone) {
+                final EntitySoulDagger dagger = new EntitySoulDagger(this);
+
+                this.world.spawnEntity(dagger);
+                this.spawnClone = false;
+            }
+
+            if (!this.isClone && this.ticksSeeking == 0) {
+                this.motionX *= -0.1;
+                this.motionY *= -0.1;
+                this.motionZ *= -0.1;
+                this.rotationYaw += 180;
+                this.prevRotationYaw += 180;
+            }
+
             if (this.shootingEntity instanceof EntityPlayer) {
                 final EntityPlayer player = (EntityPlayer) this.shootingEntity;
                 final ISoulWeapon capability = SoulWeaponProvider.get(player);
@@ -279,16 +313,15 @@ public class EntitySoulDagger extends EntityArrow {
 
                 int burnTime = 0;
 
-                float attackDamage = capability.getAttribute(ATTACK_DAMAGE, DAGGER, true, true);
                 final float attackDamageModifier = entity instanceof EntityLivingBase
                         ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
                         : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);
+                final float attackDamage = (capability.getAttribute(ATTACK_DAMAGE, DAGGER, true, true) + attackDamageModifier) * this.attackDamageRatio;
 
-                if (attackDamage > 0 || attackDamageModifier > 0) {
+                if (attackDamage > 0) {
                     final int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
                     float initialHealth = 0;
 
-                    attackDamage = (attackDamage + attackDamageModifier) * this.attackDamageRatio;
                     burnTime += EnchantmentHelper.getFireAspectModifier(player);
 
                     if (entity instanceof EntityLivingBase) {
@@ -349,8 +382,7 @@ public class EntitySoulDagger extends EntityArrow {
                             }
 
                             if (player.world instanceof WorldServer && damageDealt > 2) {
-                                int k = (int) ((double) damageDealt * 0.5);
-                                ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, entity.posX, entity.posY + entity.height * 0.5, entity.posZ, k, 0.1, 0, 0.1, 0.2);
+                                ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, entity.posX, entity.posY + entity.height * 0.5, entity.posZ, (int) (damageDealt * 0.5), 0.1, 0, 0.1, 0.2);
                             }
                         }
                     }
@@ -358,14 +390,6 @@ public class EntitySoulDagger extends EntityArrow {
                     if (burnTime > 0) {
                         entity.extinguish();
                     }
-                }
-
-                if (capability.getDatum(SKILLS, DAGGER) < 2) {
-                    this.motionX *= -0.1;
-                    this.motionY *= -0.1;
-                    this.motionZ *= -0.1;
-                    this.rotationYaw += 180;
-                    this.prevRotationYaw += 180;
                 }
             }
         } else if (this.ticksSeeking == 0) {
@@ -391,12 +415,16 @@ public class EntitySoulDagger extends EntityArrow {
             if (blockState.getMaterial() != Material.AIR) {
                 this.inTile.onEntityCollision(this.world, blockPos, blockState, this);
             }
+
+            if (this.isClone) {
+                this.setDead();
+            }
         }
     }
 
-    public void shoot(final Entity shooter, final float pitch, final float yaw, final float velocity, final float maxVelocity, final float inaccuracy) {
+    public void shoot(final Entity shooter, final float pitch, final float yaw, final float velocity, final float attackDamageRatio, final float inaccuracy) {
         super.shoot(shooter, pitch, yaw, 0, velocity, inaccuracy);
-        this.attackDamageRatio = velocity / maxVelocity;
+        this.attackDamageRatio = attackDamageRatio;
     }
 
     @Override
@@ -407,7 +435,7 @@ public class EntitySoulDagger extends EntityArrow {
             if (player.isCreative() && SoulItemHelper.hasSoulWeapon(player)) {
                 player.onItemPickup(this, 1);
                 this.setDead();
-            } else if (player.inventory.addItemStackToInventory(this.getArrowStack())) {
+            } else if (SoulItemHelper.addItemStack(this.getArrowStack(), player, true)) {
                 player.onItemPickup(this, 1);
                 this.setDead();
             }

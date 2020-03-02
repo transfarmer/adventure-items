@@ -8,6 +8,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 
@@ -44,16 +45,17 @@ public class ItemSoulDagger extends ItemSoulWeapon {
     @Override
     public void onPlayerStoppedUsing(final ItemStack itemStack, final World world, final EntityLivingBase entity, final int timeLeft) {
         if (!world.isRemote) {
-            final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack);
             final EntityPlayer player = (EntityPlayer) entity;
-            final float attackSpeed = 4 + SoulWeaponProvider.get(player).getAttribute(ATTACK_SPEED, DAGGER, true);
+            final ISoulWeapon capability = SoulWeaponProvider.get(player);
+            final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack, capability.getDatum(SKILLS, DAGGER) >= 2);
+            final float attackSpeed = 4 + capability.getAttribute(ATTACK_SPEED, DAGGER, true);
             final float velocity = Math.min(attackSpeed * (attackSpeed / 2) * (this.getMaxItemUseDuration(itemStack) - timeLeft) / 20, attackSpeed);
 
             if (!player.isCreative()) {
                 player.inventory.deleteStack(itemStack);
             }
 
-            dagger.shoot(entity, entity.rotationPitch, entity.rotationYaw, velocity, attackSpeed, 1);
+            dagger.shoot(entity, entity.rotationPitch, entity.rotationYaw, velocity, velocity / attackSpeed, 0);
             world.spawnEntity(dagger);
         }
     }

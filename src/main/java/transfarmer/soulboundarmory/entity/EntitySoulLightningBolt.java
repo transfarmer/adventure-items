@@ -80,13 +80,12 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
 
                 for (final Entity entity : nearbyEntities) {
                     final float attackDamage = this.caster instanceof EntityPlayer
-                            ? SoulWeaponProvider.get(this.caster).getAttribute(ATTACK_DAMAGE, SWORD, true, true) - 5
+                            ? SoulWeaponProvider.get(this.caster).getAttribute(ATTACK_DAMAGE, SWORD, true, true)
                             : 5;
 
                     if (entity != this.caster && entity instanceof EntityLivingBase
                             && !ForgeEventFactory.onEntityStruckByLightning(entity, this)) {
                         entity.setFire(1);
-                        entity.onStruckByLightning(this);
 
                         if (!entity.isBurning()) {
                             this.setFire(8);
@@ -157,6 +156,8 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                         } else {
                             entity.attackEntityFrom(DamageSource.causeIndirectDamage(this, this.caster), attackDamage);
                         }
+
+                        entity.onStruckByLightning(this);
                     }
                 }
             }

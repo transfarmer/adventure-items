@@ -43,7 +43,7 @@ public class EntityReachModifier extends EntityArrow {
         this(world, shooter.posX, shooter.posY + shooter.getEyeHeight() - 0.1, shooter.posZ);
         this.world = world;
         this.shootingEntity = shooter;
-        this.reachDistance = reachDistance + 1;
+        this.reachDistance = reachDistance;
         this.setSize(0, 0);
     }
 
@@ -104,8 +104,8 @@ public class EntityReachModifier extends EntityArrow {
                     attackDamageRatio *= cooldownRatio;
 
                     if (attackDamageModifier > 0 || attackDamageRatio > 0) {
-                        boolean strong = cooldownRatio > 0.9F;
-                        boolean knockback = player.isSprinting() && strong;
+                        final boolean strong = cooldownRatio > 0.9F;
+                        final boolean knockback = player.isSprinting() && strong;
                         int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
 
                         if (knockback) {
@@ -127,9 +127,9 @@ public class EntityReachModifier extends EntityArrow {
                         attackDamageModifier += attackDamageRatio;
                         final double speed = player.distanceWalkedModified - player.prevDistanceWalkedModified;
                         final boolean sweep = strong && !critical && !knockback && player.onGround && speed < player.getAIMoveSpeed() && player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword;
+                        final int fireAspectModifier = EnchantmentHelper.getFireAspectModifier(player);
                         float initialHealth = 0;
                         boolean burn = false;
-                        final int fireAspectModifier = EnchantmentHelper.getFireAspectModifier(player);
 
                         if (target instanceof EntityLivingBase) {
                             initialHealth = ((EntityLivingBase) target).getHealth();

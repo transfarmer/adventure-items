@@ -32,7 +32,7 @@ public abstract class ItemSoulWeapon extends ItemSword implements ISoulItem {
     public boolean onEntitySwing(EntityLivingBase entity, ItemStack itemStack) {
         if (!entity.world.isRemote && entity instanceof EntityPlayer) {
             final Vec3d look = entity.getLookVec();
-            final EntityReachModifier entityReachModifier = new EntityReachModifier(entity.world, entity, 3 + this.reachDistance);
+            final EntityReachModifier entityReachModifier = new EntityReachModifier(entity.world, entity, 4 + this.reachDistance);
 
             entityReachModifier.shoot(look.x, look.y, look.z);
             entity.world.spawnEntity(entityReachModifier);
