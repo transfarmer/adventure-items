@@ -13,7 +13,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.WEAPON_DATA;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREATSWORD;
 
 public class ItemSoulGreatsword extends ItemSoulWeapon {
@@ -27,13 +27,13 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
     }
 
     @Override
-    public EnumAction getItemUseAction(ItemStack stack) {
+    public EnumAction getItemUseAction(final ItemStack stack) {
         return EnumAction.BOW;
     }
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
-        if (!world.isRemote && player != null && SoulWeaponProvider.get(player).getDatum(SKILLS, GREATSWORD) >= 1) {
+        if (!world.isRemote && player != null && SoulWeaponProvider.get(player).getDatum(WEAPON_DATA.skills, GREATSWORD) >= 1) {
             player.setActiveHand(hand);
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }
@@ -55,14 +55,14 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
 
 
     @Override
-    public void onUpdate(ItemStack itemStack, World world, Entity entity, int itemSlot, boolean isSelected) {
-        if (world.isRemote && entity instanceof EntityPlayerSP) {
-            final EntityPlayerSP playerSP = (EntityPlayerSP) entity;
-            final ItemStack activeStack = playerSP.getActiveItemStack();
+    public void onUpdate(final ItemStack itemStack, final World world, final Entity entity, final int itemSlot, final boolean isSelected) {
+        if (world.isRemote && isSelected && entity instanceof EntityPlayerSP) {
+            final EntityPlayerSP player = (EntityPlayerSP) entity;
+            final ItemStack activeStack = player.getActiveItemStack();
 
             if (!activeStack.isEmpty() && activeStack.getItem() == this) {
-                playerSP.movementInput.moveForward *= 4.5;
-                playerSP.movementInput.moveStrafe *= 4.5;
+                player.movementInput.moveForward *= 4.5;
+                player.movementInput.moveStrafe *= 4.5;
             }
         }
     }

@@ -29,7 +29,7 @@ public class CWeaponData implements IMessage {
     private int[] lengths = new int[4];
 
     public CWeaponData() {
-        this.data = new int[SoulWeaponType.getAmount()][SoulWeaponDatum.getAmount()];
+        this.data = new int[SoulWeaponType.getAmount()][SoulWeaponDatum.WEAPON_DATA.getAmount()];
         this.attributes = new float[SoulWeaponType.getAmount()][SoulWeaponAttribute.getAmount()];
         this.enchantments = new int[SoulWeaponType.getAmount()][SoulWeaponEnchantment.getAmount()];
     }

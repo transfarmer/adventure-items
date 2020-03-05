@@ -23,8 +23,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.LEVEL;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.XP;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.*;
 
 public abstract class Menu extends GuiScreen {
     protected final GUIFactory guiFactory;
@@ -81,10 +80,10 @@ public abstract class Menu extends GuiScreen {
         GlStateManager.color(1F, 1F, 1F, 1F);
         this.mc.getTextureManager().bindTexture(XP_BAR);
         this.drawTexturedModalRect(barLeftX, barTopY, 0, 40, 182, 5);
-        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, Math.min(182, Math.round((float) capability.getDatum(XP, this.type) / capability.getNextLevelXP(this.type) * 182)), 5);
+        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, Math.min(182, Math.round((float) capability.getDatum(DATA.xp, this.type) / capability.getNextLevelXP(this.type) * 182)), 5);
         this.mc.getTextureManager().deleteTexture(XP_BAR);
 
-        final int level = this.capability.getDatum(LEVEL, this.type);
+        final int level = this.capability.getDatum(DATA.level, this.type);
         final String levelString = String.format("%d", level);
         final int levelLeftX = Math.round((width - this.fontRenderer.getStringWidth(levelString)) / 2F) + 1;
         final int levelTopY = height / 2 - 8;
@@ -96,11 +95,11 @@ public abstract class Menu extends GuiScreen {
 
         if (mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
                 && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT) {
-            this.drawHoveringText(String.format("%d/%d", capability.getDatum(LEVEL, this.type), Configuration.maxLevel), mouseX, mouseY);
+            this.drawHoveringText(String.format("%d/%d", capability.getDatum(DATA.level, this.type), Configuration.maxLevel), mouseX, mouseY);
         } else if (mouseX >= (width - 182) / 2 && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4) {
-            final String string = this.capability.getDatum(LEVEL, this.type) < Configuration.maxLevel
-                    ? String.format("%d/%d", capability.getDatum(XP, this.type), capability.getNextLevelXP(this.type))
-                    : String.format("%d", capability.getDatum(XP, this.type));
+            final String string = this.capability.getDatum(DATA.level, this.type) < Configuration.maxLevel
+                    ? String.format("%d/%d", capability.getDatum(DATA.xp, this.type), capability.getNextLevelXP(this.type))
+                    : String.format("%d", capability.getDatum(DATA.xp, this.type));
             this.drawHoveringText(string, mouseX, mouseY);
         }
     }

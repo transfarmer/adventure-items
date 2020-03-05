@@ -51,7 +51,7 @@ public class CToolDatum implements IMessage {
                 final EntityPlayer player = Minecraft.getMinecraft().player;
                 final ISoulCapability instance = SoulToolProvider.get(player);
 
-                instance.addDatum(message.value, SoulToolDatum.get(message.datumIndex), SoulToolType.get(message.typeIndex));
+                instance.addDatum(message.value, SoulToolDatum.TOOL_DATA.get(message.datumIndex), SoulToolType.get(message.typeIndex));
             });
 
             return null;

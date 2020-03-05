@@ -25,9 +25,8 @@ import javax.annotation.Nullable;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.HARVEST_LEVEL;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.LEVEL;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.XP;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolType.PICK;
 
 public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
@@ -78,8 +77,8 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
             final SoulType type = SoulToolType.get(itemStack);
             final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5);
 
-            if (capability.addDatum(xp, XP, type) && !world.isRemote && Configuration.levelupNotifications) {
-                Main.CHANNEL.sendTo(new CLevelupMessage(itemStack, capability.getDatum(LEVEL, type)), (EntityPlayerMP) entity);
+            if (capability.addDatum(xp, DATA.xp, type) && !world.isRemote && Configuration.levelupNotifications) {
+                Main.CHANNEL.sendTo(new CLevelupMessage(itemStack, capability.getDatum(DATA.level, type)), (EntityPlayerMP) entity);
             }
         }
 

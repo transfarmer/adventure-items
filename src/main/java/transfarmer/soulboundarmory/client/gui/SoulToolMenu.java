@@ -82,8 +82,8 @@ public class SoulToolMenu extends Menu {
     private void showAttributes() {
         final GuiButton resetButton = this.addButton(this.guiFactory.resetButton(20));
         final GuiButton[] removePointButtons = this.addRemovePointButtons(23, this.capability.getAttributeAmount());
-        final GuiButton[] addPointButtons = this.addAddPointButtons(4, this.capability.getAttributeAmount(), this.capability.getDatum(ATTRIBUTE_POINTS, this.type));
-        resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.type) > 0;
+        final GuiButton[] addPointButtons = this.addAddPointButtons(4, this.capability.getAttributeAmount(), this.capability.getDatum(DATA.attributePoints, this.type));
+        resetButton.enabled = this.capability.getDatum(DATA.spentAttributePoints, this.type) > 0;
 
         for (int index = 0; index < this.capability.getAttributeAmount(); index++) {
             removePointButtons[index].enabled = this.capability.getAttribute(SoulAttribute.get(this.type, index), this.type) > 0;
@@ -95,9 +95,9 @@ public class SoulToolMenu extends Menu {
     private void showEnchantments() {
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(21));
         final GuiButton[] removePointButtons = addRemovePointButtons(28, this.capability.getEnchantmentAmount());
-        resetButton.enabled = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.type) > 0;
+        resetButton.enabled = this.capability.getDatum(DATA.spentEnchantmentPoints, this.type) > 0;
 
-        this.addAddPointButtons(9, this.capability.getEnchantmentAmount(), this.capability.getDatum(ENCHANTMENT_POINTS, this.type));
+        this.addAddPointButtons(9, this.capability.getEnchantmentAmount(), this.capability.getDatum(DATA.enchantmentPoints, this.type));
 
         for (int index = 0; index < this.capability.getEnchantmentAmount(); index++) {
             removePointButtons[index].enabled = this.capability.getEnchantment(SoulToolEnchantment.get(index), this.type) > 0;
@@ -139,7 +139,7 @@ public class SoulToolMenu extends Menu {
         final String harvestLevel = String.format("%s%s: %%s (%s)", Mappings.HARVEST_LEVEL_FORMAT, Mappings.HARVEST_LEVEL_NAME,
                 Mappings.getMiningLevels()[(int) this.capability.getAttribute(HARVEST_LEVEL, this.type)]);
         final String reachDistance = String.format("%s%s: %%s", Mappings.REACH_DISTANCE_FORMAT, Mappings.REACH_DISTANCE_NAME);
-        final int points = this.capability.getDatum(ATTRIBUTE_POINTS, this.type);
+        final int points = this.capability.getDatum(DATA.attributePoints, this.type);
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
@@ -154,7 +154,7 @@ public class SoulToolMenu extends Menu {
     }
 
     private void drawEnchantments(final int mouseX, final int mouseY) {
-        final int points = this.capability.getDatum(ENCHANTMENT_POINTS, this.type);
+        final int points = this.capability.getDatum(DATA.enchantmentPoints, this.type);
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
@@ -169,7 +169,7 @@ public class SoulToolMenu extends Menu {
     }
 
     private void drawSkills(final int mouseX, final int mouseY) {
-        for (int i = 0; i < this.capability.getDatum(SKILLS, this.type); i++) {
+        for (int i = 0; i < this.capability.getDatum(DATA.skills, this.type); i++) {
             this.drawCenteredString(this.fontRenderer, this.capability.getCurrentType().getSkills()[i],
                     this.width / 2, (i + 2) * this.height / 16, 0xFFFFFF);
         }
@@ -207,7 +207,7 @@ public class SoulToolMenu extends Menu {
                 int amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(ATTRIBUTE_POINTS, this.type);
+                    amount = this.capability.getDatum(DATA.attributePoints, this.type);
                 }
 
                 Main.CHANNEL.sendToServer(new SToolAttributePoints(amount, SoulToolAttribute.get(button.id - 4), this.type));
@@ -222,7 +222,7 @@ public class SoulToolMenu extends Menu {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(ENCHANTMENT_POINTS, this.type);
+                    amount = this.capability.getDatum(DATA.enchantmentPoints, this.type);
                 }
 
                 Main.CHANNEL.sendToServer(new SToolEnchantmentPoints(amount, SoulToolEnchantment.get(button.id - 9), this.type));
@@ -257,7 +257,7 @@ public class SoulToolMenu extends Menu {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.type);
+                    amount = this.capability.getDatum(DATA.spentAttributePoints, this.type);
                 }
 
                 Main.CHANNEL.sendToServer(new SToolAttributePoints(-amount, SoulToolAttribute.get(button.id - 23), this.type));
@@ -272,7 +272,7 @@ public class SoulToolMenu extends Menu {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.type);
+                    amount = this.capability.getDatum(DATA.spentEnchantmentPoints, this.type);
                 }
 
                 Main.CHANNEL.sendToServer(new SToolEnchantmentPoints(-amount, SoulToolEnchantment.get(button.id - 28), this.type));

@@ -14,12 +14,13 @@ import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+
+import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 
 public class CommandSoulboundArmory extends CommandBase {
     @Override
@@ -54,11 +55,11 @@ public class CommandSoulboundArmory extends CommandBase {
                     final int amount = Integer.parseInt(args[2]);
 
                     if (capability instanceof ISoulWeapon) {
-                        Main.CHANNEL.sendTo(new CWeaponDatum(amount, SoulDatum.XP, capability.getCurrentType()), player);
-                        capability.addDatum(amount, SoulDatum.XP, capability.getCurrentType());
+                        Main.CHANNEL.sendTo(new CWeaponDatum(amount, DATA.xp, capability.getCurrentType()), player);
+                        capability.addDatum(amount, DATA.xp, capability.getCurrentType());
                     } else if (capability instanceof ISoulCapability) {
-                        Main.CHANNEL.sendTo(new CToolDatum(amount, SoulDatum.XP, capability.getCurrentType()), player);
-                        capability.addDatum(amount, SoulDatum.XP, capability.getCurrentType());
+                        Main.CHANNEL.sendTo(new CToolDatum(amount, DATA.xp, capability.getCurrentType()), player);
+                        capability.addDatum(amount, DATA.xp, capability.getCurrentType());
                     }
                 }
             }

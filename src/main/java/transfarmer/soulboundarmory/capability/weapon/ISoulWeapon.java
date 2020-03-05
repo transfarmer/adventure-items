@@ -8,7 +8,7 @@ public interface ISoulWeapon extends ISoulCapability {
 
     void decrementCooldown();
 
-    int getAttackCooldown();
+    int getCooldown();
 
     int getCooldown(SoulType type);
 

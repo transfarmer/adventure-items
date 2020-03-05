@@ -91,9 +91,9 @@ public class SoulWeaponMenu extends Menu {
 
     private void showAttributes() {
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(20));
-        final GuiButton[] addPointButtons = addAddPointButtons(4, this.capability.getAttributeAmount(), this.capability.getDatum(ATTRIBUTE_POINTS, this.type));
+        final GuiButton[] addPointButtons = addAddPointButtons(4, this.capability.getAttributeAmount(), this.capability.getDatum(DATA.attributePoints, this.type));
         final GuiButton[] removePointButtons = addRemovePointButtons(23, this.capability.getAttributeAmount());
-        resetButton.enabled = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.type) > 0;
+        resetButton.enabled = this.capability.getDatum(DATA.spentAttributePoints, this.type) > 0;
 
         addPointButtons[2].enabled &= this.capability.getAttribute(CRITICAL, this.type) < 100;
 
@@ -105,9 +105,9 @@ public class SoulWeaponMenu extends Menu {
     private void showEnchantments() {
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(21));
         final GuiButton[] removePointButtons = addRemovePointButtons(28, this.capability.getEnchantmentAmount());
-        resetButton.enabled = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.type) > 0;
+        resetButton.enabled = this.capability.getDatum(DATA.spentEnchantmentPoints, this.type) > 0;
 
-        addAddPointButtons(9, this.capability.getEnchantmentAmount(), this.capability.getDatum(ENCHANTMENT_POINTS, this.type));
+        addAddPointButtons(9, this.capability.getEnchantmentAmount(), this.capability.getDatum(DATA.enchantmentPoints, this.type));
 
         for (int index = 0; index < this.capability.getEnchantmentAmount(); index++) {
             removePointButtons[index].enabled = this.capability.getEnchantment(SoulWeaponEnchantment.get(index), this.type) > 0;
@@ -151,7 +151,7 @@ public class SoulWeaponMenu extends Menu {
         final String critical = String.format("%s%s: %%s%%%%", Mappings.CRITICAL_FORMAT, Mappings.CRITICAL_NAME);
         final String knockback = String.format("%s%s: %%s", Mappings.KNOCKBACK_ATTRIBUTE_FORMAT, Mappings.KNOCKBACK_ATTRIBUTE_NAME);
         final String efficiency = String.format("%s%s: %%s", Mappings.WEAPON_EFFICIENCY_FORMAT, Mappings.EFFICIENCY_NAME);
-        final int points = this.capability.getDatum(ATTRIBUTE_POINTS, this.type);
+        final int points = this.capability.getDatum(DATA.attributePoints, this.type);
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
@@ -168,7 +168,7 @@ public class SoulWeaponMenu extends Menu {
     }
 
     private void drawEnchantments(final int mouseX, final int mouseY) {
-        final int points = this.capability.getDatum(ENCHANTMENT_POINTS, this.type);
+        final int points = this.capability.getDatum(DATA.enchantmentPoints, this.type);
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
@@ -187,7 +187,7 @@ public class SoulWeaponMenu extends Menu {
     }
 
     private void drawSkills(final int mouseX, final int mouseY) {
-        for (int i = 0; i < capability.getDatum(SKILLS, this.type); i++) {
+        for (int i = 0; i < capability.getDatum(DATA.skills, this.type); i++) {
             this.drawCenteredString(this.fontRenderer, capability.getCurrentType().getSkills()[i],
                     width / 2, (i + 2) * height / 16, 0xFFFFFF);
         }
@@ -230,7 +230,7 @@ public class SoulWeaponMenu extends Menu {
                 int amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(ATTRIBUTE_POINTS, this.type);
+                    amount = this.capability.getDatum(DATA.attributePoints, this.type);
                 }
 
                 Main.CHANNEL.sendToServer(new SWeaponAttributePoints(amount, getAttribute(button.id - 4), this.type));
@@ -245,7 +245,7 @@ public class SoulWeaponMenu extends Menu {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(ENCHANTMENT_POINTS, this.type);
+                    amount = this.capability.getDatum(DATA.enchantmentPoints, this.type);
                 }
 
                 Main.CHANNEL.sendToServer(new SWeaponEnchantmentPoints(amount, SoulWeaponEnchantment.get(button.id - 9), this.type));
@@ -281,7 +281,7 @@ public class SoulWeaponMenu extends Menu {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(SPENT_ATTRIBUTE_POINTS, this.type);
+                    amount = this.capability.getDatum(DATA.spentAttributePoints, this.type);
                 }
 
                 Main.CHANNEL.sendToServer(new SWeaponAttributePoints(-amount, getAttribute(button.id - 23), this.type));
@@ -296,7 +296,7 @@ public class SoulWeaponMenu extends Menu {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(SPENT_ENCHANTMENT_POINTS, this.type);
+                    amount = this.capability.getDatum(DATA.spentEnchantmentPoints, this.type);
                 }
 
                 Main.CHANNEL.sendToServer(new SWeaponEnchantmentPoints(-amount, SoulWeaponEnchantment.get(button.id - 28), this.type));

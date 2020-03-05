@@ -8,14 +8,15 @@ import net.minecraftforge.common.capabilities.Capability.IStorage;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
 
 public class SoulToolStorage implements IStorage<ISoulCapability> {
     @Override
     public NBTBase writeNBT(Capability<ISoulCapability> capability, ISoulCapability instance, EnumFacing facing) {
-        NBTTagCompound tag = new NBTTagCompound();
+        final NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("soultools.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().getIndex());
         tag.setInteger("soultools.capability.tab", instance.getCurrentTab());
         tag.setInteger("soultools.capability.boundSlot", instance.getBoundSlot());
@@ -27,7 +28,7 @@ public class SoulToolStorage implements IStorage<ISoulCapability> {
             (Integer toolIndex, Integer valueIndex) ->
                 tag.setInteger(String.format("soultools.datum.%s.%s",
                     SoulToolType.get(toolIndex),
-                    SoulToolDatum.get(valueIndex)),
+                    TOOL_DATA.get(valueIndex)),
                     data[toolIndex][valueIndex]),
             (Integer toolIndex, Integer valueIndex) ->
                 tag.setFloat(String.format("soultools.attribute.%s.%s",
@@ -46,7 +47,7 @@ public class SoulToolStorage implements IStorage<ISoulCapability> {
 
     @Override
     public void readNBT(Capability<ISoulCapability> capability, ISoulCapability instance, EnumFacing facing, NBTBase nbt) {
-        NBTTagCompound tag = (NBTTagCompound) nbt;
+        final NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soultools.capability.index"));
         instance.setCurrentTab(tag.getInteger("soultools.capability.tab"));
         instance.bindSlot(tag.getInteger("soultools.capability.boundSlot"));
@@ -58,7 +59,7 @@ public class SoulToolStorage implements IStorage<ISoulCapability> {
             (Integer toolIndex, Integer valueIndex) ->
                 data[toolIndex][valueIndex] = tag.getInteger(String.format("soultools.datum.%s.%s",
                     SoulToolType.get(toolIndex),
-                    SoulToolDatum.get(valueIndex)
+                    TOOL_DATA.get(valueIndex)
                 )),
             (Integer toolIndex, Integer valueIndex) ->
                 attributes[toolIndex][valueIndex] = tag.getFloat(String.format("soultools.attribute.%s.%s",

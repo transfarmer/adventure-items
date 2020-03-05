@@ -64,9 +64,7 @@ import transfarmer.soulboundarmory.network.client.tool.CToolData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.util.ItemHelper;
 
 import java.util.Arrays;
@@ -83,9 +81,10 @@ import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_TOOL;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_WEAPON;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.*;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
@@ -137,14 +136,14 @@ public class EventSubscriber {
         SoulType type = capability.getCurrentType();
 
         if (!event.player.world.getGameRules().getBoolean("keepInventory")) {
-            if (type != null && capability.getDatum(SoulWeaponDatum.LEVEL, type) >= preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= preservationLevel) {
                 event.player.addItemStackToInventory(capability.getItemStack(type));
             }
 
             capability = SoulToolProvider.get(event.player);
             type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(SoulToolDatum.LEVEL, type) >= preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= preservationLevel) {
                 event.player.addItemStackToInventory(capability.getItemStack(type));
             }
         }
@@ -157,7 +156,7 @@ public class EventSubscriber {
         Main.CHANNEL.sendTo(new CWeaponData(
                 weaponCapability.getCurrentType(),
                 weaponCapability.getCurrentTab(),
-                weaponCapability.getAttackCooldown(),
+                weaponCapability.getCooldown(),
                 weaponCapability.getBoundSlot(),
                 weaponCapability.getData(),
                 weaponCapability.getAttributes(),
@@ -181,14 +180,14 @@ public class EventSubscriber {
             ISoulCapability capability = SoulWeaponProvider.get(player);
             SoulType type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(LEVEL, type) >= preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= preservationLevel) {
                 event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof ItemSoulWeapon);
             }
 
             capability = SoulToolProvider.get(player);
             type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(LEVEL, type) >= preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= preservationLevel) {
                 event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof IItemSoulTool);
             }
         }
@@ -322,11 +321,11 @@ public class EventSubscriber {
                         xp *= multipliers.babyZombieMultiplier;
                     }
 
-                    if (instance.addDatum(xp, XP, weaponType) && levelupNotifications) {
-                        Main.CHANNEL.sendTo(new CLevelupMessage(displayName, instance.getDatum(LEVEL, weaponType)), (EntityPlayerMP) source);
+                    if (instance.addDatum(xp, DATA.xp, weaponType) && levelupNotifications) {
+                        Main.CHANNEL.sendTo(new CLevelupMessage(displayName, instance.getDatum(DATA.level, weaponType)), (EntityPlayerMP) source);
                     }
 
-                    Main.CHANNEL.sendTo(new CWeaponDatum(xp, XP, weaponType), (EntityPlayerMP) source);
+                    Main.CHANNEL.sendTo(new CWeaponDatum(xp, TOOL_DATA.xp, weaponType), (EntityPlayerMP) source);
                 }
             }
         }
@@ -413,7 +412,7 @@ public class EventSubscriber {
     public static void onBreak(final HarvestDropsEvent event) {
         final EntityPlayer player = event.getHarvester();
 
-        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulPick && SoulToolProvider.get(player).getDatum(SKILLS, PICK) >= 1) {
+        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulPick && SoulToolProvider.get(player).getDatum(TOOL_DATA.skills, PICK) >= 1) {
             event.setDropChance(0);
 
             for (final ItemStack drop : event.getDrops()) {

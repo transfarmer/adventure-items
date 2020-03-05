@@ -37,8 +37,8 @@ public class SWeaponResetEnchantments implements IMessage {
             final ISoulWeapon capability = SoulWeaponProvider.get(context.getServerHandler().player);
             final SoulType type = SoulWeaponType.get(message.index);
 
-            capability.addDatum(capability.getDatum(SoulDatum.SPENT_ENCHANTMENT_POINTS, type), SoulDatum.ENCHANTMENT_POINTS, type);
-            capability.setDatum(0, SoulDatum.SPENT_ENCHANTMENT_POINTS, type);
+            capability.addDatum(capability.getDatum(SoulDatum.DATA.spentEnchantmentPoints, type), SoulDatum.DATA.enchantmentPoints, type);
+            capability.setDatum(0, SoulDatum.DATA.spentEnchantmentPoints, type);
             capability.setEnchantments(new int[capability.getEnchantmentAmount()], type);
 
             return new CWeaponResetEnchantments(type);

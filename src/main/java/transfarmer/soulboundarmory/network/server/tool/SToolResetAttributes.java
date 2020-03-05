@@ -7,9 +7,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.network.client.tool.CToolResetAttributes;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+
+import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 
 public class SToolResetAttributes implements IMessage {
     private int index;
@@ -36,8 +37,8 @@ public class SToolResetAttributes implements IMessage {
             final ISoulCapability capability = SoulToolProvider.get(context.getServerHandler().player);
             final SoulType type = SoulToolType.get(message.index);
 
-            capability.addDatum(capability.getDatum(SoulDatum.SPENT_ATTRIBUTE_POINTS, type), SoulDatum.ATTRIBUTE_POINTS, type);
-            capability.setDatum(0, SoulDatum.SPENT_ATTRIBUTE_POINTS, type);
+            capability.addDatum(capability.getDatum(DATA.spentAttributePoints, type), DATA.attributePoints, type);
+            capability.setDatum(0, DATA.spentAttributePoints, type);
             capability.setAttributes(new float[capability.getAttributeAmount()], type);
 
             return new CToolResetAttributes(type);

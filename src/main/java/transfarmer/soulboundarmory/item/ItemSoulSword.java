@@ -13,7 +13,7 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.world.ModWorld;
 
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class ItemSoulSword extends ItemSoulWeapon {
@@ -30,10 +30,10 @@ public class ItemSoulSword extends ItemSoulWeapon {
     public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
         final ISoulWeapon capability = SoulWeaponProvider.get(player);
 
-        if (!world.isRemote && capability.getDatum(SKILLS, SWORD) >= 1 && capability.getLightningCooldown() <= 0) {
+        if (!world.isRemote && capability.getDatum(DATA.skills, SWORD) >= 1 && capability.getLightningCooldown() <= 0) {
             final RayTraceResult result = ModWorld.rayTraceAll(world, player);
 
-            if (result != null && capability.getDatum(SKILLS, SWORD) >= 1 && capability.getLightningCooldown() <= 0) {
+            if (result != null && capability.getDatum(DATA.skills, SWORD) >= 1 && capability.getLightningCooldown() <= 0) {
                 player.world.addWeatherEffect(new EntitySoulLightningBolt(player.world, result.hitVec, player));
                 capability.resetLightningCooldown();
 

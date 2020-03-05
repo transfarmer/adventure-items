@@ -12,11 +12,11 @@ import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
 
 public class CToolData implements IMessage {
     private int toolIndex;
@@ -28,7 +28,7 @@ public class CToolData implements IMessage {
     private int[] lengths = new int[4];
 
     public CToolData() {
-        this.data = new int[SoulToolType.getAmount()][SoulToolDatum.getAmount()];
+        this.data = new int[SoulToolType.getAmount()][TOOL_DATA.getAmount()];
         this.attributes = new float[SoulToolType.getAmount()][SoulToolAttribute.getAmount()];
         this.enchantments = new int[SoulToolType.getAmount()][SoulToolEnchantment.getAmount()];
     }

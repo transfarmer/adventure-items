@@ -15,7 +15,6 @@ import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
@@ -27,7 +26,8 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static transfarmer.soulboundarmory.capability.SoulItemHelper.REACH_DISTANCE_UUID;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.*;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.*;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.DATA;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
 
 public class SoulTool implements ISoulCapability {
     private EntityPlayer player;
@@ -102,27 +102,27 @@ public class SoulTool implements ISoulCapability {
 
     @Override
     public boolean addDatum(final int amount, final SoulDatum datum, final SoulType type) {
-        if (XP.equals(datum)) {
-            this.data[type.getIndex()][XP.getIndex()] += amount;
+        if (DATA.xp.equals(datum)) {
+            this.data[type.getIndex()][DATA.xp.getIndex()] += amount;
 
-            if (this.getDatum(XP, type) >= this.getNextLevelXP(type) && this.getDatum(LEVEL, type) < Configuration.maxLevel) {
+            if (this.getDatum(DATA.xp, type) >= this.getNextLevelXP(type) && this.getDatum(DATA.level, type) < Configuration.maxLevel) {
                 final int nextLevelXP = this.getNextLevelXP(type);
-                this.addDatum(1, LEVEL, type);
-                this.addDatum(-nextLevelXP, XP, type);
+                this.addDatum(1, DATA.level, type);
+                this.addDatum(-nextLevelXP, DATA.xp, type);
 
                 return true;
             }
-        } else if (LEVEL.equals(datum)) {
-            final int level = ++this.data[type.getIndex()][LEVEL.getIndex()];
+        } else if (DATA.level.equals(datum)) {
+            final int level = ++this.data[type.getIndex()][DATA.level.getIndex()];
             if (level % (Configuration.levelsPerEnchantment) == 0) {
-                this.addDatum(1, ENCHANTMENT_POINTS, type);
+                this.addDatum(1, DATA.enchantmentPoints, type);
             }
 
-            if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(SKILLS, type) < type.getSkills().length) {
-                this.addDatum(1, SKILLS, type);
+            if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(DATA.skills, type) < type.getSkills().length) {
+                this.addDatum(1, DATA.skills, type);
             }
 
-            this.addDatum(1, ATTRIBUTE_POINTS, type);
+            this.addDatum(1, DATA.attributePoints, type);
         } else {
             this.data[type.getIndex()][datum.getIndex()] += amount;
         }
@@ -173,8 +173,8 @@ public class SoulTool implements ISoulCapability {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
-            this.addDatum(-sign, ATTRIBUTE_POINTS, type);
-            this.addDatum(sign, SPENT_ATTRIBUTE_POINTS, type);
+            this.addDatum(-sign, DATA.attributePoints, type);
+            this.addDatum(sign, DATA.spentAttributePoints, type);
 
             if (attribute.equals(HARVEST_LEVEL) && this.getAttribute(HARVEST_LEVEL, type) + sign * HARVEST_LEVEL.getIncrease(type) >= 2.9999) {
                 this.attributes[type.getIndex()][HARVEST_LEVEL.getIndex()] = 3;
@@ -209,8 +209,8 @@ public class SoulTool implements ISoulCapability {
 
         for (int i = 0; i < Math.abs(amount); i++) {
             if (this.getEnchantment(enchantment, type) + sign >= 0) {
-                this.addDatum(-sign, ENCHANTMENT_POINTS, type);
-                this.addDatum(sign, SPENT_ENCHANTMENT_POINTS, type);
+                this.addDatum(-sign, DATA.enchantmentPoints, type);
+                this.addDatum(sign, DATA.spentEnchantmentPoints, type);
 
                 this.enchantments[type.getIndex()][enchantment.getIndex()] += sign;
             } else {
@@ -221,9 +221,9 @@ public class SoulTool implements ISoulCapability {
 
     @Override
     public int getNextLevelXP(final SoulType type) {
-        return this.getDatum(LEVEL, type) >= Configuration.maxLevel
+        return this.getDatum(DATA.level, type) >= Configuration.maxLevel
                 ? 1
-                : Configuration.initialToolXP + (int) Math.round(4 * Math.pow(this.getDatum(LEVEL, type), 1.25));
+                : Configuration.initialToolXP + (int) Math.round(4 * Math.pow(this.getDatum(DATA.level, type), 1.25));
     }
 
     @Override
@@ -307,7 +307,7 @@ public class SoulTool implements ISoulCapability {
 
     @Override
     public int getDatumAmount() {
-        return SoulToolDatum.getAmount();
+        return TOOL_DATA.getAmount();
     }
 
     @Override

@@ -1,37 +1,52 @@
 package transfarmer.soulboundarmory.statistics;
 
-public class SoulDatum extends Statistic {
-    public static final SoulDatum XP = new SoulDatum(0, "xp");
-    public static final SoulDatum LEVEL = new SoulDatum(1, "level");
-    public static final SoulDatum SKILLS = new SoulDatum(2, "skills");
-    public static final SoulDatum ATTRIBUTE_POINTS = new SoulDatum(3, "attributePoints");
-    public static final SoulDatum SPENT_ATTRIBUTE_POINTS = new SoulDatum(4, "spentAttributePoints");
-    public static final SoulDatum ENCHANTMENT_POINTS = new SoulDatum(5, "enchantmentPoints");
-    public static final SoulDatum SPENT_ENCHANTMENT_POINTS = new SoulDatum(6, "spentEnchantmentPoints");
+import transfarmer.util.ListUtils;
 
-    protected static final SoulDatum[] DATA = {
-            XP,
-            LEVEL,
-            SKILLS,
-            ATTRIBUTE_POINTS,
-            SPENT_ATTRIBUTE_POINTS,
-            ENCHANTMENT_POINTS,
-            SPENT_ENCHANTMENT_POINTS,
-    };
+import java.util.List;
+
+public class SoulDatum extends Statistic {
+    public static final SoulDatum DATA = new SoulDatum();
+
+    protected int index;
+    public SoulDatum xp;
+    public SoulDatum level;
+    public SoulDatum skills;
+    public SoulDatum attributePoints;
+    public SoulDatum spentAttributePoints;
+    public SoulDatum enchantmentPoints;
+    public SoulDatum spentEnchantmentPoints;
+
+    protected List<SoulDatum> data;
 
     protected SoulDatum(final int index, final String name) {
         super(index, name);
     }
 
-    public static SoulDatum[] get() {
-        return DATA;
+    protected SoulDatum() {
+        this.xp = new SoulDatum(this.index++, "xp");
+        this.level = new SoulDatum(this.index++, "level");
+        this.skills = new SoulDatum(this.index++, "skills");
+        this.attributePoints = new SoulDatum(this.index++, "attributePoints");
+        this.spentAttributePoints = new SoulDatum(this.index++, "spentAttributePoints");
+        this.enchantmentPoints = new SoulDatum(this.index++, "enchantmentPoints");
+        this.spentEnchantmentPoints = new SoulDatum(this.index++, "spentEnchantmentPoints");
+
+        this.data = ListUtils.arrayList(
+                this.xp,
+                this.level,
+                this.skills,
+                this.attributePoints,
+                this.spentAttributePoints,
+                this.enchantmentPoints,
+                this.spentEnchantmentPoints
+        );
     }
 
-    public static SoulDatum get(final int index) {
-        return DATA[index];
+    public SoulDatum get(final int index) {
+        return this.data.get(index);
     }
 
-    public static int getAmount() {
-        return DATA.length;
+    public int getAmount() {
+        return this.data.size();
     }
 }

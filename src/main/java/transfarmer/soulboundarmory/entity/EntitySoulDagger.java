@@ -30,8 +30,8 @@ import java.util.UUID;
 
 import static transfarmer.soulboundarmory.statistics.SoulAttribute.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.SoulAttribute.ATTACK_SPEED;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_FIRE_ASPECT;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.SKILLS;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
 
 public class EntitySoulDagger extends EntityArrow {
@@ -68,23 +68,6 @@ public class EntitySoulDagger extends EntityArrow {
 
         this.shooterUUID = UUID.fromString(shooter.getUniqueID().toString());
         this.spawnClone = spawnClone;
-    }
-
-    public EntitySoulDagger(final EntitySoulDagger original) {
-        this(original.world, (EntityLivingBase) original.shootingEntity, original.itemStack, false);
-
-        this.isClone = true;
-        this.posX = original.posX;
-        this.posY = original.posY;
-        this.posZ = original.posZ;
-        this.motionX = original.motionX;
-        this.motionY = original.motionY;
-        this.motionZ = original.motionZ;
-        this.rotationPitch = original.rotationPitch;
-        this.rotationYaw = original.rotationYaw;
-        this.prevRotationPitch = original.prevRotationPitch;
-        this.prevRotationYaw = original.prevRotationYaw;
-        this.attackDamageRatio = original.attackDamageRatio;
     }
 
     @Override
@@ -128,10 +111,10 @@ public class EntitySoulDagger extends EntityArrow {
             final ISoulWeapon capability = SoulWeaponProvider.get(this.shootingEntity);
             final float attackSpeed = capability.getAttribute(ATTACK_SPEED, DAGGER, true, true);
 
-            if ((capability.getDatum(SKILLS, DAGGER) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
-                    || capability.getDatum(SKILLS, DAGGER) >= 3
+            if (capability.getDatum(DATA.skills, DAGGER) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
+                    || capability.getDatum(DATA.skills, DAGGER) >= 3
                     && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed
-                    || this.shootingEntity.getDistance(this) >= 256)) && !this.isClone) {
+                    || this.shootingEntity.getDistance(this) >= 256)) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();
                 double multiplier = 1.8 / capability.getAttribute(ATTACK_SPEED, DAGGER, true, true);
                 final double dX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
@@ -289,7 +272,7 @@ public class EntitySoulDagger extends EntityArrow {
 
         if (entity != null) {
             if (this.spawnClone) {
-                final EntitySoulDagger dagger = new EntitySoulDagger(this);
+                final EntitySoulDagger dagger = (EntitySoulDagger) this.clone();
 
                 this.world.spawnEntity(dagger);
                 this.spawnClone = false;
@@ -415,10 +398,6 @@ public class EntitySoulDagger extends EntityArrow {
             if (blockState.getMaterial() != Material.AIR) {
                 this.inTile.onEntityCollision(this.world, blockPos, blockState, this);
             }
-
-            if (this.isClone) {
-                this.setDead();
-            }
         }
     }
 
@@ -432,7 +411,11 @@ public class EntitySoulDagger extends EntityArrow {
         if (!this.world.isRemote && this.ticksExisted > 20 / (SoulWeaponProvider.get(player).getAttribute(ATTACK_SPEED, DAGGER, true, true))
                 && this.arrowShake <= 0 && player.getUniqueID().equals(this.shooterUUID) && (this.pickupStatus == PickupStatus.ALLOWED
                 || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
-            if (player.isCreative() && SoulItemHelper.hasSoulWeapon(player)) {
+            if (this.isClone) {
+                player.onItemPickup(this, 1);
+                this.setDead();
+            }
+            else if (player.isCreative() && SoulItemHelper.hasSoulWeapon(player)) {
                 player.onItemPickup(this, 1);
                 this.setDead();
             } else if (SoulItemHelper.addItemStack(this.getArrowStack(), player, true)) {
@@ -454,5 +437,26 @@ public class EntitySoulDagger extends EntityArrow {
         super.readEntityFromNBT(compound);
         this.shooterUUID = UUID.fromString(compound.getString("UUID"));
         this.world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(compound.getInteger("dimensionID"));
+    }
+
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
+    @Override
+    public Object clone() {
+        final EntitySoulDagger copy = new EntitySoulDagger(this.world, (EntityLivingBase) this.shootingEntity, this.itemStack, false);
+
+        copy.isClone = true;
+        copy.posX = this.posX;
+        copy.posY = this.posY;
+        copy.posZ = this.posZ;
+        copy.motionX = this.motionX;
+        copy.motionY = this.motionY;
+        copy.motionZ = this.motionZ;
+        copy.rotationPitch = this.rotationPitch;
+        copy.rotationYaw = this.rotationYaw;
+        copy.prevRotationPitch = this.prevRotationPitch;
+        copy.prevRotationYaw = this.prevRotationYaw;
+        copy.attackDamageRatio = this.attackDamageRatio;
+
+        return copy;
     }
 }

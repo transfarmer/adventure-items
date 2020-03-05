@@ -17,7 +17,6 @@ import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
@@ -30,18 +29,26 @@ import static net.minecraftforge.common.util.Constants.AttributeModifierOperatio
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_SHARPNESS;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.*;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.WEAPON_DATA;
 
 public class SoulWeapon implements ISoulWeapon {
     private EntityPlayer player;
+    private SoulDatum datum;
     private SoulType currentType;
     private int currentTab = 1;
     private int attackCooldown = 0;
     private int lightningCooldown = 60;
     private int boundSlot = -1;
-    private int[][] data = new int[this.getItemAmount()][this.getDatumAmount()];
-    private float[][] attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
-    private int[][] enchantments = new int[this.getItemAmount()][this.getEnchantmentAmount()];
+    private int[][] data;
+    private float[][] attributes;
+    private int[][] enchantments;
+
+    public SoulWeapon() {
+        this.datum = WEAPON_DATA;
+        this.data = new int[this.getItemAmount()][this.getDatumAmount()];
+        this.attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
+        this.enchantments = new int[this.getItemAmount()][this.getEnchantmentAmount()];
+    }
 
     @Override
     public EntityPlayer getPlayer() {
@@ -148,8 +155,8 @@ public class SoulWeapon implements ISoulWeapon {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
-            this.addDatum(-sign, ATTRIBUTE_POINTS, type);
-            this.addDatum(sign, SPENT_ATTRIBUTE_POINTS, type);
+            this.addDatum(-sign, this.datum.attributePoints, type);
+            this.addDatum(sign, this.datum.spentAttributePoints, type);
 
             if ((attribute.equals(CRITICAL) && this.getAttribute(CRITICAL, type) + sign * CRITICAL.getIncrease(type) >= 100)) {
                 this.setAttribute(100, attribute, type);
@@ -245,9 +252,9 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getNextLevelXP(final SoulType type) {
-        return this.getDatum(LEVEL, type) >= Configuration.maxLevel
+        return this.getDatum(this.datum.level, type) >= Configuration.maxLevel
                 ? 1
-                : Configuration.initialWeaponXP + 4 * (int) Math.round(Math.pow(this.getDatum(LEVEL, type), 1.5));
+                : Configuration.initialWeaponXP + 4 * (int) Math.round(Math.pow(this.getDatum(this.datum.level, type), 1.5));
     }
 
     @Override
@@ -262,26 +269,26 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public boolean addDatum(final int amount, final SoulDatum datum, final SoulType type) {
-        if (XP.equals(datum)) {
-            this.data[type.getIndex()][XP.getIndex()] += amount;
+        if (this.datum.xp.equals(datum)) {
+            this.data[type.getIndex()][this.datum.xp.getIndex()] += amount;
 
-            if (this.getDatum(XP, type) >= this.getNextLevelXP(type) && this.getDatum(LEVEL, type) < Configuration.maxLevel) {
+            if (this.getDatum(this.datum.xp, type) >= this.getNextLevelXP(type) && this.getDatum(this.datum.level, type) < Configuration.maxLevel) {
                 final int nextLevelXP = this.getNextLevelXP(type);
-                this.addDatum(1, LEVEL, type);
-                this.addDatum(-nextLevelXP, XP, type);
+                this.addDatum(1, this.datum.level, type);
+                this.addDatum(-nextLevelXP, this.datum.xp, type);
                 return true;
             }
-        } else if (LEVEL.equals(datum)) {
-            final int level = ++this.data[type.getIndex()][LEVEL.getIndex()];
+        } else if (this.datum.level.equals(datum)) {
+            final int level = ++this.data[type.getIndex()][this.datum.level.getIndex()];
             if (level % (Configuration.levelsPerEnchantment) == 0) {
-                this.addDatum(1, ENCHANTMENT_POINTS, type);
+                this.addDatum(1, this.datum.enchantmentPoints, type);
             }
 
-            if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(SKILLS, type) < type.getSkills().length) {
-                this.addDatum(1, SKILLS, type);
+            if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(this.datum.skills, type) < type.getSkills().length) {
+                this.addDatum(1, this.datum.skills, type);
             }
 
-            this.addDatum(1, ATTRIBUTE_POINTS, type);
+            this.addDatum(1, this.datum.attributePoints, type);
         } else {
             this.data[type.getIndex()][datum.getIndex()] += amount;
         }
@@ -300,8 +307,8 @@ public class SoulWeapon implements ISoulWeapon {
 
         for (int i = 0; i < Math.abs(amount); i++) {
             if (this.getEnchantment(enchantment, type) + sign >= 0) {
-                this.addDatum(-sign, ENCHANTMENT_POINTS, type);
-                this.addDatum(sign, SPENT_ENCHANTMENT_POINTS, type);
+                this.addDatum(-sign, this.datum.enchantmentPoints, type);
+                this.addDatum(sign, this.datum.spentEnchantmentPoints, type);
 
                 this.enchantments[type.getIndex()][enchantment.getIndex()] += sign;
             } else {
@@ -346,7 +353,7 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int getAttackCooldown() {
+    public int getCooldown() {
         return this.attackCooldown;
     }
 
@@ -357,7 +364,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public float getAttackRatio(final SoulType type) {
-        return 1 - (float) this.getAttackCooldown() / this.getCooldown(type);
+        return 1 - (float) this.getCooldown() / this.getCooldown(type);
     }
 
     @Override
@@ -372,7 +379,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getDatumAmount() {
-        return SoulWeaponDatum.getAmount();
+        return this.datum.getAmount();
     }
 
     @Override
@@ -419,7 +426,7 @@ public class SoulWeapon implements ISoulWeapon {
     public void update() {
         ISoulWeapon.super.update();
 
-        if (this.getAttackCooldown() > 0) {
+        if (this.getCooldown() > 0) {
             this.decrementCooldown();
         }
 

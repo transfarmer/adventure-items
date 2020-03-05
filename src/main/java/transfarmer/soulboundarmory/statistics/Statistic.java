@@ -9,6 +9,8 @@ public abstract class Statistic {
         this.name = name;
     }
 
+    protected Statistic() {}
+
     @Override
     public boolean equals(final Object obj) {
         return obj instanceof Statistic && obj.toString().equals(this.toString());

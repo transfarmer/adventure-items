@@ -11,7 +11,7 @@ import static transfarmer.soulboundarmory.init.ModItems.*;
 public class SoulWeaponType extends SoulType {
     public static final SoulType GREATSWORD = new SoulWeaponType(0, SOULBOUND_GREATSWORD, "greatsword", "charge");
     public static final SoulType SWORD = new SoulWeaponType(1, SOULBOUND_SWORD, "sword", "summon lightning");
-    public static final SoulType DAGGER = new SoulWeaponType(2, SOULBOUND_DAGGER, "dagger", "throwing", "perforation", "return", "sneak return");
+    public static final SoulType DAGGER = new SoulWeaponType(2, SOULBOUND_DAGGER, "dagger", "throwing", "shadow clone", "return", "sneak return");
 
     public static final SoulType[] TYPES = {
             GREATSWORD,

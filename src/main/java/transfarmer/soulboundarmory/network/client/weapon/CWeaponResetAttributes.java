@@ -43,8 +43,8 @@ public class CWeaponResetAttributes implements IMessage {
                 final ISoulCapability capability = SoulItemHelper.getCapability(Minecraft.getMinecraft().player, (Item) null);
                 final SoulType type = SoulWeaponType.get(message.index);
 
-                capability.addDatum(capability.getDatum(SoulDatum.SPENT_ATTRIBUTE_POINTS, type), SoulDatum.ATTRIBUTE_POINTS, type);
-                capability.setDatum(0, SoulDatum.SPENT_ATTRIBUTE_POINTS, type);
+                capability.addDatum(capability.getDatum(SoulDatum.DATA.spentAttributePoints, type), SoulDatum.DATA.attributePoints, type);
+                capability.setDatum(0, SoulDatum.DATA.spentAttributePoints, type);
                 capability.setAttributes(new float[capability.getAttributeAmount()], type);
                 Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
             });

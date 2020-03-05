@@ -11,8 +11,9 @@ import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
 
 public class SToolDatum implements IMessage {
     private int value;
@@ -46,7 +47,7 @@ public class SToolDatum implements IMessage {
         public IMessage onMessage(SToolDatum message, MessageContext context) {
             final EntityPlayer player = Minecraft.getMinecraft().player;
             final ISoulCapability instance = SoulToolProvider.get(player);
-            final SoulDatum datum = SoulToolDatum.get(message.datumIndex);
+            final SoulDatum datum = TOOL_DATA.get(message.datumIndex);
             final SoulType type = SoulToolType.get(message.typeIndex);
 
             instance.addDatum(message.value, datum, type);

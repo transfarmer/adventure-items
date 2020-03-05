@@ -7,17 +7,18 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
+
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.WEAPON_DATA;
 
 public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
     public NBTBase writeNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing) {
-        NBTTagCompound tag = new NBTTagCompound();
+        final NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("soulweapons.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().getIndex());
         tag.setInteger("soulweapons.capability.tab", instance.getCurrentTab());
-        tag.setInteger("soulweapons.capability.cooldown", instance.getAttackCooldown());
+        tag.setInteger("soulweapons.capability.cooldown", instance.getCooldown());
         tag.setInteger("soulweapons.capability.boundSlot", instance.getBoundSlot());
         final int[][] data = instance.getData();
         final float[][] attributes = instance.getAttributes();
@@ -27,7 +28,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
                 (Integer weaponIndex, Integer valueIndex) ->
                         tag.setInteger(String.format("soulweapons.datum.%s.%s",
                                 SoulWeaponType.get(weaponIndex),
-                                SoulWeaponDatum.get(valueIndex)),
+                                WEAPON_DATA.get(valueIndex)),
                                 data[weaponIndex][valueIndex]),
                 (Integer weaponIndex, Integer valueIndex) ->
                         tag.setFloat(String.format("soulweapons.attribute.%s.%s",
@@ -46,7 +47,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
 
     @Override
     public void readNBT(Capability<ISoulWeapon> capability, ISoulWeapon instance, EnumFacing facing, NBTBase nbt) {
-        NBTTagCompound tag = (NBTTagCompound) nbt;
+        final NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soulweapons.capability.index"));
         instance.setCurrentTab(tag.getInteger("soulweapons.capability.tab"));
         instance.setAttackCooldown(tag.getInteger("soulweapons.capability.cooldown"));
@@ -59,7 +60,7 @@ public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
                 (Integer weaponIndex, Integer valueIndex) ->
                         data[weaponIndex][valueIndex] = tag.getInteger(String.format("soulweapons.datum.%s.%s",
                                 SoulWeaponType.get(weaponIndex),
-                                SoulWeaponDatum.get(valueIndex)
+                                WEAPON_DATA.get(valueIndex)
                         )),
                 (Integer weaponIndex, Integer valueIndex) ->
                         attributes[weaponIndex][valueIndex] = tag.getFloat(String.format("soulweapons.attribute.%s.%s",
