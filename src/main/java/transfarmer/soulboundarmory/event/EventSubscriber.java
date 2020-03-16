@@ -9,7 +9,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntitySlime;
-import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -18,11 +17,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -59,6 +61,7 @@ import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulPick;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.soulboundarmory.network.client.CConfig;
 import transfarmer.soulboundarmory.network.client.CLevelupMessage;
 import transfarmer.soulboundarmory.network.client.tool.CToolData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
@@ -69,22 +72,23 @@ import transfarmer.util.ItemHelper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Configuration.*;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_TOOL;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_WEAPON;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
 import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
@@ -92,6 +96,8 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class EventSubscriber {
+    private static final Map<Entity, Integer> frozenEntities = new ConcurrentHashMap<>();
+
     @SubscribeEvent
     public static void onRegisterEntityEntry(final Register<EntityEntry> entry) {
         entry.getRegistry().register(EntityEntryBuilder.create()
@@ -121,6 +127,8 @@ public class EventSubscriber {
     @SubscribeEvent
     public static void onPlayerLoggedIn(final PlayerLoggedInEvent event) {
         updatePlayer(event.player);
+
+        Main.CHANNEL.sendTo(new CConfig(), (EntityPlayerMP) event.player);
     }
 
     @SubscribeEvent
@@ -136,14 +144,14 @@ public class EventSubscriber {
         SoulType type = capability.getCurrentType();
 
         if (!event.player.world.getGameRules().getBoolean("keepInventory")) {
-            if (type != null && capability.getDatum(DATA.level, type) >= preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= Configuration.preservationLevel) {
                 event.player.addItemStackToInventory(capability.getItemStack(type));
             }
 
             capability = SoulToolProvider.get(event.player);
             type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(DATA.level, type) >= preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= Configuration.preservationLevel) {
                 event.player.addItemStackToInventory(capability.getItemStack(type));
             }
         }
@@ -180,14 +188,14 @@ public class EventSubscriber {
             ISoulCapability capability = SoulWeaponProvider.get(player);
             SoulType type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(DATA.level, type) >= preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= Configuration.preservationLevel) {
                 event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof ItemSoulWeapon);
             }
 
             capability = SoulToolProvider.get(player);
             type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(DATA.level, type) >= preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= Configuration.preservationLevel) {
                 event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof IItemSoulTool);
             }
         }
@@ -265,6 +273,7 @@ public class EventSubscriber {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @SubscribeEvent
     public static void onLivingDeath(final LivingDeathEvent event) {
         if (event.getSource().getTrueSource() != null && !event.getSource().getTrueSource().world.isRemote) {
@@ -295,38 +304,67 @@ public class EventSubscriber {
             } else return;
 
             if (source instanceof EntityPlayer && weaponType != null) {
-                //noinspection ConstantConditions
                 if (attackDamage != null || Configuration.passiveXP || entity instanceof EntitySlime) {
                     double attackDamageValue = 0;
 
-                    //noinspection ConstantConditions
                     if (attackDamage != null) {
                         attackDamageValue = attackDamage.getAttributeValue();
                     }
 
                     int xp = (int) Math.round(entity.getMaxHealth()
-                            * source.world.getDifficulty().getId() * multipliers.difficultyMultiplier
-                            * (1 + attackDamageValue * multipliers.attackDamageMultiplier)
-                            * (1 + armor.getAttributeValue() * multipliers.armorMultiplier));
+                            * source.world.getDifficulty().getId() * Configuration.multipliers.difficultyMultiplier
+                            * (1 + attackDamageValue * Configuration.multipliers.attackDamageMultiplier)
+                            * (1 + armor.getAttributeValue() * Configuration.multipliers.armorMultiplier));
 
                     if (!entity.isNonBoss()) {
-                        xp *= multipliers.bossMultiplier;
+                        xp *= Configuration.multipliers.bossMultiplier;
                     }
 
                     if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
-                        xp *= multipliers.hardcoreMultiplier;
+                        xp *= Configuration.multipliers.hardcoreMultiplier;
                     }
 
-                    if (entity instanceof EntityZombie && entity.isChild()) {
-                        xp *= multipliers.babyZombieMultiplier;
+                    if (attackDamage != null && entity.isChild()) {
+                        xp *= Configuration.multipliers.babyMultiplier;
                     }
 
-                    if (instance.addDatum(xp, DATA.xp, weaponType) && levelupNotifications) {
+                    if (instance.addDatum(xp, DATA.xp, weaponType) && Configuration.levelupNotifications) {
                         Main.CHANNEL.sendTo(new CLevelupMessage(displayName, instance.getDatum(DATA.level, weaponType)), (EntityPlayerMP) source);
                     }
 
                     Main.CHANNEL.sendTo(new CWeaponDatum(xp, TOOL_DATA.xp, weaponType), (EntityPlayerMP) source);
                 }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingFall(final LivingFallEvent event) {
+        if (event.getEntity() instanceof EntityPlayer) {
+            final ISoulWeapon capability = SoulWeaponProvider.get(event.getEntity());
+
+            if (capability.getCharging() > 0) {
+                if (capability.getCharging() >= 0.999) {
+                    final Entity player = event.getEntity();
+                    final int radius = 6;
+
+                    for (final Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player,
+                            new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
+                                    player.posX + radius, player.posY + radius, player.posZ + radius))) {
+                        if (entity instanceof EntityLivingBase) {
+                            final Vec3d pos = entity.getPositionVector();
+                            frozenEntities.put(entity, 40);
+                        }
+                    }
+                }
+
+                if (event.getDistance() <= 16 * capability.getCharging()) {
+                    event.setCanceled(true);
+                } else if (capability.getCharging() >= 0.5) {
+                    event.setDamageMultiplier(event.getDamageMultiplier() / (float) (2 * capability.getCharging()));
+                }
+
+                capability.setCharging(0);
             }
         }
     }
@@ -442,6 +480,27 @@ public class EventSubscriber {
         }
     }
     */
+
+    @SubscribeEvent
+    public static void onLivingUpdate(final LivingUpdateEvent event) {
+        final EntityLivingBase entity = event.getEntityLiving();
+
+        if (frozenEntities.containsKey(entity)) {
+            final int ticks = frozenEntities.get(entity);
+
+            if (ticks > 0 && entity.isEntityAlive()) {
+                if (entity.hurtResistantTime > 0) {
+                    entity.hurtResistantTime--;
+                }
+
+                event.setCanceled(true);
+
+                frozenEntities.put(entity, ticks - 1);
+            } else {
+                frozenEntities.remove(entity);
+            }
+        }
+    }
 
     @SideOnly(CLIENT)
     @SubscribeEvent

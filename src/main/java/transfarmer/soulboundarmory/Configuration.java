@@ -30,9 +30,6 @@ public class Configuration {
     @Comment("minimum level for soul weapons to be preserved after death")
     public static int preservationLevel = 0;
 
-    @Comment("the offset for soul weapon menu entries from the top multiplied by ((height of Minecraft window) / 16)")
-    public static int menuOffset = 1;
-
     @Comment("Set this to \"false\" in order to prevent items picked up with full inventory and empty offhand from appearing in the offhand.")
     public static boolean addToOffhand = true;
 
@@ -55,7 +52,7 @@ public class Configuration {
         @Comment("hardcore mode XP multiplier")
         public float hardcoreMultiplier = 2;
 
-        @Comment("baby zombie (including baby zombie pigmen) XP multiplier")
-        public float babyZombieMultiplier = 2;
+        @Comment("baby entity XP multiplier")
+        public float babyMultiplier = 2;
     }
 }

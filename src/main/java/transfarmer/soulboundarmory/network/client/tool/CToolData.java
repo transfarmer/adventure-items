@@ -16,7 +16,7 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
 
 public class CToolData implements IMessage {
     private int toolIndex;

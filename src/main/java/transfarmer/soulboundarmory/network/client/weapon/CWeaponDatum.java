@@ -11,7 +11,6 @@ import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -51,7 +50,7 @@ public class CWeaponDatum implements IMessage {
                 final EntityPlayer player = Minecraft.getMinecraft().player;
                 final ISoulWeapon instance = SoulWeaponProvider.get(player);
 
-                instance.addDatum(message.value, SoulWeaponDatum.WEAPON_DATA.get(message.datumIndex), SoulWeaponType.get(message.typeIndex));
+                instance.addDatum(message.value, SoulDatum.SoulWeaponDatum.WEAPON_DATA.get(message.datumIndex), SoulWeaponType.get(message.typeIndex));
             });
 
             return null;

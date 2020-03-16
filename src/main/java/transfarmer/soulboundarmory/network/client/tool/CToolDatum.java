@@ -11,7 +11,6 @@ import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolDatum;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -51,7 +50,7 @@ public class CToolDatum implements IMessage {
                 final EntityPlayer player = Minecraft.getMinecraft().player;
                 final ISoulCapability instance = SoulToolProvider.get(player);
 
-                instance.addDatum(message.value, SoulToolDatum.TOOL_DATA.get(message.datumIndex), SoulToolType.get(message.typeIndex));
+                instance.addDatum(message.value, SoulDatum.SoulToolDatum.TOOL_DATA.get(message.datumIndex), SoulToolType.get(message.typeIndex));
             });
 
             return null;

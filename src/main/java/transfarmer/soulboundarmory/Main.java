@@ -25,6 +25,7 @@ import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
 import transfarmer.soulboundarmory.command.CommandSoulboundArmory;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
+import transfarmer.soulboundarmory.network.client.CConfig;
 import transfarmer.soulboundarmory.network.client.CLevelupMessage;
 import transfarmer.soulboundarmory.network.client.tool.*;
 import transfarmer.soulboundarmory.network.client.weapon.*;
@@ -39,7 +40,7 @@ import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 public class Main {
     public static final String MOD_ID = "soulboundarmory";
     public static final String NAME = "soulbound armory";
-    public static final String VERSION = "2.2.0-beta";
+    public static final String VERSION = "2.3.1-beta";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
@@ -50,13 +51,16 @@ public class Main {
         CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
         CapabilityManager.INSTANCE.register(ISoulCapability.class, new SoulToolStorage(), SoulTool::new);
 
-        CHANNEL.registerMessage(SWeaponType.Handler.class, SWeaponType.class, id++, SERVER);
-        CHANNEL.registerMessage(SWeaponAttributePoints.Handler.class, SWeaponAttributePoints.class, id++, SERVER);
-        CHANNEL.registerMessage(SWeaponEnchantmentPoints.Handler.class, SWeaponEnchantmentPoints.class, id++, SERVER);
-        CHANNEL.registerMessage(SWeaponTab.Handler.class, SWeaponTab.class, id++, SERVER);
-        CHANNEL.registerMessage(SWeaponResetAttributes.Handler.class, SWeaponResetAttributes.class, id++, SERVER);
-        CHANNEL.registerMessage(SWeaponResetEnchantments.Handler.class, SWeaponResetEnchantments.class, id++, SERVER);
-        CHANNEL.registerMessage(SWeaponBindSlot.Handler.class, SWeaponBindSlot.class, id++, SERVER);
+        CHANNEL.registerMessage(CConfig.Handler.class, CConfig.class, id++, CLIENT);
+
+        CHANNEL.registerMessage(CToolSpendAttributePoints.Handler.class, CToolSpendAttributePoints.class, id++, CLIENT);
+        CHANNEL.registerMessage(CToolSpendEnchantmentPoints.Handler.class, CToolSpendEnchantmentPoints.class, id++, CLIENT);
+        CHANNEL.registerMessage(CToolResetAttributes.Handler.class, CToolResetAttributes.class, id++, CLIENT);
+        CHANNEL.registerMessage(CToolResetEnchantments.Handler.class, CToolResetEnchantments.class, id++, CLIENT);
+        CHANNEL.registerMessage(CToolBindSlot.Handler.class, CToolBindSlot.class, id++, CLIENT);
+        CHANNEL.registerMessage(CToolDatum.Handler.class, CToolDatum.class, id++, CLIENT);
+        CHANNEL.registerMessage(CToolData.Handler.class, CToolData.class, id++, CLIENT);
+        CHANNEL.registerMessage(CLevelupMessage.Handler.class, CLevelupMessage.class, id++, CLIENT);
 
         CHANNEL.registerMessage(CWeaponType.Handler.class, CWeaponType.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponSpendAttributePoints.Handler.class, CWeaponSpendAttributePoints.class, id++, CLIENT);
@@ -75,14 +79,13 @@ public class Main {
         CHANNEL.registerMessage(SToolResetEnchantments.Handler.class, SToolResetEnchantments.class, id++, SERVER);
         CHANNEL.registerMessage(SToolBindSlot.Handler.class, SToolBindSlot.class, id++, SERVER);
 
-        CHANNEL.registerMessage(CToolSpendAttributePoints.Handler.class, CToolSpendAttributePoints.class, id++, CLIENT);
-        CHANNEL.registerMessage(CToolSpendEnchantmentPoints.Handler.class, CToolSpendEnchantmentPoints.class, id++, CLIENT);
-        CHANNEL.registerMessage(CToolResetAttributes.Handler.class, CToolResetAttributes.class, id++, CLIENT);
-        CHANNEL.registerMessage(CToolResetEnchantments.Handler.class, CToolResetEnchantments.class, id++, CLIENT);
-        CHANNEL.registerMessage(CToolBindSlot.Handler.class, CToolBindSlot.class, id++, CLIENT);
-        CHANNEL.registerMessage(CToolDatum.Handler.class, CToolDatum.class, id++, CLIENT);
-        CHANNEL.registerMessage(CToolData.Handler.class, CToolData.class, id++, CLIENT);
-        CHANNEL.registerMessage(CLevelupMessage.Handler.class, CLevelupMessage.class, id++, CLIENT);
+        CHANNEL.registerMessage(SWeaponType.Handler.class, SWeaponType.class, id++, SERVER);
+        CHANNEL.registerMessage(SWeaponAttributePoints.Handler.class, SWeaponAttributePoints.class, id++, SERVER);
+        CHANNEL.registerMessage(SWeaponEnchantmentPoints.Handler.class, SWeaponEnchantmentPoints.class, id++, SERVER);
+        CHANNEL.registerMessage(SWeaponTab.Handler.class, SWeaponTab.class, id++, SERVER);
+        CHANNEL.registerMessage(SWeaponResetAttributes.Handler.class, SWeaponResetAttributes.class, id++, SERVER);
+        CHANNEL.registerMessage(SWeaponResetEnchantments.Handler.class, SWeaponResetEnchantments.class, id++, SERVER);
+        CHANNEL.registerMessage(SWeaponBindSlot.Handler.class, SWeaponBindSlot.class, id++, SERVER);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(MENU_KEY);

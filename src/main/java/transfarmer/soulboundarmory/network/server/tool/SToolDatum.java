@@ -13,7 +13,7 @@ import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
 
 public class SToolDatum implements IMessage {
     private int value;

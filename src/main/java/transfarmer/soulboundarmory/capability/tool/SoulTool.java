@@ -26,8 +26,8 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static transfarmer.soulboundarmory.capability.SoulItemHelper.REACH_DISTANCE_UUID;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.*;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.DATA;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
 
 public class SoulTool implements ISoulCapability {
     private EntityPlayer player;

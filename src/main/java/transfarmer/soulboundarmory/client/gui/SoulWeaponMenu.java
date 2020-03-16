@@ -18,7 +18,7 @@ import transfarmer.util.ItemHelper;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.*;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.*;
 
 @SideOnly(CLIENT)
 public class SoulWeaponMenu extends Menu {

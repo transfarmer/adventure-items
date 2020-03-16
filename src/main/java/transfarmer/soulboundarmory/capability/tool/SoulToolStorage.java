@@ -11,7 +11,7 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolDatum.TOOL_DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
 
 public class SoulToolStorage implements IStorage<ISoulCapability> {
     @Override

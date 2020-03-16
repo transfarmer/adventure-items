@@ -13,7 +13,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.WEAPON_DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.WEAPON_DATA;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREATSWORD;
 
 public class ItemSoulGreatsword extends ItemSoulWeapon {
@@ -22,7 +22,7 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
     }
 
     @Override
-    public int getMaxItemUseDuration(ItemStack stack) {
+    public int getMaxItemUseDuration(final ItemStack stack) {
         return 200;
     }
 
@@ -47,22 +47,29 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
 
         if (timeTaken > 5) {
             final Vec3d look = entity.getLookVec();
-            final double strength = Math.min(1.25, timeTaken / 15F * 1.25);
+            final double maxSpeed = 1.25;
+            final double speed = Math.min(maxSpeed, timeTaken / 15F * maxSpeed);
 
-            entity.addVelocity(look.x * strength, look.y * strength / 4 + 0.2, look.z * strength);
+            entity.addVelocity(look.x * speed, look.y * speed / 4 + 0.2, look.z * speed);
+
+            if (entity instanceof EntityPlayer) {
+                SoulWeaponProvider.get(entity).setCharging(maxSpeed / speed);
+            }
         }
     }
 
 
     @Override
     public void onUpdate(final ItemStack itemStack, final World world, final Entity entity, final int itemSlot, final boolean isSelected) {
-        if (world.isRemote && isSelected && entity instanceof EntityPlayerSP) {
-            final EntityPlayerSP player = (EntityPlayerSP) entity;
-            final ItemStack activeStack = player.getActiveItemStack();
+        if (entity instanceof EntityPlayerSP) {
+            if (world.isRemote && isSelected) {
+                final EntityPlayerSP player = (EntityPlayerSP) entity;
+                final ItemStack activeStack = player.getActiveItemStack();
 
-            if (!activeStack.isEmpty() && activeStack.getItem() == this) {
-                player.movementInput.moveForward *= 4.5;
-                player.movementInput.moveStrafe *= 4.5;
+                if (!activeStack.isEmpty() && activeStack.getItem() == this) {
+                    player.movementInput.moveForward *= 4.5;
+                    player.movementInput.moveStrafe *= 4.5;
+                }
             }
         }
     }

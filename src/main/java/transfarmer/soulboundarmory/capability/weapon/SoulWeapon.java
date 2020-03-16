@@ -29,12 +29,14 @@ import static net.minecraftforge.common.util.Constants.AttributeModifierOperatio
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_SHARPNESS;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponDatum.WEAPON_DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.WEAPON_DATA;
 
 public class SoulWeapon implements ISoulWeapon {
     private EntityPlayer player;
     private SoulDatum datum;
     private SoulType currentType;
+    private double charging;
+    private boolean fallDamage = true;
     private int currentTab = 1;
     private int attackCooldown = 0;
     private int lightningCooldown = 60;
@@ -415,6 +417,26 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public void decrementLightningCooldown() {
         this.lightningCooldown--;
+    }
+
+    @Override
+    public double getCharging() {
+        return this.charging;
+    }
+
+    @Override
+    public void setCharging(final double charging) {
+        this.charging = charging;
+    }
+
+    @Override
+    public boolean getFallDamage() {
+        return this.fallDamage;
+    }
+
+    @Override
+    public void setFallDamage(final boolean fallDamage) {
+        this.fallDamage = fallDamage;
     }
 
     @Override

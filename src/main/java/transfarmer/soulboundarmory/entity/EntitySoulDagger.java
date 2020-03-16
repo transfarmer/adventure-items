@@ -289,17 +289,14 @@ public class EntitySoulDagger extends EntityArrow {
             if (this.shootingEntity instanceof EntityPlayer) {
                 final EntityPlayer player = (EntityPlayer) this.shootingEntity;
                 final ISoulWeapon capability = SoulWeaponProvider.get(player);
-
                 final DamageSource damageSource = this.shootingEntity == null
                         ? DamageSource.causeThrownDamage(this, this)
                         : DamageSource.causeThrownDamage(this, this.shootingEntity);
-
-                int burnTime = 0;
-
                 final float attackDamageModifier = entity instanceof EntityLivingBase
                         ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
                         : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);
                 final float attackDamage = (capability.getAttribute(ATTACK_DAMAGE, DAGGER, true, true) + attackDamageModifier) * this.attackDamageRatio;
+                int burnTime = 0;
 
                 if (attackDamage > 0) {
                     final int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
@@ -332,7 +329,7 @@ public class EntitySoulDagger extends EntityArrow {
                             if (entity instanceof EntityLivingBase) {
                                 ((EntityLivingBase) entity).knockBack(player, knockbackModifier * 0.5F, MathHelper.sin(player.rotationYaw * 0.017453292F), -MathHelper.cos(player.rotationYaw * 0.017453292F));
                             } else {
-                                entity.addVelocity(-MathHelper.sin(player.rotationYaw * 0.017453292F) * knockbackModifier * 0.5F, 0.1D, MathHelper.cos(player.rotationYaw * 0.017453292F) * knockbackModifier * 0.5F);
+                                entity.addVelocity(-MathHelper.sin(player.rotationYaw * 0.017453292F) * knockbackModifier * 0.5, 0.1, MathHelper.cos(player.rotationYaw * 0.017453292F) * knockbackModifier * 0.5);
                             }
                         }
 
@@ -368,10 +365,10 @@ public class EntitySoulDagger extends EntityArrow {
                                 ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, entity.posX, entity.posY + entity.height * 0.5, entity.posZ, (int) (damageDealt * 0.5), 0.1, 0, 0.1, 0.2);
                             }
                         }
-                    }
-                } else {
-                    if (burnTime > 0) {
-                        entity.extinguish();
+                    } else {
+                        if (burnTime > 0) {
+                            entity.extinguish();
+                        }
                     }
                 }
             }
@@ -414,8 +411,7 @@ public class EntitySoulDagger extends EntityArrow {
             if (this.isClone) {
                 player.onItemPickup(this, 1);
                 this.setDead();
-            }
-            else if (player.isCreative() && SoulItemHelper.hasSoulWeapon(player)) {
+            } else if (player.isCreative() && SoulItemHelper.hasSoulWeapon(player)) {
                 player.onItemPickup(this, 1);
                 this.setDead();
             } else if (SoulItemHelper.addItemStack(this.getArrowStack(), player, true)) {

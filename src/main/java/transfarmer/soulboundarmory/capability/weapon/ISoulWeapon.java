@@ -21,4 +21,12 @@ public interface ISoulWeapon extends ISoulCapability {
     void resetLightningCooldown();
 
     void decrementLightningCooldown();
+
+    double getCharging();
+
+    void setCharging(double charging);
+
+    boolean getFallDamage();
+
+    void setFallDamage(boolean fallDamage);
 }

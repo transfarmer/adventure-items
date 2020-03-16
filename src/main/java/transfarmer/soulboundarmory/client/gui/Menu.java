@@ -137,7 +137,7 @@ public abstract class Menu extends GuiScreen {
 
     public class GUIFactory {
         public GuiButton tabButton(final int id, final int row, final String text) {
-            return new GuiButton(id, width / 24, height / 16 + Math.max(height / 16 * (Configuration.menuOffset - 1 + row), 30 * row), Math.max(96, Math.round(width / 7.5F)), 20, text);
+            return new GuiButton(id, width / 24, height / 16 + Math.max(height / 16 * row, 30 * row), Math.max(96, Math.round(width / 7.5F)), 20, text);
         }
 
         public GuiButton centeredButton(final int id, final int y, final int buttonWidth, final String text) {
@@ -157,11 +157,11 @@ public abstract class Menu extends GuiScreen {
         private final NumberFormat FORMAT = DecimalFormat.getInstance();
 
         public void drawMiddleAttribute(String format, float value, int row) {
-            drawString(fontRenderer, String.format(format, FORMAT.format(value)), (width - 182) / 2, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
+            drawString(fontRenderer, String.format(format, FORMAT.format(value)), (width - 182) / 2, (row + 1) * height / 16, 0xFFFFFF);
         }
 
         public void drawMiddleEnchantment(String entry, int row) {
-            drawString(fontRenderer, entry, (width - 182) / 2, (row + Configuration.menuOffset) * height / 16, 0xFFFFFF);
+            drawString(fontRenderer, entry, (width - 182) / 2, (row + 1) * height / 16, 0xFFFFFF);
         }
     }
 }
