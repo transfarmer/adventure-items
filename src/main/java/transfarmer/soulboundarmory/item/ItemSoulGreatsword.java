@@ -11,6 +11,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.WEAPON_DATA;
@@ -53,7 +54,9 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
             entity.addVelocity(look.x * speed, look.y * speed / 4 + 0.2, look.z * speed);
 
             if (entity instanceof EntityPlayer) {
-                SoulWeaponProvider.get(entity).setCharging(maxSpeed / speed);
+                final ISoulWeapon capability = SoulWeaponProvider.get(entity);
+
+                capability.setCharging(maxSpeed / speed);
             }
         }
     }
@@ -61,15 +64,13 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
 
     @Override
     public void onUpdate(final ItemStack itemStack, final World world, final Entity entity, final int itemSlot, final boolean isSelected) {
-        if (entity instanceof EntityPlayerSP) {
-            if (world.isRemote && isSelected) {
-                final EntityPlayerSP player = (EntityPlayerSP) entity;
-                final ItemStack activeStack = player.getActiveItemStack();
+        if (world.isRemote && isSelected) {
+            final EntityPlayerSP player = (EntityPlayerSP) entity;
+            final ItemStack activeStack = player.getActiveItemStack();
 
-                if (!activeStack.isEmpty() && activeStack.getItem() == this) {
-                    player.movementInput.moveForward *= 4.5;
-                    player.movementInput.moveStrafe *= 4.5;
-                }
+            if (!activeStack.isEmpty() && activeStack.getItem() == this) {
+                player.movementInput.moveForward *= 4.5;
+                player.movementInput.moveStrafe *= 4.5;
             }
         }
     }

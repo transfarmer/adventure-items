@@ -5,20 +5,25 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent.Register;
@@ -345,15 +350,23 @@ public class EventSubscriber {
 
             if (capability.getCharging() > 0) {
                 if (capability.getCharging() >= 0.999) {
-                    final Entity player = event.getEntity();
-                    final int radius = 6;
+                    final EntityLivingBase player = event.getEntityLiving();
+                    final int radius = Math.min(10, Math.round(2 * event.getDistance()));
 
                     for (final Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player,
                             new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
                                     player.posX + radius, player.posY + radius, player.posZ + radius))) {
-                        if (entity instanceof EntityLivingBase) {
-                            final Vec3d pos = entity.getPositionVector();
-                            frozenEntities.put(entity, 40);
+                        if ((entity instanceof EntityLivingBase || entity instanceof IProjectile) && player.world instanceof WorldServer ) {
+                            ((WorldServer) player.world).spawnParticle(EnumParticleTypes.SNOWBALL, entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, 32, 0.1, 0, 0.1, 2D);
+                            entity.playSound(SoundEvents.BLOCK_SNOW_HIT, 1, 1.2F / (entity.world.rand.nextFloat() * 0.2F + 0.9F));
+
+                            frozenEntities.put(entity, Math.min(60, Math.round(20 * event.getDistance())));
+
+                            if (entity instanceof EntityCreeper) {
+                                ((EntityCreeper) entity).setCreeperState(-1);
+                            } else if (entity instanceof IProjectile) {
+                                entity.motionX = entity.motionZ = 0;
+                            }
                         }
                     }
                 }

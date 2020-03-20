@@ -9,3 +9,5 @@ printf "%s\n" "$relevant" > build.gradle
 ./gradlew clean
 ./gradlew build
 printf "%s\n" "$copy" >> build.gradle
+
+sba

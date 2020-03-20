@@ -25,8 +25,4 @@ public interface ISoulWeapon extends ISoulCapability {
     double getCharging();
 
     void setCharging(double charging);
-
-    boolean getFallDamage();
-
-    void setFallDamage(boolean fallDamage);
 }

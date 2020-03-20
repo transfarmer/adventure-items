@@ -133,7 +133,6 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                                     player.setLastAttackedEntity(entity);
 
                                     EnchantmentHelper.applyThornEnchantments(target, player);
-
                                     EnchantmentHelper.applyArthropodEnchantments(player, entity);
 
                                     final float damageDealt = initialHealth - target.getHealth();
@@ -144,8 +143,8 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                                     }
 
                                     if (player.world instanceof WorldServer && damageDealt > 2) {
-                                        int k = (int) ((double) damageDealt * 0.5);
-                                        ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, entity.posX, entity.posY + entity.height * 0.5, entity.posZ, k, 0.1, 0, 0.1, 0.2);
+                                        final int particles = (int) (damageDealt * 0.5);
+                                        ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, entity.posX, entity.posY + entity.height * 0.5, entity.posZ, particles, 0.1, 0, 0.1, 0.2);
                                     }
                                 }
                             } else {
