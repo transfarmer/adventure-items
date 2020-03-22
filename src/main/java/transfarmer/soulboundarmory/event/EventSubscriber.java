@@ -1,98 +1,62 @@
 package transfarmer.soulboundarmory.event;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IProjectile;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntitySlime;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.client.event.RenderTooltipEvent;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.RegistryEvent.Register;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerDropsEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
-import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.Configuration;
-import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.ISoulCapability;
-import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
-import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
-import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
-import transfarmer.soulboundarmory.entity.EntityReachModifier;
-import transfarmer.soulboundarmory.entity.EntitySoulDagger;
-import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
-import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.item.ISoulItem;
-import transfarmer.soulboundarmory.item.ItemSoulPick;
-import transfarmer.soulboundarmory.item.ItemSoulWeapon;
-import transfarmer.soulboundarmory.network.client.CConfig;
-import transfarmer.soulboundarmory.network.client.CLevelupMessage;
-import transfarmer.soulboundarmory.network.client.tool.CToolData;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
-import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
-import transfarmer.util.ItemHelper;
+import net.minecraft.block.material.*;
+import net.minecraft.client.*;
+import net.minecraft.client.resources.*;
+import net.minecraft.entity.*;
+import net.minecraft.entity.ai.attributes.*;
+import net.minecraft.entity.item.*;
+import net.minecraft.entity.monster.*;
+import net.minecraft.entity.player.*;
+import net.minecraft.init.*;
+import net.minecraft.item.*;
+import net.minecraft.potion.*;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.event.*;
+import net.minecraftforge.event.RegistryEvent.*;
+import net.minecraftforge.event.entity.living.*;
+import net.minecraftforge.event.entity.living.LivingEvent.*;
+import net.minecraftforge.event.entity.player.*;
+import net.minecraftforge.event.entity.player.PlayerEvent.*;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.*;
+import net.minecraftforge.event.world.BlockEvent.*;
+import net.minecraftforge.event.world.*;
+import net.minecraftforge.fml.common.Mod.*;
+import net.minecraftforge.fml.common.eventhandler.*;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.*;
+import net.minecraftforge.fml.common.gameevent.TickEvent.*;
+import net.minecraftforge.fml.common.registry.*;
+import net.minecraftforge.fml.relauncher.*;
+import transfarmer.soulboundarmory.*;
+import transfarmer.soulboundarmory.capability.*;
+import transfarmer.soulboundarmory.capability.tool.*;
+import transfarmer.soulboundarmory.capability.weapon.*;
+import transfarmer.soulboundarmory.client.gui.*;
+import transfarmer.soulboundarmory.entity.*;
+import transfarmer.soulboundarmory.item.*;
+import transfarmer.soulboundarmory.network.client.*;
+import transfarmer.soulboundarmory.network.client.tool.*;
+import transfarmer.soulboundarmory.network.client.weapon.*;
+import transfarmer.soulboundarmory.statistics.*;
+import transfarmer.soulboundarmory.statistics.tool.*;
+import transfarmer.soulboundarmory.util.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.concurrent.*;
 
-import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
-import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
-import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
-import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_TOOL;
-import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_WEAPON;
-import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
-import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
-import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
+import static net.minecraft.inventory.EntityEquipmentSlot.*;
+import static net.minecraftforge.fml.common.eventhandler.Event.Result.*;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.*;
+import static net.minecraftforge.fml.relauncher.Side.*;
+import static transfarmer.soulboundarmory.Main.ResourceLocations.*;
+import static transfarmer.soulboundarmory.client.KeyBindings.*;
+import static transfarmer.soulboundarmory.init.ModItems.*;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.*;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.*;
+import static transfarmer.soulboundarmory.statistics.SoulType.*;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
@@ -102,6 +66,7 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class EventSubscriber {
     private static final Map<Entity, Integer> frozenEntities = new ConcurrentHashMap<>();
+    private static final Map<Runnable, Integer> scheduledTasks = new ConcurrentHashMap<>();
 
     @SubscribeEvent
     public static void onRegisterEntityEntry(final Register<EntityEntry> entry) {
@@ -233,7 +198,7 @@ public class EventSubscriber {
             final SoulType weaponType;
 
             if (trueSource instanceof EntityPlayer) {
-                final ISoulWeapon instance = SoulWeaponProvider.get(trueSource);
+                final ISoulCapability instance = SoulWeaponProvider.get(trueSource);
 
                 if (source instanceof EntitySoulDagger) {
                     weaponType = DAGGER;
@@ -258,10 +223,10 @@ public class EventSubscriber {
 
     @SubscribeEvent
     public static void onLivingKnockback(final LivingKnockBackEvent event) {
-        if (!event.getAttacker().world.isRemote) {
+        if (!event.getEntity().world.isRemote) {
             Entity attacker = event.getAttacker();
             SoulType weaponType = null;
-            final ISoulWeapon instance = SoulWeaponProvider.get(attacker);
+            final ISoulCapability instance = SoulWeaponProvider.get(attacker);
 
             if (attacker instanceof EntitySoulDagger) {
                 attacker = ((EntitySoulDagger) attacker).shootingEntity;
@@ -274,6 +239,14 @@ public class EventSubscriber {
                 if (SoulItemHelper.isSoulWeaponEquipped((EntityPlayer) attacker)) {
                     event.setStrength(event.getStrength() * (1 + instance.getAttribute(KNOCKBACK_ATTRIBUTE, weaponType) / 6));
                 }
+            }
+        }
+
+        if (event.getEntity() instanceof EntityPlayer) {
+            final ISoulWeapon capability = SoulWeaponProvider.get(event.getEntity());
+
+            if (capability.getCharging() > 0) {
+                event.setCanceled(true);
             }
         }
     }
@@ -350,34 +323,79 @@ public class EventSubscriber {
 
             if (capability.getCharging() > 0) {
                 if (capability.getCharging() >= 0.999) {
-                    final EntityLivingBase player = event.getEntityLiving();
-                    final int radius = Math.min(10, Math.round(2 * event.getDistance()));
-
-                    for (final Entity entity : player.world.getEntitiesWithinAABBExcludingEntity(player,
+                    final EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+                    final double radius = Math.min(6, 2 * event.getDistance());
+                    final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player,
                             new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
-                                    player.posX + radius, player.posY + radius, player.posZ + radius))) {
-                        if ((entity instanceof EntityLivingBase || entity instanceof IProjectile) && player.world instanceof WorldServer ) {
-                            ((WorldServer) player.world).spawnParticle(EnumParticleTypes.SNOWBALL, entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, 32, 0.1, 0, 0.1, 2D);
-                            entity.playSound(SoundEvents.BLOCK_SNOW_HIT, 1, 1.2F / (entity.world.rand.nextFloat() * 0.2F + 0.9F));
+                                    player.posX + radius, player.posY + radius, player.posZ + radius));
+                    for (final Entity entity : nearbyEntities) {
+                        if (entity.getDistanceSq(entity) <= radius * radius) {
+                            freezeEntity(entity, player, 0.4F * event.getDistance(), event.getDistance());
+                        }
+                    }
 
-                            frozenEntities.put(entity, Math.min(60, Math.round(20 * event.getDistance())));
+                    if (!nearbyEntities.isEmpty() && player.world instanceof WorldServer) {
+                        final WorldServer world = (WorldServer) player.world;
 
-                            if (entity instanceof EntityCreeper) {
-                                ((EntityCreeper) entity).setCreeperState(-1);
-                            } else if (entity instanceof IProjectile) {
-                                entity.motionX = entity.motionZ = 0;
-                            }
+                        for (double i = 0; i <= 2 * radius; i += radius / 64F) {
+                            final double x = radius - i;
+                            final double z = Math.sqrt((radius * radius - x * x));
+                            final int particles = 1;
+
+                            world.spawnParticle(EnumParticleTypes.SNOWBALL,
+                                    player.posX + x,
+                                    player.posY + player.eyeHeight,
+                                    player.posZ + z,
+                                    particles, 0, 0, 0, 0D
+                            );
+
+                            world.spawnParticle(EnumParticleTypes.SNOWBALL,
+                                    player.posX + x,
+                                    player.posY + player.eyeHeight,
+                                    player.posZ - z,
+                                    particles, 0, 0, 0, 0D
+                            );
                         }
                     }
                 }
 
                 if (event.getDistance() <= 16 * capability.getCharging()) {
                     event.setCanceled(true);
-                } else if (capability.getCharging() >= 0.5) {
-                    event.setDamageMultiplier(event.getDamageMultiplier() / (float) (2 * capability.getCharging()));
+                } else if (capability.getCharging() > 0) {
+                    event.setDamageMultiplier(event.getDamageMultiplier()
+                            / (float) (Math.max(1, Math.log(4 * capability.getCharging()) / Math.log(2))));
                 }
 
                 capability.setCharging(0);
+            }
+        }
+    }
+
+    private static void freezeEntity(final Entity entity, final EntityPlayer player,
+                                     final float damage, final float seconds) {
+        if (entity.isNonBoss() && (entity instanceof EntityLivingBase || entity instanceof IProjectile)
+                && !(entity instanceof EntityReachModifier) && player.world instanceof WorldServer) {
+            ((WorldServer) player.world).spawnParticle(EnumParticleTypes.SNOWBALL,
+                    entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, 32, 0.1, 0, 0.1, 2D);
+            entity.playSound(SoundEvents.BLOCK_SNOW_HIT, 1, 1.2F / (entity.world.rand.nextFloat() * 0.2F + 0.9F));
+            entity.extinguish();
+
+            frozenEntities.put(entity, Math.min(60, Math.round(20 * seconds)));
+
+            if (entity instanceof EntityLivingBase) {
+                entity.attackEntityFrom(DamageSource.causeIndirectMagicDamage(player, null).setDamageIsAbsolute(),
+                        damage);
+            }
+
+            if (entity instanceof EntityCreeper) {
+                ((EntityCreeper) entity).setCreeperState(-1);
+            }
+
+            if (entity instanceof IProjectile) {
+                entity.motionX = entity.motionZ = 0;
+            }
+
+            if (entity instanceof EntityPigZombie) {
             }
         }
     }
@@ -476,6 +494,19 @@ public class EventSubscriber {
         }
     }
 
+    @SubscribeEvent
+    public static void onLivingAttack(final LivingAttackEvent event) {
+        if (event.getEntity() instanceof EntityPlayer
+                && SoulWeaponProvider.get(event.getEntity()).getCharging() > 0) {
+            final DamageSource damageSource = event.getSource();
+
+            if (!damageSource.damageType.equals("explosion") && !damageSource.damageType.equals("explosion.player")
+                    && !(damageSource instanceof EntityDamageSourceIndirect)) {
+                event.setCanceled(true);
+            }
+        }
+    }
+
     /*
     @SideOnly(CLIENT)
     @SubscribeEvent
@@ -501,7 +532,7 @@ public class EventSubscriber {
         if (frozenEntities.containsKey(entity)) {
             final int ticks = frozenEntities.get(entity);
 
-            if (ticks > 0 && entity.isEntityAlive()) {
+            if (ticks > 0 && entity.isEntityAlive() && !entity.isBurning()) {
                 if (entity.hurtResistantTime > 0) {
                     entity.hurtResistantTime--;
                 }
@@ -511,6 +542,50 @@ public class EventSubscriber {
                 frozenEntities.put(entity, ticks - 1);
             } else {
                 frozenEntities.remove(entity);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onGetCollsionBoxes(final GetCollisionBoxesEvent event) {
+        if (!event.getWorld().isRemote && event.getEntity() instanceof EntityPlayer) {
+            final ISoulWeapon capability = SoulWeaponProvider.get(event.getEntity());
+
+            if (capability.getCharging() > 0) {
+                final EntityPlayer player = (EntityPlayer) event.getEntity();
+                final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, event.getAabb());
+
+                for (final Entity entity : nearbyEntities) {
+                    freezeEntity(entity, player, 3 * (float) Math.sqrt(player.motionX * player.motionX
+                            + player.motionY * player.motionY
+                            + player.motionZ * player.motionZ), 1
+                    );
+                }
+
+                if (event.getEntity().motionY == 0 && player.onGround) {
+                    scheduledTasks.put(new Runnable() {
+                        @Override
+                        public void run() {
+                            capability.setCharging(0);
+                        }
+                    }, 7);
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onWorldTick(final WorldTickEvent event) {
+        if (event.phase == END) {
+            for (final Runnable task : scheduledTasks.keySet()) {
+                final Integer ticks = scheduledTasks.get(task);
+
+                if (ticks > 0) {
+                    scheduledTasks.put(task, ticks - 1);
+                } else {
+                    task.run();
+                    scheduledTasks.remove(task);
+                }
             }
         }
     }

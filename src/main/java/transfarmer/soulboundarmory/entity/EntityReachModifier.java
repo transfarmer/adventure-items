@@ -31,7 +31,7 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 public class EntityReachModifier extends EntityArrow {
     private float reachDistance;
 
-    public EntityReachModifier(World worldIn) {
+    public EntityReachModifier(final World worldIn) {
         super(worldIn);
     }
 
@@ -84,7 +84,7 @@ public class EntityReachModifier extends EntityArrow {
     }
 
     @Override
-    protected void onHit(RayTraceResult result) {
+    protected void onHit(final RayTraceResult result) {
         if (!this.world.isRemote && result.entityHit != this.shootingEntity && this.shootingEntity instanceof EntityPlayer) {
             final Entity target = result.entityHit;
             final EntityPlayer player = (EntityPlayer) this.shootingEntity;
@@ -117,7 +117,7 @@ public class EntityReachModifier extends EntityArrow {
                             && !player.isInWater() && !player.isPotionActive(MobEffects.BLINDNESS) && !player.isRiding()
                             && target instanceof EntityLivingBase && !player.isSprinting();
 
-                        CriticalHitEvent hitResult = ForgeHooks.getCriticalHit(player, target, critical, critical ? 1.5F : 1);
+                        final CriticalHitEvent hitResult = ForgeHooks.getCriticalHit(player, target, critical, critical ? 1.5F : 1);
                         critical = hitResult != null;
 
                         if (critical) {
@@ -158,12 +158,12 @@ public class EntityReachModifier extends EntityArrow {
                             }
 
                             if (sweep) {
-                                float f3 = 1.0F + EnchantmentHelper.getSweepingDamageRatio(player) * attackDamageModifier;
+                                float attackDamage = 1.0F + EnchantmentHelper.getSweepingDamageRatio(player) * attackDamageModifier;
 
-                                for (EntityLivingBase entitylivingbase : player.world.getEntitiesWithinAABB(EntityLivingBase.class, target.getEntityBoundingBox().grow(1, 0.25, 1))) {
-                                    if (entitylivingbase != player && entitylivingbase != target && !player.isOnSameTeam(entitylivingbase) && player.getDistanceSq(entitylivingbase) < 9) {
-                                        entitylivingbase.knockBack(player, 0.4F, MathHelper.sin(player.rotationYaw * 0.017453292F), -MathHelper.cos(player.rotationYaw * 0.017453292F));
-                                        entitylivingbase.attackEntityFrom(DamageSource.causePlayerDamage(player), f3);
+                                for (final EntityLivingBase entity : player.world.getEntitiesWithinAABB(EntityLivingBase.class, target.getEntityBoundingBox())) {
+                                    if (entity != player && entity != target && !player.isOnSameTeam(entity) && player.getDistanceSq(entity) < this.reachDistance * this.reachDistance) {
+                                        entity.knockBack(player, 0.4F, MathHelper.sin(player.rotationYaw * 0.017453292F), -MathHelper.cos(player.rotationYaw * 0.017453292F));
+                                        entity.attackEntityFrom(DamageSource.causePlayerDamage(player), attackDamage);
                                     }
                                 }
 

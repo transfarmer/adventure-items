@@ -25,6 +25,8 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.util.ISoulboundDamageSource;
+import transfarmer.soulboundarmory.util.SoulboundDamageSource;
 
 import java.util.UUID;
 
@@ -290,8 +292,11 @@ public class EntitySoulDagger extends EntityArrow {
                 final EntityPlayer player = (EntityPlayer) this.shootingEntity;
                 final ISoulWeapon capability = SoulWeaponProvider.get(player);
                 final DamageSource damageSource = this.shootingEntity == null
-                        ? DamageSource.causeThrownDamage(this, this)
-                        : DamageSource.causeThrownDamage(this, this.shootingEntity);
+                        ? SoulboundDamageSource.causeThrownDamage(this, this)
+                        : SoulboundDamageSource.causeThrownDamage(this, this.shootingEntity);
+
+                ((ISoulboundDamageSource) damageSource).setItemStack(this.getArrowStack());
+
                 final float attackDamageModifier = entity instanceof EntityLivingBase
                         ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
                         : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);

@@ -21,6 +21,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.util.SoulboundDamageSource;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
     private int boltLivingTime;
 
     public EntitySoulLightningBolt(final World world, final double x, final double y, final double z, final EntityLivingBase caster) {
-        super(world, x, y, z, false);
+        super(world, x, y, z, true);
 
         this.caster = caster;
         this.lightningState = 2;
@@ -96,12 +97,9 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                             final EntityLivingBase target = (EntityLivingBase) entity;
                             final ItemStack itemStack = player.getHeldItemMainhand();
                             final ISoulWeapon capability = SoulWeaponProvider.get(player);
-
-                            final DamageSource damageSource = DamageSource.causeThrownDamage(this, player);
-
-                            int burnTime = 0;
-
+                            final DamageSource damageSource = SoulboundDamageSource.causeIndirectDamage(this, player);
                             final float attackDamageModifier = EnchantmentHelper.getModifierForCreature(itemStack, target.getCreatureAttribute());
+                            int burnTime = 0;
 
                             if (attackDamage > 0 || attackDamageModifier > 0) {
                                 final int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
@@ -136,6 +134,7 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                                     EnchantmentHelper.applyArthropodEnchantments(player, entity);
 
                                     final float damageDealt = initialHealth - target.getHealth();
+
                                     player.addStat(StatList.DAMAGE_DEALT, Math.round(damageDealt * 10));
 
                                     if (burnTime > 0) {
@@ -144,12 +143,9 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
 
                                     if (player.world instanceof WorldServer && damageDealt > 2) {
                                         final int particles = (int) (damageDealt * 0.5);
+
                                         ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, entity.posX, entity.posY + entity.height * 0.5, entity.posZ, particles, 0.1, 0, 0.1, 0.2);
                                     }
-                                }
-                            } else {
-                                if (burnTime > 0) {
-                                    entity.extinguish();
                                 }
                             }
                         } else {

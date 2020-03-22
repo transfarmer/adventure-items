@@ -16,7 +16,7 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
-import transfarmer.util.ListUtils;
+import transfarmer.soulboundarmory.util.ListUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -29,6 +29,7 @@ public class SoulItemHelper {
     public static final UUID ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
     public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
+    public static final UUID KNOCKBACK_RESISTANCE_UUID = UUID.fromString("05505380-CD5D-4B4F-9FF9-23ABF541B2B2");
     private static boolean datumEquality;
 
     public static ISoulCapability getCapability(final Class<? extends ISoulCapability> cls, final EntityPlayer player) {

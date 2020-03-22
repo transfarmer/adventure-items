@@ -15,7 +15,7 @@ import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.util.ItemHelper;
+import transfarmer.soulboundarmory.util.ItemHelper;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

@@ -52,6 +52,7 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
             final double speed = Math.min(maxSpeed, timeTaken / 15F * maxSpeed);
 
             entity.addVelocity(look.x * speed, look.y * speed / 4 + 0.2, look.z * speed);
+            entity.setSprinting(true);
 
             if (entity instanceof EntityPlayer) {
                 final ISoulWeapon capability = SoulWeaponProvider.get(entity);

@@ -186,7 +186,7 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public ItemStack getItemStack(final SoulType type) {
         final ItemStack itemStack = new ItemStack(type.getItem());
-        final AttributeModifier[] attributeModifiers = getAttributeModifiers(type);
+        final AttributeModifier[] attributeModifiers = this.getAttributeModifiers(type);
         final Map<SoulEnchantment, Integer> enchantments = this.getEnchantments(type);
 
         itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), attributeModifiers[0], MAINHAND);
@@ -203,7 +203,7 @@ public class SoulWeapon implements ISoulWeapon {
         return new AttributeModifier[]{
                 new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttribute(ATTACK_SPEED, type, true), ADD),
                 new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttribute(ATTACK_DAMAGE, type, true), ADD),
-                new AttributeModifier(SoulItemHelper.REACH_DISTANCE_UUID, "generic.reachDistance", this.currentType.getSoulItem().getReachDistance(), ADD)
+                new AttributeModifier(SoulItemHelper.REACH_DISTANCE_UUID, "generic.reachDistance", this.currentType.getSoulItem().getReachDistance(), ADD),
         };
     }
 

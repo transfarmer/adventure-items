@@ -1,6 +1,6 @@
 package transfarmer.soulboundarmory.statistics;
 
-import transfarmer.util.ListUtils;
+import transfarmer.soulboundarmory.util.ListUtils;
 
 import java.util.List;
 
