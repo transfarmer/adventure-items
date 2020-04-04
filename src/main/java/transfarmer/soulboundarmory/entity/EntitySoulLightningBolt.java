@@ -1,34 +1,25 @@
 package transfarmer.soulboundarmory.entity;
 
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.entity.monster.EntityEnderman;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.stats.StatList;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.event.ForgeEventFactory;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.util.SoulboundDamageSource;
+import net.minecraft.block.material.*;
+import net.minecraft.enchantment.*;
+import net.minecraft.entity.*;
+import net.minecraft.entity.effect.*;
+import net.minecraft.entity.monster.*;
+import net.minecraft.entity.player.*;
+import net.minecraft.init.*;
+import net.minecraft.item.*;
+import net.minecraft.nbt.*;
+import net.minecraft.stats.*;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
+import net.minecraftforge.event.*;
+import transfarmer.soulboundarmory.capability.weapon.*;
+import transfarmer.soulboundarmory.util.*;
 
-import java.util.List;
-
-import static transfarmer.soulboundarmory.statistics.SoulAttribute.ATTACK_DAMAGE;
-import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_FIRE_ASPECT;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
+import static transfarmer.soulboundarmory.statistics.SoulAttribute.*;
+import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.*;
 
 public class EntitySoulLightningBolt extends EntityLightningBolt {
     private EntityLivingBase caster;
@@ -76,10 +67,31 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
             if (this.world.isRemote) {
                 this.world.setLastLightningBolt(2);
             } else {
-                final double radius = 3;
-                final List<Entity> nearbyEntities = this.world.getEntitiesWithinAABBExcludingEntity(this, new AxisAlignedBB(this.posX - radius, this.posY - radius, this.posZ - radius, this.posX + radius, this.posY + 6 + radius, this.posZ + radius));
+                final BlockPos[] nearby = {
+                        this.getPosition(),
+                        new BlockPos(this.posX, this.posY - 1, this.posZ),
+                };
 
-                for (final Entity entity : nearbyEntities) {
+                boolean obsidianNearby = false;
+
+                for (final BlockPos pos : nearby) {
+                    if (this.world.getBlockState(pos).getBlock() == Blocks.OBSIDIAN) {
+                        obsidianNearby = true;
+                    }
+                }
+
+                if (obsidianNearby) {
+                    for (final BlockPos pos : nearby) {
+                        if (this.world.getBlockState(pos).getMaterial() == Material.AIR && Blocks.FIRE.canPlaceBlockAt(this.world, pos)) {
+                            this.world.setBlockState(pos, Blocks.FIRE.getDefaultState());
+                        }
+                    }
+                }
+
+                final double radius = 3;
+
+                for (final Entity entity : this.world.getEntitiesWithinAABBExcludingEntity(this,
+                        new AxisAlignedBB(this.posX - radius, this.posY - radius, this.posZ - radius, this.posX + radius, this.posY + 6 + radius, this.posZ + radius))) {
                     final float attackDamage = this.caster instanceof EntityPlayer
                             ? SoulWeaponProvider.get(this.caster).getAttribute(ATTACK_DAMAGE, SWORD, true, true)
                             : 5;

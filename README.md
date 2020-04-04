@@ -1,5 +1,4 @@
 ## to do
-- enable lighting Nether portals with soulbound sword lightning;
 - implement a skill tree;
 - implement the soulbound staff;
 - update to 1.15.2;

@@ -412,7 +412,9 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public void resetLightningCooldown() {
-        this.lightningCooldown = Math.round(96 / this.getAttribute(ATTACK_SPEED, this.currentType, true, true));
+        if (!this.player.isCreative()) {
+            this.lightningCooldown = Math.round(96 / this.getAttribute(ATTACK_SPEED, this.currentType, true, true));
+        }
     }
 
     @Override
