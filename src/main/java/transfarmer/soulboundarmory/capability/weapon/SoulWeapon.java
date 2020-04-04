@@ -282,6 +282,7 @@ public class SoulWeapon implements ISoulWeapon {
             }
         } else if (this.datum.level.equals(datum)) {
             final int level = ++this.data[type.getIndex()][this.datum.level.getIndex()];
+
             if (level % (Configuration.levelsPerEnchantment) == 0) {
                 this.addDatum(1, this.datum.enchantmentPoints, type);
             }
@@ -361,7 +362,7 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getCooldown(final SoulType type) {
-        return Math.round(20 / (4 + this.getAttribute(ATTACK_SPEED, type, true)));
+        return Math.round(20 / this.getAttribute(ATTACK_SPEED, type, true, true));
     }
 
     @Override
