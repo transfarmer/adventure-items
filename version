@@ -2,53 +2,52 @@
 from re import search
 
 
-index = None
-new = None
+def change_version(*filenames):
+    index = None
+    new = None
 
+    for filename in filenames:
+        with open(filename, 'r+') as file:
+            lines = file.readlines()
+            ver_expr = r'\d+\.\d+\.\d+'
+            type_expr = r'(-release|-beta|-alpha)'
 
-def change_version(filename):
-    global index
-    global new
+            for i in range(len(lines)):
+                line = lines[i]
+                match = search(f'{ver_expr}{type_expr}', line)
 
-    with open(filename, 'r+') as file:
-        lines = file.readlines()
-        ver_expr = r'\d+\.\d+\.\d+'
-        type_expr = r'(release|beta|alpha)'
+                if not match:
+                    match = search(ver_expr, line)
 
-        for i in range(len(lines)):
-            line = lines[i]
-            match = search(f'{ver_expr}-{type_expr}', line)
-
-            if match:
-                version = search(ver_expr, line)[0]
-                before = line[:line.index(version)]
-                after = line[line.index(version) + len(version):]
-                version = version.split('.')
-
-                if not index:
-                    print(f'\nThe current version in {filename} is {match[0]}.')
-                    index = search(r'[0-2]', input('Enter the version index to change.\n'))
+                if match:
+                    version = search(ver_expr, line)[0]
+                    before = line[:line.index(version)]
+                    after = line[line.index(version) + len(version):]
+                    version = version.split('.')
 
                     if not index:
-                        index = 2
-                        new = str(int(version[2]) + 1)
-                    else:
-                        index = int(index[0])
+                        print(f'\nThe current version in {filename} is {match[0]}.')
+                        index = search(r'[0-2]', input('Enter the version index to change.\n'))
 
-                    while not new:
-                        new = search(r'\d+', input('Enter the new number for this index.\n'))
+                        if not index:
+                            index = 2
+                            new = str(int(version[2]) + 1)
+                        else:
+                            index = int(index[0])
 
-                        if new:
-                            new = new[0]
+                        while not new:
+                            new = search(r'\d+', input('Enter the new number for this index.\n'))
 
-                version[index] = new
-                line = f'{before}{".".join(version)}{after}'
-                lines[i] = line
-                file.seek(0)
-                file.truncate()
-                file.write(''.join(lines))
-                break
+                            if new:
+                                new = new[0]
+
+                    version[index] = new
+                    line = f'{before}{".".join(version)}{after}'
+                    lines[i] = line
+                    file.seek(0)
+                    file.truncate()
+                    file.write(''.join(lines))
+                    break
 
 
-change_version('build.gradle')
-change_version('src/main/java/transfarmer/soulboundarmory/Main.java')
+change_version('build.gradle', 'src/main/java/transfarmer/soulboundarmory/Main.java')

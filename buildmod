@@ -10,4 +10,7 @@ printf "%s\n" "$relevant" > build.gradle
 ./gradlew build
 printf "%s\n" "$copy" >> build.gradle
 
-sba
+if [ "$USER" == "x" ]
+then
+    sba
+fi
