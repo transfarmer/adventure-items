@@ -1,25 +1,20 @@
 package transfarmer.soulboundarmory.item;
 
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import net.minecraft.client.entity.*;
+import net.minecraft.entity.*;
+import net.minecraft.entity.player.*;
+import net.minecraft.item.*;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
+import transfarmer.soulboundarmory.capability.weapon.*;
 
-import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.WEAPON_DATA;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREATSWORD;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.*;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.*;
 
 public class ItemSoulGreatsword extends ItemSoulWeapon {
     public ItemSoulGreatsword() {
-        super(3, -2.8F, 3);
+        super(3, -3.2F, 3);
     }
 
     @Override
@@ -36,6 +31,7 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
     public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
         if (!world.isRemote && player != null && SoulWeaponProvider.get(player).getDatum(WEAPON_DATA.skills, GREATSWORD) >= 1) {
             player.setActiveHand(hand);
+
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }
 

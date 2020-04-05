@@ -8,7 +8,7 @@ public class Configuration {
     @Comment("experience point multipliers")
     public static Multipliers multipliers = new Multipliers();
 
-    public static int initialWeaponXP = 48;
+    public static int initialWeaponXP = 64;
 
     public static int initialToolXP = 16;
 
@@ -21,8 +21,11 @@ public class Configuration {
     @Comment("whether levelup notifications should be sent to players or not")
     public static boolean levelupNotifications = true;
 
-    @Comment("maximum soul weapon level")
-    public static int maxLevel = 100;
+    @Comment({
+            "the maximum soulbound item level",
+            "Set to -1 for no limit."
+    })
+    public static int maxLevel = -1;
 
     @Comment("whether passive entities yield XP or not")
     public static boolean passiveXP = false;

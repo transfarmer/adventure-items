@@ -8,6 +8,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.capability.BaseSoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.ISoulItem;
@@ -22,44 +23,36 @@ import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulboundarmory.Configuration.initialWeaponXP;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.WEAPON_DATA;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_SHARPNESS;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.*;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.ATTACK_DAMAGE;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.ATTACK_SPEED;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.EFFICIENCY_ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
 
-public class SoulWeapon implements ISoulWeapon {
-    private EntityPlayer player;
-    private SoulDatum datum;
-    private SoulType currentType;
+public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     private double charging;
-    private double chargeVelocity;
-    private int currentTab = 1;
-    private int attackCooldown = 0;
-    private int lightningCooldown = 60;
-    private int boundSlot = -1;
-    private int[][] data;
-    private float[][] attributes;
-    private int[][] enchantments;
+    private int attackCooldown;
+    private int lightningCooldown;
+    private int daggerCharge;
 
     public SoulWeapon() {
-        this.datum = WEAPON_DATA;
-        this.data = new int[this.getItemAmount()][this.getDatumAmount()];
-        this.attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
-        this.enchantments = new int[this.getItemAmount()][this.getEnchantmentAmount()];
-    }
-
-    @Override
-    public EntityPlayer getPlayer() {
-        return this.player;
-    }
-
-    @Override
-    public void setPlayer(final EntityPlayer player) {
-        this.player = player;
+        super(WEAPON_DATA);
+        this.currentTab = 1;
+        this.boundSlot = -1;
+        this.attackCooldown = 0;
+        this.lightningCooldown = 60;
     }
 
     @Override
@@ -254,9 +247,9 @@ public class SoulWeapon implements ISoulWeapon {
 
     @Override
     public int getNextLevelXP(final SoulType type) {
-        return this.getDatum(this.datum.level, type) >= Configuration.maxLevel
-                ? 1
-                : Configuration.initialWeaponXP + 4 * (int) Math.round(Math.pow(this.getDatum(this.datum.level, type), 1.5));
+        return this.canLevelUp(type)
+                ? initialWeaponXP + 3 * (int) Math.round(Math.pow(this.getDatum(this.datum.level, type), 1.65))
+                : -1;
     }
 
     @Override
@@ -274,7 +267,7 @@ public class SoulWeapon implements ISoulWeapon {
         if (this.datum.xp.equals(datum)) {
             this.data[type.getIndex()][this.datum.xp.getIndex()] += amount;
 
-            if (this.getDatum(this.datum.xp, type) >= this.getNextLevelXP(type) && this.getDatum(this.datum.level, type) < Configuration.maxLevel) {
+            if (this.getDatum(this.datum.xp, type) >= this.getNextLevelXP(type) && this.canLevelUp(type)) {
                 final int nextLevelXP = this.getNextLevelXP(type);
                 this.addDatum(1, this.datum.level, type);
                 this.addDatum(-nextLevelXP, this.datum.xp, type);
@@ -321,16 +314,6 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public void setCurrentTab(final int tab) {
-        this.currentTab = tab;
-    }
-
-    @Override
-    public int getCurrentTab() {
-        return this.currentTab;
-    }
-
-    @Override
     public void setCurrentType(final SoulType type) {
         this.currentType = type;
     }
@@ -371,18 +354,8 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
-    public int getBoundSlot() {
-        return this.boundSlot;
-    }
-
-    @Override
     public int getItemAmount() {
         return SoulWeaponType.getAmount();
-    }
-
-    @Override
-    public int getDatumAmount() {
-        return this.datum.getAmount();
     }
 
     @Override
@@ -393,16 +366,6 @@ public class SoulWeapon implements ISoulWeapon {
     @Override
     public int getEnchantmentAmount() {
         return SoulWeaponEnchantment.getAmount();
-    }
-
-    @Override
-    public void bindSlot(final int boundSlot) {
-        this.boundSlot = boundSlot;
-    }
-
-    @Override
-    public void unbindSlot() {
-        this.boundSlot = -1;
     }
 
     @Override
@@ -433,13 +396,28 @@ public class SoulWeapon implements ISoulWeapon {
     }
 
     @Override
+    public int getDaggerCharge() {
+        return this.daggerCharge;
+    }
+
+    @Override
+    public void incrementDaggerCharge() {
+        this.daggerCharge++;
+    }
+
+    @Override
+    public void resetDaggerCharge() {
+        this.daggerCharge = 0;
+    }
+
+    @Override
     public Class<? extends ISoulItem> getBaseItemClass() {
         return ItemSoulWeapon.class;
     }
 
     @Override
     public void update() {
-        ISoulWeapon.super.update();
+        super.update();
 
         if (this.getCooldown() > 0) {
             this.decrementCooldown();

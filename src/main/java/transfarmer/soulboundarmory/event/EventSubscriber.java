@@ -1,63 +1,108 @@
 package transfarmer.soulboundarmory.event;
 
-import net.minecraft.block.material.*;
-import net.minecraft.client.*;
-import net.minecraft.client.resources.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.attributes.*;
-import net.minecraft.entity.item.*;
-import net.minecraft.entity.monster.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.init.*;
-import net.minecraft.item.*;
-import net.minecraft.potion.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.event.*;
-import net.minecraftforge.event.RegistryEvent.*;
-import net.minecraftforge.event.entity.living.*;
-import net.minecraftforge.event.entity.living.LivingEvent.*;
-import net.minecraftforge.event.entity.player.*;
-import net.minecraftforge.event.entity.player.PlayerEvent.*;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.*;
-import net.minecraftforge.event.world.BlockEvent.*;
-import net.minecraftforge.event.world.*;
-import net.minecraftforge.fml.common.Mod.*;
-import net.minecraftforge.fml.common.eventhandler.*;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.*;
-import net.minecraftforge.fml.common.gameevent.TickEvent.*;
-import net.minecraftforge.fml.common.registry.*;
-import net.minecraftforge.fml.relauncher.*;
-import transfarmer.soulboundarmory.*;
-import transfarmer.soulboundarmory.capability.*;
-import transfarmer.soulboundarmory.capability.tool.*;
-import transfarmer.soulboundarmory.capability.weapon.*;
-import transfarmer.soulboundarmory.client.gui.*;
-import transfarmer.soulboundarmory.entity.*;
-import transfarmer.soulboundarmory.item.*;
-import transfarmer.soulboundarmory.network.client.*;
-import transfarmer.soulboundarmory.network.client.tool.*;
-import transfarmer.soulboundarmory.network.client.weapon.*;
-import transfarmer.soulboundarmory.statistics.*;
-import transfarmer.soulboundarmory.statistics.tool.*;
-import transfarmer.soulboundarmory.util.*;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IProjectile;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.entity.monster.EntityPigZombie;
+import net.minecraft.entity.monster.EntitySlime;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSourceIndirect;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.RegistryEvent.Register;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.player.PlayerDropsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
+import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.event.world.GetCollisionBoxesEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.capability.ISoulCapability;
+import transfarmer.soulboundarmory.capability.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
+import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
+import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
+import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
+import transfarmer.soulboundarmory.entity.EntityReachModifier;
+import transfarmer.soulboundarmory.entity.EntitySoulDagger;
+import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
+import transfarmer.soulboundarmory.item.IItemSoulTool;
+import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.item.ItemSoulDagger;
+import transfarmer.soulboundarmory.item.ItemSoulPick;
+import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.soulboundarmory.network.client.CConfig;
+import transfarmer.soulboundarmory.network.client.CLevelupMessage;
+import transfarmer.soulboundarmory.network.client.tool.CToolData;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
+import transfarmer.soulboundarmory.statistics.SoulType;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.util.ItemHelper;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static net.minecraft.inventory.EntityEquipmentSlot.*;
-import static net.minecraftforge.fml.common.eventhandler.Event.Result.*;
-import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.*;
-import static net.minecraftforge.fml.relauncher.Side.*;
-import static transfarmer.soulboundarmory.Main.ResourceLocations.*;
-import static transfarmer.soulboundarmory.client.KeyBindings.*;
-import static transfarmer.soulboundarmory.init.ModItems.*;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.*;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.*;
-import static transfarmer.soulboundarmory.statistics.SoulType.*;
+import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
+import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
+import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_TOOL;
+import static transfarmer.soulboundarmory.Main.ResourceLocations.SOULBOUND_WEAPON;
+import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
+import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
+import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
@@ -206,7 +251,9 @@ public class EventSubscriber {
                     weaponType = instance.getCurrentType();
                 } else if (source instanceof EntitySoulLightningBolt) {
                     weaponType = SWORD;
-                } else return;
+                } else {
+                    return;
+                }
 
                 final float attackDamage = weaponType != null && instance.getAttribute(CRITICAL, weaponType) > new Random().nextInt(100)
                         ? 2 * event.getAmount()
@@ -265,6 +312,7 @@ public class EventSubscriber {
             Entity source = event.getSource().getImmediateSource();
 
             if (trueSource instanceof EntityPlayer) {
+                final EntityPlayer player = ((EntityPlayer) trueSource);
                 instance = SoulWeaponProvider.get(trueSource);
 
                 if (source instanceof EntitySoulDagger) {
@@ -274,12 +322,16 @@ public class EventSubscriber {
                 } else if (source instanceof EntitySoulLightningBolt) {
                     weaponType = SWORD;
                     source = ((EntitySoulLightningBolt) source).getCaster();
-                    displayName = ItemHelper.getEquippedItemStack((EntityPlayer) source, SOULBOUND_SWORD).getDisplayName();
+                    displayName = ItemHelper.getEquippedItemStack(player, SOULBOUND_SWORD).getDisplayName();
                 } else if (source instanceof EntityPlayer) {
-                    weaponType = instance.getCurrentType();
-                    displayName = ((EntityPlayerMP) source).getHeldItemMainhand().getDisplayName();
-                } else return;
-            } else return;
+                    weaponType = instance.getType((player.getHeldItemMainhand()));
+                    displayName = player.getHeldItemMainhand().getDisplayName();
+                } else {
+                    return;
+                }
+            } else {
+                return;
+            }
 
             if (source instanceof EntityPlayer && weaponType != null) {
                 if (attackDamage != null || Configuration.passiveXP || entity instanceof EntitySlime) {
@@ -371,8 +423,10 @@ public class EventSubscriber {
         }
     }
 
-    private static void freezeEntity(final Entity entity, final EntityPlayer player,
-                                     final float damage, final float seconds) {
+    private static void freezeEntity(
+            final Entity entity, final EntityPlayer player,
+            final float damage, final float seconds
+    ) {
         if (entity.isNonBoss() && (entity instanceof EntityLivingBase || entity instanceof IProjectile)
                 && !(entity instanceof EntityReachModifier) && player.world instanceof WorldServer) {
             ((WorldServer) player.world).spawnParticle(EnumParticleTypes.SNOWBALL,
@@ -450,7 +504,9 @@ public class EventSubscriber {
 
     @SubscribeEvent
     public static void onPlayerTick(final PlayerTickEvent event) {
-        if (event.phase != END) return;
+        if (event.phase != END) {
+            return;
+        }
 
         final ISoulCapability weaponCapability = SoulWeaponProvider.get(event.player);
         final ISoulCapability toolCapability = SoulToolProvider.get(event.player);
@@ -465,6 +521,30 @@ public class EventSubscriber {
 
         weaponCapability.update();
         toolCapability.update();
+    }
+
+    @SubscribeEvent
+    public static void onRightClickItem(final LivingEntityUseItemEvent.Tick event) {
+        if (event.getEntity() instanceof EntityPlayer) {
+            final EntityPlayer player = (EntityPlayer) event.getEntity();
+            final ISoulWeapon capability = SoulWeaponProvider.get(player);
+
+            if (event.getItem().getItem() instanceof ItemSoulDagger) {
+                final ItemSoulDagger item = (ItemSoulDagger) event.getItem().getItem();
+
+                if (item.getMaxUsageRatio(capability.getAttribute(ATTACK_SPEED, DAGGER, true, true), event.getDuration()) == 1) {
+                    event.setDuration(event.getDuration() + 1);
+                }
+
+                /*
+                if (event.getDuration() == item.getMaxItemUseDuration()) {
+                    event.setDuration(item.getMaxItemUseDuration() - 1);
+                }
+
+                event.setDuration(Math.round(item.getMaxItemUseDuration() - 20 * item.getMaxUsageRatio(capability.getAttribute(ATTACK_SPEED, DAGGER, true, true), event.getDuration())));
+                */
+            }
+        }
     }
 
     @SubscribeEvent
@@ -562,7 +642,7 @@ public class EventSubscriber {
                     );
                 }
 
-                if (event.getEntity().motionY == 0 && player.onGround) {
+                if (player.onGround && (event.getEntity().motionY == 0 || player.isCreative())) {
                     scheduledTasks.put(new Runnable() {
                         @Override
                         public void run() {

@@ -6,6 +6,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.capability.BaseSoulCapability;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
@@ -20,32 +21,26 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
+import static transfarmer.soulboundarmory.Configuration.initialToolXP;
 import static transfarmer.soulboundarmory.capability.SoulItemHelper.REACH_DISTANCE_UUID;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.*;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.HARVEST_LEVEL;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.REACH_DISTANCE;
 
-public class SoulTool implements ISoulCapability {
-    private EntityPlayer player;
-    private SoulType currentType;
-    private int[][] data = new int[this.getItemAmount()][this.getDatumAmount()];
-    private float[][] attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
-    private int[][] enchantments = new int[this.getItemAmount()][this.getEnchantmentAmount()];
-    private int boundSlot = -1;
-    private int currentTab = 0;
-
-    @Override
-    public EntityPlayer getPlayer() {
-        return this.player;
-    }
-
-    @Override
-    public void setPlayer(final EntityPlayer player) {
-        this.player = player;
+public class SoulTool extends BaseSoulCapability implements ISoulCapability {
+    public SoulTool() {
+        super(TOOL_DATA);
+        this.currentTab = 0;
     }
 
     @Override
@@ -105,7 +100,7 @@ public class SoulTool implements ISoulCapability {
         if (DATA.xp.equals(datum)) {
             this.data[type.getIndex()][DATA.xp.getIndex()] += amount;
 
-            if (this.getDatum(DATA.xp, type) >= this.getNextLevelXP(type) && this.getDatum(DATA.level, type) < Configuration.maxLevel) {
+            if (this.getDatum(DATA.xp, type) >= this.getNextLevelXP(type) && this.canLevelUp(type)) {
                 final int nextLevelXP = this.getNextLevelXP(type);
                 this.addDatum(1, DATA.level, type);
                 this.addDatum(-nextLevelXP, DATA.xp, type);
@@ -221,9 +216,9 @@ public class SoulTool implements ISoulCapability {
 
     @Override
     public int getNextLevelXP(final SoulType type) {
-        return this.getDatum(DATA.level, type) >= Configuration.maxLevel
-                ? 1
-                : Configuration.initialToolXP + (int) Math.round(4 * Math.pow(this.getDatum(DATA.level, type), 1.25));
+        return this.canLevelUp(type)
+                ? initialToolXP + (int) Math.round(4 * Math.pow(this.getDatum(DATA.level, type), 1.25))
+                : 1;
     }
 
     @Override
@@ -296,18 +291,8 @@ public class SoulTool implements ISoulCapability {
     }
 
     @Override
-    public int getBoundSlot() {
-        return this.boundSlot;
-    }
-
-    @Override
     public int getItemAmount() {
         return SoulToolType.getAmount();
-    }
-
-    @Override
-    public int getDatumAmount() {
-        return TOOL_DATA.getAmount();
     }
 
     @Override
@@ -318,26 +303,6 @@ public class SoulTool implements ISoulCapability {
     @Override
     public int getEnchantmentAmount() {
         return SoulToolEnchantment.getAmount();
-    }
-
-    @Override
-    public void bindSlot(final int slot) {
-        this.boundSlot = slot;
-    }
-
-    @Override
-    public void unbindSlot() {
-        this.boundSlot = -1;
-    }
-
-    @Override
-    public int getCurrentTab() {
-        return this.currentTab;
-    }
-
-    @Override
-    public void setCurrentTab(final int tab) {
-        this.currentTab = tab;
     }
 
     @Override

@@ -27,11 +27,11 @@ import static transfarmer.soulboundarmory.Main.MOD_ID;
 @ObjectHolder(MOD_ID)
 public class ModItems {
     @Nonnull
-    public static final ItemSoulWeapon SOULBOUND_GREATSWORD = null;
+    public static final ItemSoulGreatsword SOULBOUND_GREATSWORD = null;
     @Nonnull
-    public static final ItemSoulWeapon SOULBOUND_SWORD = null;
+    public static final ItemSoulSword SOULBOUND_SWORD = null;
     @Nonnull
-    public static final ItemSoulWeapon SOULBOUND_DAGGER = null;
+    public static final ItemSoulDagger SOULBOUND_DAGGER = null;
     @Nonnull
     public static final ItemSoulPick SOULBOUND_PICK = null;
 

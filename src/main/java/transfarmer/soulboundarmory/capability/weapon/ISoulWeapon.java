@@ -25,4 +25,10 @@ public interface ISoulWeapon extends ISoulCapability {
     double getCharging();
 
     void setCharging(double charging);
+
+    int getDaggerCharge();
+
+    void incrementDaggerCharge();
+
+    void resetDaggerCharge();
 }

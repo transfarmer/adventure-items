@@ -8,7 +8,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
-import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.client.KeyBindings;
@@ -22,8 +21,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import static transfarmer.soulboundarmory.Configuration.maxLevel;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.*;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 
 public abstract class Menu extends GuiScreen {
     protected final GUIFactory guiFactory;
@@ -76,17 +76,21 @@ public abstract class Menu extends GuiScreen {
     protected void drawXPBar(int mouseX, int mouseY) {
         final int barLeftX = (width - 182) / 2;
         final int barTopY = (height - 4) / 2;
+        final int xp = capability.getDatum(DATA.xp, this.type);
 
         GlStateManager.color(1F, 1F, 1F, 1F);
         this.mc.getTextureManager().bindTexture(XP_BAR);
         this.drawTexturedModalRect(barLeftX, barTopY, 0, 40, 182, 5);
-        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, Math.min(182, Math.round((float) capability.getDatum(DATA.xp, this.type) / capability.getNextLevelXP(this.type) * 182)), 5);
+        this.drawTexturedModalRect(barLeftX, barTopY, 0, 45, this.capability.canLevelUp(this.type)
+                ? Math.min(182, Math.round((float) xp / capability.getNextLevelXP(this.type) * 182))
+                : 182, 5);
         this.mc.getTextureManager().deleteTexture(XP_BAR);
 
         final int level = this.capability.getDatum(DATA.level, this.type);
         final String levelString = String.format("%d", level);
         final int levelLeftX = Math.round((width - this.fontRenderer.getStringWidth(levelString)) / 2F) + 1;
         final int levelTopY = height / 2 - 8;
+
         this.fontRenderer.drawString(levelString, levelLeftX + 1, levelTopY, 0);
         this.fontRenderer.drawString(levelString, levelLeftX - 1, levelTopY, 0);
         this.fontRenderer.drawString(levelString, levelLeftX, levelTopY + 1, 0);
@@ -94,13 +98,12 @@ public abstract class Menu extends GuiScreen {
         this.fontRenderer.drawString(levelString, levelLeftX, levelTopY, 0xEC00B8);
 
         if (mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
-                && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT) {
-            this.drawHoveringText(String.format("%d/%d", capability.getDatum(DATA.level, this.type), Configuration.maxLevel), mouseX, mouseY);
+                && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT && maxLevel >= 0) {
+            this.drawHoveringText(String.format("%d/%d", capability.getDatum(DATA.level, this.type), maxLevel), mouseX, mouseY);
         } else if (mouseX >= (width - 182) / 2 && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4) {
-            final String string = this.capability.getDatum(DATA.level, this.type) < Configuration.maxLevel
-                    ? String.format("%d/%d", capability.getDatum(DATA.xp, this.type), capability.getNextLevelXP(this.type))
-                    : String.format("%d", capability.getDatum(DATA.xp, this.type));
-            this.drawHoveringText(string, mouseX, mouseY);
+            this.drawHoveringText(this.capability.canLevelUp(this.type)
+                    ? String.format("%d/%d", xp, capability.getNextLevelXP(this.type))
+                    : String.format("%d", xp), mouseX, mouseY);
         }
     }
 
