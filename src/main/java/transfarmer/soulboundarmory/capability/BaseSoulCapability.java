@@ -66,17 +66,20 @@ public abstract class BaseSoulCapability implements ISoulCapability {
                 return false;
             }
         } else if (this.datum.level.equals(datum)) {
-            final int level = this.data[type.getIndex()][this.datum.level.getIndex()] += amount;
+            final int sign = (int) Math.signum(amount);
 
-            if (level % (MainConfig.instance().getLevelsPerEnchantment()) == 0) {
-                this.addDatum(amount / MainConfig.instance().getLevelsPerEnchantment(), this.datum.enchantmentPoints, type);
+            for (int i = 0; i < Math.abs(amount); i++) {
+                final int level = this.data[type.getIndex()][this.datum.level.getIndex()] += sign;
+                if (level % MainConfig.instance().getLevelsPerEnchantment() == 0) {
+                    this.addDatum(sign, this.datum.enchantmentPoints, type);
+                }
+
+                if (level % MainConfig.instance().getLevelsPerSkill() == 0 && this.getDatum(this.datum.skills, type) < type.getSkills().length) {
+                    this.addDatum(sign, this.datum.skills, type);
+                }
+
+                this.addDatum(sign, this.datum.attributePoints, type);
             }
-
-            if (level % (MainConfig.instance().getLevelsPerSkill()) == 0 && this.getDatum(this.datum.skills, type) < type.getSkills().length) {
-                this.addDatum(amount / MainConfig.instance().getLevelsPerSkill(), this.datum.skills, type);
-            }
-
-            this.addDatum(amount, this.datum.attributePoints, type);
         } else {
             this.data[type.getIndex()][datum.getIndex()] += amount;
         }
@@ -129,7 +132,9 @@ public abstract class BaseSoulCapability implements ISoulCapability {
         final Class<? extends ISoulItem> baseItemClass = this.getBaseItemClass();
 
         for (final ItemStack itemStack : this.getPlayer().inventory.mainInventory) {
-            if (baseItemClass.isInstance(itemStack.getItem())) return true;
+            if (baseItemClass.isInstance(itemStack.getItem())) {
+                return true;
+            }
         }
 
         return baseItemClass.isInstance(this.getPlayer().getHeldItemOffhand().getItem());

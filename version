@@ -42,6 +42,13 @@ def change_version(*filenames):
                                 new = new[0]
 
                     version[index] = new
+
+                    if index >= 0:
+                        version[2] = "0"
+
+                        if index == 0:
+                            version[1] = "0"
+
                     line = f'{before}{".".join(version)}{after}'
                     lines[i] = line
                     file.seek(0)

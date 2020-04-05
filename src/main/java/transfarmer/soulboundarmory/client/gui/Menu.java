@@ -108,7 +108,7 @@ public abstract class Menu extends GuiScreen {
             GlStateManager.color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha());
             this.mc.getTextureManager().bindTexture(XP_BAR);
             this.drawTexturedModalRect(barLeftX, barTopY, 0, 0, 182, 5);
-            this.drawTexturedModalRect(barLeftX, barTopY, 0, 5  , this.capability.canLevelUp(this.type)
+            this.drawTexturedModalRect(barLeftX, barTopY, 0, 5, this.capability.canLevelUp(this.type)
                     ? Math.min(182, Math.round((float) xp / capability.getNextLevelXP(this.type) * 182))
                     : 182, 5);
             this.mc.getTextureManager().deleteTexture(XP_BAR);
@@ -204,33 +204,24 @@ public abstract class Menu extends GuiScreen {
             final GuiSlider slider;
             final float value;
 
-            switch (row) {
-                case 0:
-                    ColorConfig.instance().setRed(value = MathHelper.clamp(ColorConfig.getRed() + dWheel / 255F, 0, 1));
-                    slider = this.sliderRed;
-
-                    break;
-                case 1:
-                    ColorConfig.instance().setGreen(value = MathHelper.clamp(ColorConfig.getGreen() + dWheel / 255F, 0, 1));
-                    slider = this.sliderGreen;
-
-                    break;
-                case 2:
-                    ColorConfig.instance().setBlue(value = MathHelper.clamp(ColorConfig.getBlue() + dWheel / 255F, 0, 1));
-                    slider = this.sliderBlue;
-
-                    break;
-                case 3:
-                    ColorConfig.instance().setAlpha(value = MathHelper.clamp(ColorConfig.getAlpha() + dWheel / 255F, 0, 1));
-                    slider = this.sliderAlpha;
-                    break;
-                default:
-                    slider = null;
-                    value = 0;
+            if (row == 0) {
+                ColorConfig.instance().setRed(value = MathHelper.clamp(ColorConfig.getRed() + dWheel / 255F, 0, 1));
+                slider = this.sliderRed;
+            } else if (row == 1) {
+                ColorConfig.instance().setGreen(value = MathHelper.clamp(ColorConfig.getGreen() + dWheel / 255F, 0, 1));
+                slider = this.sliderGreen;
+            } else if (row == 2) {
+                ColorConfig.instance().setBlue(value = MathHelper.clamp(ColorConfig.getBlue() + dWheel / 255F, 0, 1));
+                slider = this.sliderBlue;
+            } else {
+                ColorConfig.instance().setAlpha(value = MathHelper.clamp(ColorConfig.getAlpha() + dWheel / 255F, 0, 1));
+                slider = this.sliderAlpha;
             }
 
-            slider.setValue(value * 255);
-            slider.updateSlider();
+            if (slider != null) {
+                slider.setValue(value * 255);
+                slider.updateSlider();
+            }
         } else if (dWheel != 0 && this.capability != null) {
             refresh(MathHelper.clamp(this.capability.getCurrentTab() - dWheel, 0, this.tabs.length - 1));
         }

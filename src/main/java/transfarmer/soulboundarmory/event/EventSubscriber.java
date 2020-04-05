@@ -639,6 +639,10 @@ public class EventSubscriber {
                         }
                     }, 7);
                 }
+
+                if (player.isInLava()) {
+                    capability.setCharging(0);
+                }
             }
         }
     }
