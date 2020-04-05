@@ -12,7 +12,7 @@ import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
@@ -77,9 +77,11 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
             final SoulType type = SoulToolType.get(itemStack);
             final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5);
 
-            if (capability.addDatum(xp, DATA.xp, type) && !world.isRemote && Configuration.levelupNotifications) {
+            if (capability.addDatum(xp, DATA.xp, type) && !world.isRemote && MainConfig.instance().getLevelupNotifications()) {
                 Main.CHANNEL.sendTo(new CLevelupMessage(itemStack, capability.getDatum(DATA.level, type)), (EntityPlayerMP) entity);
             }
+
+            capability.sync();
         }
 
         return true;

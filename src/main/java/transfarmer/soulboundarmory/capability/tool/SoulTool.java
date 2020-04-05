@@ -2,15 +2,18 @@ package transfarmer.soulboundarmory.capability.tool;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.BaseSoulCapability;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
+import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.network.client.tool.CToolData;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
@@ -29,7 +32,6 @@ import java.util.Map;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
-import static transfarmer.soulboundarmory.Configuration.initialToolXP;
 import static transfarmer.soulboundarmory.capability.SoulItemHelper.REACH_DISTANCE_UUID;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
@@ -93,36 +95,6 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     @Override
     public int getDatum(final SoulDatum datum, final SoulType type) {
         return this.data[type.getIndex()][datum.getIndex()];
-    }
-
-    @Override
-    public boolean addDatum(final int amount, final SoulDatum datum, final SoulType type) {
-        if (DATA.xp.equals(datum)) {
-            this.data[type.getIndex()][DATA.xp.getIndex()] += amount;
-
-            if (this.getDatum(DATA.xp, type) >= this.getNextLevelXP(type) && this.canLevelUp(type)) {
-                final int nextLevelXP = this.getNextLevelXP(type);
-                this.addDatum(1, DATA.level, type);
-                this.addDatum(-nextLevelXP, DATA.xp, type);
-
-                return true;
-            }
-        } else if (DATA.level.equals(datum)) {
-            final int level = ++this.data[type.getIndex()][DATA.level.getIndex()];
-            if (level % (Configuration.levelsPerEnchantment) == 0) {
-                this.addDatum(1, DATA.enchantmentPoints, type);
-            }
-
-            if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(DATA.skills, type) < type.getSkills().length) {
-                this.addDatum(1, DATA.skills, type);
-            }
-
-            this.addDatum(1, DATA.attributePoints, type);
-        } else {
-            this.data[type.getIndex()][datum.getIndex()] += amount;
-        }
-
-        return false;
     }
 
     @Override
@@ -215,10 +187,10 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     }
 
     @Override
-    public int getNextLevelXP(final SoulType type) {
+    public int getLevelXP(final SoulType type, final int level) {
         return this.canLevelUp(type)
-                ? initialToolXP + (int) Math.round(4 * Math.pow(this.getDatum(DATA.level, type), 1.25))
-                : 1;
+                ? MainConfig.instance().getInitialToolXP() + (int) Math.round(4 * Math.pow(level, 1.25))
+                : -1;
     }
 
     @Override
@@ -308,5 +280,15 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     @Override
     public Class<? extends ISoulItem> getBaseItemClass() {
         return IItemSoulTool.class;
+    }
+
+    @Override
+    public void sync() {
+        if (!this.player.world.isRemote) {
+            Main.CHANNEL.sendTo(
+                    new CToolData(this.currentType, this.currentTab, this.boundSlot, this.data, this.attributes, this.enchantments),
+                    (EntityPlayerMP) this.player
+            );
+        }
     }
 }

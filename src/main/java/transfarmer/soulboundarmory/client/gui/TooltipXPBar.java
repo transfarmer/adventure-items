@@ -6,9 +6,12 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import transfarmer.soulboundarmory.config.ColorConfig;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.statistics.SoulType;
+
+import java.awt.Color;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
@@ -29,11 +32,11 @@ public class TooltipXPBar extends Gui {
 
         GlStateManager.disableDepth();
         GlStateManager.disableLighting();
-        GlStateManager.color(1F, 1F, 1F, 1F);
+        GlStateManager.color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha());
         minecraft.getTextureManager().bindTexture(XP_BAR);
 
-        this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 70, length, 5);
-        this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 75,
+        this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 10, length, 5);
+        this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 15,
             Math.min(length, Math.round((float) capability.getDatum(DATA.xp, type) / capability.getNextLevelXP(type) * length)), 5);
 
         minecraft.getTextureManager().deleteTexture(XP_BAR);
@@ -45,7 +48,8 @@ public class TooltipXPBar extends Gui {
         fontRenderer.drawString(levelString, x1 - 1, y1, 0);
         fontRenderer.drawString(levelString, x1, y1 + 1, 0);
         fontRenderer.drawString(levelString, x1, y1 - 1, 0);
-        fontRenderer.drawString(levelString, x1, y1, 0xF7193B);
+        fontRenderer.drawString(levelString, x1, y1,
+                new Color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha()).getRGB());
 
         GlStateManager.disableLighting();
         GlStateManager.enableDepth();

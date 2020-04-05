@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.config.MainConfig;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
@@ -27,20 +27,20 @@ public class CConfig implements IMessage {
     private float babyMultiplier;
 
     public CConfig() {
-        this.levelupNotifications = Configuration.levelupNotifications;
-        this.passiveXP = Configuration.passiveXP;
-        this.addToOffhand = Configuration.addToOffhand;
-        this.initialWeaponXP = Configuration.initialWeaponXP;
-        this.initialToolXP = Configuration.initialToolXP;
-        this.levelsPerSkill = Configuration.levelsPerSkill;
-        this.levelsPerEnchantment = Configuration.levelsPerEnchantment;
-        this.preservationLevel = Configuration.preservationLevel;
-        this.maxLevel = Configuration.maxLevel;
-        this.attackDamageMultiplier = Configuration.multipliers.attackDamageMultiplier;
-        this.difficultyMultiplier = Configuration.multipliers.difficultyMultiplier;
-        this.bossMultiplier = Configuration.multipliers.bossMultiplier;
-        this.hardcoreMultiplier = Configuration.multipliers.hardcoreMultiplier;
-        this.babyMultiplier = Configuration.multipliers.babyMultiplier;
+        this.levelupNotifications = MainConfig.instance().getLevelupNotifications();
+        this.passiveXP = MainConfig.instance().getPassiveXP();
+        this.addToOffhand = MainConfig.instance().getAddToOffhand();
+        this.initialWeaponXP = MainConfig.instance().getInitialWeaponXP();
+        this.initialToolXP = MainConfig.instance().getInitialToolXP();
+        this.levelsPerSkill = MainConfig.instance().getLevelsPerSkill();
+        this.levelsPerEnchantment = MainConfig.instance().getLevelsPerEnchantment();
+        this.preservationLevel = MainConfig.instance().getPreservationLevel();
+        this.maxLevel = MainConfig.instance().getMaxLevel();
+        this.attackDamageMultiplier = MainConfig.instance().getAttackDamageMultiplier();
+        this.difficultyMultiplier = MainConfig.instance().getDifficultyMultiplier();
+        this.bossMultiplier = MainConfig.instance().getBossMultiplier();
+        this.hardcoreMultiplier = MainConfig.instance().getHardcoreMultiplier();
+        this.babyMultiplier = MainConfig.instance().getBabyMultiplier();
     }
 
     @SideOnly(CLIENT)
@@ -87,20 +87,20 @@ public class CConfig implements IMessage {
             final Minecraft minecraft = Minecraft.getMinecraft();
 
             minecraft.addScheduledTask(() -> {
-                Configuration.levelupNotifications = message.levelupNotifications;
-                Configuration.passiveXP = message.passiveXP;
-                Configuration.addToOffhand = message.addToOffhand;
-                Configuration.initialWeaponXP = message.initialWeaponXP;
-                Configuration.initialToolXP = message.initialToolXP;
-                Configuration.levelsPerSkill = message.levelsPerSkill;
-                Configuration.levelsPerEnchantment = message.levelsPerEnchantment;
-                Configuration.preservationLevel = message.preservationLevel;
-                Configuration.maxLevel = message.maxLevel;
-                Configuration.multipliers.attackDamageMultiplier = message.attackDamageMultiplier;
-                Configuration.multipliers.difficultyMultiplier = message.difficultyMultiplier;
-                Configuration.multipliers.bossMultiplier = message.bossMultiplier;
-                Configuration.multipliers.hardcoreMultiplier = message.hardcoreMultiplier;
-                Configuration.multipliers.babyMultiplier = message.babyMultiplier;
+                MainConfig.instance().setLevelupNotifications(message.levelupNotifications);
+                MainConfig.instance().setPassiveXP(message.passiveXP);
+                MainConfig.instance().setAddToOffhand(message.addToOffhand);
+                MainConfig.instance().setInitialWeaponXP(message.initialWeaponXP);
+                MainConfig.instance().setInitialToolXP(message.initialToolXP);
+                MainConfig.instance().setLevelsPerSkill(message.levelsPerSkill);
+                MainConfig.instance().setLevelsPerEnchantment(message.levelsPerEnchantment);
+                MainConfig.instance().setPreservationLevel(message.preservationLevel);
+                MainConfig.instance().setMaxLevel(message.maxLevel);
+                MainConfig.instance().setAttackDamageMultiplier(message.attackDamageMultiplier);
+                MainConfig.instance().setDifficultyMultiplier(message.difficultyMultiplier);
+                MainConfig.instance().setBossMultiplier(message.bossMultiplier);
+                MainConfig.instance().setHardcoreMultiplier(message.hardcoreMultiplier);
+                MainConfig.instance().setBabyMultiplier(message.babyMultiplier);
             });
 
             return null;

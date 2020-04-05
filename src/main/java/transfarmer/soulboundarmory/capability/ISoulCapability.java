@@ -1,12 +1,17 @@
 package transfarmer.soulboundarmory.capability;
 
-import net.minecraft.entity.ai.attributes.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.item.*;
-import transfarmer.soulboundarmory.item.*;
-import transfarmer.soulboundarmory.statistics.*;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
+import transfarmer.soulboundarmory.statistics.SoulDatum;
+import transfarmer.soulboundarmory.statistics.SoulEnchantment;
+import transfarmer.soulboundarmory.statistics.SoulType;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 public interface ISoulCapability {
     EntityPlayer getPlayer();
@@ -27,9 +32,13 @@ public interface ISoulCapability {
 
     void setEnchantments(int[][] enchantments);
 
+    void clear();
+
     SoulType getType(ItemStack itemStack);
 
     SoulType getCurrentType();
+
+    int getLevelXP(SoulType type, int level);
 
     void setCurrentType(SoulType type);
 
@@ -102,4 +111,6 @@ public interface ISoulCapability {
     ItemStack getEquippedItemStack();
 
     void update();
+
+    void sync();
 }

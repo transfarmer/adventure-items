@@ -34,6 +34,8 @@ public class SoulWeaponMenu extends Menu {
 
     @Override
     public void initGui() {
+        super.initGui();
+
         if (SoulItemHelper.isSoulWeaponEquipped(this.mc.player)) {
             final String text = this.slot != capability.getBoundSlot()
                     ? Mappings.MENU_BUTTON_BIND
@@ -65,6 +67,11 @@ public class SoulWeaponMenu extends Menu {
         }
 
         this.addButton(guiFactory.centeredButton(3, 3 * height / 4, width / 8, Mappings.MENU_CLOSE));
+    }
+
+    @Override
+    protected boolean displayXPBar() {
+        return (this.capability.getCurrentTab() >= 1 && this.capability.getCurrentTab() <= 3);
     }
 
     private void showWeapons() {
@@ -119,22 +126,21 @@ public class SoulWeaponMenu extends Menu {
     private void showTraits() {}
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        this.drawDefaultBackground();
+    public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         switch (this.capability.getCurrentTab()) {
             case 0:
-                drawWeapons();
+                this.drawWeapons();
                 break;
             case 1:
-                drawAttributes(mouseX, mouseY);
+                this.drawAttributes();
                 break;
             case 2:
-                drawEnchantments(mouseX, mouseY);
+                this.drawEnchantments();
                 break;
             case 3:
-                drawSkills(mouseX, mouseY);
+                this.drawSkills();
         }
     }
 
@@ -145,7 +151,7 @@ public class SoulWeaponMenu extends Menu {
         }
     }
 
-    private void drawAttributes(final int mouseX, final int mouseY) {
+    private void drawAttributes() {
         final String attackSpeed = String.format("%s%s: %%s", Mappings.ATTACK_SPEED_FORMAT, Mappings.ATTACK_SPEED_NAME);
         final String attackDamage = String.format("%s%s: %%s", Mappings.ATTACK_DAMAGE_FORMAT, Mappings.ATTACK_DAMAGE_NAME);
         final String critical = String.format("%s%s: %%s%%%%", Mappings.CRITICAL_FORMAT, Mappings.CRITICAL_NAME);
@@ -163,11 +169,9 @@ public class SoulWeaponMenu extends Menu {
         this.renderer.drawMiddleAttribute(critical, capability.getAttribute(CRITICAL, this.type), 2);
         this.renderer.drawMiddleAttribute(knockback, capability.getAttribute(KNOCKBACK_ATTRIBUTE, this.type), 3);
         this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY_ATTRIBUTE, this.type), 4);
-
-        this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawEnchantments(final int mouseX, final int mouseY) {
+    private void drawEnchantments() {
         final int points = this.capability.getDatum(DATA.enchantmentPoints, this.type);
 
         if (points > 0) {
@@ -182,24 +186,19 @@ public class SoulWeaponMenu extends Menu {
         this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.KNOCKBACK_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_KNOCKBACK, this.type)), 4);
         this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SMITE_NAME, this.capability.getEnchantment(SOUL_SMITE, this.type)), 5);
         this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.BANE_OF_ARTHROPODS_NAME, this.capability.getEnchantment(SOUL_BANE_OF_ARTHROPODS, this.type)), 6);
-
-        this.drawXPBar(mouseX, mouseY);
     }
 
-    private void drawSkills(final int mouseX, final int mouseY) {
+    private void drawSkills() {
         for (int i = 0; i < capability.getDatum(DATA.skills, this.type); i++) {
             this.drawCenteredString(this.fontRenderer, capability.getCurrentType().getSkills()[i],
                     width / 2, (i + 2) * height / 16, 0xFFFFFF);
         }
-
-        this.drawXPBar(mouseX, mouseY);
-    }
-
-    private void drawTraits(final int mouseX, final int mouseY) {
     }
 
     @Override
     public void actionPerformed(final GuiButton button) {
+        super.actionPerformed(button);
+
         switch (button.id) {
             case 0:
             case 1:

@@ -10,7 +10,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -56,7 +55,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.Configuration;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
@@ -66,6 +64,7 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
 import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
+import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
@@ -76,8 +75,6 @@ import transfarmer.soulboundarmory.item.ItemSoulPick;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.CConfig;
 import transfarmer.soulboundarmory.network.client.CLevelupMessage;
-import transfarmer.soulboundarmory.network.client.tool.CToolData;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
@@ -159,14 +156,14 @@ public class EventSubscriber {
         SoulType type = capability.getCurrentType();
 
         if (!event.player.world.getGameRules().getBoolean("keepInventory")) {
-            if (type != null && capability.getDatum(DATA.level, type) >= Configuration.preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
                 event.player.addItemStackToInventory(capability.getItemStack(type));
             }
 
             capability = SoulToolProvider.get(event.player);
             type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(DATA.level, type) >= Configuration.preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
                 event.player.addItemStackToInventory(capability.getItemStack(type));
             }
         }
@@ -176,23 +173,16 @@ public class EventSubscriber {
         final ISoulWeapon weaponCapability = SoulWeaponProvider.get(player);
         final ISoulCapability toolCapability = SoulToolProvider.get(player);
 
-        Main.CHANNEL.sendTo(new CWeaponData(
-                weaponCapability.getCurrentType(),
-                weaponCapability.getCurrentTab(),
-                weaponCapability.getCooldown(),
-                weaponCapability.getBoundSlot(),
-                weaponCapability.getData(),
-                weaponCapability.getAttributes(),
-                weaponCapability.getEnchantments()), (EntityPlayerMP) player
-        );
-        Main.CHANNEL.sendTo(new CToolData(
-                toolCapability.getCurrentType(),
-                toolCapability.getCurrentTab(),
-                toolCapability.getBoundSlot(),
-                toolCapability.getData(),
-                toolCapability.getAttributes(),
-                toolCapability.getEnchantments()), (EntityPlayerMP) player
-        );
+        if (weaponCapability.getPlayer() == null) {
+            weaponCapability.setPlayer(player);
+        }
+
+        if (toolCapability.getPlayer() == null) {
+            toolCapability.setPlayer(player);
+        }
+
+        weaponCapability.sync();
+        toolCapability.sync();
     }
 
     @SubscribeEvent
@@ -203,14 +193,14 @@ public class EventSubscriber {
             ISoulCapability capability = SoulWeaponProvider.get(player);
             SoulType type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(DATA.level, type) >= Configuration.preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
                 event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof ItemSoulWeapon);
             }
 
             capability = SoulToolProvider.get(player);
             type = capability.getCurrentType();
 
-            if (type != null && capability.getDatum(DATA.level, type) >= Configuration.preservationLevel) {
+            if (type != null && capability.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
                 event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof IItemSoulTool);
             }
         }
@@ -334,7 +324,7 @@ public class EventSubscriber {
             }
 
             if (source instanceof EntityPlayer && weaponType != null) {
-                if (attackDamage != null || Configuration.passiveXP || entity instanceof EntitySlime) {
+                if (attackDamage != null || MainConfig.instance().getPassiveXP() || entity instanceof EntitySlime) {
                     double attackDamageValue = 0;
 
                     if (attackDamage != null) {
@@ -342,23 +332,23 @@ public class EventSubscriber {
                     }
 
                     int xp = (int) Math.round(entity.getMaxHealth()
-                            * source.world.getDifficulty().getId() * Configuration.multipliers.difficultyMultiplier
-                            * (1 + attackDamageValue * Configuration.multipliers.attackDamageMultiplier)
-                            * (1 + armor.getAttributeValue() * Configuration.multipliers.armorMultiplier));
+                            * source.world.getDifficulty().getId() * MainConfig.instance().getDifficultyMultiplier()
+                            * (1 + attackDamageValue * MainConfig.instance().getAttackDamageMultiplier())
+                            * (1 + armor.getAttributeValue() * MainConfig.instance().getArmorMultiplier()));
 
                     if (!entity.isNonBoss()) {
-                        xp *= Configuration.multipliers.bossMultiplier;
+                        xp *= MainConfig.instance().getBossMultiplier();
                     }
 
                     if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
-                        xp *= Configuration.multipliers.hardcoreMultiplier;
+                        xp *= MainConfig.instance().getHardcoreMultiplier();
                     }
 
                     if (attackDamage != null && entity.isChild()) {
-                        xp *= Configuration.multipliers.babyMultiplier;
+                        xp *= MainConfig.instance().getBabyMultiplier();
                     }
 
-                    if (instance.addDatum(xp, DATA.xp, weaponType) && Configuration.levelupNotifications) {
+                    if (instance.addDatum(xp, DATA.xp, weaponType) && MainConfig.instance().getLevelupNotifications()) {
                         Main.CHANNEL.sendTo(new CLevelupMessage(displayName, instance.getDatum(DATA.level, weaponType)), (EntityPlayerMP) source);
                     }
 
@@ -437,8 +427,7 @@ public class EventSubscriber {
             frozenEntities.put(entity, Math.min(60, Math.round(20 * seconds)));
 
             if (entity instanceof EntityLivingBase) {
-                entity.attackEntityFrom(DamageSource.causeIndirectMagicDamage(player, null).setDamageIsAbsolute(),
-                        damage);
+                entity.attackEntityFrom(DamageSource.causePlayerDamage(player).setDamageIsAbsolute(), damage);
             }
 
             if (entity instanceof EntityCreeper) {
@@ -447,9 +436,6 @@ public class EventSubscriber {
 
             if (entity instanceof IProjectile) {
                 entity.motionX = entity.motionZ = 0;
-            }
-
-            if (entity instanceof EntityPigZombie) {
             }
         }
     }
@@ -558,7 +544,7 @@ public class EventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onBreak(final HarvestDropsEvent event) {
+    public static void onHarvestDrops(final HarvestDropsEvent event) {
         final EntityPlayer player = event.getHarvester();
 
         if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulPick && SoulToolProvider.get(player).getDatum(TOOL_DATA.skills, PICK) >= 1) {
@@ -630,15 +616,18 @@ public class EventSubscriber {
     public static void onGetCollsionBoxes(final GetCollisionBoxesEvent event) {
         if (!event.getWorld().isRemote && event.getEntity() instanceof EntityPlayer) {
             final ISoulWeapon capability = SoulWeaponProvider.get(event.getEntity());
+            final double charging = capability.getCharging();
 
-            if (capability.getCharging() > 0) {
+            if (charging > 0) {
                 final EntityPlayer player = (EntityPlayer) event.getEntity();
                 final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, event.getAabb());
 
                 for (final Entity entity : nearbyEntities) {
-                    freezeEntity(entity, player, 3 * (float) Math.sqrt(player.motionX * player.motionX
-                            + player.motionY * player.motionY
-                            + player.motionZ * player.motionZ), 1
+                    freezeEntity(entity, player,
+                            3 * (float) Math.sqrt(player.motionX * player.motionX
+                                    + player.motionY * player.motionY
+                                    + player.motionZ * player.motionZ) * (float) charging,
+                            (float) (1.5 * charging)
                     );
                 }
 

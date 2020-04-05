@@ -23,20 +23,47 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponStorage;
 import transfarmer.soulboundarmory.client.render.RenderReachModifier;
 import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
 import transfarmer.soulboundarmory.command.CommandSoulboundArmory;
+import transfarmer.soulboundarmory.config.ColorConfig;
+import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.network.client.CConfig;
 import transfarmer.soulboundarmory.network.client.CLevelupMessage;
-import transfarmer.soulboundarmory.network.client.tool.*;
-import transfarmer.soulboundarmory.network.client.weapon.*;
-import transfarmer.soulboundarmory.network.server.tool.*;
-import transfarmer.soulboundarmory.network.server.weapon.*;
+import transfarmer.soulboundarmory.network.client.tool.CToolBindSlot;
+import transfarmer.soulboundarmory.network.client.tool.CToolData;
+import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
+import transfarmer.soulboundarmory.network.client.tool.CToolResetAttributes;
+import transfarmer.soulboundarmory.network.client.tool.CToolResetEnchantments;
+import transfarmer.soulboundarmory.network.client.tool.CToolSpendAttributePoints;
+import transfarmer.soulboundarmory.network.client.tool.CToolSpendEnchantmentPoints;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponBindSlot;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponResetAttributes;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponResetEnchantments;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponSpendAttributePoints;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponSpendEnchantmentPoints;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponType;
+import transfarmer.soulboundarmory.network.server.tool.SToolAttributePoints;
+import transfarmer.soulboundarmory.network.server.tool.SToolBindSlot;
+import transfarmer.soulboundarmory.network.server.tool.SToolEnchantmentPoints;
+import transfarmer.soulboundarmory.network.server.tool.SToolResetAttributes;
+import transfarmer.soulboundarmory.network.server.tool.SToolResetEnchantments;
+import transfarmer.soulboundarmory.network.server.tool.SToolTab;
+import transfarmer.soulboundarmory.network.server.tool.SToolType;
+import transfarmer.soulboundarmory.network.server.weapon.SWeaponAttributePoints;
+import transfarmer.soulboundarmory.network.server.weapon.SWeaponBindSlot;
+import transfarmer.soulboundarmory.network.server.weapon.SWeaponEnchantmentPoints;
+import transfarmer.soulboundarmory.network.server.weapon.SWeaponResetAttributes;
+import transfarmer.soulboundarmory.network.server.weapon.SWeaponResetEnchantments;
+import transfarmer.soulboundarmory.network.server.weapon.SWeaponTab;
+import transfarmer.soulboundarmory.network.server.weapon.SWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 
-@Mod(modid = Main.MOD_ID, name = Main.NAME, version = Main.VERSION)
+@Mod(modid = Main.MOD_ID, name = Main.NAME, version = Main.VERSION, guiFactory = "transfarmer.soulboundarmory.config.ConfigGuiFactory")
 public class Main {
     public static final String MOD_ID = "soulboundarmory";
     public static final String NAME = "soulbound armory";
@@ -92,6 +119,9 @@ public class Main {
             RenderingRegistry.registerEntityRenderingHandler(EntitySoulDagger.class, new RenderSoulDagger.RenderFactory());
             RenderingRegistry.registerEntityRenderingHandler(EntityReachModifier.class, new RenderReachModifier.RenderFactory());
         }
+
+        MainConfig.instance().load();
+        ColorConfig.instance().load();
     }
 
     @EventHandler

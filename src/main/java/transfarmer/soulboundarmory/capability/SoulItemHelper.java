@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
-import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
@@ -101,7 +101,7 @@ public class SoulItemHelper {
                         return inventory.add(index, itemStack);
                     }
 
-                    if (player.getHeldItemOffhand().isEmpty() && Configuration.addToOffhand) {
+                    if (player.getHeldItemOffhand().isEmpty() && MainConfig.instance().getAddToOffhand()) {
                         inventory.setInventorySlotContents(size + 4, itemStack);
                         itemStack.setCount(0);
                     }

@@ -3,16 +3,19 @@ package transfarmer.soulboundarmory.capability.weapon;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.Configuration;
+import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.BaseSoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
+import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
@@ -32,7 +35,6 @@ import java.util.Map;
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Configuration.initialWeaponXP;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.WEAPON_DATA;
 import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_SHARPNESS;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.ATTACK_DAMAGE;
@@ -246,9 +248,9 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
-    public int getNextLevelXP(final SoulType type) {
+    public int getLevelXP(final SoulType type, final int level) {
         return this.canLevelUp(type)
-                ? initialWeaponXP + 3 * (int) Math.round(Math.pow(this.getDatum(this.datum.level, type), 1.65))
+                ? MainConfig.instance().getInitialWeaponXP() + 3 * (int) Math.round(Math.pow(level, 1.65))
                 : -1;
     }
 
@@ -260,36 +262,6 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     @Override
     public void setDatum(final int value, final SoulDatum datum, final SoulType type) {
         this.data[type.getIndex()][datum.getIndex()] = value;
-    }
-
-    @Override
-    public boolean addDatum(final int amount, final SoulDatum datum, final SoulType type) {
-        if (this.datum.xp.equals(datum)) {
-            this.data[type.getIndex()][this.datum.xp.getIndex()] += amount;
-
-            if (this.getDatum(this.datum.xp, type) >= this.getNextLevelXP(type) && this.canLevelUp(type)) {
-                final int nextLevelXP = this.getNextLevelXP(type);
-                this.addDatum(1, this.datum.level, type);
-                this.addDatum(-nextLevelXP, this.datum.xp, type);
-                return true;
-            }
-        } else if (this.datum.level.equals(datum)) {
-            final int level = ++this.data[type.getIndex()][this.datum.level.getIndex()];
-
-            if (level % (Configuration.levelsPerEnchantment) == 0) {
-                this.addDatum(1, this.datum.enchantmentPoints, type);
-            }
-
-            if (level % (Configuration.levelsPerSkill) == 0 && this.getDatum(this.datum.skills, type) < type.getSkills().length) {
-                this.addDatum(1, this.datum.skills, type);
-            }
-
-            this.addDatum(1, this.datum.attributePoints, type);
-        } else {
-            this.data[type.getIndex()][datum.getIndex()] += amount;
-        }
-
-        return false;
     }
 
     @Override
@@ -425,6 +397,16 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
 
         if (this.getCurrentType() != null && this.getLightningCooldown() > 0) {
             this.decrementLightningCooldown();
+        }
+    }
+
+    @Override
+    public void sync() {
+        if (!this.player.world.isRemote) {
+            Main.CHANNEL.sendTo(
+                    new CWeaponData(this.currentType, this.currentTab, this.attackCooldown, this.boundSlot, this.data, this.attributes, this.enchantments),
+                    (EntityPlayerMP) this.player
+            );
         }
     }
 }

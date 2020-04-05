@@ -33,8 +33,7 @@ public class CToolData implements IMessage {
         this.enchantments = new int[SoulToolType.getAmount()][SoulToolEnchantment.getAmount()];
     }
 
-    public CToolData(final SoulType type, final int currentTab, final int boundSlot,
-                     final int[][] data, final float[][] attributes, final int[][] enchantments) {
+    public CToolData(final SoulType type, final int currentTab, final int boundSlot, final int[][] data, final float[][] attributes, final int[][] enchantments) {
         if (type == null) {
             this.toolIndex = -1;
             this.currentTab = 0;
@@ -63,10 +62,10 @@ public class CToolData implements IMessage {
         }
 
         SoulItemHelper.forEach(this.lengths[0], this.lengths[1], this.lengths[2], this.lengths[3],
-                    (final Integer itemIndex, final Integer valueIndex) -> CToolData.this.data[itemIndex][valueIndex] = buffer.readInt(),
-                    (final Integer itemIndex, final Integer valueIndex) -> CToolData.this.attributes[itemIndex][valueIndex] = buffer.readFloat(),
-                    (final Integer itemIndex, final Integer valueIndex) -> CToolData.this.enchantments[itemIndex][valueIndex] = buffer.readInt()
-            );
+                (final Integer itemIndex, final Integer valueIndex) -> CToolData.this.data[itemIndex][valueIndex] = buffer.readInt(),
+                (final Integer itemIndex, final Integer valueIndex) -> CToolData.this.attributes[itemIndex][valueIndex] = buffer.readFloat(),
+                (final Integer itemIndex, final Integer valueIndex) -> CToolData.this.enchantments[itemIndex][valueIndex] = buffer.readInt()
+        );
     }
 
     public void toBytes(ByteBuf buffer) {

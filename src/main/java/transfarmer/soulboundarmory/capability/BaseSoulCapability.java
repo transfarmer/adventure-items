@@ -4,14 +4,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static transfarmer.soulboundarmory.Configuration.maxLevel;
 
 public abstract class BaseSoulCapability implements ISoulCapability {
     protected EntityPlayer player;
@@ -26,9 +25,7 @@ public abstract class BaseSoulCapability implements ISoulCapability {
     protected BaseSoulCapability(final SoulDatum datum) {
         this.datum = datum;
         this.boundSlot = -1;
-        this.data = new int[this.getItemAmount()][this.getDatumAmount()];
-        this.attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
-        this.enchantments = new int[this.getItemAmount()][this.getEnchantmentAmount()];
+        this.clear();
     }
 
     @Override
@@ -39,6 +36,52 @@ public abstract class BaseSoulCapability implements ISoulCapability {
     @Override
     public void setPlayer(final EntityPlayer player) {
         this.player = player;
+    }
+
+    @Override
+    public void clear() {
+        this.data = new int[this.getItemAmount()][this.getDatumAmount()];
+        this.attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
+        this.enchantments = new int[this.getItemAmount()][this.getEnchantmentAmount()];
+    }
+
+    @Override
+    public boolean addDatum(final int amount, final SoulDatum datum, final SoulType type) {
+        if (this.datum.xp.equals(datum)) {
+            final int xp = this.data[type.getIndex()][this.datum.xp.getIndex()] += amount;
+
+            if (xp >= this.getNextLevelXP(type) && this.canLevelUp(type)) {
+                final int nextLevelXP = this.getNextLevelXP(type);
+
+                this.addDatum(1, this.datum.level, type);
+                this.addDatum(-nextLevelXP, this.datum.xp, type);
+
+                return true;
+            } else if (xp < 0) {
+                final int currentLevelXP = this.getLevelXP(type, this.getDatum(this.datum.level, type) - 1);
+
+                this.addDatum(-1, this.datum.level, type);
+                this.addDatum(currentLevelXP, this.datum.xp, type);
+
+                return false;
+            }
+        } else if (this.datum.level.equals(datum)) {
+            final int level = this.data[type.getIndex()][this.datum.level.getIndex()] += amount;
+
+            if (level % (MainConfig.instance().getLevelsPerEnchantment()) == 0) {
+                this.addDatum(amount / MainConfig.instance().getLevelsPerEnchantment(), this.datum.enchantmentPoints, type);
+            }
+
+            if (level % (MainConfig.instance().getLevelsPerSkill()) == 0 && this.getDatum(this.datum.skills, type) < type.getSkills().length) {
+                this.addDatum(amount / MainConfig.instance().getLevelsPerSkill(), this.datum.skills, type);
+            }
+
+            this.addDatum(amount, this.datum.attributePoints, type);
+        } else {
+            this.data[type.getIndex()][datum.getIndex()] += amount;
+        }
+
+        return false;
     }
 
     @Override
@@ -73,7 +116,12 @@ public abstract class BaseSoulCapability implements ISoulCapability {
 
     @Override
     public boolean canLevelUp(final SoulType type) {
-        return this.getDatum(this.datum.level, type) < maxLevel || maxLevel < 0;
+        return this.getDatum(this.datum.level, type) < MainConfig.instance().getMaxLevel() || MainConfig.instance().getMaxLevel() < 0;
+    }
+
+    @Override
+    public int getNextLevelXP(final SoulType type) {
+        return this.getLevelXP(type, this.getDatum(this.datum.level, type));
     }
 
     @Override

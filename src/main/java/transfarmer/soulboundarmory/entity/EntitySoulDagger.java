@@ -17,7 +17,11 @@ import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -25,6 +29,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.init.ModItems;
 import transfarmer.soulboundarmory.util.ISoulboundDamageSource;
 import transfarmer.soulboundarmory.util.SoulboundDamageSource;
 
@@ -431,6 +436,7 @@ public class EntitySoulDagger extends EntityArrow {
         super.writeEntityToNBT(compound);
         compound.setString("UUID", this.shooterUUID.toString());
         compound.setInteger("dimensionID", this.world.provider.getDimension());
+        compound.setTag("itemStack", this.itemStack.serializeNBT());
     }
 
     @Override
@@ -438,6 +444,9 @@ public class EntitySoulDagger extends EntityArrow {
         super.readEntityFromNBT(compound);
         this.shooterUUID = UUID.fromString(compound.getString("UUID"));
         this.world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(compound.getInteger("dimensionID"));
+        //noinspection ConstantConditions
+        this.itemStack = new ItemStack(ModItems.SOULBOUND_DAGGER);
+        this.itemStack.deserializeNBT(compound.getCompoundTag("itemStack"));
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
