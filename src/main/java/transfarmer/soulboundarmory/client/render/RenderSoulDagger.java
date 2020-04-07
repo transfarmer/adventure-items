@@ -16,7 +16,7 @@ import transfarmer.soulboundarmory.init.ModItems;
 import javax.annotation.Nullable;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.THROWN_SOULBOUND_DAGGER;
+import static transfarmer.soulboundarmory.Main.ResourceLocations.THROWN_SOULBOUND_DAGGER;
 
 @SideOnly(CLIENT)
 public class RenderSoulDagger<T extends Entity> extends Render<T> {

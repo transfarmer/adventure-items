@@ -15,7 +15,7 @@ import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOO
 
 public class SoulToolStorage implements IStorage<ISoulCapability> {
     @Override
-    public NBTBase writeNBT(Capability<ISoulCapability> capability, ISoulCapability instance, EnumFacing facing) {
+    public NBTBase writeNBT(final Capability<ISoulCapability> capability, final ISoulCapability instance, final EnumFacing facing) {
         final NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("soultools.capability.index", instance.getCurrentType() == null ? -1 : instance.getCurrentType().getIndex());
         tag.setInteger("soultools.capability.tab", instance.getCurrentTab());
@@ -46,7 +46,7 @@ public class SoulToolStorage implements IStorage<ISoulCapability> {
     }
 
     @Override
-    public void readNBT(Capability<ISoulCapability> capability, ISoulCapability instance, EnumFacing facing, NBTBase nbt) {
+    public void readNBT(final Capability<ISoulCapability> capability, final ISoulCapability instance, final EnumFacing facing, final NBTBase nbt) {
         final NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.setCurrentType(tag.getInteger("soultools.capability.index"));
         instance.setCurrentTab(tag.getInteger("soultools.capability.tab"));

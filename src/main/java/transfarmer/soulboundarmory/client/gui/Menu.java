@@ -24,7 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
+import static transfarmer.soulboundarmory.Main.ResourceLocations.XP_BAR;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 
 public abstract class Menu extends GuiScreen {

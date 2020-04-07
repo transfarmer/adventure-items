@@ -1,0 +1,9 @@
+[{
+    "modid": "soulboundarmory",
+    "name": "soulbound armory",
+    "description": "RPG-style armory",
+    "version": "2.5.1",
+    "mcversion": "1.12.2",
+    "authorList": ["transfarmer"],
+    "credits": "to Silentine for the textures and Chocolatin for Better Dungeons"
+}]

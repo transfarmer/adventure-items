@@ -14,7 +14,7 @@ import transfarmer.soulboundarmory.statistics.SoulType;
 import java.awt.Color;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Main.ResourceLocations.Client.XP_BAR;
+import static transfarmer.soulboundarmory.Main.ResourceLocations.XP_BAR;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 
 @SideOnly(CLIENT)

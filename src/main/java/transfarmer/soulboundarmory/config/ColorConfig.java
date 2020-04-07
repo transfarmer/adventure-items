@@ -21,9 +21,9 @@ public class ColorConfig {
     public void load() {
         this.configFile.load();
 
-        red = (float) this.configFile.get(CATEGORY_COLOR, "red", 1D).getDouble();
-        green = (float) this.configFile.get(CATEGORY_COLOR, "green", 0D).getDouble();
-        blue = (float) this.configFile.get(CATEGORY_COLOR, "blue", 1D).getDouble();
+        red = (float) this.configFile.get(CATEGORY_COLOR, "red", 160D / 255D).getDouble();
+        green = (float) this.configFile.get(CATEGORY_COLOR, "green", 1D).getDouble();
+        blue = (float) this.configFile.get(CATEGORY_COLOR, "blue", 160D / 255D).getDouble();
         alpha = (float) this.configFile.get(CATEGORY_COLOR, "alpha", 1D).getDouble();
         displaySliders = this.configFile.get(CATEGORY_OTHER, "displaySliders", true).getBoolean();
 
@@ -31,9 +31,9 @@ public class ColorConfig {
     }
 
     public void save() {
-        this.configFile.get(CATEGORY_COLOR, "red", 1D).set(red);
-        this.configFile.get(CATEGORY_COLOR, "green", 0D).set(green);
-        this.configFile.get(CATEGORY_COLOR, "blue", 1D).set(blue);
+        this.configFile.get(CATEGORY_COLOR, "red", 160D / 255D).set(red);
+        this.configFile.get(CATEGORY_COLOR, "green", 1D).set(green);
+        this.configFile.get(CATEGORY_COLOR, "blue", 160D / 255D).set(blue);
         this.configFile.get(CATEGORY_COLOR, "alpha", 1D).set(alpha);
         this.configFile.get(CATEGORY_OTHER, "displaySliders", true).getBoolean();
 

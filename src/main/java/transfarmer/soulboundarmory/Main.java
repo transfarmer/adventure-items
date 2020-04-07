@@ -1,24 +1,41 @@
 package transfarmer.soulboundarmory;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IProjectile;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
+import transfarmer.soulboundarmory.capability.frozen.Frozen;
+import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
+import transfarmer.soulboundarmory.capability.frozen.FrozenStorage;
+import transfarmer.soulboundarmory.capability.frozen.IFrozen;
 import transfarmer.soulboundarmory.capability.tool.SoulTool;
+import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.tool.SoulToolStorage;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeapon;
+import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponStorage;
 import transfarmer.soulboundarmory.client.render.RenderReachModifier;
 import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
@@ -67,16 +84,17 @@ import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 public class Main {
     public static final String MOD_ID = "soulboundarmory";
     public static final String NAME = "soulbound armory";
-    public static final String VERSION = "2.5.0";
+    public static final String VERSION = "2.5.1";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
     public static int id;
 
     @EventHandler
-    public static void preInit(FMLPreInitializationEvent event) {
+    public static void onPreinit(final FMLPreInitializationEvent event) {
         CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
         CapabilityManager.INSTANCE.register(ISoulCapability.class, new SoulToolStorage(), SoulTool::new);
+        CapabilityManager.INSTANCE.register(IFrozen.class, new FrozenStorage(), Frozen::new);
 
         CHANNEL.registerMessage(CConfig.Handler.class, CConfig.class, id++, CLIENT);
 
@@ -129,15 +147,46 @@ public class Main {
         event.registerServerCommand(new CommandSoulboundArmory());
     }
 
+    @SideOnly(CLIENT)
     public static class ResourceLocations {
-        public static final ResourceLocation SOULBOUND_WEAPON = new ResourceLocation(MOD_ID, "soulboundweapon");
-        public static final ResourceLocation SOULBOUND_TOOL = new ResourceLocation(MOD_ID, "soulboundtool");
+        public static final ResourceLocation REACH_MODIFIER = new ResourceLocation(MOD_ID, "textures/entity/reach_modifier.png");
+        public static final ResourceLocation THROWN_SOULBOUND_DAGGER = new ResourceLocation(MOD_ID, "textures/item/soulbound_dagger.png");
+        public static final ResourceLocation XP_BAR = new ResourceLocation(MOD_ID, "textures/gui/xp_bar.png");
+    }
 
-        @SideOnly(CLIENT)
-        public static final class Client {
-            public static final ResourceLocation REACH_MODIFIER = new ResourceLocation(MOD_ID, "textures/entity/reach_modifier.png");
-            public static final ResourceLocation THROWN_SOULBOUND_DAGGER = new ResourceLocation(MOD_ID, "textures/item/soulbound_dagger.png");
-            public static final ResourceLocation XP_BAR = new ResourceLocation(MOD_ID, "textures/gui/xp_bar.png");
+    @EventBusSubscriber
+    public static class Setup {
+        @SubscribeEvent
+        public static void onRegisterEntityEntry(final Register<EntityEntry> entry) {
+            entry.getRegistry().register(EntityEntryBuilder.create()
+                    .entity(EntitySoulDagger.class)
+                    .id(new ResourceLocation(Main.MOD_ID, "entity_soul_dagger"), 0)
+                    .name("soul dagger")
+                    .tracker(512, 1, true)
+                    .build()
+            );
+            entry.getRegistry().register(EntityEntryBuilder.create()
+                    .entity(EntityReachModifier.class)
+                    .id(new ResourceLocation(Main.MOD_ID, "entity_reach_extender"), 1)
+                    .name("reach extender")
+                    .tracker(16, 1, true)
+                    .build()
+            );
+        }
+
+        @SubscribeEvent
+        public static void onAttachCapabilities(final AttachCapabilitiesEvent<Entity> event) {
+            final Entity entity = event.getObject();
+
+            if (entity instanceof EntityPlayer) {
+                event.addCapability(new ResourceLocation(MOD_ID, "soulboundweapon"), new SoulWeaponProvider());
+                event.addCapability(new ResourceLocation(MOD_ID, "soulboundtool"), new SoulToolProvider());
+            }
+
+            if (entity.isNonBoss() && (entity instanceof EntityLivingBase || entity instanceof IProjectile)
+                    && !(entity instanceof EntityReachModifier) && entity.world instanceof WorldServer) {
+                event.addCapability(new ResourceLocation(MOD_ID, "frozen"), new FrozenProvider());
+            }
         }
     }
 }

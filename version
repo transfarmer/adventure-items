@@ -1,60 +1,41 @@
-#!/usr/bin/env python3
-from re import search
+#!/bin/bash
+function join {
+    local IFS="$1"
+    shift
+    echo "$*"
+}
 
 
-def change_version(*filenames):
-    index = None
-    new = None
+version="$(grep -Eo "[0-9]+.[0-9]+.[0-9]+" gradle.properties)"
+echo "The current version is $version."
+IFS="." read -ra version <<< "$version"
+echo "Enter a version index."
 
-    for filename in filenames:
-        with open(filename, 'r+') as file:
-            lines = file.readlines()
-            ver_expr = r'\d+\.\d+\.\d+'
-            type_expr = r'(-release|-beta|-alpha)'
+while [ -z "$index" ]
+do
+    read -r index
+    index=$(grep -Eo "[0-2]" <<< "$index" | head -1)
+done
 
-            for i in range(len(lines)):
-                line = lines[i]
-                match = search(f'{ver_expr}{type_expr}', line)
+echo "Enter the new number for the version specified by this index."
 
-                if not match:
-                    match = search(ver_expr, line)
+while [ -z "$new" ]
+do
+    read -r new
+    new=$(grep -Eo "[0-9]+" <<< "$new" | head -1)
+done
 
-                if match:
-                    version = search(ver_expr, line)[0]
-                    before = line[:line.index(version)]
-                    after = line[line.index(version) + len(version):]
-                    version = version.split('.')
+if [ "$index" -le 1 ]
+then
+    version[2]="0"
 
-                    if not index:
-                        print(f'\nThe current version in {filename} is {match[0]}.')
-                        index = search(r'[0-2]', input('Enter the version index to change.\n'))
+    if [ "$index" == 0 ]
+    then
+        version[1]="0"
+    fi
+fi
 
-                        if not index:
-                            index = 2
-                            new = str(int(version[2]) + 1)
-                        else:
-                            index = int(index[0])
-
-                        while not new:
-                            new = search(r'\d+', input('Enter the new number for this index.\n'))
-
-                            if new:
-                                new = new[0]
-
-                    version[index] = new
-
-                    if index >= 0:
-                        version[2] = "0"
-
-                        if index == 0:
-                            version[1] = "0"
-
-                    line = f'{before}{".".join(version)}{after}'
-                    lines[i] = line
-                    file.seek(0)
-                    file.truncate()
-                    file.write(''.join(lines))
-                    break
-
-
-change_version('build.gradle', 'src/main/java/transfarmer/soulboundarmory/Main.java')
+version[$index]="$new"
+new=$(join "." "${version[@]}")
+echo "version = $new" > gradle.properties
+echo "The new version is $new."
