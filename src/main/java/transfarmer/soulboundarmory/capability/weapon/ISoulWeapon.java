@@ -18,17 +18,13 @@ public interface ISoulWeapon extends ISoulCapability {
 
     int getLightningCooldown();
 
+    void setLightningCooldown(int ticks);
+
     void resetLightningCooldown();
 
     void decrementLightningCooldown();
 
-    double getCharging();
+    float getCharging();
 
-    void setCharging(double charging);
-
-    int getDaggerCharge();
-
-    void incrementDaggerCharge();
-
-    void resetDaggerCharge();
+    void setCharging(float charging);
 }

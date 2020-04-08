@@ -12,7 +12,6 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public class CConfig implements IMessage {
     private boolean levelupNotifications;
-    private boolean passiveXP;
     private boolean addToOffhand;
     private int initialWeaponXP;
     private int initialToolXP;
@@ -25,10 +24,11 @@ public class CConfig implements IMessage {
     private float bossMultiplier;
     private float hardcoreMultiplier;
     private float babyMultiplier;
+    private float passiveMultiplier;
 
     public CConfig() {
         this.levelupNotifications = MainConfig.instance().getLevelupNotifications();
-        this.passiveXP = MainConfig.instance().getPassiveXP();
+        this.passiveMultiplier = MainConfig.instance().getPassiveMultiplier();
         this.addToOffhand = MainConfig.instance().getAddToOffhand();
         this.initialWeaponXP = MainConfig.instance().getInitialWeaponXP();
         this.initialToolXP = MainConfig.instance().getInitialToolXP();
@@ -46,38 +46,38 @@ public class CConfig implements IMessage {
     @SideOnly(CLIENT)
     @Override
     public void fromBytes(final ByteBuf buffer) {
-        this.levelupNotifications = buffer.readBoolean();
-        this.passiveXP = buffer.readBoolean();
         this.addToOffhand = buffer.readBoolean();
-        this.initialWeaponXP = buffer.readInt();
+        this.levelupNotifications = buffer.readBoolean();
         this.initialToolXP = buffer.readInt();
-        this.levelsPerSkill = buffer.readInt();
+        this.initialWeaponXP = buffer.readInt();
         this.levelsPerEnchantment = buffer.readInt();
-        this.preservationLevel = buffer.readInt();
+        this.levelsPerSkill = buffer.readInt();
         this.maxLevel = buffer.readInt();
+        this.preservationLevel = buffer.readInt();
         this.attackDamageMultiplier = buffer.readFloat();
-        this.difficultyMultiplier = buffer.readFloat();
-        this.bossMultiplier = buffer.readFloat();
-        this.hardcoreMultiplier = buffer.readFloat();
         this.babyMultiplier = buffer.readFloat();
+        this.bossMultiplier = buffer.readFloat();
+        this.difficultyMultiplier = buffer.readFloat();
+        this.hardcoreMultiplier = buffer.readFloat();
+        this.passiveMultiplier = buffer.readFloat();
     }
 
     @Override
     public void toBytes(final ByteBuf buffer) {
-        buffer.writeBoolean(this.levelupNotifications);
-        buffer.writeBoolean(this.passiveXP);
         buffer.writeBoolean(this.addToOffhand);
-        buffer.writeInt(this.initialWeaponXP);
+        buffer.writeBoolean(this.levelupNotifications);
         buffer.writeInt(this.initialToolXP);
-        buffer.writeInt(this.levelsPerSkill);
+        buffer.writeInt(this.initialWeaponXP);
         buffer.writeInt(this.levelsPerEnchantment);
-        buffer.writeInt(this.preservationLevel);
+        buffer.writeInt(this.levelsPerSkill);
         buffer.writeInt(this.maxLevel);
+        buffer.writeInt(this.preservationLevel);
         buffer.writeFloat(this.attackDamageMultiplier);
-        buffer.writeFloat(this.difficultyMultiplier);
-        buffer.writeFloat(this.bossMultiplier);
-        buffer.writeFloat(this.hardcoreMultiplier);
         buffer.writeFloat(this.babyMultiplier);
+        buffer.writeFloat(this.bossMultiplier);
+        buffer.writeFloat(this.difficultyMultiplier);
+        buffer.writeFloat(this.hardcoreMultiplier);
+        buffer.writeFloat(this.passiveMultiplier);
     }
 
     public static final class Handler implements IMessageHandler<CConfig, IMessage> {
@@ -87,20 +87,20 @@ public class CConfig implements IMessage {
             final Minecraft minecraft = Minecraft.getMinecraft();
 
             minecraft.addScheduledTask(() -> {
-                MainConfig.instance().setLevelupNotifications(message.levelupNotifications);
-                MainConfig.instance().setPassiveXP(message.passiveXP);
                 MainConfig.instance().setAddToOffhand(message.addToOffhand);
-                MainConfig.instance().setInitialWeaponXP(message.initialWeaponXP);
+                MainConfig.instance().setLevelupNotifications(message.levelupNotifications);
                 MainConfig.instance().setInitialToolXP(message.initialToolXP);
-                MainConfig.instance().setLevelsPerSkill(message.levelsPerSkill);
+                MainConfig.instance().setInitialWeaponXP(message.initialWeaponXP);
                 MainConfig.instance().setLevelsPerEnchantment(message.levelsPerEnchantment);
-                MainConfig.instance().setPreservationLevel(message.preservationLevel);
+                MainConfig.instance().setLevelsPerSkill(message.levelsPerSkill);
                 MainConfig.instance().setMaxLevel(message.maxLevel);
+                MainConfig.instance().setPreservationLevel(message.preservationLevel);
                 MainConfig.instance().setAttackDamageMultiplier(message.attackDamageMultiplier);
-                MainConfig.instance().setDifficultyMultiplier(message.difficultyMultiplier);
-                MainConfig.instance().setBossMultiplier(message.bossMultiplier);
-                MainConfig.instance().setHardcoreMultiplier(message.hardcoreMultiplier);
                 MainConfig.instance().setBabyMultiplier(message.babyMultiplier);
+                MainConfig.instance().setBossMultiplier(message.bossMultiplier);
+                MainConfig.instance().setDifficultyMultiplier(message.difficultyMultiplier);
+                MainConfig.instance().setHardcoreMultiplier(message.hardcoreMultiplier);
+                MainConfig.instance().setPassiveMultiplier(message.passiveMultiplier);
             });
 
             return null;

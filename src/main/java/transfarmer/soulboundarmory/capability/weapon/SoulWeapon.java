@@ -21,6 +21,7 @@ import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.SoulType;
+import transfarmer.soulboundarmory.statistics.v2.statistics.Statistics;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
@@ -48,13 +49,24 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREAT
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
-    private double charging;
+    private float charging;
     private int attackCooldown;
     private int lightningCooldown;
-    private int daggerCharge;
 
     public SoulWeapon() {
-        super(WEAPON_DATA);
+        super(WEAPON_DATA, new Statistics(new String[]{"pick"},
+                new String[]{"datum, attribute, enchantment"},
+                new String[][]{
+                        {"xp", "level", "skills", "attributePoints", "enchantmentPoints", "spentAttributePoints", "spentEnchantmentPoints"},
+                        {"attackSpeed", "attackDamage", "critical", "knockbackAttribute", "efficiencyAttribute"},
+                        {"sharpness", "sweepingEdge", "looting", "fireAspect", "knockbackEnchantment", "smite", "baneOfArthropods"}},
+                new double[][]{
+                        {0, 0, 0, 0, 0, 0, 0, 0.8, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                        {0, 0, 0, 0, 0, 0, 0, 1.6, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                        {0, 0, 0, 0, 0, 0, 0, 2  , 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+                }
+        ));
+
         this.currentTab = 1;
         this.boundSlot = -1;
         this.attackCooldown = 0;
@@ -134,13 +146,17 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
 
     @Override
     public int getIndex(final SoulType type) {
-        return type.equals(GREATSWORD)
-                ? 0
-                : type.equals(SWORD)
-                ? 1
-                : type.equals(DAGGER)
-                ? 2
-                : -1;
+        if (type != null) {
+            return type.equals(GREATSWORD)
+                    ? 0
+                    : type.equals(SWORD)
+                    ? 1
+                    : type.equals(DAGGER)
+                    ? 2
+                    : -1;
+        }
+
+        return -1;
     }
 
     @Override
@@ -380,6 +396,11 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
+    public void setLightningCooldown(final int ticks) {
+        this.lightningCooldown = ticks;
+    }
+
+    @Override
     public void resetLightningCooldown() {
         if (!this.player.isCreative()) {
             this.lightningCooldown = Math.round(96 / this.getAttribute(ATTACK_SPEED, this.currentType, true, true));
@@ -392,28 +413,13 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
-    public double getCharging() {
+    public float getCharging() {
         return this.charging;
     }
 
     @Override
-    public void setCharging(final double charging) {
+    public void setCharging(final float charging) {
         this.charging = charging;
-    }
-
-    @Override
-    public int getDaggerCharge() {
-        return this.daggerCharge;
-    }
-
-    @Override
-    public void incrementDaggerCharge() {
-        this.daggerCharge++;
-    }
-
-    @Override
-    public void resetDaggerCharge() {
-        this.daggerCharge = 0;
     }
 
     @Override
@@ -440,8 +446,10 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
 
         tag.setInteger("soulweapons.capability.index", this.getIndex());
         tag.setInteger("soulweapons.capability.tab", this.getCurrentTab());
-        tag.setInteger("soulweapons.capability.cooldown", this.getCooldown());
         tag.setInteger("soulweapons.capability.boundSlot", this.getBoundSlot());
+        tag.setInteger("soulweapons.capability.cooldown", this.getCooldown());
+        tag.setFloat("soulweapons.capability.charging", this.getCharging());
+        tag.setInteger("soulweapons.capability.lightningCooldown", this.getLightningCooldown());
 
         this.forEach(
                 (final Integer weaponIndex, final Integer valueIndex) ->
@@ -468,8 +476,10 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     public void readNBT(final NBTTagCompound nbt) {
         this.setCurrentType(nbt.getInteger("soulweapons.capability.index"));
         this.setCurrentTab(nbt.getInteger("soulweapons.capability.tab"));
-        this.setAttackCooldown(nbt.getInteger("soulweapons.capability.cooldown"));
         this.bindSlot(nbt.getInteger("soulweapons.capability.boundSlot"));
+        this.setAttackCooldown(nbt.getInteger("soulweapons.capability.cooldown"));
+        this.setCharging(nbt.getFloat("soulweapons.capability.charging"));
+        this.setLightningCooldown(nbt.getInteger("soulweapons.capability.lightningCooldown"));
 
         this.forEach(
                 (final Integer weaponIndex, final Integer valueIndex) ->

@@ -44,8 +44,8 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
 
         if (timeTaken > 5) {
             final Vec3d look = entity.getLookVec();
-            final double maxSpeed = 1.25;
-            final double speed = Math.min(maxSpeed, timeTaken / 15F * maxSpeed);
+            final float maxSpeed = 1.25F;
+            final float speed = Math.min(maxSpeed, timeTaken / 15F * maxSpeed);
 
             entity.addVelocity(look.x * speed, look.y * speed / 4 + 0.2, look.z * speed);
             entity.setSprinting(true);

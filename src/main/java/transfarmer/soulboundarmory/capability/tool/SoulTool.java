@@ -22,6 +22,7 @@ import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.v2.statistics.Statistics;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -43,7 +44,17 @@ import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.REAC
 
 public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     public SoulTool() {
-        super(TOOL_DATA);
+        super(TOOL_DATA, new Statistics(new String[]{"pick"},
+                new String[]{"datum, attribute, enchantment"},
+                new String[][]{
+                        {"xp", "level", "skills", "attributePoints", "enchantmentPoints", "spentAttributePoints", "spentEnchantmentPoints"},
+                        {"efficiencyAttribute", "reachDistance", "harvestLevel"},
+                        {"efficiencyEnchantment", "fortune", "silkTouch"}},
+                new double[][]{
+                        {0, 0, 0, 0, 0, 0, 0, 0.5, 2, 0, 0, 0, 0},
+                }
+        ));
+
         this.currentTab = 0;
     }
 

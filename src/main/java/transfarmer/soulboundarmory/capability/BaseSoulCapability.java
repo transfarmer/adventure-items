@@ -8,6 +8,7 @@ import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
+import transfarmer.soulboundarmory.statistics.v2.statistics.Statistics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +18,16 @@ public abstract class BaseSoulCapability implements ISoulCapability {
     protected EntityPlayer player;
     protected SoulType currentType;
     protected SoulDatum datum;
+    protected Statistics statistics;
     protected int[][] data;
     protected float[][] attributes;
     protected int[][] enchantments;
     protected int boundSlot;
     protected int currentTab;
 
-    protected BaseSoulCapability(final SoulDatum datum) {
+    protected BaseSoulCapability(final SoulDatum datum, final Statistics statistics) {
         this.datum = datum;
+        this.statistics = statistics;
         this.boundSlot = -1;
         this.init();
     }

@@ -70,7 +70,5 @@ public class ItemSoulDagger extends ItemSoulWeapon {
                 player.inventory.deleteStack(itemStack);
             }
         }
-
-        capability.resetDaggerCharge();
     }
 }

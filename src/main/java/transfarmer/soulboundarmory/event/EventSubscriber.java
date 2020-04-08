@@ -8,7 +8,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -213,36 +212,29 @@ public class EventSubscriber {
             }
 
             if (source instanceof EntityPlayer && weaponType != null) {
-                if (attackDamage != null || MainConfig.instance().getPassiveXP() || entity instanceof EntitySlime) {
-                    double attackDamageValue = 0;
+                double xp = entity.getMaxHealth()
+                        * source.world.getDifficulty().getId() * MainConfig.instance().getDifficultyMultiplier()
+                        * (1 + armor.getAttributeValue() * MainConfig.instance().getArmorMultiplier());
 
-                    if (attackDamage != null) {
-                        attackDamageValue = attackDamage.getAttributeValue();
-                    }
+                xp *= attackDamage != null ? 1 + attackDamage.getAttributeValue() * MainConfig.instance().getAttackDamageMultiplier() : MainConfig.instance().getPassiveMultiplier();
 
-                    int xp = (int) Math.round(entity.getMaxHealth()
-                            * source.world.getDifficulty().getId() * MainConfig.instance().getDifficultyMultiplier()
-                            * (1 + attackDamageValue * MainConfig.instance().getAttackDamageMultiplier())
-                            * (1 + armor.getAttributeValue() * MainConfig.instance().getArmorMultiplier()));
-
-                    if (!entity.isNonBoss()) {
-                        xp *= MainConfig.instance().getBossMultiplier();
-                    }
-
-                    if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
-                        xp *= MainConfig.instance().getHardcoreMultiplier();
-                    }
-
-                    if (attackDamage != null && entity.isChild()) {
-                        xp *= MainConfig.instance().getBabyMultiplier();
-                    }
-
-                    if (instance.addDatum(xp, DATA.xp, weaponType) && MainConfig.instance().getLevelupNotifications()) {
-                        Main.CHANNEL.sendTo(new CLevelupMessage(displayName, instance.getDatum(DATA.level, weaponType)), (EntityPlayerMP) source);
-                    }
-
-                    instance.sync();
+                if (!entity.isNonBoss()) {
+                    xp *= MainConfig.instance().getBossMultiplier();
                 }
+
+                if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
+                    xp *= MainConfig.instance().getHardcoreMultiplier();
+                }
+
+                if (attackDamage != null && entity.isChild()) {
+                    xp *= MainConfig.instance().getBabyMultiplier();
+                }
+
+                if (instance.addDatum((int) Math.round(xp), DATA.xp, weaponType) && MainConfig.instance().getLevelupNotifications()) {
+                    Main.CHANNEL.sendTo(new CLevelupMessage(displayName, instance.getDatum(DATA.level, weaponType)), (EntityPlayerMP) source);
+                }
+
+                instance.sync();
             }
         }
     }

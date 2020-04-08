@@ -4,10 +4,10 @@ package transfarmer.soulboundarmory.statistics.v2.statistics;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SoulboundStatistics {
+public class Statistics {
     private final Map<String, Map<String, Map<String, Statistic>>> statistics;
 
-    public SoulboundStatistics(final String[] itemNames, final String[] statisticTypeNames, final String[][] statisticNames, final double[][] min) {
+    public Statistics(final String[] itemNames, final String[] statisticTypeNames, final String[][] statisticNames, final double[][] min) {
         this.statistics = new HashMap<>(itemNames.length, 1);
 
         for (final String itemName : itemNames) {

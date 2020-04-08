@@ -1,14 +1,19 @@
 package transfarmer.soulboundarmory.config;
 
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import transfarmer.soulboundarmory.Main;
 
 import java.io.File;
 
+@EventBusSubscriber(modid = Main.MOD_ID)
 public class MainConfig {
     private static final MainConfig INSTANCE = new MainConfig();
-    private static final String CATEGORY_GENERAL = "general";
-    private static final String CATEGORY_MULTIPLIERS = "experience multipliers";
+    public static final String CATEGORY_GENERAL = "general";
+    public static final String CATEGORY_MULTIPLIERS = "experience multipliers";
     private final Configuration configFile = new Configuration(new File(String.format("%s/soulboundarmory", Loader.instance().getConfigDir()), "main.cfg"));
     private int initialWeaponXP;
     private int initialToolXP;
@@ -18,7 +23,6 @@ public class MainConfig {
     private int preservationLevel;
     private boolean addToOffhand;
     private boolean levelupNotifications;
-    private boolean passiveXP;
 
     private float armorMultiplier;
     private float attackDamageMultiplier;
@@ -26,6 +30,7 @@ public class MainConfig {
     private float babyMultiplier;
     private float bossMultiplier;
     private float hardcoreMultiplier;
+    private float passiveMultiplier;
 
     public static MainConfig instance() {
         return INSTANCE;
@@ -39,11 +44,10 @@ public class MainConfig {
         this.levelsPerEnchantment = this.configFile.get(CATEGORY_GENERAL, "levelsPerEnchantment", 5, "the number of levels per enchantment point").getInt();
         this.levelsPerSkill = this.configFile.get(CATEGORY_GENERAL, "levelsPerSkill", 5, "the number of levels per additional skill").getInt();
         this.maxLevel = this.configFile.get(CATEGORY_GENERAL, "maxLevel", -1, "the maximum soulbound item level. Set to -1 for no limit.").getInt();
-        this.preservationLevel = this.configFile.get(CATEGORY_GENERAL, "preservationLexel", 0, "the minimum level for soul weapons to be preserved after death").getInt();
+        this.preservationLevel = this.configFile.get(CATEGORY_GENERAL, "preservationLevel", 0, "the minimum level for soul weapons to be preserved after death").getInt();
 
         this.addToOffhand = this.configFile.get(CATEGORY_GENERAL, "addToOffhand", true, "places picked up items with full inventory in offhand").getBoolean();
         this.levelupNotifications = this.configFile.get(CATEGORY_GENERAL, "levelupNotifications", true, "whether levelup notifications should be sent to players or not").getBoolean();
-        this.passiveXP = this.configFile.get(CATEGORY_GENERAL, "passiveXP", false, "whether passive entities yield XP or not").getBoolean();
 
         this.armorMultiplier = (float) this.configFile.get(CATEGORY_MULTIPLIERS, "armorMultiplier", 0.2, "armor XP multiplier = 1 + (armorMultiplier * armor)").getDouble();
         this.attackDamageMultiplier = (float) this.configFile.get(CATEGORY_MULTIPLIERS, "attackDamageMultiplier", 1D / 3, "attack damage XP multiplier = 1 + (attackDamageMultiplier * damage)").getDouble();
@@ -51,6 +55,7 @@ public class MainConfig {
         this.babyMultiplier = (float) this.configFile.get(CATEGORY_MULTIPLIERS, "babyMultiplier", 2, "baby entity XP multiplier").getDouble();
         this.bossMultiplier = (float) this.configFile.get(CATEGORY_MULTIPLIERS, "bossMultiplier", 3, "boss XP multiplier").getDouble();
         this.hardcoreMultiplier = (float) this.configFile.get(CATEGORY_MULTIPLIERS, "hardcoreMultiplier", 2, "hardcore mode XP multiplier").getDouble();
+        this.passiveMultiplier = (float) this.configFile.get(CATEGORY_MULTIPLIERS, "passiveMultiplier", 0, "passive entity multiplier").getDouble();
 
         this.configFile.save();
     }
@@ -59,13 +64,12 @@ public class MainConfig {
         this.configFile.get(CATEGORY_GENERAL, "initialToolXP", 16).set(this.initialToolXP);
         this.configFile.get(CATEGORY_GENERAL, "initialWeaponXP", 64).set(this.initialWeaponXP);
         this.configFile.get(CATEGORY_GENERAL, "levelsPerEnchantment", 5, "the number of levels per enchantment point").set(this.levelsPerEnchantment);
-        this.configFile.get(CATEGORY_GENERAL, "levelsPerSkill", 5, "the number of levels per additional skill").set(this.levelsPerSkill);
+        this.configFile.get(CATEGORY_GENERAL, "levelsPerSkill", 5, "the number of levels required in order to gain a skill").set(this.levelsPerSkill);
         this.configFile.get(CATEGORY_GENERAL, "maxLevel", -1, "the maximum soulbound item level. Set to -1 for no limit.").set(this.maxLevel);
-        this.configFile.get(CATEGORY_GENERAL, "preservationLexel", 0, "the minimum level for soul weapons to be preserved after death").set(this.preservationLevel);
+        this.configFile.get(CATEGORY_GENERAL, "preservationLevel", 0, "the minimum level for soul weapons to be preserved after death").set(this.preservationLevel);
 
         this.configFile.get(CATEGORY_GENERAL, "addToOffhand", true, "places picked up items with full inventory in offhand").set(this.addToOffhand);
         this.configFile.get(CATEGORY_GENERAL, "levelupNotifications", true, "whether levelup notifications should be sent to players or not").set(this.levelupNotifications);
-        this.configFile.get(CATEGORY_GENERAL, "passiveXP", false, "whether passive entities yield XP or not").set(this.passiveXP);
 
         this.configFile.get(CATEGORY_MULTIPLIERS, "armorMultiplier", 0.2, "armor XP multiplier = 1 + (armorMultiplier * armor)").set(this.armorMultiplier);
         this.configFile.get(CATEGORY_MULTIPLIERS, "attackDamageMultiplier", 1D / 3, "attack damage XP multiplier = 1 + (attackDamageMultiplier * damage)").set(this.attackDamageMultiplier);
@@ -73,8 +77,13 @@ public class MainConfig {
         this.configFile.get(CATEGORY_MULTIPLIERS, "babyMultiplier", 2, "baby entity XP multiplier").set(this.babyMultiplier);
         this.configFile.get(CATEGORY_MULTIPLIERS, "bossMultiplier", 3, "boss XP multiplier").set(this.bossMultiplier);
         this.configFile.get(CATEGORY_MULTIPLIERS, "hardcoreMultiplier", 2, "hardcore mode XP multiplier").set(this.hardcoreMultiplier);
+        this.configFile.get(CATEGORY_MULTIPLIERS, "passiveMultiplier", 0, "passive entity multiplier").set(this.passiveMultiplier);
 
         this.configFile.save();
+    }
+
+    public Configuration getConfigFile() {
+        return this.configFile;
     }
 
     public int getInitialToolXP() {
@@ -141,14 +150,6 @@ public class MainConfig {
         this.levelupNotifications = levelupNotifications;
     }
 
-    public boolean getPassiveXP() {
-        return this.passiveXP;
-    }
-
-    public void setPassiveXP(final boolean passiveXP) {
-        this.passiveXP = passiveXP;
-    }
-
     public float getArmorMultiplier() {
         return this.armorMultiplier;
     }
@@ -195,5 +196,21 @@ public class MainConfig {
 
     public void setHardcoreMultiplier(final float hardcoreMultiplier) {
         this.hardcoreMultiplier = hardcoreMultiplier;
+    }
+
+    public float getPassiveMultiplier() {
+        return this.passiveMultiplier;
+    }
+
+    public void setPassiveMultiplier(final float passiveMultiplier) {
+        this.passiveMultiplier = passiveMultiplier;
+    }
+
+    @SubscribeEvent
+    public static void onConfigChangedEvent(final OnConfigChangedEvent event) {
+        if (event.getModID().equals(Main.MOD_ID)) {
+            instance().configFile.save();
+            instance().configFile.load();
+        }
     }
 }

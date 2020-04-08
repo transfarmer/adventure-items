@@ -4,6 +4,7 @@
     "description": "RPG-style armory",
     "version": "2.5.1",
     "mcversion": "1.12.2",
+    "logoFile": "assets/soulboundarmory/textures/item/soulbound_sword.png",
     "authorList": ["transfarmer"],
     "credits": "to Silentine for the textures and Chocolatin for Better Dungeons"
 }]

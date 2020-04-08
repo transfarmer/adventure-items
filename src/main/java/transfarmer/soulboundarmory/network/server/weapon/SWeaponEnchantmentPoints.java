@@ -10,7 +10,6 @@ import transfarmer.soulboundarmory.network.client.weapon.CWeaponSpendEnchantment
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 public class SWeaponEnchantmentPoints implements IMessage {
     private int amount;
@@ -44,7 +43,7 @@ public class SWeaponEnchantmentPoints implements IMessage {
         public IMessage onMessage(final SWeaponEnchantmentPoints message, final MessageContext context) {
             final ISoulWeapon instance = SoulWeaponProvider.get(context.getServerHandler().player);
             final SoulEnchantment enchantment = SoulWeaponEnchantment.get(message.enchantmentIndex);
-            final SoulType weaponType = SoulWeaponType.get(message.typeIndex);
+            final SoulType weaponType = instance.getType(message.typeIndex);
 
             instance.addEnchantment(message.amount, enchantment, weaponType);
 
