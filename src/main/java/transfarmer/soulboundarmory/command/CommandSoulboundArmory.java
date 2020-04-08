@@ -57,7 +57,7 @@ public class CommandSoulboundArmory extends CommandBase {
                     final ISoulCapability capability = SoulItemHelper.getCapability(player, (Item) null);
 
                     if (commandType.equals("reset")) {
-                        capability.clear();
+                        capability.init();
                     } else {
                         if (args.length < 3) {
                             throw new WrongUsageException(this.getUsage(null));

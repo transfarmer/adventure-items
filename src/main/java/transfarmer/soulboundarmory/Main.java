@@ -47,20 +47,17 @@ import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.network.client.CConfig;
 import transfarmer.soulboundarmory.network.client.CLevelupMessage;
 import transfarmer.soulboundarmory.network.client.tool.CToolBindSlot;
-import transfarmer.soulboundarmory.network.client.tool.CToolData;
 import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
 import transfarmer.soulboundarmory.network.client.tool.CToolResetAttributes;
 import transfarmer.soulboundarmory.network.client.tool.CToolResetEnchantments;
 import transfarmer.soulboundarmory.network.client.tool.CToolSpendAttributePoints;
 import transfarmer.soulboundarmory.network.client.tool.CToolSpendEnchantmentPoints;
+import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponBindSlot;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponDatum;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponResetAttributes;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponResetEnchantments;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponSpendAttributePoints;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponSpendEnchantmentPoints;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponType;
 import transfarmer.soulboundarmory.network.server.tool.SToolAttributePoints;
 import transfarmer.soulboundarmory.network.server.tool.SToolBindSlot;
 import transfarmer.soulboundarmory.network.server.tool.SToolEnchantmentPoints;
@@ -96,6 +93,7 @@ public class Main {
         CapabilityManager.INSTANCE.register(ISoulCapability.class, new SoulToolStorage(), SoulTool::new);
         CapabilityManager.INSTANCE.register(IFrozen.class, new FrozenStorage(), Frozen::new);
 
+        CHANNEL.registerMessage(S2CSync.Handler.class, S2CSync.class, id++, CLIENT);
         CHANNEL.registerMessage(CConfig.Handler.class, CConfig.class, id++, CLIENT);
 
         CHANNEL.registerMessage(CToolSpendAttributePoints.Handler.class, CToolSpendAttributePoints.class, id++, CLIENT);
@@ -104,17 +102,13 @@ public class Main {
         CHANNEL.registerMessage(CToolResetEnchantments.Handler.class, CToolResetEnchantments.class, id++, CLIENT);
         CHANNEL.registerMessage(CToolBindSlot.Handler.class, CToolBindSlot.class, id++, CLIENT);
         CHANNEL.registerMessage(CToolDatum.Handler.class, CToolDatum.class, id++, CLIENT);
-        CHANNEL.registerMessage(CToolData.Handler.class, CToolData.class, id++, CLIENT);
         CHANNEL.registerMessage(CLevelupMessage.Handler.class, CLevelupMessage.class, id++, CLIENT);
 
-        CHANNEL.registerMessage(CWeaponType.Handler.class, CWeaponType.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponSpendAttributePoints.Handler.class, CWeaponSpendAttributePoints.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponSpendEnchantmentPoints.Handler.class, CWeaponSpendEnchantmentPoints.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponResetAttributes.Handler.class, CWeaponResetAttributes.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponResetEnchantments.Handler.class, CWeaponResetEnchantments.class, id++, CLIENT);
         CHANNEL.registerMessage(CWeaponBindSlot.Handler.class, CWeaponBindSlot.class, id++, CLIENT);
-        CHANNEL.registerMessage(CWeaponDatum.Handler.class, CWeaponDatum.class, id++, CLIENT);
-        CHANNEL.registerMessage(CWeaponData.Handler.class, CWeaponData.class, id++, CLIENT);
 
         CHANNEL.registerMessage(SToolType.Handler.class, SToolType.class, id++, SERVER);
         CHANNEL.registerMessage(SToolAttributePoints.Handler.class, SToolAttributePoints.class, id++, SERVER);
@@ -179,8 +173,8 @@ public class Main {
             final Entity entity = event.getObject();
 
             if (entity instanceof EntityPlayer) {
-                event.addCapability(new ResourceLocation(MOD_ID, "soulboundweapon"), new SoulWeaponProvider());
                 event.addCapability(new ResourceLocation(MOD_ID, "soulboundtool"), new SoulToolProvider());
+                event.addCapability(new ResourceLocation(MOD_ID, "soulboundweapon"), new SoulWeaponProvider());
             }
 
             if (entity.isNonBoss() && (entity instanceof EntityLivingBase || entity instanceof IProjectile)

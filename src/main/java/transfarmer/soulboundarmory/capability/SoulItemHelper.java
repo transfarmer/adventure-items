@@ -9,10 +9,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
-import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
@@ -21,7 +21,6 @@ import transfarmer.soulboundarmory.util.ListUtils;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 
@@ -121,54 +120,6 @@ public class SoulItemHelper {
 
     public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player) {
         return addItemStack(itemStack, player, true);
-    }
-
-    public static void forEach(final int itemAmount,
-                               final int datumAmount,
-                               final int attributeAmount,
-                               final int enchantmentAmount,
-                               final BiConsumer<Integer, Integer> data,
-                               final BiConsumer<Integer, Integer> attributes,
-                               final BiConsumer<Integer, Integer> enchantments) {
-        for (int itemIndex = 0; itemIndex < itemAmount; itemIndex++) {
-            for (int valueIndex = 0; valueIndex < Math.max(datumAmount, Math.max(attributeAmount, enchantmentAmount)); valueIndex++) {
-                if (valueIndex < datumAmount) {
-                    data.accept(itemIndex, valueIndex);
-                }
-
-                if (valueIndex < attributeAmount) {
-                    attributes.accept(itemIndex, valueIndex);
-                }
-
-                if (valueIndex < enchantmentAmount) {
-                    enchantments.accept(itemIndex, valueIndex);
-                }
-            }
-        }
-    }
-
-    public static void forEach(final ISoulCapability capability,
-                               final BiConsumer<Integer, Integer> data,
-                               final BiConsumer<Integer, Integer> attributes,
-                               final BiConsumer<Integer, Integer> enchantments) {
-        forEach(capability.getItemAmount(),
-                capability.getDatumAmount(),
-                capability.getAttributeAmount(),
-                capability.getEnchantmentAmount(),
-                data,
-                attributes,
-                enchantments
-        );
-    }
-
-    public static boolean areEmpty(final ISoulCapability capability, final int[][] data, final float[][] attributes, final int[][] enchantments) {
-        for (int index = 0; index < capability.getItemAmount(); index++) {
-            if (data[index].length == 0 || attributes[index].length == 0 || enchantments[index].length == 0) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public static boolean areDataEqual(ItemStack itemStack0, ItemStack itemStack1) {

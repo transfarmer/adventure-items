@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.BaseSoulCapability;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
@@ -13,7 +14,7 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
-import transfarmer.soulboundarmory.network.client.tool.CToolData;
+import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
@@ -35,6 +36,7 @@ import static net.minecraftforge.common.util.Constants.AttributeModifierOperatio
 import static transfarmer.soulboundarmory.capability.SoulItemHelper.REACH_DISTANCE_UUID;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
+import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.HARVEST_LEVEL;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.REACH_DISTANCE;
@@ -83,6 +85,11 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     }
 
     @Override
+    public SoulType getType(final int index) {
+        return index == 0 ? PICK : null;
+    }
+
+    @Override
     public SoulType getType(final ItemStack itemStack) {
         return SoulToolType.get(itemStack);
     }
@@ -90,6 +97,16 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     @Override
     public SoulType getCurrentType() {
         return this.currentType;
+    }
+
+    @Override
+    public int getIndex(final SoulType type) {
+        return type == PICK ? 0 : -1;
+    }
+
+    @Override
+    public int getIndex() {
+        return this.getIndex(this.getCurrentType());
     }
 
     @Override
@@ -283,12 +300,63 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     }
 
     @Override
+    public NBTTagCompound writeNBT() {
+        final NBTTagCompound tag = new NBTTagCompound();
+
+        tag.setInteger("soultools.capability.index", this.getCurrentType() == null ? -1 : this.getCurrentType().getIndex());
+        tag.setInteger("soultools.capability.tab", this.getCurrentTab());
+        tag.setInteger("soultools.capability.boundSlot", this.getBoundSlot());
+
+        this.forEach(
+                (final Integer toolIndex, final Integer valueIndex) ->
+                        tag.setInteger(String.format("soultools.datum.%s.%s",
+                                this.getType(toolIndex),
+                                TOOL_DATA.get(valueIndex)),
+                                this.data[toolIndex][valueIndex]),
+                (final Integer toolIndex, final Integer valueIndex) ->
+                        tag.setFloat(String.format("soultools.attribute.%s.%s",
+                                this.getType(toolIndex),
+                                SoulToolAttribute.get(valueIndex)),
+                                this.attributes[toolIndex][valueIndex]),
+                (final Integer toolIndex, final Integer valueIndex) ->
+                        tag.setInteger(String.format("soultools.enchantment.%s.%s",
+                                this.getType(toolIndex),
+                                SoulToolEnchantment.get(valueIndex)),
+                                this.enchantments[toolIndex][valueIndex])
+        );
+
+        return tag;
+    }
+
+    @Override
+    public void readNBT(final NBTTagCompound tag) {
+        this.setCurrentType(tag.getInteger("soultools.capability.index"));
+        this.setCurrentTab(tag.getInteger("soultools.capability.tab"));
+        this.bindSlot(tag.getInteger("soultools.capability.boundSlot"));
+
+        this.forEach(
+                (final Integer toolIndex, final Integer valueIndex) ->
+                        this.data[toolIndex][valueIndex] = tag.getInteger(String.format("soultools.datum.%s.%s",
+                                this.getType(toolIndex),
+                                TOOL_DATA.get(valueIndex)
+                        )),
+                (final Integer toolIndex, final Integer valueIndex) ->
+                        this.attributes[toolIndex][valueIndex] = tag.getFloat(String.format("soultools.attribute.%s.%s",
+                                this.getType(toolIndex),
+                                SoulToolAttribute.get(valueIndex)
+                        )),
+                (final Integer toolIndex, final Integer valueIndex) ->
+                        this.enchantments[toolIndex][valueIndex] = tag.getInteger(String.format("soultools.enchantment.%s.%s",
+                                this.getType(toolIndex),
+                                SoulToolEnchantment.get(valueIndex)
+                        ))
+        );
+    }
+
+    @Override
     public void sync() {
         if (!this.player.world.isRemote) {
-            Main.CHANNEL.sendTo(
-                    new CToolData(this.currentType, this.currentTab, this.boundSlot, this.data, this.attributes, this.enchantments),
-                    (EntityPlayerMP) this.player
-            );
+            Main.CHANNEL.sendTo(new S2CSync("tool", this.writeNBT()), (EntityPlayerMP) this.player);
         }
     }
 }

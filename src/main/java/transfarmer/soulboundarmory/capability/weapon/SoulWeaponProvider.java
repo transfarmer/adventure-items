@@ -17,14 +17,14 @@ public class SoulWeaponProvider implements ICapabilitySerializable<NBTBase> {
     private final ISoulWeapon instance = CAPABILITY.getDefaultInstance();
 
     @Override
-    @Nullable
-    public <T> T getCapability(final @Nonnull Capability<T> capability, final @Nullable EnumFacing facing) {
-        return capability == CAPABILITY ? CAPABILITY.cast(this.instance) : null;
+    public boolean hasCapability(@Nonnull final Capability<?> capability, @Nullable final EnumFacing facing) {
+        return capability == CAPABILITY;
     }
 
     @Override
-    public boolean hasCapability(final @Nonnull Capability<?> capability, final @Nullable EnumFacing facing) {
-        return capability == CAPABILITY;
+    @Nullable
+    public <T> T getCapability(@Nonnull final Capability<T> capability, @Nullable final EnumFacing facing) {
+        return capability == CAPABILITY ? CAPABILITY.cast(this.instance) : null;
     }
 
     @Override

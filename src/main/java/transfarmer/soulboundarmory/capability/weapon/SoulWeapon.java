@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.BaseSoulCapability;
@@ -15,7 +16,7 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponData;
+import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
@@ -42,6 +43,9 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREATSWORD;
+import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     private double charging;
@@ -85,6 +89,20 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
+    public SoulType getType(final int index) {
+        switch (index) {
+            case 0:
+                return GREATSWORD;
+            case 1:
+                return SWORD;
+            case 2:
+                return DAGGER;
+            default:
+                return null;
+        }
+    }
+
+    @Override
     public SoulType getType(final ItemStack itemStack) {
         return SoulWeaponType.get(itemStack);
     }
@@ -112,6 +130,22 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     @Override
     public SoulType getCurrentType() {
         return this.currentType;
+    }
+
+    @Override
+    public int getIndex(final SoulType type) {
+        return type.equals(GREATSWORD)
+                ? 0
+                : type.equals(SWORD)
+                ? 1
+                : type.equals(DAGGER)
+                ? 2
+                : -1;
+    }
+
+    @Override
+    public int getIndex() {
+        return this.getIndex(this.currentType);
     }
 
     @Override
@@ -401,12 +435,65 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
+    public NBTTagCompound writeNBT() {
+        final NBTTagCompound tag = new NBTTagCompound();
+
+        tag.setInteger("soulweapons.capability.index", this.getIndex());
+        tag.setInteger("soulweapons.capability.tab", this.getCurrentTab());
+        tag.setInteger("soulweapons.capability.cooldown", this.getCooldown());
+        tag.setInteger("soulweapons.capability.boundSlot", this.getBoundSlot());
+
+        this.forEach(
+                (final Integer weaponIndex, final Integer valueIndex) ->
+                        tag.setInteger(String.format("soulweapons.datum.%s.%s",
+                                this.getType(weaponIndex),
+                                WEAPON_DATA.get(valueIndex)),
+                                this.data[weaponIndex][valueIndex]),
+                (final Integer weaponIndex, final Integer valueIndex) ->
+                        tag.setFloat(String.format("soulweapons.attribute.%s.%s",
+                                this.getType(weaponIndex),
+                                SoulWeaponAttribute.get(valueIndex)),
+                                this.attributes[weaponIndex][valueIndex]),
+                (final Integer weaponIndex, final Integer valueIndex) ->
+                        tag.setInteger(String.format("soulweapons.enchantment.%s.%s",
+                                this.getType(weaponIndex),
+                                SoulWeaponEnchantment.get(valueIndex)),
+                                this.enchantments[weaponIndex][valueIndex])
+        );
+
+        return tag;
+    }
+
+    @Override
+    public void readNBT(final NBTTagCompound nbt) {
+        this.setCurrentType(nbt.getInteger("soulweapons.capability.index"));
+        this.setCurrentTab(nbt.getInteger("soulweapons.capability.tab"));
+        this.setAttackCooldown(nbt.getInteger("soulweapons.capability.cooldown"));
+        this.bindSlot(nbt.getInteger("soulweapons.capability.boundSlot"));
+
+        this.forEach(
+                (final Integer weaponIndex, final Integer valueIndex) ->
+                        this.data[weaponIndex][valueIndex] = nbt.getInteger(String.format("soulweapons.datum.%s.%s",
+                                this.getType(weaponIndex),
+                                WEAPON_DATA.get(valueIndex)
+                        )),
+                (final Integer weaponIndex, final Integer valueIndex) ->
+                        this.attributes[weaponIndex][valueIndex] = nbt.getFloat(String.format("soulweapons.attribute.%s.%s",
+                                this.getType(weaponIndex),
+                                SoulWeaponAttribute.get(valueIndex)
+                        )),
+                (final Integer weaponIndex, final Integer valueIndex) ->
+                        this.enchantments[weaponIndex][valueIndex] = nbt.getInteger(String.format("soulweapons.enchantment.%s.%s",
+                                this.getType(weaponIndex),
+                                SoulWeaponEnchantment.get(valueIndex)
+                        ))
+        );
+    }
+
+    @Override
     public void sync() {
         if (!this.player.world.isRemote) {
-            Main.CHANNEL.sendTo(
-                    new CWeaponData(this.currentType, this.currentTab, this.attackCooldown, this.boundSlot, this.data, this.attributes, this.enchantments),
-                    (EntityPlayerMP) this.player
-            );
+            Main.CHANNEL.sendTo(new S2CSync("weapon", this.writeNBT()), (EntityPlayerMP) this.player);
         }
     }
 }

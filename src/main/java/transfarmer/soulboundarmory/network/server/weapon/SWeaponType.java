@@ -11,7 +11,6 @@ import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponType;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
@@ -67,7 +66,7 @@ public class SWeaponType implements IMessage {
 
             player.inventory.setInventorySlotContents(slot, new ItemStack(instance.getCurrentType().getItem()));
 
-            return new CWeaponType(slot, type);
+            return null;
         }
     }
 }

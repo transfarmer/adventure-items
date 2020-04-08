@@ -4,6 +4,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
@@ -12,11 +13,14 @@ import transfarmer.soulboundarmory.statistics.SoulType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public interface ISoulCapability {
+    void forEach(BiConsumer<Integer, Integer> data, BiConsumer<Integer, Integer> attributes, BiConsumer<Integer, Integer> enchantments);
+
     EntityPlayer getPlayer();
 
-    void setPlayer(EntityPlayer player);
+    void initPlayer(EntityPlayer player);
 
     void setStatistics(int[][] data, float[][] attributes, int[][] enchantments);
 
@@ -32,11 +36,17 @@ public interface ISoulCapability {
 
     void setEnchantments(int[][] enchantments);
 
-    void clear();
+    void init();
+
+    SoulType getType(int index);
 
     SoulType getType(ItemStack itemStack);
 
     SoulType getCurrentType();
+
+    int getIndex(SoulType type);
+
+    int getIndex();
 
     int getLevelXP(SoulType type, int level);
 
@@ -111,6 +121,10 @@ public interface ISoulCapability {
     ItemStack getEquippedItemStack();
 
     void update();
+
+    NBTTagCompound writeNBT();
+
+    void readNBT(NBTTagCompound nbt);
 
     void sync();
 }

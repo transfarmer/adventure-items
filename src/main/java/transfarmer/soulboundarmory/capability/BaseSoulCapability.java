@@ -11,6 +11,7 @@ import transfarmer.soulboundarmory.statistics.SoulType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public abstract class BaseSoulCapability implements ISoulCapability {
     protected EntityPlayer player;
@@ -25,7 +26,26 @@ public abstract class BaseSoulCapability implements ISoulCapability {
     protected BaseSoulCapability(final SoulDatum datum) {
         this.datum = datum;
         this.boundSlot = -1;
-        this.clear();
+        this.init();
+    }
+
+    @Override
+    public void forEach(final BiConsumer<Integer, Integer> data, final BiConsumer<Integer, Integer> attributes, final BiConsumer<Integer, Integer> enchantments) {
+        for (int itemIndex = 0; itemIndex < this.getItemAmount(); itemIndex++) {
+            for (int valueIndex = 0; valueIndex < Math.max(this.getDatumAmount(), Math.max(this.getAttributeAmount(), this.getEnchantmentAmount())); valueIndex++) {
+                if (valueIndex < this.getDatumAmount()) {
+                    data.accept(itemIndex, valueIndex);
+                }
+
+                if (valueIndex < this.getAttributeAmount()) {
+                    attributes.accept(itemIndex, valueIndex);
+                }
+
+                if (valueIndex < this.getEnchantmentAmount()) {
+                    enchantments.accept(itemIndex, valueIndex);
+                }
+            }
+        }
     }
 
     @Override
@@ -34,12 +54,14 @@ public abstract class BaseSoulCapability implements ISoulCapability {
     }
 
     @Override
-    public void setPlayer(final EntityPlayer player) {
-        this.player = player;
+    public void initPlayer(final EntityPlayer player) {
+        if (this.player == null) {
+            this.player = player;
+        }
     }
 
     @Override
-    public void clear() {
+    public void init() {
         this.data = new int[this.getItemAmount()][this.getDatumAmount()];
         this.attributes = new float[this.getItemAmount()][this.getAttributeAmount()];
         this.enchantments = new int[this.getItemAmount()][this.getEnchantmentAmount()];

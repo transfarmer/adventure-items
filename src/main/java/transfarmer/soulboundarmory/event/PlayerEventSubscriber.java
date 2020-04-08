@@ -13,7 +13,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
@@ -59,16 +58,11 @@ public class PlayerEventSubscriber {
     }
 
     private static void updatePlayer(final EntityPlayer player) {
-        final ISoulWeapon weaponCapability = SoulWeaponProvider.get(player);
+        final ISoulCapability weaponCapability = SoulWeaponProvider.get(player);
         final ISoulCapability toolCapability = SoulToolProvider.get(player);
 
-        if (weaponCapability.getPlayer() == null) {
-            weaponCapability.setPlayer(player);
-        }
-
-        if (toolCapability.getPlayer() == null) {
-            toolCapability.setPlayer(player);
-        }
+        weaponCapability.initPlayer(player);
+        toolCapability.initPlayer(player);
 
         weaponCapability.sync();
         toolCapability.sync();
@@ -97,21 +91,13 @@ public class PlayerEventSubscriber {
 
     @SubscribeEvent
     public static void onClone(final Clone event) {
-        ISoulCapability originalInstance = SoulWeaponProvider.get(event.getOriginal());
-        ISoulCapability instance = SoulWeaponProvider.get(event.getEntityPlayer());
+        final ISoulCapability originalToolInstance = SoulToolProvider.get(event.getOriginal());
+        final ISoulCapability originalWeaponInstance = SoulWeaponProvider.get(event.getOriginal());
+        final ISoulCapability toolInstance = SoulToolProvider.get(event.getEntityPlayer());
+        final ISoulCapability weaponInstance = SoulWeaponProvider.get(event.getEntityPlayer());
 
-        instance.setCurrentType(originalInstance.getCurrentType());
-        instance.setCurrentTab(originalInstance.getCurrentTab());
-        instance.bindSlot(originalInstance.getBoundSlot());
-        instance.setStatistics(originalInstance.getData(), originalInstance.getAttributes(), originalInstance.getEnchantments());
-
-        originalInstance = SoulToolProvider.get(event.getOriginal());
-        instance = SoulToolProvider.get(event.getEntityPlayer());
-
-        instance.setCurrentType(originalInstance.getCurrentType());
-        instance.setCurrentTab(originalInstance.getCurrentTab());
-        instance.bindSlot(originalInstance.getBoundSlot());
-        instance.setStatistics(originalInstance.getData(), originalInstance.getAttributes(), originalInstance.getEnchantments());
+        weaponInstance.readNBT(originalWeaponInstance.writeNBT());
+        toolInstance.readNBT(originalToolInstance.writeNBT());
     }
 
 }
