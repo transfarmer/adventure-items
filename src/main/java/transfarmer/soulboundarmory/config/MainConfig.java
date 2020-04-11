@@ -10,13 +10,16 @@ public class MainConfig {
     private static final MainConfig INSTANCE = new MainConfig();
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_MULTIPLIERS = "experience multipliers";
+
     private final MainConfiguration configFile = new MainConfiguration(new File(String.format("%s/soulboundarmory", Loader.instance().getConfigDir()), "main.cfg"));
+
     private int initialWeaponXP;
     private int initialToolXP;
     private int levelsPerEnchantment;
     private int levelsPerSkill;
     private int maxLevel;
     private int preservationLevel;
+
     private boolean addToOffhand;
     private boolean levelupNotifications;
 
@@ -76,6 +79,11 @@ public class MainConfig {
         this.configFile.getPassiveMultiplier().set(this.passiveMultiplier);
 
         this.configFile.save();
+    }
+
+    public void saveAndLoad() {
+        this.configFile.save();
+        this.load();
     }
 
     public Configuration getConfigFile() {

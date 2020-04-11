@@ -38,8 +38,7 @@ public class ConfigGUI extends GuiConfig {
         super.onGuiClosed();
 
         if (!this.main) {
-            MainConfig.instance().getConfigFile().save();
-            MainConfig.instance().load();
+            MainConfig.instance().saveAndLoad();
         }
     }
 
