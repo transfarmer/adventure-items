@@ -34,7 +34,7 @@ public class ItemSoulSword extends ItemSoulWeapon {
             final RayTraceResult result = ModWorld.rayTraceAll(world, player);
 
             if (result != null && capability.getDatum(DATA.skills, SWORD) >= 1 && capability.getLightningCooldown() <= 0) {
-                player.world.addWeatherEffect(new EntitySoulLightningBolt(player.world, result.hitVec, player));
+                player.world.addWeatherEffect(new EntitySoulLightningBolt(player.world, result.hitVec, player.getUniqueID()));
                 capability.resetLightningCooldown();
 
                 return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
