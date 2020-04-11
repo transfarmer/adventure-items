@@ -173,7 +173,7 @@ public abstract class Menu extends GuiScreen {
         final int barLeftX = (width - 182) / 2;
         final int barTopY = (height - 4) / 2;
 
-        return mouseX >= barLeftX && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4;
+        return this.displayXPBar() && mouseX >= barLeftX && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4;
     }
 
     private int mouseOverSlider(final int mouseX, final int mouseY) {

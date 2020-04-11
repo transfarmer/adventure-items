@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.event;
 
+import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -19,6 +20,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.event.RenderTooltipEvent;
@@ -75,6 +77,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
@@ -239,7 +242,7 @@ public class EventSubscriber {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = HIGH)
     public static void onLivingFall(final LivingFallEvent event) {
         if (event.getEntity() instanceof EntityPlayer) {
             final ISoulWeapon capability = SoulWeaponProvider.get(event.getEntity());
@@ -469,6 +472,14 @@ public class EventSubscriber {
                         frozenCapability.freeze(player, 3 * (float) Math.sqrt(player.motionX * player.motionX
                                 + player.motionY * player.motionY
                                 + player.motionZ * player.motionZ) * (float) charging, (int) (30 * charging));
+                    }
+                }
+
+                for (final AxisAlignedBB box : event.getCollisionBoxesList()) {
+                    final BlockPos blockPos = new BlockPos(box.minX, box.minY, box.minZ);
+
+                    if (player.world.getBlockState(blockPos) instanceof BlockLeaves) {
+                        player.world.sendBlockBreakProgress(player.getEntityId(), blockPos, 5);
                     }
                 }
 
