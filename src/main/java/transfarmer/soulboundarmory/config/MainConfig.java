@@ -209,8 +209,6 @@ public class MainConfig {
     @SubscribeEvent
     public static void onConfigChangedEvent(final OnConfigChangedEvent event) {
         if (event.getModID().equals(Main.MOD_ID)) {
-            instance().configFile.save();
-            instance().configFile.load();
         }
     }
 }

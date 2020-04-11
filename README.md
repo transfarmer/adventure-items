@@ -1,5 +1,4 @@
 ## to do
-- implement configuration screen;
 - implement skill trees;
 - rewrite the enchantment system;
 - implement the soulbound staff;

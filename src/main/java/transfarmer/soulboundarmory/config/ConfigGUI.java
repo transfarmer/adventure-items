@@ -36,6 +36,11 @@ public class ConfigGUI extends GuiConfig {
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
+
+        if (!this.main) {
+            MainConfig.instance().getConfigFile().save();
+            MainConfig.instance().load();
+        }
     }
 
     @Override
@@ -48,6 +53,7 @@ public class ConfigGUI extends GuiConfig {
                 break;
             case 1:
                 this.mc.displayGuiScreen(new ConfigGUI(this, MainConfig.CATEGORY_MULTIPLIERS));
+                break;
         }
     }
 }
