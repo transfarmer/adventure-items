@@ -1,15 +1,10 @@
 package transfarmer.soulboundarmory.config;
 
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import transfarmer.soulboundarmory.Main;
 
 import java.io.File;
 
-@EventBusSubscriber(modid = Main.MOD_ID)
 public class MainConfig {
     private static final MainConfig INSTANCE = new MainConfig();
     public static final String CATEGORY_GENERAL = "general";
@@ -204,11 +199,5 @@ public class MainConfig {
 
     public void setPassiveMultiplier(final float passiveMultiplier) {
         this.passiveMultiplier = passiveMultiplier;
-    }
-
-    @SubscribeEvent
-    public static void onConfigChangedEvent(final OnConfigChangedEvent event) {
-        if (event.getModID().equals(Main.MOD_ID)) {
-        }
     }
 }
