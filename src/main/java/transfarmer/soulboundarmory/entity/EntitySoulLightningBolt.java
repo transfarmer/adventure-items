@@ -14,7 +14,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 import net.minecraftforge.event.*;
-import transfarmer.soulboundarmory.capability.weapon.*;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.*;
 import transfarmer.soulboundarmory.util.*;
 
 import java.util.UUID;

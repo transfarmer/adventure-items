@@ -25,8 +25,8 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
 
 public class EntityReachModifier extends EntityArrow {
     private float reachDistance;

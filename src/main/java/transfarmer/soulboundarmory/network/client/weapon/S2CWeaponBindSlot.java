@@ -6,8 +6,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 

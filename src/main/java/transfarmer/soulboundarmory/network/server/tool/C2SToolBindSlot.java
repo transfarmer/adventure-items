@@ -5,8 +5,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.ISoulCapability;
-import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolBindSlot;
 
 public class C2SToolBindSlot implements IMessage {

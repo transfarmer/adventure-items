@@ -9,8 +9,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;

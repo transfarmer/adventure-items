@@ -15,8 +15,8 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public class S2CLevelupMessage implements IMessage {
-    String stackName;
-    int level;
+    private String stackName;
+    private int level;
 
     public S2CLevelupMessage() {}
 

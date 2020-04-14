@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.capability;
+package transfarmer.soulboundarmory.capability.soulbound;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,10 +9,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
-import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.config.MainConfig;
+import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
+import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
@@ -99,7 +99,7 @@ public class SoulItemHelper {
                         return inventory.add(index, itemStack);
                     }
 
-                    if (player.getHeldItemOffhand().isEmpty() && MainConfig.instance().getAddToOffhand()) {
+                    if (player.getHeldItemOffhand().isEmpty() && PlayerConfigProvider.get(player).getAddToOffhand()) {
                         inventory.setInventorySlotContents(size + 4, itemStack);
                         itemStack.setCount(0);
                     }

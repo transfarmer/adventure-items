@@ -7,8 +7,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.config.ColorConfig;
-import transfarmer.soulboundarmory.capability.ISoulCapability;
-import transfarmer.soulboundarmory.capability.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.statistics.SoulType;
 
 import java.awt.Color;

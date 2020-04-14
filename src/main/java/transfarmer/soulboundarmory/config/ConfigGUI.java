@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.fml.client.config.GuiConfig;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.network.server.C2SConfig;
 
 public class ConfigGUI extends GuiConfig {
     private boolean main;
@@ -39,6 +40,7 @@ public class ConfigGUI extends GuiConfig {
 
         if (!this.main) {
             MainConfig.instance().saveAndLoad();
+            Main.CHANNEL.sendToServer(new C2SConfig());
         }
     }
 

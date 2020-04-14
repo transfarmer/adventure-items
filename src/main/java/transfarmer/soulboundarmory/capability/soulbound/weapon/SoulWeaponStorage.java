@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.capability.weapon;
+package transfarmer.soulboundarmory.capability.soulbound.weapon;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;

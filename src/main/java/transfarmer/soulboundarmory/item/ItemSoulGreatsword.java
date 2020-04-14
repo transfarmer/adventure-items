@@ -7,7 +7,7 @@ import net.minecraft.item.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import transfarmer.soulboundarmory.capability.weapon.*;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.*;
 
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.*;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.*;

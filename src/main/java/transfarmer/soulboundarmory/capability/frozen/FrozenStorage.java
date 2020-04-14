@@ -17,6 +17,5 @@ public class FrozenStorage implements IStorage<IFrozen> {
 
     @Override
     public void readNBT(final Capability<IFrozen> capability, final IFrozen instance, final EnumFacing side, final NBTBase nbt) {
-
     }
 }

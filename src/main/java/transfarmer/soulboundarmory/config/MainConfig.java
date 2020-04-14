@@ -1,8 +1,13 @@
 package transfarmer.soulboundarmory.config;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
+import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.network.client.S2CConfig;
+import transfarmer.soulboundarmory.network.server.C2SConfig;
 
 import java.io.File;
 
@@ -84,6 +89,58 @@ public class MainConfig {
     public void saveAndLoad() {
         this.configFile.save();
         this.load();
+    }
+
+    public NBTTagCompound writeToNBT() {
+        final NBTTagCompound tag = new NBTTagCompound();
+
+        tag.setInteger("initialToolXP", this.getInitialToolXP());
+        tag.setInteger("initialWeaponXP", this.getInitialWeaponXP());
+        tag.setInteger("levelsPerSkill", this.getLevelsPerSkill());
+        tag.setInteger("levelsPerEnchantment", this.getLevelsPerEnchantment());
+        tag.setInteger("maxLevel", this.getMaxLevel());
+        tag.setInteger("preservationLevel", this.getPreservationLevel());
+
+        tag.setBoolean("levelupNotifications", this.getLevelupNotifications());
+        tag.setBoolean("addToOffhand", this.getAddToOffhand());
+
+        tag.setFloat("armorMultiplier", this.getArmorMultiplier());
+        tag.setFloat("attackDamageMultiplier", this.getAttackDamageMultiplier());
+        tag.setFloat("babyMultiplier", this.getBabyMultiplier());
+        tag.setFloat("bossMultiplier", this.getBossMultiplier());
+        tag.setFloat("difficultyMultiplier", this.getDifficultyMultiplier());
+        tag.setFloat("hardcoreMultiplier", this.getHardcoreMultiplier());
+        tag.setFloat("passiveMultiplier", this.getPassiveMultiplier());
+
+        return tag;
+    }
+
+    public void readFromNBT(final NBTTagCompound tag) {
+        this.initialToolXP = tag.getInteger("initialToolXP");
+        this.initialWeaponXP = tag.getInteger("initialWeaponXP");
+        this.levelsPerEnchantment = tag.getInteger("levelsPerEnchantment");
+        this.levelsPerSkill = tag.getInteger("levelsPerSkill");
+        this.maxLevel = tag.getInteger("maxLevel");
+        this.preservationLevel = tag.getInteger("preservationLevel");
+
+        this.addToOffhand = tag.getBoolean("addToOffhand");
+        this.levelupNotifications = tag.getBoolean("levelupNotifications");
+
+        this.armorMultiplier = tag.getFloat("armorMultiplier");
+        this.attackDamageMultiplier = tag.getFloat("attackDamageMultiplier");
+        this.babyMultiplier = tag.getFloat("babyMultiplier");
+        this.bossMultiplier = tag.getFloat("bossMultiplier");
+        this.difficultyMultiplier = tag.getFloat("difficultyMultiplier");
+        this.hardcoreMultiplier = tag.getFloat("hardcoreMultiplier");
+        this.passiveMultiplier = tag.getFloat("passiveMultiplier");
+    }
+
+    public void sync() {
+        if (FMLCommonHandler.instance().getSide().isClient()) {
+            Main.CHANNEL.sendToServer(new C2SConfig());
+        } else {
+            Main.CHANNEL.sendToAll(new S2CConfig());
+        }
     }
 
     public Configuration getConfigFile() {

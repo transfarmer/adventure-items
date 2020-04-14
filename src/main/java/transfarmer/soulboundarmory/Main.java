@@ -25,18 +25,22 @@ import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import transfarmer.soulboundarmory.capability.ISoulCapability;
+import transfarmer.soulboundarmory.capability.config.IPlayerConfig;
+import transfarmer.soulboundarmory.capability.config.PlayerConfig;
+import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
+import transfarmer.soulboundarmory.capability.config.PlayerConfigStorage;
 import transfarmer.soulboundarmory.capability.frozen.Frozen;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.FrozenStorage;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
-import transfarmer.soulboundarmory.capability.tool.SoulTool;
-import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.capability.tool.SoulToolStorage;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponStorage;
+import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.tool.SoulTool;
+import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolStorage;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponStorage;
 import transfarmer.soulboundarmory.client.render.RenderReachModifier;
 import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
 import transfarmer.soulboundarmory.command.CommandSoulboundArmory;
@@ -56,8 +60,9 @@ import transfarmer.soulboundarmory.network.client.tool.S2CToolSpendEnchantmentPo
 import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponBindSlot;
 import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponResetAttributes;
 import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponResetEnchantments;
-import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponSpentAttributePoints;
 import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponSpendEnchantmentPoints;
+import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponSpentAttributePoints;
+import transfarmer.soulboundarmory.network.server.C2SConfig;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolAttributePoints;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolBindSlot;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolEnchantmentPoints;
@@ -93,6 +98,7 @@ public class Main {
         CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
         CapabilityManager.INSTANCE.register(ISoulCapability.class, new SoulToolStorage(), SoulTool::new);
         CapabilityManager.INSTANCE.register(IFrozen.class, new FrozenStorage(), Frozen::new);
+        CapabilityManager.INSTANCE.register(IPlayerConfig.class, new PlayerConfigStorage(), PlayerConfig::new);
 
         CHANNEL.registerMessage(S2CSync.Handler.class, S2CSync.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CConfig.Handler.class, S2CConfig.class, id++, CLIENT);
@@ -110,6 +116,8 @@ public class Main {
         CHANNEL.registerMessage(S2CWeaponResetAttributes.Handler.class, S2CWeaponResetAttributes.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CWeaponResetEnchantments.Handler.class, S2CWeaponResetEnchantments.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CWeaponBindSlot.Handler.class, S2CWeaponBindSlot.class, id++, CLIENT);
+
+        CHANNEL.registerMessage(C2SConfig.Handler.class, C2SConfig.class, id++, SERVER);
 
         CHANNEL.registerMessage(C2SToolType.Handler.class, C2SToolType.class, id++, SERVER);
         CHANNEL.registerMessage(C2SToolAttributePoints.Handler.class, C2SToolAttributePoints.class, id++, SERVER);
@@ -138,7 +146,7 @@ public class Main {
     }
 
     @EventHandler
-    public static void onFMLServerStarting(FMLServerStartingEvent event) {
+    public static void onFMLServerStarting(final FMLServerStartingEvent event) {
         event.registerServerCommand(new CommandSoulboundArmory());
     }
 
@@ -176,6 +184,7 @@ public class Main {
             if (entity instanceof EntityPlayer) {
                 event.addCapability(new ResourceLocation(MOD_ID, "soulboundtool"), new SoulToolProvider());
                 event.addCapability(new ResourceLocation(MOD_ID, "soulboundweapon"), new SoulWeaponProvider());
+                event.addCapability(new ResourceLocation(MOD_ID, "playerconfig"), new PlayerConfigProvider());
             }
 
             if (entity.isNonBoss() && (entity instanceof EntityLivingBase || entity instanceof IProjectile)

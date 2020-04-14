@@ -1,6 +1,6 @@
-package transfarmer.soulboundarmory.capability.weapon;
+package transfarmer.soulboundarmory.capability.soulbound.weapon;
 
-import transfarmer.soulboundarmory.capability.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
 import transfarmer.soulboundarmory.statistics.SoulType;
 
 public interface ISoulWeapon extends ISoulCapability {

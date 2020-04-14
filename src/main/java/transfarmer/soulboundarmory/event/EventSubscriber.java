@@ -43,13 +43,15 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.ISoulCapability;
-import transfarmer.soulboundarmory.capability.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.config.IPlayerConfig;
+import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
+import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
-import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
 import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
@@ -62,6 +64,7 @@ import transfarmer.soulboundarmory.item.ItemSoulDagger;
 import transfarmer.soulboundarmory.item.ItemSoulPick;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
+import transfarmer.soulboundarmory.network.server.C2SConfig;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.util.ItemHelper;
@@ -98,6 +101,7 @@ public class EventSubscriber {
     public static void onEntityJoinWorld(final EntityJoinWorldEvent event) {
         final Entity entity = event.getEntity();
         final IFrozen frozenCapability = FrozenProvider.get(entity);
+        final IPlayerConfig config = PlayerConfigProvider.get(entity);
         final ISoulCapability toolCapability = SoulToolProvider.get(entity);
         final ISoulCapability weaponCapability = SoulWeaponProvider.get(entity);
 
@@ -111,6 +115,10 @@ public class EventSubscriber {
 
         if (weaponCapability != null && weaponCapability.getPlayer() == null) {
             weaponCapability.initPlayer((EntityPlayer) entity);
+        }
+
+        if (config != null && event.getWorld().isRemote) {
+            Main.CHANNEL.sendToServer(new C2SConfig());
         }
     }
 

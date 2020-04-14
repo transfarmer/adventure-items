@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.capability.tool;
+package transfarmer.soulboundarmory.capability.soulbound.tool;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,8 +8,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.BaseSoulCapability;
-import transfarmer.soulboundarmory.capability.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.BaseSoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
@@ -34,7 +34,7 @@ import java.util.Map;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
-import static transfarmer.soulboundarmory.capability.SoulItemHelper.REACH_DISTANCE_UUID;
+import static transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper.REACH_DISTANCE_UUID;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
 import static transfarmer.soulboundarmory.statistics.SoulType.PICK;

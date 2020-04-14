@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.capability;
+package transfarmer.soulboundarmory.capability.soulbound;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;

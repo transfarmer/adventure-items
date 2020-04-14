@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.capability.weapon;
+package transfarmer.soulboundarmory.capability.soulbound.weapon;
 
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -10,8 +10,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.BaseSoulCapability;
-import transfarmer.soulboundarmory.capability.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.BaseSoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulItem;

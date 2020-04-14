@@ -9,7 +9,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.math.Vec3d;
-import transfarmer.soulboundarmory.capability.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;

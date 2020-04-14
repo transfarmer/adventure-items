@@ -6,7 +6,7 @@ import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.network.server.weapon.*;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;

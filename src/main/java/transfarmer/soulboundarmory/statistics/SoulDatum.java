@@ -52,17 +52,9 @@ public class SoulDatum extends Statistic {
 
     public static class SoulWeaponDatum extends SoulDatum {
         public static final SoulDatum WEAPON_DATA = new SoulWeaponDatum();
-
-        protected SoulWeaponDatum() {
-            super();
-        }
     }
 
     public static class SoulToolDatum extends SoulDatum {
         public static final SoulDatum TOOL_DATA = new SoulToolDatum();
-
-        public SoulToolDatum() {
-            super();
-        }
     }
 }
