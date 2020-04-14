@@ -98,7 +98,7 @@ public class EntitySoulDagger extends EntityArrow {
             this.shootingEntity = this.world.getPlayerEntityByUUID(this.shooterUUID);
         }
 
-        if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
+        if (this.prevRotationPitch == 0F && this.prevRotationYaw == 0F) {
             final float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
             this.rotationYaw = (float) (MathHelper.atan2(this.motionX, this.motionZ) * 180 / Math.PI);
             this.rotationPitch = (float) (MathHelper.atan2(this.motionY, f) * 180 / Math.PI);
@@ -121,7 +121,7 @@ public class EntitySoulDagger extends EntityArrow {
             if (capability.getDatum(DATA.skills, DAGGER) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
                     || capability.getDatum(DATA.skills, DAGGER) >= 3
                     && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed
-                    || this.shootingEntity.getDistance(this) >= 256)) {
+                    || this.shootingEntity.getDistance(this) >= 256 || this.posY <= 0)) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();
                 double multiplier = 1.8 / capability.getAttribute(ATTACK_SPEED, DAGGER, true, true);
                 final double dX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
