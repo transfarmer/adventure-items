@@ -16,14 +16,14 @@ import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class CWeaponSpendEnchantmentPoints implements IMessage {
+public class S2CWeaponSpendEnchantmentPoints implements IMessage {
     private int amount;
     private int enchantmentIndex;
     private int weaponIndex;
 
-    public CWeaponSpendEnchantmentPoints() {}
+    public S2CWeaponSpendEnchantmentPoints() {}
 
-    public CWeaponSpendEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
+    public S2CWeaponSpendEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
         this.amount = amount;
         this.enchantmentIndex = enchantment.getIndex();
         this.weaponIndex = type.getIndex();
@@ -43,10 +43,10 @@ public class CWeaponSpendEnchantmentPoints implements IMessage {
         buffer.writeInt(this.weaponIndex);
     }
 
-    public static final class Handler implements IMessageHandler<CWeaponSpendEnchantmentPoints, IMessage> {
+    public static final class Handler implements IMessageHandler<S2CWeaponSpendEnchantmentPoints, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final CWeaponSpendEnchantmentPoints message, final MessageContext context) {
+        public IMessage onMessage(final S2CWeaponSpendEnchantmentPoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final SoulEnchantment enchantment = SoulWeaponEnchantment.get(message.enchantmentIndex);
             final SoulType weaponType = SoulWeaponType.get(message.weaponIndex);

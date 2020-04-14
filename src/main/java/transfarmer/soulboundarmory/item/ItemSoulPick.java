@@ -17,7 +17,7 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.network.client.CLevelupMessage;
+import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
@@ -78,7 +78,7 @@ public class ItemSoulPick extends ItemPickaxe implements IItemSoulTool {
             final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5);
 
             if (capability.addDatum(xp, DATA.xp, type) && !world.isRemote && MainConfig.instance().getLevelupNotifications()) {
-                Main.CHANNEL.sendTo(new CLevelupMessage(itemStack, capability.getDatum(DATA.level, type)), (EntityPlayerMP) entity);
+                Main.CHANNEL.sendTo(new S2CLevelupMessage(itemStack, capability.getDatum(DATA.level, type)), (EntityPlayerMP) entity);
             }
 
             capability.sync();

@@ -7,14 +7,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.network.client.tool.CToolBindSlot;
+import transfarmer.soulboundarmory.network.client.tool.S2CToolBindSlot;
 
-public class SToolBindSlot implements IMessage {
+public class C2SToolBindSlot implements IMessage {
     private int slot;
 
-    public SToolBindSlot() {}
+    public C2SToolBindSlot() {}
 
-    public SToolBindSlot(final int slot) {
+    public C2SToolBindSlot(final int slot) {
         this.slot = slot;
     }
 
@@ -28,9 +28,9 @@ public class SToolBindSlot implements IMessage {
         buffer.writeInt(this.slot);
     }
 
-    public static final class Handler implements IMessageHandler<SToolBindSlot, IMessage> {
+    public static final class Handler implements IMessageHandler<C2SToolBindSlot, IMessage> {
         @Override
-        public IMessage onMessage(final SToolBindSlot message, final MessageContext context) {
+        public IMessage onMessage(final C2SToolBindSlot message, final MessageContext context) {
             final EntityPlayer player = context.getServerHandler().player;
             final ISoulCapability capability = SoulToolProvider.get(player);
 
@@ -40,7 +40,7 @@ public class SToolBindSlot implements IMessage {
                 capability.bindSlot(message.slot);
             }
 
-            return new CToolBindSlot(message.slot);
+            return new S2CToolBindSlot(message.slot);
         }
     }
 }

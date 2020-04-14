@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.network.server.tool;
+package transfarmer.soulboundarmory.network.client.tool;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -6,23 +6,23 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
-import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class SToolDatum implements IMessage {
+public class S2CToolDatum implements IMessage {
     private int value;
     private int datumIndex;
     private int typeIndex;
 
-    public SToolDatum() {}
+    public S2CToolDatum() {}
 
-    public SToolDatum(final int value, final SoulDatum datum, final SoulType type) {
+    public S2CToolDatum(final int value, final SoulDatum datum, final SoulType type) {
         this.value = value;
         this.datumIndex = datum.getIndex();
         this.typeIndex = type.getIndex();
@@ -42,17 +42,18 @@ public class SToolDatum implements IMessage {
         buffer.writeInt(this.typeIndex);
     }
 
-    public static final class Handler implements IMessageHandler<SToolDatum, IMessage> {
+    public static final class Handler implements IMessageHandler<S2CToolDatum, IMessage> {
+        @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(SToolDatum message, MessageContext context) {
-            final EntityPlayer player = Minecraft.getMinecraft().player;
-            final ISoulCapability instance = SoulToolProvider.get(player);
-            final SoulDatum datum = TOOL_DATA.get(message.datumIndex);
-            final SoulType type = SoulToolType.get(message.typeIndex);
+        public IMessage onMessage(S2CToolDatum message, MessageContext context) {
+            Minecraft.getMinecraft().addScheduledTask(() -> {
+                final EntityPlayer player = Minecraft.getMinecraft().player;
+                final ISoulCapability instance = SoulToolProvider.get(player);
 
-            instance.addDatum(message.value, datum, type);
+                instance.addDatum(message.value, SoulDatum.SoulToolDatum.TOOL_DATA.get(message.datumIndex), SoulToolType.get(message.typeIndex));
+            });
 
-            return new CToolDatum(message.value, datum, type);
+            return null;
         }
     }
 }

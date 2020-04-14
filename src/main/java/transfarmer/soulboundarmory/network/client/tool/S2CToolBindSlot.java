@@ -11,12 +11,12 @@ import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class CToolBindSlot implements IMessage {
+public class S2CToolBindSlot implements IMessage {
     private int slot;
 
-    public CToolBindSlot() {}
+    public S2CToolBindSlot() {}
 
-    public CToolBindSlot(final int slot) {
+    public S2CToolBindSlot(final int slot) {
         this.slot = slot;
     }
 
@@ -30,10 +30,10 @@ public class CToolBindSlot implements IMessage {
         buffer.writeInt(this.slot);
     }
 
-    public static final class Handler implements IMessageHandler<CToolBindSlot, IMessage> {
+    public static final class Handler implements IMessageHandler<S2CToolBindSlot, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final CToolBindSlot message, final MessageContext context) {
+        public IMessage onMessage(final S2CToolBindSlot message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final ISoulCapability capability = SoulToolProvider.get(minecraft.player);
 

@@ -12,12 +12,12 @@ import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
-public class SToolType implements IMessage {
+public class C2SToolType implements IMessage {
     private int index;
 
-    public SToolType() {}
+    public C2SToolType() {}
 
-    public SToolType(final SoulType type) {
+    public C2SToolType(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -31,9 +31,9 @@ public class SToolType implements IMessage {
         buffer.writeInt(this.index);
     }
 
-    public static final class Handler implements IMessageHandler<SToolType, IMessage> {
+    public static final class Handler implements IMessageHandler<C2SToolType, IMessage> {
         @Override
-        public IMessage onMessage(final SToolType message, final MessageContext context) {
+        public IMessage onMessage(final C2SToolType message, final MessageContext context) {
             final SoulType toolType = SoulToolType.get(message.index);
             final EntityPlayerMP player = context.getServerHandler().player;
             final ISoulCapability capability = SoulToolProvider.get(player);

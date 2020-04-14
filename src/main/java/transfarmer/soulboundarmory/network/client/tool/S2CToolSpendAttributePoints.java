@@ -9,51 +9,51 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
-import transfarmer.soulboundarmory.statistics.SoulEnchantment;
+import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class CToolSpendEnchantmentPoints implements IMessage {
+public class S2CToolSpendAttributePoints implements IMessage {
     private int amount;
-    private int enchantmentIndex;
-    private int typeIndex;
+    private int attributeIndex;
+    private int ToolIndex;
 
-    public CToolSpendEnchantmentPoints() {}
+    public S2CToolSpendAttributePoints() {}
 
-    public CToolSpendEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
+    public S2CToolSpendAttributePoints(final int amount, final SoulAttribute attribute, final SoulType type) {
         this.amount = amount;
-        this.enchantmentIndex = enchantment.getIndex();
-        this.typeIndex = type.getIndex();
+        this.attributeIndex = attribute.getIndex();
+        this.ToolIndex = type.getIndex();
     }
 
     @Override
     public void fromBytes(final ByteBuf buffer) {
         this.amount = buffer.readInt();
-        this.enchantmentIndex = buffer.readInt();
-        this.typeIndex = buffer.readInt();
+        this.attributeIndex = buffer.readInt();
+        this.ToolIndex = buffer.readInt();
     }
 
     @Override
     public void toBytes(final ByteBuf buffer) {
         buffer.writeInt(this.amount);
-        buffer.writeInt(this.enchantmentIndex);
-        buffer.writeInt(this.typeIndex);
+        buffer.writeInt(this.attributeIndex);
+        buffer.writeInt(this.ToolIndex);
     }
 
-    public static final class Handler implements IMessageHandler<CToolSpendEnchantmentPoints, IMessage> {
+    public static final class Handler implements IMessageHandler<S2CToolSpendAttributePoints, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final CToolSpendEnchantmentPoints message, final MessageContext context) {
+        public IMessage onMessage(final S2CToolSpendAttributePoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final SoulEnchantment enchantment = SoulToolEnchantment.get(message.enchantmentIndex);
-            final SoulType type = SoulToolType.get(message.typeIndex);
+            final SoulType type = SoulToolType.get(message.ToolIndex);
+            final SoulAttribute attribute = SoulToolAttribute.get(message.attributeIndex);
             final ISoulCapability instance = SoulToolProvider.get(Minecraft.getMinecraft().player);
 
             minecraft.addScheduledTask(() -> {
-                instance.addEnchantment(message.amount, enchantment, type);
+                instance.addAttribute(message.amount, attribute, type);
                 minecraft.displayGuiScreen(new SoulToolMenu());
             });
 

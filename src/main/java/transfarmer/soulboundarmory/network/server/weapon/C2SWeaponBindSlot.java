@@ -9,16 +9,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponBindSlot;
+import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponBindSlot;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
-public class SWeaponBindSlot implements IMessage {
+public class C2SWeaponBindSlot implements IMessage {
     private int slot;
 
-    public SWeaponBindSlot() {
+    public C2SWeaponBindSlot() {
     }
 
-    public SWeaponBindSlot(final int slot) {
+    public C2SWeaponBindSlot(final int slot) {
         this.slot = slot;
     }
 
@@ -32,9 +32,9 @@ public class SWeaponBindSlot implements IMessage {
         buffer.writeInt(this.slot);
     }
 
-    public static final class Handler implements IMessageHandler<SWeaponBindSlot, IMessage> {
+    public static final class Handler implements IMessageHandler<C2SWeaponBindSlot, IMessage> {
         @Override
-        public IMessage onMessage(final SWeaponBindSlot message, final MessageContext context) {
+        public IMessage onMessage(final C2SWeaponBindSlot message, final MessageContext context) {
             final EntityPlayer player = context.getServerHandler().player;
             final ISoulWeapon capability = SoulWeaponProvider.get(player);
             final NonNullList<ItemStack> inventory = player.inventory.mainInventory;
@@ -54,7 +54,7 @@ public class SWeaponBindSlot implements IMessage {
                 capability.bindSlot(message.slot);
             }
 
-            return new CWeaponBindSlot(message.slot);
+            return new S2CWeaponBindSlot(message.slot);
         }
     }
 }

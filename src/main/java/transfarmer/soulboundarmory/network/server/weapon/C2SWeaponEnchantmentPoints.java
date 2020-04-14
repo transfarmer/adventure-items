@@ -6,19 +6,19 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponSpendEnchantmentPoints;
+import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponSpendEnchantmentPoints;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 
-public class SWeaponEnchantmentPoints implements IMessage {
+public class C2SWeaponEnchantmentPoints implements IMessage {
     private int amount;
     private int enchantmentIndex;
     private int typeIndex;
 
-    public SWeaponEnchantmentPoints() {}
+    public C2SWeaponEnchantmentPoints() {}
 
-    public SWeaponEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
+    public C2SWeaponEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
         this.amount = amount;
         this.enchantmentIndex = enchantment.getIndex();
         this.typeIndex = type.getIndex();
@@ -38,16 +38,16 @@ public class SWeaponEnchantmentPoints implements IMessage {
         buffer.writeInt(this.typeIndex);
     }
 
-    public static final class Handler implements IMessageHandler<SWeaponEnchantmentPoints, IMessage> {
+    public static final class Handler implements IMessageHandler<C2SWeaponEnchantmentPoints, IMessage> {
         @Override
-        public IMessage onMessage(final SWeaponEnchantmentPoints message, final MessageContext context) {
+        public IMessage onMessage(final C2SWeaponEnchantmentPoints message, final MessageContext context) {
             final ISoulWeapon instance = SoulWeaponProvider.get(context.getServerHandler().player);
             final SoulEnchantment enchantment = SoulWeaponEnchantment.get(message.enchantmentIndex);
             final SoulType weaponType = instance.getType(message.typeIndex);
 
             instance.addEnchantment(message.amount, enchantment, weaponType);
 
-            return new CWeaponSpendEnchantmentPoints(message.amount, enchantment, weaponType);
+            return new S2CWeaponSpendEnchantmentPoints(message.amount, enchantment, weaponType);
         }
     }
 }

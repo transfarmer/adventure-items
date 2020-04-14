@@ -29,7 +29,7 @@ public class SoulWeaponMenu extends Menu {
     public SoulWeaponMenu(final int tab) {
         this();
         this.capability.setCurrentTab(tab);
-        Main.CHANNEL.sendToServer(new SWeaponTab(tab));
+        Main.CHANNEL.sendToServer(new C2SWeaponTAb(tab));
     }
 
     @Override
@@ -210,12 +210,12 @@ public class SoulWeaponMenu extends Menu {
 
                 if (screen == null) {
                     this.capability.setCurrentTab(1);
-                    Main.CHANNEL.sendToServer(new SWeaponTab(this.capability.getCurrentTab()));
+                    Main.CHANNEL.sendToServer(new C2SWeaponTAb(this.capability.getCurrentTab()));
                 }
 
                 this.capability.setCurrentType(type);
                 this.mc.displayGuiScreen(screen);
-                Main.CHANNEL.sendToServer(new SWeaponType(type));
+                Main.CHANNEL.sendToServer(new C2SWeaponType(type));
 
                 break;
             case 3:
@@ -232,7 +232,7 @@ public class SoulWeaponMenu extends Menu {
                     amount = this.capability.getDatum(DATA.attributePoints, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SWeaponAttributePoints(amount, getAttribute(button.id - 4), this.type));
+                Main.CHANNEL.sendToServer(new C2SWeaponAttributePoints(amount, getAttribute(button.id - 4), this.type));
                 break;
             case 9:
             case 10:
@@ -247,7 +247,7 @@ public class SoulWeaponMenu extends Menu {
                     amount = this.capability.getDatum(DATA.enchantmentPoints, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SWeaponEnchantmentPoints(amount, SoulWeaponEnchantment.get(button.id - 9), this.type));
+                Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(amount, SoulWeaponEnchantment.get(button.id - 9), this.type));
                 break;
             case 16:
             case 17:
@@ -257,10 +257,10 @@ public class SoulWeaponMenu extends Menu {
                 this.mc.displayGuiScreen(new SoulWeaponMenu(tab));
                 break;
             case 20:
-                Main.CHANNEL.sendToServer(new SWeaponResetAttributes(this.type));
+                Main.CHANNEL.sendToServer(new C2SWeaponResetAttributes(this.type));
                 break;
             case 21:
-                Main.CHANNEL.sendToServer(new SWeaponResetEnchantments(this.type));
+                Main.CHANNEL.sendToServer(new C2SWeaponResetEnchantments(this.type));
                 break;
             case 22:
                 if (capability.getBoundSlot() == this.slot) {
@@ -270,7 +270,7 @@ public class SoulWeaponMenu extends Menu {
                 }
 
                 this.mc.displayGuiScreen(new SoulWeaponMenu());
-                Main.CHANNEL.sendToServer(new SWeaponBindSlot(this.slot));
+                Main.CHANNEL.sendToServer(new C2SWeaponBindSlot(this.slot));
                 break;
             case 23:
             case 24:
@@ -283,7 +283,7 @@ public class SoulWeaponMenu extends Menu {
                     amount = this.capability.getDatum(DATA.spentAttributePoints, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SWeaponAttributePoints(-amount, getAttribute(button.id - 23), this.type));
+                Main.CHANNEL.sendToServer(new C2SWeaponAttributePoints(-amount, getAttribute(button.id - 23), this.type));
                 break;
             case 28:
             case 29:
@@ -298,7 +298,7 @@ public class SoulWeaponMenu extends Menu {
                     amount = this.capability.getDatum(DATA.spentEnchantmentPoints, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SWeaponEnchantmentPoints(-amount, SoulWeaponEnchantment.get(button.id - 28), this.type));
+                Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(-amount, SoulWeaponEnchantment.get(button.id - 28), this.type));
         }
     }
 

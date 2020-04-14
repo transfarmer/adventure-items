@@ -6,18 +6,18 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponResetEnchantments;
+import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponResetEnchantments;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
-public class SWeaponResetEnchantments implements IMessage {
+public class C2SWeaponResetEnchantments implements IMessage {
     private int index;
 
-    public SWeaponResetEnchantments() {
+    public C2SWeaponResetEnchantments() {
     }
 
-    public SWeaponResetEnchantments(final SoulType type) {
+    public C2SWeaponResetEnchantments(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -31,9 +31,9 @@ public class SWeaponResetEnchantments implements IMessage {
         buffer.writeInt(this.index);
     }
 
-    public static final class Handler implements IMessageHandler<SWeaponResetEnchantments, IMessage> {
+    public static final class Handler implements IMessageHandler<C2SWeaponResetEnchantments, IMessage> {
         @Override
-        public IMessage onMessage(final SWeaponResetEnchantments message, final MessageContext context) {
+        public IMessage onMessage(final C2SWeaponResetEnchantments message, final MessageContext context) {
             final ISoulWeapon capability = SoulWeaponProvider.get(context.getServerHandler().player);
             final SoulType type = SoulWeaponType.get(message.index);
 
@@ -41,7 +41,7 @@ public class SWeaponResetEnchantments implements IMessage {
             capability.setDatum(0, SoulDatum.DATA.spentEnchantmentPoints, type);
             capability.setEnchantments(new int[capability.getEnchantmentAmount()], type);
 
-            return new CWeaponResetEnchantments(type);
+            return new S2CWeaponResetEnchantments(type);
         }
     }
 }

@@ -14,14 +14,14 @@ import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
-public class SWeaponType implements IMessage {
+public class C2SWeaponType implements IMessage {
     private int index;
 
-    public SWeaponType() {
+    public C2SWeaponType() {
         this.index = -1;
     }
 
-    public SWeaponType(final SoulType type) {
+    public C2SWeaponType(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -35,9 +35,9 @@ public class SWeaponType implements IMessage {
         buf.writeInt(index);
     }
 
-    public static final class Handler implements IMessageHandler<SWeaponType, IMessage> {
+    public static final class Handler implements IMessageHandler<C2SWeaponType, IMessage> {
         @Override
-        public IMessage onMessage(SWeaponType message, MessageContext context) {
+        public IMessage onMessage(C2SWeaponType message, MessageContext context) {
             final SoulType type = SoulWeaponType.get(message.index);
             final EntityPlayerMP player = context.getServerHandler().player;
             final ISoulWeapon instance = SoulWeaponProvider.get(player);

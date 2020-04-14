@@ -6,20 +6,18 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.network.client.tool.CToolResetEnchantments;
+import transfarmer.soulboundarmory.network.client.tool.S2CToolResetAttributes;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 
-
-public class SToolResetEnchantments implements IMessage {
+public class C2SToolResetAttributes implements IMessage {
     private int index;
 
-    public SToolResetEnchantments() {
-    }
+    public C2SToolResetAttributes() {}
 
-    public SToolResetEnchantments(final SoulType type) {
+    public C2SToolResetAttributes(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -33,17 +31,17 @@ public class SToolResetEnchantments implements IMessage {
         buffer.writeInt(this.index);
     }
 
-    public static final class Handler implements IMessageHandler<SToolResetEnchantments, IMessage> {
+    public static final class Handler implements IMessageHandler<C2SToolResetAttributes, IMessage> {
         @Override
-        public IMessage onMessage(final SToolResetEnchantments message, final MessageContext context) {
+        public IMessage onMessage(final C2SToolResetAttributes message, final MessageContext context) {
             final ISoulCapability capability = SoulToolProvider.get(context.getServerHandler().player);
             final SoulType type = SoulToolType.get(message.index);
 
-            capability.addDatum(capability.getDatum(DATA.spentEnchantmentPoints, type), DATA.enchantmentPoints, type);
-            capability.setDatum(0, DATA.spentEnchantmentPoints, type);
-            capability.setEnchantments(new int[capability.getEnchantmentAmount()], type);
+            capability.addDatum(capability.getDatum(DATA.spentAttributePoints, type), DATA.attributePoints, type);
+            capability.setDatum(0, DATA.spentAttributePoints, type);
+            capability.setAttributes(new float[capability.getAttributeAmount()], type);
 
-            return new CToolResetEnchantments(type);
+            return new S2CToolResetAttributes(type);
         }
     }
 }

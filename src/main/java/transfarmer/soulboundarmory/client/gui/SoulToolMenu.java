@@ -30,7 +30,7 @@ public class SoulToolMenu extends Menu {
     public SoulToolMenu(final int tab) {
         this();
         this.capability.setCurrentTab(tab);
-        Main.CHANNEL.sendToServer(new SToolTab(tab));
+        Main.CHANNEL.sendToServer(new C2SToolTab(tab));
     }
 
     @Override
@@ -189,12 +189,12 @@ public class SoulToolMenu extends Menu {
 
                 if (screen == null) {
                     this.capability.setCurrentTab(0);
-                    Main.CHANNEL.sendToServer(new SToolTab(this.capability.getCurrentTab()));
+                    Main.CHANNEL.sendToServer(new C2SToolTab(this.capability.getCurrentTab()));
                 }
 
                 this.capability.setCurrentType(type);
                 this.mc.displayGuiScreen(screen);
-                Main.CHANNEL.sendToServer(new SToolType(type));
+                Main.CHANNEL.sendToServer(new C2SToolType(type));
 
                 break;
             case 3:
@@ -211,7 +211,7 @@ public class SoulToolMenu extends Menu {
                     amount = this.capability.getDatum(DATA.attributePoints, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolAttributePoints(amount, SoulToolAttribute.get(button.id - 4), this.type));
+                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(amount, SoulToolAttribute.get(button.id - 4), this.type));
                 break;
             case 9:
             case 10:
@@ -226,7 +226,7 @@ public class SoulToolMenu extends Menu {
                     amount = this.capability.getDatum(DATA.enchantmentPoints, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolEnchantmentPoints(amount, SoulToolEnchantment.get(button.id - 9), this.type));
+                Main.CHANNEL.sendToServer(new C2SToolEnchantmentPoints(amount, SoulToolEnchantment.get(button.id - 9), this.type));
                 break;
             case 16:
             case 17:
@@ -235,10 +235,10 @@ public class SoulToolMenu extends Menu {
                 this.mc.displayGuiScreen(new SoulToolMenu(button.id - 16));
                 break;
             case 20:
-                Main.CHANNEL.sendToServer(new SToolResetAttributes(this.type));
+                Main.CHANNEL.sendToServer(new C2SToolResetAttributes(this.type));
                 break;
             case 21:
-                Main.CHANNEL.sendToServer(new SToolResetEnchantments(this.type));
+                Main.CHANNEL.sendToServer(new C2SToolResetEnchantments(this.type));
                 break;
             case 22:
                 if (capability.getBoundSlot() == this.slot) {
@@ -248,7 +248,7 @@ public class SoulToolMenu extends Menu {
                 }
 
                 this.mc.displayGuiScreen(new SoulToolMenu());
-                Main.CHANNEL.sendToServer(new SToolBindSlot(this.slot));
+                Main.CHANNEL.sendToServer(new C2SToolBindSlot(this.slot));
                 break;
             case 23:
             case 24:
@@ -261,7 +261,7 @@ public class SoulToolMenu extends Menu {
                     amount = this.capability.getDatum(DATA.spentAttributePoints, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolAttributePoints(-amount, SoulToolAttribute.get(button.id - 23), this.type));
+                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(-amount, SoulToolAttribute.get(button.id - 23), this.type));
                 break;
             case 28:
             case 29:
@@ -276,7 +276,7 @@ public class SoulToolMenu extends Menu {
                     amount = this.capability.getDatum(DATA.spentEnchantmentPoints, this.type);
                 }
 
-                Main.CHANNEL.sendToServer(new SToolEnchantmentPoints(-amount, SoulToolEnchantment.get(button.id - 28), this.type));
+                Main.CHANNEL.sendToServer(new C2SToolEnchantmentPoints(-amount, SoulToolEnchantment.get(button.id - 28), this.type));
         }
     }
 }

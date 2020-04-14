@@ -1,17 +1,17 @@
-package transfarmer.soulboundarmory.network.server.weapon;
+package transfarmer.soulboundarmory.network.server.tool;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
 
-public class SWeaponTab implements IMessage {
+public class C2SToolTab implements IMessage {
     int tab;
 
-    public SWeaponTab() {}
+    public C2SToolTab() {}
 
-    public SWeaponTab(final int tab) {
+    public C2SToolTab(final int tab) {
         this.tab = tab;
     }
 
@@ -23,10 +23,10 @@ public class SWeaponTab implements IMessage {
         buffer.writeInt(this.tab);
     }
 
-    public static final class Handler implements IMessageHandler<SWeaponTab, IMessage> {
+    public static final class Handler implements IMessageHandler<C2SToolTab, IMessage> {
         @Override
-        public IMessage onMessage(SWeaponTab message, MessageContext context) {
-            SoulWeaponProvider.get(context.getServerHandler().player).setCurrentTab(message.tab);
+        public IMessage onMessage(C2SToolTab message, MessageContext context) {
+            SoulToolProvider.get(context.getServerHandler().player).setCurrentTab(message.tab);
 
             return null;
         }

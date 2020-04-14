@@ -17,7 +17,7 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
-import transfarmer.soulboundarmory.network.client.CConfig;
+import transfarmer.soulboundarmory.network.client.S2CConfig;
 import transfarmer.soulboundarmory.statistics.SoulType;
 
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
@@ -28,7 +28,7 @@ public class PlayerEventSubscriber {
     public static void onPlayerLoggedIn(final PlayerLoggedInEvent event) {
         updatePlayer(event.player);
 
-        Main.CHANNEL.sendTo(new CConfig(), (EntityPlayerMP) event.player);
+        Main.CHANNEL.sendTo(new S2CConfig(), (EntityPlayerMP) event.player);
     }
 
     @SubscribeEvent

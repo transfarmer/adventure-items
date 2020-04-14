@@ -7,17 +7,17 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.SoulItemHelper;
-import transfarmer.soulboundarmory.network.client.weapon.CWeaponResetAttributes;
+import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponResetAttributes;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
-public class SWeaponResetAttributes implements IMessage {
+public class C2SWeaponResetAttributes implements IMessage {
     private int index;
 
-    public SWeaponResetAttributes() {}
+    public C2SWeaponResetAttributes() {}
 
-    public SWeaponResetAttributes(final SoulType type) {
+    public C2SWeaponResetAttributes(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -31,9 +31,9 @@ public class SWeaponResetAttributes implements IMessage {
         buffer.writeInt(this.index);
     }
 
-    public static final class Handler implements IMessageHandler<SWeaponResetAttributes, IMessage> {
+    public static final class Handler implements IMessageHandler<C2SWeaponResetAttributes, IMessage> {
         @Override
-        public IMessage onMessage(final SWeaponResetAttributes message, final MessageContext context) {
+        public IMessage onMessage(final C2SWeaponResetAttributes message, final MessageContext context) {
             final ISoulCapability capability = SoulItemHelper.getCapability(context.getServerHandler().player, (Item) null);
             final SoulType type = SoulWeaponType.get(message.index);
 
@@ -41,7 +41,7 @@ public class SWeaponResetAttributes implements IMessage {
             capability.setDatum(0, SoulDatum.DATA.spentAttributePoints, type);
             capability.setAttributes(new float[capability.getAttributeAmount()], type);
 
-            return new CWeaponResetAttributes(type);
+            return new S2CWeaponResetAttributes(type);
         }
     }
 }

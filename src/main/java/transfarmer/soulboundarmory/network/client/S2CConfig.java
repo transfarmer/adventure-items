@@ -10,7 +10,7 @@ import transfarmer.soulboundarmory.config.MainConfig;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class CConfig implements IMessage {
+public class S2CConfig implements IMessage {
     private int initialWeaponXP;
     private int initialToolXP;
     private int levelsPerSkill;
@@ -29,7 +29,7 @@ public class CConfig implements IMessage {
     private float babyMultiplier;
     private float passiveMultiplier;
 
-    public CConfig() {
+    public S2CConfig() {
         final MainConfig config = MainConfig.instance();
 
         this.initialWeaponXP = config.getInitialWeaponXP();
@@ -94,10 +94,10 @@ public class CConfig implements IMessage {
         buffer.writeFloat(this.passiveMultiplier);
     }
 
-    public static final class Handler implements IMessageHandler<CConfig, IMessage> {
+    public static final class Handler implements IMessageHandler<S2CConfig, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final CConfig message, final MessageContext context) {
+        public IMessage onMessage(final S2CConfig message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
 
             minecraft.addScheduledTask(() -> {

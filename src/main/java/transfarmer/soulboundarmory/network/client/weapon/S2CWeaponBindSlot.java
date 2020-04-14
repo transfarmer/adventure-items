@@ -11,12 +11,12 @@ import transfarmer.soulboundarmory.capability.weapon.SoulWeaponProvider;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class CWeaponBindSlot implements IMessage {
+public class S2CWeaponBindSlot implements IMessage {
     private int slot;
 
-    public CWeaponBindSlot() {}
+    public S2CWeaponBindSlot() {}
 
-    public CWeaponBindSlot(final int slot) {
+    public S2CWeaponBindSlot(final int slot) {
         this.slot = slot;
     }
 
@@ -30,10 +30,10 @@ public class CWeaponBindSlot implements IMessage {
         buffer.writeInt(this.slot);
     }
 
-    public static final class Handler implements IMessageHandler<CWeaponBindSlot, IMessage> {
+    public static final class Handler implements IMessageHandler<S2CWeaponBindSlot, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final CWeaponBindSlot message, final MessageContext context) {
+        public IMessage onMessage(final S2CWeaponBindSlot message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final ISoulWeapon capability = SoulWeaponProvider.get(minecraft.player);
 

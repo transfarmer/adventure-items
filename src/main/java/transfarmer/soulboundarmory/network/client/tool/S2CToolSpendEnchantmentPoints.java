@@ -1,25 +1,29 @@
-package transfarmer.soulboundarmory.network.server.tool;
+package transfarmer.soulboundarmory.network.client.tool;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.network.client.tool.CToolSpendEnchantmentPoints;
+import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.statistics.SoulEnchantment;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
-public class SToolEnchantmentPoints implements IMessage {
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+
+public class S2CToolSpendEnchantmentPoints implements IMessage {
     private int amount;
     private int enchantmentIndex;
     private int typeIndex;
 
-    public SToolEnchantmentPoints() {}
+    public S2CToolSpendEnchantmentPoints() {}
 
-    public SToolEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
+    public S2CToolSpendEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
         this.amount = amount;
         this.enchantmentIndex = enchantment.getIndex();
         this.typeIndex = type.getIndex();
@@ -39,16 +43,21 @@ public class SToolEnchantmentPoints implements IMessage {
         buffer.writeInt(this.typeIndex);
     }
 
-    public static final class Handler implements IMessageHandler<SToolEnchantmentPoints, IMessage> {
+    public static final class Handler implements IMessageHandler<S2CToolSpendEnchantmentPoints, IMessage> {
+        @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final SToolEnchantmentPoints message, final MessageContext context) {
-            final ISoulCapability instance = SoulToolProvider.get(context.getServerHandler().player);
+        public IMessage onMessage(final S2CToolSpendEnchantmentPoints message, final MessageContext context) {
+            final Minecraft minecraft = Minecraft.getMinecraft();
             final SoulEnchantment enchantment = SoulToolEnchantment.get(message.enchantmentIndex);
-            final SoulType toolType = SoulToolType.get(message.typeIndex);
+            final SoulType type = SoulToolType.get(message.typeIndex);
+            final ISoulCapability instance = SoulToolProvider.get(Minecraft.getMinecraft().player);
 
-            instance.addEnchantment(message.amount, enchantment, toolType);
+            minecraft.addScheduledTask(() -> {
+                instance.addEnchantment(message.amount, enchantment, type);
+                minecraft.displayGuiScreen(new SoulToolMenu());
+            });
 
-            return new CToolSpendEnchantmentPoints(message.amount, enchantment, toolType);
+            return null;
         }
     }
 }

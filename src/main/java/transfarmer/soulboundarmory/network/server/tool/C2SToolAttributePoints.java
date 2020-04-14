@@ -1,29 +1,25 @@
-package transfarmer.soulboundarmory.network.client.tool;
+package transfarmer.soulboundarmory.network.server.tool;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.ISoulCapability;
 import transfarmer.soulboundarmory.capability.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
+import transfarmer.soulboundarmory.network.client.tool.S2CToolSpendAttributePoints;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-
-public class CToolSpendAttributePoints implements IMessage {
+public class C2SToolAttributePoints implements IMessage {
     private int amount;
     private int attributeIndex;
     private int ToolIndex;
 
-    public CToolSpendAttributePoints() {}
+    public C2SToolAttributePoints() {}
 
-    public CToolSpendAttributePoints(final int amount, final SoulAttribute attribute, final SoulType type) {
+    public C2SToolAttributePoints(final int amount, final SoulAttribute attribute, final SoulType type) {
         this.amount = amount;
         this.attributeIndex = attribute.getIndex();
         this.ToolIndex = type.getIndex();
@@ -43,21 +39,16 @@ public class CToolSpendAttributePoints implements IMessage {
         buffer.writeInt(this.ToolIndex);
     }
 
-    public static final class Handler implements IMessageHandler<CToolSpendAttributePoints, IMessage> {
-        @SideOnly(CLIENT)
+    public static final class Handler implements IMessageHandler<C2SToolAttributePoints, IMessage> {
         @Override
-        public IMessage onMessage(final CToolSpendAttributePoints message, final MessageContext context) {
-            final Minecraft minecraft = Minecraft.getMinecraft();
-            final SoulType type = SoulToolType.get(message.ToolIndex);
+        public IMessage onMessage(final C2SToolAttributePoints message, final MessageContext context) {
             final SoulAttribute attribute = SoulToolAttribute.get(message.attributeIndex);
-            final ISoulCapability instance = SoulToolProvider.get(Minecraft.getMinecraft().player);
+            final SoulType type = SoulToolType.get(message.ToolIndex);
+            final ISoulCapability instance = SoulToolProvider.get(context.getServerHandler().player);
 
-            minecraft.addScheduledTask(() -> {
-                instance.addAttribute(message.amount, attribute, type);
-                minecraft.displayGuiScreen(new SoulToolMenu());
-            });
+            instance.addAttribute(message.amount, attribute, type);
 
-            return null;
+            return new S2CToolSpendAttributePoints(message.amount, attribute, type);
         }
     }
 }

@@ -15,12 +15,12 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 
-public class CToolResetEnchantments implements IMessage {
+public class S2CToolResetAttributes implements IMessage {
     private int index;
 
-    public CToolResetEnchantments() {}
+    public S2CToolResetAttributes() {}
 
-    public CToolResetEnchantments(final SoulType type) {
+    public S2CToolResetAttributes(final SoulType type) {
         this.index = type.getIndex();
     }
 
@@ -34,17 +34,17 @@ public class CToolResetEnchantments implements IMessage {
         buffer.writeInt(this.index);
     }
 
-    public static final class Handler implements IMessageHandler<CToolResetEnchantments, IMessage> {
+    public static final class Handler implements IMessageHandler<S2CToolResetAttributes, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final CToolResetEnchantments message, final MessageContext context) {
+        public IMessage onMessage(final S2CToolResetAttributes message, final MessageContext context) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 final ISoulCapability capability = SoulToolProvider.get(Minecraft.getMinecraft().player);
                 final SoulType type = SoulToolType.get(message.index);
 
-                capability.addDatum(capability.getDatum(DATA.spentEnchantmentPoints, type), DATA.enchantmentPoints, type);
-                capability.setDatum(0, DATA.spentEnchantmentPoints, type);
-                capability.setEnchantments(new int[capability.getEnchantmentAmount()], type);
+                capability.addDatum(capability.getDatum(DATA.spentAttributePoints, type), DATA.attributePoints, type);
+                capability.setDatum(0, DATA.spentAttributePoints, type);
+                capability.setAttributes(new float[capability.getAttributeAmount()], type);
                 Minecraft.getMinecraft().displayGuiScreen(new SoulToolMenu());
             });
 

@@ -14,18 +14,18 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class CLevelupMessage implements IMessage {
+public class S2CLevelupMessage implements IMessage {
     String stackName;
     int level;
 
-    public CLevelupMessage() {}
+    public S2CLevelupMessage() {}
 
-    public CLevelupMessage(final String stackName, final int level) {
+    public S2CLevelupMessage(final String stackName, final int level) {
         this.stackName = stackName;
         this.level = level;
     }
 
-    public CLevelupMessage(final ItemStack itemStack, final int level) {
+    public S2CLevelupMessage(final ItemStack itemStack, final int level) {
         this(itemStack.getDisplayName(), level);
     }
 
@@ -41,10 +41,10 @@ public class CLevelupMessage implements IMessage {
         buffer.writeInt(this.level);
     }
 
-    public static final class Handler implements IMessageHandler <CLevelupMessage, IMessage> {
+    public static final class Handler implements IMessageHandler <S2CLevelupMessage, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final CLevelupMessage message, final MessageContext context) {
+        public IMessage onMessage(final S2CLevelupMessage message, final MessageContext context) {
             ((EntityPlayer) Minecraft.getMinecraft().player).sendMessage(
                     new TextComponentString(String.format(Mappings.MESSAGE_LEVEL_UP, message.stackName, message.level)));
 

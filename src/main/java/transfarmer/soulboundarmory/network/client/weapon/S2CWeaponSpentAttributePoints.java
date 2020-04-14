@@ -16,14 +16,14 @@ import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class CWeaponSpendAttributePoints implements IMessage {
+public class S2CWeaponSpentAttributePoints implements IMessage {
     private int amount;
     private int attributeIndex;
     private int weaponIndex;
 
-    public CWeaponSpendAttributePoints() {}
+    public S2CWeaponSpentAttributePoints() {}
 
-    public CWeaponSpendAttributePoints(final int amount, final SoulAttribute attribute, final SoulType type) {
+    public S2CWeaponSpentAttributePoints(final int amount, final SoulAttribute attribute, final SoulType type) {
         this.amount = amount;
         this.attributeIndex = attribute.getIndex();
         this.weaponIndex = type.getIndex();
@@ -43,10 +43,10 @@ public class CWeaponSpendAttributePoints implements IMessage {
         buffer.writeInt(this.weaponIndex);
     }
 
-    public static final class Handler implements IMessageHandler<CWeaponSpendAttributePoints, IMessage> {
+    public static final class Handler implements IMessageHandler<S2CWeaponSpentAttributePoints, IMessage> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final CWeaponSpendAttributePoints message, final MessageContext context) {
+        public IMessage onMessage(final S2CWeaponSpentAttributePoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final SoulType type = SoulWeaponType.get(message.weaponIndex);
             final SoulAttribute attribute = SoulWeaponAttribute.get(message.attributeIndex);

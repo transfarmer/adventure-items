@@ -61,7 +61,7 @@ import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulDagger;
 import transfarmer.soulboundarmory.item.ItemSoulPick;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
-import transfarmer.soulboundarmory.network.client.CLevelupMessage;
+import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 import transfarmer.soulboundarmory.util.ItemHelper;
@@ -232,7 +232,7 @@ public class EventSubscriber {
                 }
 
                 if (instance.addDatum((int) Math.round(xp), DATA.xp, weaponType) && MainConfig.instance().getLevelupNotifications()) {
-                    Main.CHANNEL.sendTo(new CLevelupMessage(displayName, instance.getDatum(DATA.level, weaponType)), (EntityPlayerMP) source);
+                    Main.CHANNEL.sendTo(new S2CLevelupMessage(displayName, instance.getDatum(DATA.level, weaponType)), (EntityPlayerMP) source);
                 }
 
                 instance.sync();
