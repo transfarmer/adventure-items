@@ -46,13 +46,13 @@ import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.network.client.CConfig;
 import transfarmer.soulboundarmory.network.client.CLevelupMessage;
+import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.network.client.tool.CToolBindSlot;
 import transfarmer.soulboundarmory.network.client.tool.CToolDatum;
 import transfarmer.soulboundarmory.network.client.tool.CToolResetAttributes;
 import transfarmer.soulboundarmory.network.client.tool.CToolResetEnchantments;
 import transfarmer.soulboundarmory.network.client.tool.CToolSpendAttributePoints;
 import transfarmer.soulboundarmory.network.client.tool.CToolSpendEnchantmentPoints;
-import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponBindSlot;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponResetAttributes;
 import transfarmer.soulboundarmory.network.client.weapon.CWeaponResetEnchantments;
@@ -82,6 +82,7 @@ public class Main {
     public static final String MOD_ID = "soulboundarmory";
     public static final String NAME = "soulbound armory";
     public static final String VERSION = "2.6.1";
+
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
