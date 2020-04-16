@@ -24,7 +24,11 @@ public interface ISoulWeapon extends ISoulCapability {
 
     void decrementLightningCooldown();
 
-    float getCharging();
+    float getLeapForce();
 
-    void setCharging(float charging);
+    void setLeapForce(float force);
+
+    int getLeapDuration();
+
+    void setLeapDuration(int ticks);
 }

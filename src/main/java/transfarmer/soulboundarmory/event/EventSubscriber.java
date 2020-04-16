@@ -40,7 +40,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.config.IPlayerConfig;
@@ -71,9 +70,7 @@ import transfarmer.soulboundarmory.util.ItemHelper;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
@@ -96,8 +93,6 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class EventSubscriber {
-    private static final Map<Runnable, Integer> scheduledTasks = new ConcurrentHashMap<>();
-
     @SubscribeEvent
     public static void onEntityJoinWorld(final EntityJoinWorldEvent event) {
         final Entity entity = event.getEntity();
@@ -180,7 +175,7 @@ public class EventSubscriber {
         if (event.getEntity() instanceof EntityPlayer) {
             final ISoulWeapon capability = SoulWeaponProvider.get(event.getEntity());
 
-            if (capability.getCharging() > 0) {
+            if (capability.getLeapForce() > 0) {
                 event.setCanceled(true);
             }
         }
@@ -255,8 +250,8 @@ public class EventSubscriber {
             final EntityPlayer player = (EntityPlayer) event.getEntityLiving();
             final ISoulWeapon capability = SoulWeaponProvider.get(player);
 
-            if (capability.getCharging() > 0) {
-                if (capability.getCharging() >= 0.999) {
+            if (capability.getLeapForce() > 0) {
+                if (capability.getLeapForce() >= 0.999) {
                     final double radius = Math.min(6, 2 * event.getDistance());
                     final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player,
                             new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
@@ -287,14 +282,14 @@ public class EventSubscriber {
                     }
                 }
 
-                if (event.getDistance() <= 16 * capability.getCharging()) {
+                if (event.getDistance() <= 16 * capability.getLeapForce()) {
                     event.setCanceled(true);
-                } else if (capability.getCharging() > 0) {
+                } else if (capability.getLeapForce() > 0) {
                     event.setDamageMultiplier(event.getDamageMultiplier()
-                            / (float) (Math.max(1, Math.log(4 * capability.getCharging()) / Math.log(2))));
+                            / (float) (Math.max(1, Math.log(4 * capability.getLeapForce()) / Math.log(2))));
                 }
 
-                capability.setCharging(0);
+                capability.setLeapForce(0);
             }
         }
     }
@@ -413,7 +408,7 @@ public class EventSubscriber {
     @SubscribeEvent
     public static void onLivingAttack(final LivingAttackEvent event) {
         if (event.getEntity() instanceof EntityPlayer
-                && SoulWeaponProvider.get(event.getEntity()).getCharging() > 0) {
+                && SoulWeaponProvider.get(event.getEntity()).getLeapForce() > 0) {
             final DamageSource damageSource = event.getSource();
 
             if (!damageSource.damageType.equals("explosion") && !damageSource.damageType.equals("explosion.player")
@@ -455,7 +450,7 @@ public class EventSubscriber {
     public static void onGetCollsionBoxes(final GetCollisionBoxesEvent event) {
         if (!event.getWorld().isRemote && event.getEntity() instanceof EntityPlayer) {
             final ISoulWeapon capability = SoulWeaponProvider.get(event.getEntity());
-            final double charging = capability.getCharging();
+            final double charging = capability.getLeapForce();
 
             if (charging > 0) {
                 final EntityPlayer player = (EntityPlayer) event.getEntity();
@@ -475,32 +470,11 @@ public class EventSubscriber {
                 }
 
                 if (player.onGround && (event.getEntity().motionY == 0 || player.isCreative())) {
-                    scheduledTasks.put(new Runnable() {
-                        @Override
-                        public void run() {
-                            capability.setCharging(0);
-                        }
-                    }, 7);
+                    capability.setLeapDuration(7);
                 }
 
                 if (player.isInLava()) {
-                    capability.setCharging(0);
-                }
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onWorldTick(final WorldTickEvent event) {
-        if (event.phase == END) {
-            for (final Runnable task : scheduledTasks.keySet()) {
-                final Integer ticks = scheduledTasks.get(task);
-
-                if (ticks > 0) {
-                    scheduledTasks.put(task, ticks - 1);
-                } else {
-                    task.run();
-                    scheduledTasks.remove(task);
+                    capability.setLeapForce(0);
                 }
             }
         }

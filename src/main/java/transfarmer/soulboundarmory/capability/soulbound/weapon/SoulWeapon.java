@@ -49,8 +49,9 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREAT
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
-    private float charging;
+    private float leapForce;
     private int attackCooldown;
+    private int leapDuration;
     private int lightningCooldown;
 
     public SoulWeapon() {
@@ -413,13 +414,23 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
-    public float getCharging() {
-        return this.charging;
+    public float getLeapForce() {
+        return this.leapForce;
     }
 
     @Override
-    public void setCharging(final float charging) {
-        this.charging = charging;
+    public void setLeapForce(final float force) {
+        this.leapForce = force;
+    }
+
+    @Override
+    public int getLeapDuration() {
+        return leapDuration;
+    }
+
+    @Override
+    public void setLeapDuration(final int ticks) {
+        this.leapDuration = ticks;
     }
 
     @Override
@@ -438,6 +449,12 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
         if (this.getCurrentType() != null && this.getLightningCooldown() > 0) {
             this.decrementLightningCooldown();
         }
+
+        if (this.getLeapDuration() > 0) {
+            this.leapDuration--;
+        } else {
+            this.setLeapForce(0);
+        }
     }
 
     @Override
@@ -448,7 +465,8 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
         tag.setInteger("soulweapons.capability.tab", this.getCurrentTab());
         tag.setInteger("soulweapons.capability.boundSlot", this.getBoundSlot());
         tag.setInteger("soulweapons.capability.cooldown", this.getCooldown());
-        tag.setFloat("soulweapons.capability.charging", this.getCharging());
+        tag.setInteger("soulweapons.capability.leapDuration", this.getLeapDuration());
+        tag.setFloat("soulweapons.capability.charging", this.getLeapForce());
         tag.setInteger("soulweapons.capability.lightningCooldown", this.getLightningCooldown());
 
         this.forEach(
@@ -478,7 +496,8 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
         this.setCurrentTab(nbt.getInteger("soulweapons.capability.tab"));
         this.bindSlot(nbt.getInteger("soulweapons.capability.boundSlot"));
         this.setAttackCooldown(nbt.getInteger("soulweapons.capability.cooldown"));
-        this.setCharging(nbt.getFloat("soulweapons.capability.charging"));
+        this.setLeapDuration(nbt.getInteger("soulweapons.capability.leapDuration"));
+        this.setLeapForce(nbt.getFloat("soulweapons.capability.leapForce"));
         this.setLightningCooldown(nbt.getInteger("soulweapons.capability.lightningCooldown"));
 
         this.forEach(

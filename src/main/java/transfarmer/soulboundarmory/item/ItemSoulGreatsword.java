@@ -53,7 +53,7 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
             if (entity instanceof EntityPlayer) {
                 final ISoulWeapon capability = SoulWeaponProvider.get(entity);
 
-                capability.setCharging(maxSpeed / speed);
+                capability.setLeapForce(maxSpeed / speed);
             }
         }
     }
