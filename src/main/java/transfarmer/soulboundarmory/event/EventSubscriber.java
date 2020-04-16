@@ -252,11 +252,11 @@ public class EventSubscriber {
     @SubscribeEvent(priority = HIGH)
     public static void onLivingFall(final LivingFallEvent event) {
         if (event.getEntity() instanceof EntityPlayer) {
-            final ISoulWeapon capability = SoulWeaponProvider.get(event.getEntity());
+            final EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+            final ISoulWeapon capability = SoulWeaponProvider.get(player);
 
             if (capability.getCharging() > 0) {
                 if (capability.getCharging() >= 0.999) {
-                    final EntityPlayer player = (EntityPlayer) event.getEntityLiving();
                     final double radius = Math.min(6, 2 * event.getDistance());
                     final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player,
                             new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
@@ -326,7 +326,7 @@ public class EventSubscriber {
                 if (((IItemSoulTool) item).isEffectiveAgainst(event.getState())) {
                     float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type);
                     final int efficiency = capability.getEnchantment(SoulToolEnchantment.SOUL_EFFICIENCY, type);
-                    //noinspection ConstantConditions
+                    @SuppressWarnings("ConstantConditions")
                     final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
 
                     if (efficiency > 0) {

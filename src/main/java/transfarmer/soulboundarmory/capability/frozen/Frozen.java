@@ -32,7 +32,9 @@ public class Frozen implements IFrozen {
         this.entity.playSound(SoundEvents.BLOCK_SNOW_HIT, 1, 1.2F / (this.entity.world.rand.nextFloat() * 0.2F + 0.9F));
         this.entity.extinguish();
 
-        this.freezeTicks = ticks;
+        if (ticks < this.freezeTicks) {
+            this.freezeTicks = ticks;
+        }
 
         if (this.entity instanceof EntityLivingBase) {
             this.entity.attackEntityFrom(DamageSource.causePlayerDamage(freezer).setDamageIsAbsolute(), damage);
