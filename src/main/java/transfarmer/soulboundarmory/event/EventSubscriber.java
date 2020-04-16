@@ -262,19 +262,17 @@ public class EventSubscriber {
                             new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
                                     player.posX + radius, player.posY + radius, player.posZ + radius));
                     for (final Entity entity : nearbyEntities) {
-                        if (entity.getDistanceSq(entity) <= radius * radius) {
-                            final IFrozen frozenCapability = FrozenProvider.get(entity);
+                        final IFrozen frozenCapability = FrozenProvider.get(entity);
 
-                            if (frozenCapability != null) {
-                                frozenCapability.freeze(player, 0.4F * event.getDistance(), (int) Math.min(60, 12 * event.getDistance()));
-                            }
+                        if (frozenCapability != null && entity.getDistanceSq(entity) <= radius * radius) {
+                            frozenCapability.freeze(player, 0.4F * event.getDistance(), (int) Math.min(60, 12 * event.getDistance()));
                         }
                     }
 
                     if (!nearbyEntities.isEmpty() && player.world instanceof WorldServer) {
                         final WorldServer world = (WorldServer) player.world;
 
-                        for (double i = 0; i <= 2 * radius; i += radius / 64F) {
+                        for (double i = 0; i <= 2 * radius; i += radius / 96D) {
                             final double x = radius - i;
                             final double z = Math.sqrt((radius * radius - x * x));
                             final int particles = 1;
@@ -282,14 +280,7 @@ public class EventSubscriber {
                             world.spawnParticle(EnumParticleTypes.SNOWBALL,
                                     player.posX + x,
                                     player.posY + player.eyeHeight,
-                                    player.posZ + z,
-                                    particles, 0, 0, 0, 0D
-                            );
-
-                            world.spawnParticle(EnumParticleTypes.SNOWBALL,
-                                    player.posX + x,
-                                    player.posY + player.eyeHeight,
-                                    player.posZ - z,
+                                    player.posZ + z * Math.signum(radius - i),
                                     particles, 0, 0, 0, 0D
                             );
                         }
@@ -326,8 +317,7 @@ public class EventSubscriber {
                 if (((IItemSoulTool) item).isEffectiveAgainst(event.getState())) {
                     float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type);
                     final int efficiency = capability.getEnchantment(SoulToolEnchantment.SOUL_EFFICIENCY, type);
-                    @SuppressWarnings("ConstantConditions")
-                    final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
+                    @SuppressWarnings("ConstantConditions") final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
 
                     if (efficiency > 0) {
                         newSpeed += 1 + efficiency * efficiency;
@@ -365,8 +355,8 @@ public class EventSubscriber {
         final ISoulCapability weaponCapability = SoulWeaponProvider.get(event.player);
         final ISoulCapability toolCapability = SoulToolProvider.get(event.player);
 
-        weaponCapability.update();
-        toolCapability.update();
+        weaponCapability.onTick();
+        toolCapability.onTick();
     }
 
     @SubscribeEvent
@@ -453,8 +443,7 @@ public class EventSubscriber {
 
     @SubscribeEvent
     public static void onLivingUpdate(final LivingUpdateEvent event) {
-        final EntityLivingBase entity = event.getEntityLiving();
-        final IFrozen capability = FrozenProvider.get(entity);
+        final IFrozen capability = FrozenProvider.get(event.getEntityLiving());
 
         if (capability != null) {
             event.setCanceled(capability.update());
@@ -476,9 +465,12 @@ public class EventSubscriber {
                     final IFrozen frozenCapability = FrozenProvider.get(entity);
 
                     if (frozenCapability != null) {
-                        frozenCapability.freeze(player, 3 * (float) Math.sqrt(player.motionX * player.motionX
-                                + player.motionY * player.motionY
-                                + player.motionZ * player.motionZ) * (float) charging, (int) (30 * charging));
+                        frozenCapability.freeze(player, 3 * (float)
+                                Math.sqrt(player.motionX * player.motionX
+                                        + player.motionY * player.motionY
+                                        + player.motionZ * player.motionZ)
+                                * (float) charging, (int) (30 * charging)
+                        );
                     }
                 }
 

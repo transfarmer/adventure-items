@@ -187,8 +187,9 @@ public class Main {
                 event.addCapability(new ResourceLocation(MOD_ID, "playerconfig"), new PlayerConfigProvider());
             }
 
-            if (entity.isNonBoss() && (entity instanceof EntityLivingBase || entity instanceof IProjectile)
-                    && !(entity instanceof EntityReachModifier) && entity.world instanceof WorldServer) {
+            if ((entity instanceof EntityLivingBase || entity instanceof IProjectile)
+                    && !(entity instanceof EntityReachModifier) && !(entity instanceof EntitySoulDagger)
+                    && entity.world instanceof WorldServer) {
                 event.addCapability(new ResourceLocation(MOD_ID, "frozen"), new FrozenProvider());
             }
         }
