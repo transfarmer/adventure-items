@@ -238,34 +238,42 @@ public class EventSubscriber {
             final float leapForce = capability.getLeapForce();
 
             if (leapForce > 0) {
-                if (leapForce == 1D) {
-                    final double radius = Math.min(6, 2 * event.getDistance());
-                    final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player,
-                            new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
-                                    player.posX + radius, player.posY + radius, player.posZ + radius));
-                    for (final Entity entity : nearbyEntities) {
-                        final IFrozen frozenCapability = FrozenProvider.get(entity);
+                final double horizontalRadius = Math.min(4, event.getDistance());
+                final double verticalRadius = Math.min(2, 0.5F * event.getDistance());
+                final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player,
+                        new AxisAlignedBB(
+                                player.posX - horizontalRadius, player.posY - verticalRadius, player.posZ - horizontalRadius,
+                                player.posX + horizontalRadius, player.posY + verticalRadius, player.posZ + horizontalRadius
+                        )
+                );
+                for (final Entity entity : nearbyEntities) {
+                    final IFrozen frozenCapability = FrozenProvider.get(entity);
 
-                        if (frozenCapability != null && entity.getDistanceSq(entity) <= radius * radius) {
-                            frozenCapability.freeze(player, 0.4F * event.getDistance(), (int) Math.min(60, 12 * event.getDistance()));
-                        }
+                    if (frozenCapability != null && entity.getDistanceSq(entity) <= horizontalRadius * horizontalRadius) {
+                        frozenCapability.freeze(player, 0.4F * event.getDistance(), (int) Math.min(60, 12 * event.getDistance()));
                     }
+                }
 
-                    if (!nearbyEntities.isEmpty() && player.world instanceof WorldServer) {
-                        final WorldServer world = (WorldServer) player.world;
+                if (!nearbyEntities.isEmpty() && player.world instanceof WorldServer) {
+                    final WorldServer world = (WorldServer) player.world;
 
-                        for (double i = 0; i <= 2 * radius; i += radius / 96D) {
-                            final double x = radius - i;
-                            final double z = Math.sqrt((radius * radius - x * x));
-                            final int particles = 1;
+                    for (double i = 0; i <= 2 * horizontalRadius; i += horizontalRadius / 48D) {
+                        final double x = horizontalRadius - i;
+                        final double z = Math.sqrt((horizontalRadius * horizontalRadius - x * x));
+                        final int particles = 1;
 
-                            world.spawnParticle(EnumParticleTypes.SNOWBALL,
-                                    player.posX + x,
-                                    player.posY + player.eyeHeight,
-                                    player.posZ + z * Math.signum(radius - i),
-                                    particles, 0, 0, 0, 0D
-                            );
-                        }
+                        world.spawnParticle(EnumParticleTypes.SNOWBALL,
+                                player.posX + x,
+                                player.posY + player.eyeHeight,
+                                player.posZ + z,
+                                particles, 0, 0, 0, 0D
+                        );
+                        world.spawnParticle(EnumParticleTypes.SNOWBALL,
+                                player.posX + x,
+                                player.posY + player.eyeHeight,
+                                player.posZ - z,
+                                particles, 0, 0, 0, 0D
+                        );
                     }
                 }
 
@@ -276,7 +284,7 @@ public class EventSubscriber {
                             / (float) (Math.max(1, Math.log(4 * leapForce) / Math.log(2))));
                 }
 
-                capability.setLeapForce(0);
+                capability.setLeapDuration(4);
             }
         }
     }
@@ -325,8 +333,9 @@ public class EventSubscriber {
 
     @SubscribeEvent
     public static void onLivingAttack(final LivingAttackEvent event) {
-        if (event.getEntity() instanceof EntityPlayer
-                && SoulWeaponProvider.get(event.getEntity()).getLeapForce() > 0) {
+        final Entity entity = event.getEntity();
+
+        if (entity instanceof EntityPlayer && SoulWeaponProvider.get(entity).getLeapForce() > 0) {
             final DamageSource damageSource = event.getSource();
 
             if (!damageSource.damageType.equals("explosion") && !damageSource.damageType.equals("explosion.player")
@@ -366,28 +375,26 @@ public class EventSubscriber {
 
     @SubscribeEvent
     public static void onGetCollsionBoxes(final GetCollisionBoxesEvent event) {
-        if (!event.getWorld().isRemote && event.getEntity() instanceof EntityPlayer) {
-            final ISoulWeapon capability = SoulWeaponProvider.get(event.getEntity());
-            final double charging = capability.getLeapForce();
+        final Entity entity = event.getEntity();
 
-            if (charging > 0) {
-                final EntityPlayer player = (EntityPlayer) event.getEntity();
+        if (!event.getWorld().isRemote && entity instanceof EntityPlayer) {
+            final EntityPlayer player = (EntityPlayer) entity;
+            final ISoulWeapon capability = SoulWeaponProvider.get(player);
+            final double leapForce = capability.getLeapForce();
+
+            if (leapForce > 0) {
                 final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, event.getAabb());
 
-                for (final Entity entity : nearbyEntities) {
-                    final IFrozen frozenCapability = FrozenProvider.get(entity);
-
-                    if (frozenCapability != null) {
-                        frozenCapability.freeze(player, (float) EntityHelper.getVelocity(player) * (float) charging, (int) (30 * charging));
-                    }
+                for (final Entity nearbyEntity : nearbyEntities) {
+                    capability.freeze(nearbyEntity, (float) EntityHelper.getVelocity(player) * (float) leapForce, (int) (20 * leapForce));
                 }
 
-                if (player.onGround && (event.getEntity().motionY == 0 || player.isCreative())) {
+                if (capability.getLeapDuration() <= 0 && player.onGround && (player.motionY <= 0.01 || player.isCreative())) {
                     capability.setLeapDuration(7);
                 }
 
                 if (player.isInLava()) {
-                    capability.setLeapForce(0);
+                    capability.resetLeapForce();
                 }
             }
         }

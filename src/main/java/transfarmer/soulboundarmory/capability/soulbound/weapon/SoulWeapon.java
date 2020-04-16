@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.capability.soulbound.weapon;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,6 +11,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
+import transfarmer.soulboundarmory.capability.frozen.IFrozen;
 import transfarmer.soulboundarmory.capability.soulbound.BaseSoulCapability;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
@@ -25,14 +28,18 @@ import transfarmer.soulboundarmory.statistics.v2.statistics.Statistics;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
+import transfarmer.soulboundarmory.util.EntityHelper;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
@@ -49,6 +56,7 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREAT
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
+    private final Set<UUID> cannotFreeze;
     private float leapForce;
     private int attackCooldown;
     private int leapDuration;
@@ -72,6 +80,7 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
         this.boundSlot = -1;
         this.attackCooldown = 0;
         this.lightningCooldown = 60;
+        this.cannotFreeze = new HashSet<>();
     }
 
     @Override
@@ -403,7 +412,7 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
 
     @Override
     public void resetLightningCooldown() {
-        if (!this.player.isCreative()) {
+        if (!this.getPlayer().isCreative()) {
             this.lightningCooldown = Math.round(96 / this.getAttribute(ATTACK_SPEED, this.currentType, true, true));
         }
     }
@@ -424,6 +433,14 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
+    public void resetLeapForce() {
+        this.leapForce = 0;
+        this.leapDuration = 0;
+
+        this.cannotFreeze.clear();
+    }
+
+    @Override
     public int getLeapDuration() {
         return leapDuration;
     }
@@ -431,6 +448,18 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     @Override
     public void setLeapDuration(final int ticks) {
         this.leapDuration = ticks;
+    }
+
+    @Override
+    public void freeze(final Entity entity, final float damage, final int ticks) {
+        final IFrozen capability = FrozenProvider.get(entity);
+        final UUID id = entity.getUniqueID();
+
+        if (!this.cannotFreeze.contains(id) && !entity.isDead && capability != null) {
+            capability.freeze(this.getPlayer(), damage, ticks);
+
+            this.cannotFreeze.add(id);
+        }
     }
 
     @Override
@@ -451,8 +480,8 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
         }
 
         if (this.getLeapDuration() > 0) {
-            if (this.leapDuration-- == 0) {
-                this.setLeapForce(0);
+            if (--this.leapDuration == 0) {
+                this.resetLeapForce();
             }
         }
     }
@@ -460,6 +489,15 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     @Override
     public NBTTagCompound writeToNBT() {
         final NBTTagCompound tag = new NBTTagCompound();
+        final NBTTagCompound cannotFreeze = new NBTTagCompound();
+
+        for (final UUID id : this.cannotFreeze) {
+            final Entity entity = EntityHelper.getEntity(id);
+
+            if (entity != null && !entity.isDead) {
+                cannotFreeze.setUniqueId(id.toString(), id);
+            }
+        }
 
         tag.setInteger("soulweapons.capability.index", this.getIndex());
         tag.setInteger("soulweapons.capability.tab", this.getCurrentTab());
@@ -468,6 +506,7 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
         tag.setInteger("soulweapons.capability.leapDuration", this.getLeapDuration());
         tag.setFloat("soulweapons.capability.leapForce", this.getLeapForce());
         tag.setInteger("soulweapons.capability.lightningCooldown", this.getLightningCooldown());
+        tag.setTag("soulweapons.capability.cannotFreeze.set", cannotFreeze);
 
         this.forEach(
                 (final Integer weaponIndex, final Integer valueIndex) ->
@@ -492,6 +531,16 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
 
     @Override
     public void readFromNBT(final NBTTagCompound nbt) {
+        final String setKey = "soulweapons.capability.cannotFreeze.set";
+
+        if (nbt.hasKey(setKey)) {
+            final NBTTagCompound cannotFreeze = (NBTTagCompound) nbt.getTag(setKey);
+
+            for (final String key : cannotFreeze.getKeySet()) {
+                this.cannotFreeze.add(cannotFreeze.getUniqueId(key));
+            }
+        }
+
         this.setCurrentType(nbt.getInteger("soulweapons.capability.index"));
         this.setCurrentTab(nbt.getInteger("soulweapons.capability.tab"));
         this.bindSlot(nbt.getInteger("soulweapons.capability.boundSlot"));
@@ -521,8 +570,8 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
 
     @Override
     public void sync() {
-        if (!this.player.world.isRemote) {
-            Main.CHANNEL.sendTo(new S2CSync("weapon", this.writeToNBT()), (EntityPlayerMP) this.player);
+        if (!this.getPlayer().world.isRemote) {
+            Main.CHANNEL.sendTo(new S2CSync("weapon", this.writeToNBT()), (EntityPlayerMP) this.getPlayer());
         }
     }
 }

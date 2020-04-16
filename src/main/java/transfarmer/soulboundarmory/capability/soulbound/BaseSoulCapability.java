@@ -9,13 +9,15 @@ import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.v2.statistics.Statistics;
+import transfarmer.soulboundarmory.util.EntityHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public abstract class BaseSoulCapability implements ISoulCapability {
-    protected EntityPlayer player;
+    protected UUID playerUUID;
     protected SoulType currentType;
     protected SoulDatum datum;
     protected Statistics statistics;
@@ -53,13 +55,13 @@ public abstract class BaseSoulCapability implements ISoulCapability {
 
     @Override
     public EntityPlayer getPlayer() {
-        return this.player;
+        return (EntityPlayer) EntityHelper.getEntity(this.playerUUID);
     }
 
     @Override
     public void initPlayer(final EntityPlayer player) {
-        if (this.player == null) {
-            this.player = player;
+        if (this.getPlayer() == null) {
+            this.playerUUID = player.getUniqueID();
         }
     }
 

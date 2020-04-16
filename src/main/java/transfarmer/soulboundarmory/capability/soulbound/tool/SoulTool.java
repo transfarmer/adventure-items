@@ -366,8 +366,8 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
 
     @Override
     public void sync() {
-        if (!this.player.world.isRemote) {
-            Main.CHANNEL.sendTo(new S2CSync("tool", this.writeToNBT()), (EntityPlayerMP) this.player);
+        if (!this.getPlayer().world.isRemote) {
+            Main.CHANNEL.sendTo(new S2CSync("tool", this.writeToNBT()), (EntityPlayerMP) this.getPlayer());
         }
     }
 }
