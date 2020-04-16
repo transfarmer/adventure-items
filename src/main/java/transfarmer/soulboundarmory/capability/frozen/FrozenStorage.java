@@ -12,10 +12,11 @@ public class FrozenStorage implements IStorage<IFrozen> {
     @Nullable
     @Override
     public NBTBase writeNBT(final Capability<IFrozen> capability, final IFrozen instance, final EnumFacing side) {
-        return new NBTTagCompound();
+        return instance.writeToNBT();
     }
 
     @Override
     public void readNBT(final Capability<IFrozen> capability, final IFrozen instance, final EnumFacing side, final NBTBase nbt) {
+        instance.readFromNBT((NBTTagCompound) nbt);
     }
 }

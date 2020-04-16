@@ -6,6 +6,7 @@ import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.WorldServer;
@@ -66,5 +67,19 @@ public class Frozen implements IFrozen {
         }
 
         return false;
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT() {
+        final NBTTagCompound tag = new NBTTagCompound();
+
+        tag.setInteger("soulboundarmory.frozen.freezeTicks", this.freezeTicks);
+
+        return tag;
+    }
+
+    @Override
+    public void readFromNBT(final NBTTagCompound nbt) {
+        this.freezeTicks = nbt.getInteger("soulboundarmory.frozen.freezeTicks");
     }
 }
