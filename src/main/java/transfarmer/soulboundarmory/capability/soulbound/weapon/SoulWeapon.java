@@ -428,8 +428,8 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
-    public void update() {
-        super.update();
+    public void onTick() {
+        super.onTick();
 
         if (this.getCooldown() > 0) {
             this.decrementCooldown();

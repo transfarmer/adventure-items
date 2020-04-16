@@ -194,7 +194,7 @@ public abstract class BaseSoulCapability implements ISoulCapability {
     }
 
     @Override
-    public void update() {
+    public void onTick() {
         if (this.hasSoulItem()) {
             final Class<? extends ISoulItem> baseItemClass = this.getBaseItemClass();
             final InventoryPlayer inventory = this.getPlayer().inventory;

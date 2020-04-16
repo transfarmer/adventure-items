@@ -120,7 +120,7 @@ public interface ISoulCapability {
 
     ItemStack getEquippedItemStack();
 
-    void update();
+    void onTick();
 
     NBTTagCompound writeNBT();
 
