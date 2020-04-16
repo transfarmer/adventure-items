@@ -3,8 +3,12 @@ package transfarmer.soulboundarmory.event;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
@@ -16,11 +20,15 @@ import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
+import transfarmer.soulboundarmory.item.ItemSoulPick;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.S2CConfig;
 import transfarmer.soulboundarmory.statistics.SoulType;
 
+import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
+import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
+import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class PlayerEventSubscriber {
@@ -100,4 +108,30 @@ public class PlayerEventSubscriber {
         toolInstance.readFromNBT(originalToolInstance.writeToNBT());
     }
 
+    @SubscribeEvent
+    public static void onRightClickBlock(final RightClickBlock event) {
+        final EntityPlayer player = event.getEntityPlayer();
+        final ItemStack stackMainhand = player.getHeldItemMainhand();
+
+        if (stackMainhand.getItem() instanceof ItemSoulWeapon && stackMainhand != event.getItemStack()) {
+            event.setUseItem(DENY);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onHarvestDrops(final HarvestDropsEvent event) {
+        final EntityPlayer player = event.getHarvester();
+
+        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulPick && SoulToolProvider.get(player).getDatum(TOOL_DATA.skills, PICK) >= 1) {
+            event.setDropChance(0);
+
+            for (final ItemStack drop : event.getDrops()) {
+                if (!event.getWorld().isRemote && !drop.isEmpty() && event.getWorld().getGameRules().getBoolean("doTileDrops") && !event.getWorld().restoringBlockSnapshots) {
+                    final Vec3d pos = player.getPositionVector();
+
+                    event.getWorld().spawnEntity(new EntityItem(event.getWorld(), pos.x, pos.y, pos.z, drop));
+                }
+            }
+        }
+    }
 }

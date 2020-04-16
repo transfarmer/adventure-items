@@ -7,7 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -19,7 +18,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -33,8 +31,6 @@ import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -60,7 +56,6 @@ import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulDagger;
-import transfarmer.soulboundarmory.item.ItemSoulPick;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
@@ -74,7 +69,6 @@ import java.util.Random;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
-import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
@@ -82,8 +76,6 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
-import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
@@ -379,33 +371,6 @@ public class EventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onRightClickBlock(final RightClickBlock event) {
-        final EntityPlayer player = event.getEntityPlayer();
-        final ItemStack stackMainhand = player.getHeldItemMainhand();
-
-        if (stackMainhand.getItem() instanceof ItemSoulWeapon && stackMainhand != event.getItemStack()) {
-            event.setUseItem(DENY);
-        }
-    }
-
-    @SubscribeEvent
-    public static void onHarvestDrops(final HarvestDropsEvent event) {
-        final EntityPlayer player = event.getHarvester();
-
-        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulPick && SoulToolProvider.get(player).getDatum(TOOL_DATA.skills, PICK) >= 1) {
-            event.setDropChance(0);
-
-            for (final ItemStack drop : event.getDrops()) {
-                if (!event.getWorld().isRemote && !drop.isEmpty() && event.getWorld().getGameRules().getBoolean("doTileDrops") && !event.getWorld().restoringBlockSnapshots) {
-                    final Vec3d pos = player.getPositionVector();
-
-                    event.getWorld().spawnEntity(new EntityItem(event.getWorld(), pos.x, pos.y, pos.z, drop));
-                }
-            }
-        }
-    }
-
-    @SubscribeEvent
     public static void onLivingAttack(final LivingAttackEvent event) {
         if (event.getEntity() instanceof EntityPlayer
                 && SoulWeaponProvider.get(event.getEntity()).getLeapForce() > 0) {
@@ -416,6 +381,16 @@ public class EventSubscriber {
                 event.setCanceled(true);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onLivingUpdate(final LivingUpdateEvent event) {
+        final IFrozen capability = FrozenProvider.get(event.getEntityLiving());
+
+        if (capability != null) {
+            event.setCanceled(capability.update());
+        }
+
     }
 
     /*
@@ -435,16 +410,6 @@ public class EventSubscriber {
         }
     }
     */
-
-    @SubscribeEvent
-    public static void onLivingUpdate(final LivingUpdateEvent event) {
-        final IFrozen capability = FrozenProvider.get(event.getEntityLiving());
-
-        if (capability != null) {
-            event.setCanceled(capability.update());
-        }
-
-    }
 
     @SubscribeEvent
     public static void onGetCollsionBoxes(final GetCollisionBoxesEvent event) {
