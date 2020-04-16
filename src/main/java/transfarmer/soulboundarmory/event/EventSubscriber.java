@@ -45,10 +45,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.config.IPlayerConfig;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
-import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
+import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
@@ -79,6 +79,7 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
@@ -307,7 +308,7 @@ public class EventSubscriber {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = LOW)
     public static void onEntityItemPickup(final EntityItemPickupEvent event) {
         event.setResult(ALLOW);
 
