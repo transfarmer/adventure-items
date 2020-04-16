@@ -1,11 +1,16 @@
 package transfarmer.soulboundarmory.event;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
@@ -16,19 +21,23 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
+import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulPick;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.S2CConfig;
 import transfarmer.soulboundarmory.statistics.SoulType;
+import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
 import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
+import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class PlayerEventSubscriber {
@@ -115,6 +124,46 @@ public class PlayerEventSubscriber {
 
         if (stackMainhand.getItem() instanceof ItemSoulWeapon && stackMainhand != event.getItemStack()) {
             event.setUseItem(DENY);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onBreakSpeed(final BreakSpeed event) {
+        if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ISoulItem) {
+            final ISoulItem item = (ISoulItem) event.getEntityPlayer().getHeldItemMainhand().getItem();
+            final ISoulCapability capability = SoulItemHelper.getCapability(event.getEntityPlayer(), (Item) item);
+            final SoulType type = capability.getCurrentType();
+
+            if (item instanceof IItemSoulTool) {
+                if (((IItemSoulTool) item).isEffectiveAgainst(event.getState())) {
+                    float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type);
+                    final int efficiency = capability.getEnchantment(SoulToolEnchantment.SOUL_EFFICIENCY, type);
+                    @SuppressWarnings("ConstantConditions") final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
+
+                    if (efficiency > 0) {
+                        newSpeed += 1 + efficiency * efficiency;
+                    }
+
+                    if (haste != null) {
+                        newSpeed *= haste.getAmplifier() * 0.1;
+                    }
+
+                    if (((IItemSoulTool) item).canHarvestBlock(event.getState(), event.getEntityPlayer())) {
+                        event.setNewSpeed(newSpeed);
+                    } else {
+                        event.setNewSpeed(newSpeed / 4F);
+                    }
+                } else {
+                    event.setNewSpeed((event.getOriginalSpeed() - 1 + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type)) / 8);
+                }
+            } else if (item instanceof ItemSoulWeapon) {
+                final float newSpeed = capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType());
+
+                event.setNewSpeed(event.getState().getMaterial() == Material.WEB
+                        ? Math.max(15, newSpeed)
+                        : newSpeed
+                );
+            }
         }
     }
 

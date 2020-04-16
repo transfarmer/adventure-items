@@ -1,6 +1,5 @@
 package transfarmer.soulboundarmory.event;
 
-import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
@@ -10,10 +9,7 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.EnumParticleTypes;
@@ -30,7 +26,6 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -60,7 +55,7 @@ import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
 import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
+import transfarmer.soulboundarmory.util.EntityHelper;
 import transfarmer.soulboundarmory.util.ItemHelper;
 
 import java.util.Arrays;
@@ -76,7 +71,6 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
-import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.CRITICAL;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.KNOCKBACK_ATTRIBUTE;
@@ -241,9 +235,10 @@ public class EventSubscriber {
         if (event.getEntity() instanceof EntityPlayer) {
             final EntityPlayer player = (EntityPlayer) event.getEntityLiving();
             final ISoulWeapon capability = SoulWeaponProvider.get(player);
+            final float leapForce = capability.getLeapForce();
 
-            if (capability.getLeapForce() > 0) {
-                if (capability.getLeapForce() >= 0.999) {
+            if (leapForce > 0) {
+                if (leapForce == 1D) {
                     final double radius = Math.min(6, 2 * event.getDistance());
                     final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player,
                             new AxisAlignedBB(player.posX - radius, player.posY - radius, player.posZ - radius,
@@ -274,11 +269,11 @@ public class EventSubscriber {
                     }
                 }
 
-                if (event.getDistance() <= 16 * capability.getLeapForce()) {
+                if (event.getDistance() <= 16 * leapForce) {
                     event.setCanceled(true);
-                } else if (capability.getLeapForce() > 0) {
+                } else {
                     event.setDamageMultiplier(event.getDamageMultiplier()
-                            / (float) (Math.max(1, Math.log(4 * capability.getLeapForce()) / Math.log(2))));
+                            / (float) (Math.max(1, Math.log(4 * leapForce) / Math.log(2))));
                 }
 
                 capability.setLeapForce(0);
@@ -294,56 +289,14 @@ public class EventSubscriber {
     }
 
     @SubscribeEvent
-    public static void onBreakSpeed(final BreakSpeed event) {
-        if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ISoulItem) {
-            final ISoulItem item = (ISoulItem) event.getEntityPlayer().getHeldItemMainhand().getItem();
-            final ISoulCapability capability = SoulItemHelper.getCapability(event.getEntityPlayer(), (Item) item);
-            final SoulType type = capability.getCurrentType();
-
-            if (item instanceof IItemSoulTool) {
-                if (((IItemSoulTool) item).isEffectiveAgainst(event.getState())) {
-                    float newSpeed = event.getOriginalSpeed() + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type);
-                    final int efficiency = capability.getEnchantment(SoulToolEnchantment.SOUL_EFFICIENCY, type);
-                    @SuppressWarnings("ConstantConditions") final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
-
-                    if (efficiency > 0) {
-                        newSpeed += 1 + efficiency * efficiency;
-                    }
-
-                    if (haste != null) {
-                        newSpeed *= haste.getAmplifier() * 0.1;
-                    }
-
-                    if (((IItemSoulTool) item).canHarvestBlock(event.getState(), event.getEntityPlayer())) {
-                        event.setNewSpeed(newSpeed);
-                    } else {
-                        event.setNewSpeed(newSpeed / 4F);
-                    }
-                } else {
-                    event.setNewSpeed((event.getOriginalSpeed() - 1 + capability.getAttribute(EFFICIENCY_ATTRIBUTE, type)) / 8);
-                }
-            } else if (item instanceof ItemSoulWeapon) {
-                final float newSpeed = capability.getAttribute(EFFICIENCY_ATTRIBUTE, capability.getCurrentType());
-
-                event.setNewSpeed(event.getState().getMaterial() == Material.WEB
-                        ? Math.max(15, newSpeed)
-                        : newSpeed
-                );
-            }
-        }
-    }
-
-    @SubscribeEvent
     public static void onPlayerTick(final PlayerTickEvent event) {
-        if (event.phase != END) {
-            return;
+        if (event.phase == END) {
+            final ISoulCapability weaponCapability = SoulWeaponProvider.get(event.player);
+            final ISoulCapability toolCapability = SoulToolProvider.get(event.player);
+
+            weaponCapability.onTick();
+            toolCapability.onTick();
         }
-
-        final ISoulCapability weaponCapability = SoulWeaponProvider.get(event.player);
-        final ISoulCapability toolCapability = SoulToolProvider.get(event.player);
-
-        weaponCapability.onTick();
-        toolCapability.onTick();
     }
 
     @SubscribeEvent
@@ -425,12 +378,7 @@ public class EventSubscriber {
                     final IFrozen frozenCapability = FrozenProvider.get(entity);
 
                     if (frozenCapability != null) {
-                        frozenCapability.freeze(player, 3 * (float)
-                                Math.sqrt(player.motionX * player.motionX
-                                        + player.motionY * player.motionY
-                                        + player.motionZ * player.motionZ)
-                                * (float) charging, (int) (30 * charging)
-                        );
+                        frozenCapability.freeze(player, (float) EntityHelper.getVelocity(player) * (float) charging, (int) (30 * charging));
                     }
                 }
 

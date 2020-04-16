@@ -451,9 +451,9 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
         }
 
         if (this.getLeapDuration() > 0) {
-            this.leapDuration--;
-        } else {
-            this.setLeapForce(0);
+            if (this.leapDuration-- == 0) {
+                this.setLeapForce(0);
+            }
         }
     }
 
@@ -466,7 +466,7 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
         tag.setInteger("soulweapons.capability.boundSlot", this.getBoundSlot());
         tag.setInteger("soulweapons.capability.cooldown", this.getCooldown());
         tag.setInteger("soulweapons.capability.leapDuration", this.getLeapDuration());
-        tag.setFloat("soulweapons.capability.charging", this.getLeapForce());
+        tag.setFloat("soulweapons.capability.leapForce", this.getLeapForce());
         tag.setInteger("soulweapons.capability.lightningCooldown", this.getLightningCooldown());
 
         this.forEach(
