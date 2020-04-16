@@ -33,7 +33,7 @@ import transfarmer.soulboundarmory.util.EntityHelper;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -304,7 +304,7 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
 
     @Override
     public List<Item> getConsumableItems() {
-        return Arrays.asList(Items.WOODEN_SWORD);
+        return Collections.singletonList(Items.WOODEN_SWORD);
     }
 
     @Override
