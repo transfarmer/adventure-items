@@ -311,7 +311,7 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     }
 
     @Override
-    public NBTTagCompound writeNBT() {
+    public NBTTagCompound writeToNBT() {
         final NBTTagCompound tag = new NBTTagCompound();
 
         tag.setInteger("soultools.capability.index", this.getCurrentType() == null ? -1 : this.getCurrentType().getIndex());
@@ -340,7 +340,7 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     }
 
     @Override
-    public void readNBT(final NBTTagCompound tag) {
+    public void readFromNBT(final NBTTagCompound tag) {
         this.setCurrentType(tag.getInteger("soultools.capability.index"));
         this.setCurrentTab(tag.getInteger("soultools.capability.tab"));
         this.bindSlot(tag.getInteger("soultools.capability.boundSlot"));
@@ -367,7 +367,7 @@ public class SoulTool extends BaseSoulCapability implements ISoulCapability {
     @Override
     public void sync() {
         if (!this.player.world.isRemote) {
-            Main.CHANNEL.sendTo(new S2CSync("tool", this.writeNBT()), (EntityPlayerMP) this.player);
+            Main.CHANNEL.sendTo(new S2CSync("tool", this.writeToNBT()), (EntityPlayerMP) this.player);
         }
     }
 }

@@ -10,11 +10,11 @@ import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
 public class SoulToolStorage implements IStorage<ISoulCapability> {
     @Override
     public NBTBase writeNBT(final Capability<ISoulCapability> capability, final ISoulCapability instance, final EnumFacing facing) {
-        return instance.writeNBT();
+        return instance.writeToNBT();
     }
 
     @Override
     public void readNBT(final Capability<ISoulCapability> capability, final ISoulCapability instance, final EnumFacing facing, final NBTBase nbt) {
-        instance.readNBT((NBTTagCompound) nbt);
+        instance.readFromNBT((NBTTagCompound) nbt);
     }
 }

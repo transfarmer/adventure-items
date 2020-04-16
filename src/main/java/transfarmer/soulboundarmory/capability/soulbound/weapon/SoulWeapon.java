@@ -458,7 +458,7 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
-    public NBTTagCompound writeNBT() {
+    public NBTTagCompound writeToNBT() {
         final NBTTagCompound tag = new NBTTagCompound();
 
         tag.setInteger("soulweapons.capability.index", this.getIndex());
@@ -491,7 +491,7 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     }
 
     @Override
-    public void readNBT(final NBTTagCompound nbt) {
+    public void readFromNBT(final NBTTagCompound nbt) {
         this.setCurrentType(nbt.getInteger("soulweapons.capability.index"));
         this.setCurrentTab(nbt.getInteger("soulweapons.capability.tab"));
         this.bindSlot(nbt.getInteger("soulweapons.capability.boundSlot"));
@@ -522,7 +522,7 @@ public class SoulWeapon extends BaseSoulCapability implements ISoulWeapon {
     @Override
     public void sync() {
         if (!this.player.world.isRemote) {
-            Main.CHANNEL.sendTo(new S2CSync("weapon", this.writeNBT()), (EntityPlayerMP) this.player);
+            Main.CHANNEL.sendTo(new S2CSync("weapon", this.writeToNBT()), (EntityPlayerMP) this.player);
         }
     }
 }

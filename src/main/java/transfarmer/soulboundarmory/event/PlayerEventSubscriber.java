@@ -96,8 +96,8 @@ public class PlayerEventSubscriber {
         final ISoulCapability toolInstance = SoulToolProvider.get(event.getEntityPlayer());
         final ISoulCapability weaponInstance = SoulWeaponProvider.get(event.getEntityPlayer());
 
-        weaponInstance.readNBT(originalWeaponInstance.writeNBT());
-        toolInstance.readNBT(originalToolInstance.writeNBT());
+        weaponInstance.readFromNBT(originalWeaponInstance.writeToNBT());
+        toolInstance.readFromNBT(originalToolInstance.writeToNBT());
     }
 
 }

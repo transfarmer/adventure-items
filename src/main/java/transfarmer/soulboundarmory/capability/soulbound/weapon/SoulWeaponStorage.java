@@ -9,11 +9,11 @@ import net.minecraftforge.common.capabilities.Capability.IStorage;
 public class SoulWeaponStorage implements IStorage<ISoulWeapon> {
     @Override
     public NBTBase writeNBT(final Capability<ISoulWeapon> capability, final ISoulWeapon instance, final EnumFacing facing) {
-        return instance.writeNBT();
+        return instance.writeToNBT();
     }
 
     @Override
     public void readNBT(final Capability<ISoulWeapon> capability, final ISoulWeapon instance, final EnumFacing facing, final NBTBase nbt) {
-        instance.readNBT((NBTTagCompound) nbt);
+        instance.readFromNBT((NBTTagCompound) nbt);
     }
 }

@@ -44,10 +44,10 @@ public class S2CSync implements IMessage {
             minecraft.addScheduledTask(() -> {
                 switch (message.capabilityType) {
                     case "tool":
-                        SoulToolProvider.get(minecraft.player).readNBT(message.tag);
+                        SoulToolProvider.get(minecraft.player).readFromNBT(message.tag);
                         break;
                     case "weapon":
-                        SoulWeaponProvider.get(minecraft.player).readNBT(message.tag);
+                        SoulWeaponProvider.get(minecraft.player).readFromNBT(message.tag);
                 }
             });
 

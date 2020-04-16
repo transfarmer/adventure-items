@@ -4,7 +4,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import transfarmer.soulboundarmory.capability.ICapabilitySerializable;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.statistics.SoulAttribute;
 import transfarmer.soulboundarmory.statistics.SoulDatum;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public interface ISoulCapability {
+public interface ISoulCapability extends ICapabilitySerializable {
     void forEach(BiConsumer<Integer, Integer> data, BiConsumer<Integer, Integer> attributes, BiConsumer<Integer, Integer> enchantments);
 
     EntityPlayer getPlayer();
@@ -121,10 +121,6 @@ public interface ISoulCapability {
     ItemStack getEquippedItemStack();
 
     void onTick();
-
-    NBTTagCompound writeNBT();
-
-    void readNBT(NBTTagCompound nbt);
 
     void sync();
 }
