@@ -320,13 +320,11 @@ public class EventSubscriber {
                     event.setDuration(event.getDuration() + 1);
                 }
 
-                /*
-                if (event.getDuration() == item.getMaxItemUseDuration()) {
-                    event.setDuration(item.getMaxItemUseDuration() - 1);
-                }
-
-                event.setDuration(Math.round(item.getMaxItemUseDuration() - 20 * item.getMaxUsageRatio(capability.getAttribute(ATTACK_SPEED, DAGGER, true, true), event.getDuration())));
-                */
+//                if (event.getDuration() == item.getMaxItemUseDuration()) {
+//                    event.setDuration(item.getMaxItemUseDuration() - 1);
+//                }
+//
+//                event.setDuration(Math.round(item.getMaxItemUseDuration() - 20 * item.getMaxUsageRatio(capability.getAttribute(ATTACK_SPEED, DAGGER, true, true), event.getDuration())));
             }
         }
     }
