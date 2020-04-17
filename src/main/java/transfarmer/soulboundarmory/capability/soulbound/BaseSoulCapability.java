@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public abstract class BaseSoulCapability implements ISoulCapability {
+    protected EntityPlayer player;
     protected UUID playerUUID;
     protected SoulType currentType;
     protected SoulDatum datum;
@@ -55,12 +56,17 @@ public abstract class BaseSoulCapability implements ISoulCapability {
 
     @Override
     public EntityPlayer getPlayer() {
-        return (EntityPlayer) EntityHelper.getEntity(this.playerUUID);
+        if (this.player == null) {
+            this.player = (EntityPlayer) EntityHelper.getEntity(this.playerUUID);
+        }
+
+        return this.player;
     }
 
     @Override
     public void initPlayer(final EntityPlayer player) {
         if (this.getPlayer() == null) {
+            this.player = player;
             this.playerUUID = player.getUniqueID();
         }
     }
