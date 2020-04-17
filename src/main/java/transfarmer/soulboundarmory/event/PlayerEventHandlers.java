@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
@@ -19,7 +20,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
@@ -36,6 +36,7 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
@@ -56,68 +57,66 @@ public class PlayerEventHandlers {
         updatePlayer(event.player);
     }
 
-    @SubscribeEvent
-    public static void onPlayerRespawn(final PlayerRespawnEvent event) {
-        updatePlayer(event.player);
-
-        ISoulCapability capability = SoulWeaponProvider.get(event.player);
-        SoulType type = capability.getCurrentType();
-
-        if (!event.player.world.getGameRules().getBoolean("keepInventory")) {
-            if (type != null && capability.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
-                event.player.addItemStackToInventory(capability.getItemStack(type));
-            }
-
-            capability = SoulToolProvider.get(event.player);
-            type = capability.getCurrentType();
-
-            if (type != null && capability.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
-                event.player.addItemStackToInventory(capability.getItemStack(type));
-            }
-        }
-    }
-
-    private static void updatePlayer(final EntityPlayer player) {
-        final ISoulCapability weaponCapability = SoulWeaponProvider.get(player);
-        final ISoulCapability toolCapability = SoulToolProvider.get(player);
-
-        weaponCapability.initPlayer(player);
-        toolCapability.initPlayer(player);
-
-        weaponCapability.sync();
-        toolCapability.sync();
-    }
-
-    @SubscribeEvent
+    @SubscribeEvent(priority = HIGHEST)
     public static void onPlayerDrops(final PlayerDropsEvent event) {
         final EntityPlayer player = event.getEntityPlayer();
 
-        if (!player.world.getGameRules().getBoolean("keepInventory")) {
-            ISoulCapability capability = SoulWeaponProvider.get(player);
-            SoulType type = capability.getCurrentType();
+        if (!(player instanceof FakePlayer) && !player.world.getGameRules().getBoolean("keepInventory")) {
+            ISoulCapability weapons = SoulWeaponProvider.get(player);
+            SoulType type = weapons.getCurrentType();
 
-            if (type != null && capability.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
-                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof ItemSoulWeapon);
+            if (type != null && weapons.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
+                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof ItemSoulWeapon && SoulItemHelper.addItemStack(item.getItem(), player));
             }
 
-            capability = SoulToolProvider.get(player);
-            type = capability.getCurrentType();
+            weapons = SoulToolProvider.get(player);
+            type = weapons.getCurrentType();
 
-            if (type != null && capability.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
-                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof IItemSoulTool);
+            if (type != null && weapons.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
+                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof IItemSoulTool && SoulItemHelper.addItemStack(item.getItem(), player));
             }
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = HIGHEST)
     public static void onClone(final Clone event) {
-        final ISoulCapability originalToolInstance = SoulToolProvider.get(event.getOriginal());
-        final ISoulCapability originalWeaponInstance = SoulWeaponProvider.get(event.getOriginal());
-        final ISoulCapability toolInstance = SoulToolProvider.get(event.getEntityPlayer());
-        final ISoulCapability weaponInstance = SoulWeaponProvider.get(event.getEntityPlayer());
+        final EntityPlayer original = event.getOriginal();
+        final EntityPlayer player = event.getEntityPlayer();
 
-        weaponInstance.readFromNBT(originalWeaponInstance.writeToNBT());
-        toolInstance.readFromNBT(originalToolInstance.writeToNBT());
+        final ISoulCapability originalTools = SoulToolProvider.get(original);
+        final ISoulCapability originalWeapons = SoulWeaponProvider.get(original);
+        final ISoulCapability newTools = SoulToolProvider.get(player);
+        final ISoulCapability newWeapons = SoulWeaponProvider.get(player);
+
+        newWeapons.readFromNBT(originalWeapons.writeToNBT());
+        newTools.readFromNBT(originalTools.writeToNBT());
+
+        SoulType type = newWeapons.getCurrentType();
+
+        if (!player.world.getGameRules().getBoolean("keepInventory")) {
+            if (type != null && newWeapons.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
+                player.addItemStackToInventory(newWeapons.getItemStack(type));
+            }
+
+            type = newTools.getCurrentType();
+
+            if (type != null && newTools.getDatum(DATA.level, type) >= MainConfig.instance().getPreservationLevel()) {
+                player.addItemStackToInventory(newTools.getItemStack(type));
+            }
+        }
+
+        updatePlayer(player);
+    }
+
+    private static void updatePlayer(final EntityPlayer player) {
+        final ISoulCapability weapons = SoulWeaponProvider.get(player);
+        final ISoulCapability tools = SoulToolProvider.get(player);
+
+        weapons.initPlayer(player);
+        tools.initPlayer(player);
+
+        weapons.sync();
+        tools.sync();
     }
 
     @SubscribeEvent

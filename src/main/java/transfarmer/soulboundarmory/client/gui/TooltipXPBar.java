@@ -6,12 +6,12 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.config.ColorConfig;
 import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
+import transfarmer.soulboundarmory.config.ColorConfig;
 import transfarmer.soulboundarmory.statistics.SoulType;
 
-import java.awt.Color;
+import java.awt.*;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.XP_BAR;
@@ -19,11 +19,19 @@ import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 
 @SideOnly(CLIENT)
 public class TooltipXPBar extends Gui {
-    public TooltipXPBar(final int tooltipX, final int tooltipY, final ItemStack itemStack) {
-        final Minecraft minecraft = Minecraft.getMinecraft();
-        final FontRenderer fontRenderer = minecraft.fontRenderer;
-        final ISoulCapability capability = SoulItemHelper.getCapability(minecraft.player, itemStack.getItem());
-        final SoulType type = capability.getType(itemStack);
+    protected final Minecraft minecraft;
+    protected final FontRenderer fontRenderer;
+    protected final ISoulCapability capability;
+    protected final SoulType type;
+
+    protected TooltipXPBar(final ItemStack itemStack) {
+        this.minecraft = Minecraft.getMinecraft();
+        this.fontRenderer = this.minecraft.fontRenderer;
+        this.capability = SoulItemHelper.getCapability(minecraft.player, itemStack.getItem());
+        this.type = capability.getType(itemStack);
+    }
+
+    protected void renderXPBar(final int tooltipX, final int tooltipY, final ItemStack itemStack) {
         final int originalEnchantments = itemStack.getEnchantmentTagList().tagCount();
         int level = capability.getDatum(DATA.level, type);
         int barLeftX = tooltipX + 44;
@@ -37,7 +45,7 @@ public class TooltipXPBar extends Gui {
 
         this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 10, length, 5);
         this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 15,
-            Math.min(length, Math.round((float) capability.getDatum(DATA.xp, type) / capability.getNextLevelXP(type) * length)), 5);
+                Math.min(length, Math.round((float) capability.getDatum(DATA.xp, type) / capability.getNextLevelXP(type) * length)), 5);
 
         minecraft.getTextureManager().deleteTexture(XP_BAR);
 
@@ -53,5 +61,9 @@ public class TooltipXPBar extends Gui {
 
         GlStateManager.disableLighting();
         GlStateManager.enableDepth();
+    }
+
+    public static void render(final int tooltipX, final int tooltipY, final ItemStack itemStack) {
+        new TooltipXPBar(itemStack).renderXPBar(tooltipX, tooltipY, itemStack);
     }
 }

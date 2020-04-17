@@ -84,7 +84,7 @@ public class GeneralEventHandlers {
     @SubscribeEvent
     public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
         if (event.getStack().getItem() instanceof ISoulItem) {
-            new TooltipXPBar(event.getX(), event.getY(), event.getStack());
+            TooltipXPBar.render(event.getX(), event.getY(), event.getStack());
         }
     }
 }
