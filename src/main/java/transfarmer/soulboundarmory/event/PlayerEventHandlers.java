@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
@@ -33,14 +34,16 @@ import transfarmer.soulboundarmory.network.client.S2CConfig;
 import transfarmer.soulboundarmory.statistics.SoulType;
 import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
 
+import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulToolDatum.TOOL_DATA;
 import static transfarmer.soulboundarmory.statistics.SoulType.PICK;
 import static transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute.EFFICIENCY_ATTRIBUTE;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
-public class PlayerEventSubscriber {
+public class PlayerEventHandlers {
     @SubscribeEvent
     public static void onPlayerLoggedIn(final PlayerLoggedInEvent event) {
         updatePlayer(event.player);
@@ -183,4 +186,27 @@ public class PlayerEventSubscriber {
             }
         }
     }
+
+    @SubscribeEvent(priority = LOW)
+    public static void onEntityItemPickup(final EntityItemPickupEvent event) {
+        event.setResult(ALLOW);
+
+        SoulItemHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
+    }
+
+//    @SideOnly(CLIENT)
+//    @SubscribeEvent
+//    public static void onLeftClickBlock(final LeftClickBlock event) {
+//        final EntityPlayer player = event.getEntityPlayer();
+//        final ISoulCapability capability = SoulItemHelper.getCapability(player, player.getHeldItemOffhand());
+//        final Minecraft minecraft = Minecraft.getMinecraft();
+//
+//        if (capability instanceof SoulTool && capability.getDatum(SKILLS, capability.getCurrentType()) >= 1) {
+//            final BlockPos blockPos = minecraft.objectMouseOver.getBlockPos();
+//
+//            if (!minecraft.world.isAirBlock(blockPos)) {
+//                ModPlayerControllerMP.modController.clickBlockOffhand(blockPos, event.getFace());
+//            }
+//        }
+//    }
 }

@@ -1,37 +1,25 @@
 package transfarmer.soulboundarmory.event;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.config.IPlayerConfig;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
@@ -42,33 +30,19 @@ import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
-import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
-import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
-import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulDagger;
-import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
 import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.util.EntityHelper;
 import transfarmer.soulboundarmory.util.ItemHelper;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
-import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
-import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
 import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.ATTACK_SPEED;
@@ -78,7 +52,7 @@ import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGE
 import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
-public class EventSubscriber {
+public class EntityEventHandlers {
     @SubscribeEvent
     public static void onEntityJoinWorld(final EntityJoinWorldEvent event) {
         final Entity entity = event.getEntity();
@@ -240,12 +214,11 @@ public class EventSubscriber {
             if (leapForce > 0) {
                 final double horizontalRadius = Math.min(4, event.getDistance());
                 final double verticalRadius = Math.min(2, 0.5F * event.getDistance());
-                final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player,
-                        new AxisAlignedBB(
-                                player.posX - horizontalRadius, player.posY - verticalRadius, player.posZ - horizontalRadius,
-                                player.posX + horizontalRadius, player.posY + verticalRadius, player.posZ + horizontalRadius
-                        )
-                );
+                final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, new AxisAlignedBB(
+                        player.posX - horizontalRadius, player.posY - verticalRadius, player.posZ - horizontalRadius,
+                        player.posX + horizontalRadius, player.posY + verticalRadius, player.posZ + horizontalRadius
+                ));
+
                 for (final Entity entity : nearbyEntities) {
                     final IFrozen frozenCapability = FrozenProvider.get(entity);
 
@@ -289,24 +262,6 @@ public class EventSubscriber {
         }
     }
 
-    @SubscribeEvent(priority = LOW)
-    public static void onEntityItemPickup(final EntityItemPickupEvent event) {
-        event.setResult(ALLOW);
-
-        SoulItemHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
-    }
-
-    @SubscribeEvent
-    public static void onPlayerTick(final PlayerTickEvent event) {
-        if (event.phase == END) {
-            final ISoulCapability weaponCapability = SoulWeaponProvider.get(event.player);
-            final ISoulCapability toolCapability = SoulToolProvider.get(event.player);
-
-            weaponCapability.onTick();
-            toolCapability.onTick();
-        }
-    }
-
     @SubscribeEvent
     public static void onRightClickItem(final LivingEntityUseItemEvent.Tick event) {
         if (event.getEntity() instanceof EntityPlayer) {
@@ -340,124 +295,6 @@ public class EventSubscriber {
                     && !(damageSource instanceof EntityDamageSourceIndirect)) {
                 event.setCanceled(true);
             }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onLivingUpdate(final LivingUpdateEvent event) {
-        final IFrozen capability = FrozenProvider.get(event.getEntityLiving());
-
-        if (capability != null) {
-            event.setCanceled(capability.update());
-        }
-
-    }
-
-    /*
-    @SideOnly(CLIENT)
-    @SubscribeEvent
-    public static void onLeftClickBlock(final LeftClickBlock event) {
-        final EntityPlayer player = event.getEntityPlayer();
-        final ISoulCapability capability = SoulItemHelper.getCapability(player, player.getHeldItemOffhand());
-        final Minecraft minecraft = Minecraft.getMinecraft();
-
-        if (capability instanceof SoulTool && capability.getDatum(SKILLS, capability.getCurrentType()) >= 1) {
-            final BlockPos blockPos = minecraft.objectMouseOver.getBlockPos();
-
-            if (!minecraft.world.isAirBlock(blockPos)) {
-                ModPlayerControllerMP.modController.clickBlockOffhand(blockPos, event.getFace());
-            }
-        }
-    }
-    */
-
-    @SubscribeEvent
-    public static void onGetCollsionBoxes(final GetCollisionBoxesEvent event) {
-        final Entity entity = event.getEntity();
-
-        if (!event.getWorld().isRemote && entity instanceof EntityPlayer) {
-            final EntityPlayer player = (EntityPlayer) entity;
-            final ISoulWeapon capability = SoulWeaponProvider.get(player);
-            final double leapForce = capability.getLeapForce();
-
-            if (leapForce > 0) {
-                final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, event.getAabb());
-
-                for (final Entity nearbyEntity : nearbyEntities) {
-                    capability.freeze(nearbyEntity, (float) EntityHelper.getVelocity(player) * (float) leapForce, (int) (20 * leapForce));
-                }
-
-                if (capability.getLeapDuration() <= 0 && player.onGround && (player.motionY <= 0.01 || player.isCreative())) {
-                    capability.setLeapDuration(7);
-                }
-
-                if (player.isInLava()) {
-                    capability.resetLeapForce();
-                }
-            }
-        }
-    }
-
-    @SideOnly(CLIENT)
-    @SubscribeEvent
-    public static void onClientTick(final ClientTickEvent event) {
-        if (event.phase == END) {
-            final Minecraft minecraft = Minecraft.getMinecraft();
-
-            if (MENU_KEY.isPressed()) {
-                final EntityPlayer player = minecraft.player;
-
-                if (player.getHeldItemMainhand().getItem() instanceof ItemSoulWeapon) {
-                    minecraft.displayGuiScreen(new SoulWeaponMenu());
-                } else if (player.getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
-                    minecraft.displayGuiScreen(new SoulToolMenu());
-                } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_SWORD) {
-                    minecraft.displayGuiScreen(new SoulWeaponMenu(0));
-                } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_PICKAXE) {
-                    minecraft.displayGuiScreen(new SoulToolMenu(-1));
-                } else if (player.getHeldItemOffhand().getItem() instanceof ItemSoulWeapon) {
-                    minecraft.displayGuiScreen(new SoulWeaponMenu());
-                } else if (player.getHeldItemOffhand().getItem() instanceof IItemSoulTool) {
-                    minecraft.displayGuiScreen(new SoulToolMenu());
-                } else if (player.getHeldItemOffhand().getItem() == Items.WOODEN_SWORD) {
-                    minecraft.displayGuiScreen(new SoulWeaponMenu(0));
-                } else if (player.getHeldItemOffhand().getItem() == Items.WOODEN_PICKAXE) {
-                    minecraft.displayGuiScreen(new SoulToolMenu(-1));
-                }
-            }
-        }
-    }
-
-    @SideOnly(CLIENT)
-    @SubscribeEvent
-    public static void onItemTooltip(final ItemTooltipEvent event) {
-        final EntityPlayer player = event.getEntityPlayer();
-
-        if (player != null) {
-            final ItemStack itemStack = event.getItemStack();
-
-            if (itemStack.getItem() instanceof ISoulItem) {
-                final ISoulCapability capability = SoulItemHelper.getCapability(player, itemStack.getItem());
-                final SoulType type = capability.getType(itemStack);
-                final List<String> tooltip = event.getToolTip();
-                final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
-
-                final String[] prior = tooltip.subList(0, startIndex).toArray(new String[0]);
-                final String[] posterior = tooltip.subList(startIndex + itemStack.getAttributeModifiers(MAINHAND).size(), tooltip.size()).toArray(new String[0]);
-
-                tooltip.clear();
-                tooltip.addAll(Arrays.asList(prior));
-                tooltip.addAll(capability.getTooltip(type));
-                tooltip.addAll(Arrays.asList(posterior));
-            }
-        }
-    }
-
-    @SideOnly(CLIENT)
-    @SubscribeEvent
-    public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
-        if (event.getStack().getItem() instanceof ISoulItem) {
-            new TooltipXPBar(event.getX(), event.getY(), event.getStack());
         }
     }
 }
