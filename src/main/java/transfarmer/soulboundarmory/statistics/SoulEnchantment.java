@@ -6,7 +6,16 @@ import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
 import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
 
-import static net.minecraft.init.Enchantments.*;
+import static net.minecraft.init.Enchantments.BANE_OF_ARTHROPODS;
+import static net.minecraft.init.Enchantments.EFFICIENCY;
+import static net.minecraft.init.Enchantments.FIRE_ASPECT;
+import static net.minecraft.init.Enchantments.FORTUNE;
+import static net.minecraft.init.Enchantments.KNOCKBACK;
+import static net.minecraft.init.Enchantments.LOOTING;
+import static net.minecraft.init.Enchantments.SHARPNESS;
+import static net.minecraft.init.Enchantments.SILK_TOUCH;
+import static net.minecraft.init.Enchantments.SMITE;
+import static net.minecraft.init.Enchantments.SWEEPING;
 
 public class SoulEnchantment extends Statistic {
     public static final SoulEnchantment SOUL_SHARPNESS = new SoulEnchantment(0, SHARPNESS, "sharpness");

@@ -1,0 +1,31 @@
+package transfarmer.soulboundarmory.statistics.v2.statistics;
+
+public enum StatisticTypes implements IStatisticType {
+    XP,
+    LEVEL,
+    SKILLS,
+    ATTRIBUTE_POINTS,
+    ENCHANTMENT_POINTS,
+    SPENT_ATTRIBUTE_POINTS,
+    SPENT_ENCHANTMENT_POINTS,
+
+    EFFICIENCY_ATTRIBUTE,
+    REACH_DISTANCE,
+    HARVEST_LEVEL,
+    ATTACK_SPEED,
+    ATTACK_DAMAGE,
+    CRITICAL,
+    KNOCKBACK_ATTRIBUTE,
+
+    SHARPNESS,
+    SWEEPING_EDGE,
+    LOOTING,
+    FIRE_ASPECT,
+    KNOCKBACK_ENCHANTMENT,
+    SMITE,
+    BANE_OF_ARTHROPODS,
+
+    EFFICIENCY_ENCHANTMENT,
+    FORTUNE,
+    SILK_TOUCH
+}
