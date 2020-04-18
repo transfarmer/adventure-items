@@ -1,4 +1,5 @@
 ## to do
+- overhaul the soulbound item statistic system;
 - implement skill trees;
 - rewrite the enchantment system;
 - implement the soulbound staff;
