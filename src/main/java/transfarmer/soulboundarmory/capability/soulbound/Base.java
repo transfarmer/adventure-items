@@ -19,12 +19,10 @@ import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.ISkill;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.CollectionUtil;
-import transfarmer.soulboundarmory.util.EntityUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper.REACH_DISTANCE_UUID;
@@ -41,7 +39,6 @@ public abstract class Base implements IItemCapability {
     protected List<Item> items;
     protected IItem item;
     protected EntityPlayer player;
-    protected UUID playerUUID;
     protected int boundSlot;
     protected int currentTab;
 
@@ -60,10 +57,6 @@ public abstract class Base implements IItemCapability {
 
     @Override
     public EntityPlayer getPlayer() {
-        if (this.player == null) {
-            this.player = (EntityPlayer) EntityUtil.getEntity(this.playerUUID);
-        }
-
         return this.player;
     }
 
@@ -71,7 +64,6 @@ public abstract class Base implements IItemCapability {
     public void initPlayer(final EntityPlayer player) {
         if (this.getPlayer() == null) {
             this.player = player;
-            this.playerUUID = player.getUniqueID();
         }
     }
 

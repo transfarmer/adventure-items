@@ -237,7 +237,7 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                         SharedMonsterAttributes.ATTACK_SPEED.getName(),
                         SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
                 },
-                new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttribute(type, ATTACK_SPEED), ADD),
+                new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttributeRelative(type, ATTACK_SPEED), ADD),
                 new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttributeRelative(type, ATTACK_DAMAGE), ADD)
         );
     }
