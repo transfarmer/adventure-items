@@ -1,4 +1,4 @@
 package transfarmer.soulboundarmory.item;
 
-public interface ISoulItem {
+public interface ISoulboundItem {
 }

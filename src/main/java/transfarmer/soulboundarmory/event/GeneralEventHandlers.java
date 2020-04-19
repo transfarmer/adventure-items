@@ -16,7 +16,7 @@ import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
-import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.EntityUtil;
 
@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
@@ -56,14 +57,14 @@ public class GeneralEventHandlers {
     }
 
     @SideOnly(CLIENT)
-    @SubscribeEvent
+    @SubscribeEvent(priority = LOW)
     public static void onItemTooltip(final ItemTooltipEvent event) {
         final EntityPlayer player = event.getEntityPlayer();
 
         if (player != null) {
             final ItemStack itemStack = event.getItemStack();
 
-            if (itemStack.getItem() instanceof ISoulItem) {
+            if (itemStack.getItem() instanceof ISoulboundItem) {
                 final ICapability capability = SoulItemHelper.getFirstCapability(player, itemStack.getItem());
                 final IItem type = capability.getItemType(itemStack);
                 final List<String> tooltip = event.getToolTip();
@@ -85,7 +86,7 @@ public class GeneralEventHandlers {
     @SideOnly(CLIENT)
     @SubscribeEvent
     public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
-        if (event.getStack().getItem() instanceof ISoulItem) {
+        if (event.getStack().getItem() instanceof ISoulboundItem) {
             TooltipXPBar.render(event.getX(), event.getY(), event.getStack());
         }
     }

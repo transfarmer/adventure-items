@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.Statistics;
@@ -199,13 +199,8 @@ public abstract class Base implements IItemCapability {
     }
 
     @Override
-    public double getAttribute(final IItem type, final IStatistic attribute, final boolean total) {
-        return this.getAttribute(type, attribute, total, false);
-    }
-
-    @Override
-    public double getAttribute(final IItem type, final IStatistic attribute) {
-        return this.getAttribute(type, attribute, false, false);
+    public double getAttribute(final IItem item, final IStatistic staitsitc) {
+        return this.statistics.get(item, staitsitc).doubleValue();
     }
 
     @Override
@@ -291,7 +286,7 @@ public abstract class Base implements IItemCapability {
 
     @Override
     public boolean hasSoulItem() {
-        final Class<? extends ISoulItem> baseItemClass = this.getBaseItemClass();
+        final Class<? extends ISoulboundItem> baseItemClass = this.getBaseItemClass();
 
         for (final ItemStack itemStack : this.getPlayer().inventory.mainInventory) {
             if (baseItemClass.isInstance(itemStack.getItem())) {
@@ -304,7 +299,7 @@ public abstract class Base implements IItemCapability {
 
     @Override
     public ItemStack getEquippedItemStack() {
-        final Class<? extends ISoulItem> baseItemClass = this.getBaseItemClass();
+        final Class<? extends ISoulboundItem> baseItemClass = this.getBaseItemClass();
         final ItemStack mainhandStack = this.getPlayer().getHeldItemMainhand();
 
         if (baseItemClass.isInstance(mainhandStack.getItem())) {
@@ -333,7 +328,7 @@ public abstract class Base implements IItemCapability {
     @Override
     public void onTick() {
         if (this.hasSoulItem()) {
-            final Class<? extends ISoulItem> baseItemClass = this.getBaseItemClass();
+            final Class<? extends ISoulboundItem> baseItemClass = this.getBaseItemClass();
             final InventoryPlayer inventory = this.getPlayer().inventory;
             final ItemStack equippedItemStack = this.getEquippedItemStack();
             final List<ItemStack> mainInventory = new ArrayList<>(this.getPlayer().inventory.mainInventory);

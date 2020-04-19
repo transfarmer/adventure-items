@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
-import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
@@ -51,9 +51,9 @@ public class C2SWeaponType implements IExtendedMessage {
             if (slot >= 0) {
                 final ItemStack boundSlotItem = player.inventory.getStackInSlot(slot);
 
-                if (boundSlotItem.getItem() != Items.AIR && !(boundSlotItem.getItem() instanceof ItemSoulWeapon)) {
+                if (boundSlotItem.getItem() != Items.AIR && !(boundSlotItem.getItem() instanceof ItemSoulboundWeapon)) {
                     slot = -1;
-                } else if (boundSlotItem.getItem() instanceof ItemSoulWeapon) {
+                } else if (boundSlotItem.getItem() instanceof ItemSoulboundWeapon) {
                     player.inventory.deleteStack(boundSlotItem);
                 }
             }

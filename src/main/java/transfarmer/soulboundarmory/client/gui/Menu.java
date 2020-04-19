@@ -18,10 +18,10 @@ import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.ColorConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.network.server.C2SReset;
-import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponBindSlot;
-import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponEnchantmentPoints;
+import transfarmer.soulboundarmory.network.server.weapon.C2SEnchant;
+import transfarmer.soulboundarmory.network.server.weapon.C2SBindSlot;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.IndexedMap;
@@ -62,7 +62,7 @@ public abstract class Menu extends GuiScreen {
         this.tabs = new GuiButton[tabs];
         this.consumableItems = consumableItems;
 
-        ItemStack equippedItemStack = ItemUtil.getClassEquippedItemStack(this.mc.player, ISoulItem.class);
+        ItemStack equippedItemStack = ItemUtil.getClassEquippedItemStack(this.mc.player, ISoulboundItem.class);
 
         if (equippedItemStack == null) {
             equippedItemStack = ItemUtil.getEquippedItemStack(this.mc.player, this.consumableItems);
@@ -82,7 +82,7 @@ public abstract class Menu extends GuiScreen {
             this.addButton(this.sliderAlpha = this.guiFactory.colorSlider(103, 3, ColorConfig.getAlpha(), Mappings.ALPHA + ": "));
         }
 
-        if (ItemUtil.getClassEquippedItemStack(this.mc.player, ISoulItem.class) != null) {
+        if (ItemUtil.getClassEquippedItemStack(this.mc.player, ISoulboundItem.class) != null) {
             this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, this.slot != capability.getBoundSlot()
                     ? Mappings.MENU_BUTTON_BIND
                     : Mappings.MENU_BUTTON_UNBIND)
@@ -93,36 +93,23 @@ public abstract class Menu extends GuiScreen {
     protected void displayEnchantments() {
         final IndexedMap<Enchantment, Integer> enchantments = this.capability.getEnchantments(this.item);
         final int size = enchantments.size();
-        final GuiButton resetButton = this.addButton(guiFactory.resetButton(3000));
-        final GuiButton[] removePointButtons = addRemovePointButtons(2000, size);
+        final GuiButton resetButton = this.addButton(guiFactory.resetButton(21));
+        final GuiButton[] removePointButtons = new GuiButton[size];
+
+        for (int row = 0; row < size; row++) {
+            removePointButtons[row] = this.addButton(guiFactory.squareButton(2000 + Enchantment.getEnchantmentID(enchantments.getKey(row)), (width + 162) / 2 - 20, (row + 1) * height / 16 + 4, "-"));
+        }
+
         resetButton.enabled = this.capability.getDatum(this.item, SPENT_ENCHANTMENT_POINTS) > 0;
 
-        addPointButtons(1000, size, this.capability.getDatum(this.item, ENCHANTMENT_POINTS));
+        for (int row = 0; row < size; row++) {
+            final GuiButton button = this.addButton(this.guiFactory.squareButton(1000 + Enchantment.getEnchantmentID(enchantments.getKey(row)), (width + 162) / 2, (row + 1) * height / 16 + 4, "+"));
+            button.enabled = this.capability.getDatum(this.item, ENCHANTMENT_POINTS) > 0;
+        }
 
         for (int i = 0; i < size; i++) {
             removePointButtons[i].enabled = enchantments.getValue(i) > 0;
         }
-    }
-
-    protected GuiButton[] addPointButtons(final int id, final int rows, final int points) {
-        final GuiButton[] buttons = new GuiButton[rows];
-
-        for (int row = 0; row < rows; row++) {
-            buttons[row] = addButton(guiFactory.squareButton(id + row, (width + 162) / 2, (row + 1) * height / 16 + 4, "+"));
-            buttons[row].enabled = points > 0;
-        }
-
-        return buttons;
-    }
-
-    protected GuiButton[] addRemovePointButtons(final int id, final int rows) {
-        final GuiButton[] buttons = new GuiButton[rows];
-
-        for (int row = 0; row < rows; row++) {
-            buttons[row] = this.addButton(guiFactory.squareButton(id + row, (width + 162) / 2 - 20, (row + 1) * height / 16 + 4, "-"));
-        }
-
-        return buttons;
     }
 
     @Override
@@ -320,7 +307,7 @@ public abstract class Menu extends GuiScreen {
                 amount = this.capability.getDatum(this.item, ENCHANTMENT_POINTS);
             }
 
-            Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(this.item, enchantment, amount));
+            Main.CHANNEL.sendToServer(new C2SEnchant(this.capability.getType(), this.item, enchantment, amount));
         } else if ((enchantment = Enchantment.getEnchantmentByID(button.id - 2000)) != null) {
             int amount = 1;
 
@@ -328,7 +315,7 @@ public abstract class Menu extends GuiScreen {
                 amount = this.capability.getDatum(this.item, SPENT_ENCHANTMENT_POINTS);
             }
 
-            Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(this.item, enchantment, -amount));
+            Main.CHANNEL.sendToServer(new C2SEnchant(this.capability.getType(), this.item, enchantment, -amount));
         } else {
             switch (button.id) {
                 case 16:
@@ -351,7 +338,7 @@ public abstract class Menu extends GuiScreen {
                     }
 
                     this.mc.displayGuiScreen(new SoulWeaponMenu());
-                    Main.CHANNEL.sendToServer(new C2SWeaponBindSlot(this.slot));
+                    Main.CHANNEL.sendToServer(new C2SBindSlot(this.capability.getType(), this.slot));
                     break;
                 case 100:
                 case 101:
@@ -374,7 +361,7 @@ public abstract class Menu extends GuiScreen {
         return false;
     }
 
-    public class GUIFactory {
+    protected class GUIFactory {
         public GuiButton tabButton(final int id, final int row, final String text) {
             return new GuiButton(id, width / 24, height / 16 + Math.max(height / 16 * row, 30 * row), Math.max(96, Math.round(width / 7.5F)), 20, text);
         }
@@ -395,12 +382,33 @@ public abstract class Menu extends GuiScreen {
             return new GuiSlider(id, this.getColorSliderX(), this.getColorSliderY(row), 100, 20, text, "", 0, 255, currentValue * 255, false, true);
         }
 
+        public GuiButton[] addPointButtons(final int id, final int rows, final int points) {
+            final GuiButton[] buttons = new GuiButton[rows];
+
+            for (int row = 0; row < rows; row++) {
+                buttons[row] = addButton(squareButton(id + row, (width + 162) / 2, (row + 1) * height / 16 + 4, "+"));
+                buttons[row].enabled = points > 0;
+            }
+
+            return buttons;
+        }
+
         public int getColorSliderX() {
             return Math.round(width * (1 - 1 / 24F)) - 100;
         }
 
         public int getColorSliderY(final int row) {
             return height / 16 + Math.max(height / 16 * row, 30 * row);
+        }
+
+        public GuiButton[] removePointsButtons(final int id, final int rows) {
+            final GuiButton[] buttons = new GuiButton[rows];
+
+            for (int row = 0; row < rows; row++) {
+                buttons[row] = addButton(squareButton(id + row, (width + 162) / 2 - 20, (row + 1) * height / 16 + 4, "-"));
+            }
+
+            return buttons;
         }
     }
 

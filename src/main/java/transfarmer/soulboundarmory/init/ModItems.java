@@ -7,9 +7,9 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.item.ItemSoulDagger;
-import transfarmer.soulboundarmory.item.ItemSoulGreatsword;
-import transfarmer.soulboundarmory.item.ItemSoulSword;
+import transfarmer.soulboundarmory.item.ItemSoulboundDagger;
+import transfarmer.soulboundarmory.item.ItemSoulboundGreatsword;
+import transfarmer.soulboundarmory.item.ItemSoulboundSword;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
 
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -17,9 +17,9 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Main.MOD_ID;
 
 public class ModItems {
-    public static final ItemSoulDagger SOULBOUND_DAGGER = new ItemSoulDagger("soulbound_dagger");
-    public static final ItemSoulSword SOULBOUND_SWORD = new ItemSoulSword("soulbound_sword");
-    public static final ItemSoulGreatsword SOULBOUND_GREATSWORD = new ItemSoulGreatsword("soulbound_greatsword");
+    public static final ItemSoulboundDagger SOULBOUND_DAGGER = new ItemSoulboundDagger("soulbound_dagger");
+    public static final ItemSoulboundSword SOULBOUND_SWORD = new ItemSoulboundSword("soulbound_sword");
+    public static final ItemSoulboundGreatsword SOULBOUND_GREATSWORD = new ItemSoulboundGreatsword("soulbound_greatsword");
     public static final ItemSoulboundPick SOULBOUND_PICK = new ItemSoulboundPick("soulbound_pick");
 
     @EventBusSubscriber(modid = MOD_ID)

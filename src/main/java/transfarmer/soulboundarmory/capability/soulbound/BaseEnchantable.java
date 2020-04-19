@@ -4,6 +4,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import transfarmer.soulboundarmory.statistics.SoulboundEnchantments;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
@@ -16,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ENCHANTMENT;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTRIBUTE_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ENCHANTMENT_POINTS;
@@ -71,7 +73,7 @@ public abstract class BaseEnchantable extends Base implements ICapabilityEnchant
     public void reset(final IItem item, final ICategory category) {
         if (category == ENCHANTMENT) {
             this.resetEnchantments(item);
-        } else {
+        } else if (category == ATTRIBUTE) {
             this.statistics.reset(item, category);
 
             this.addDatum(item, ATTRIBUTE_POINTS, this.getDatum(item, SPENT_ATTRIBUTE_POINTS));
@@ -98,5 +100,21 @@ public abstract class BaseEnchantable extends Base implements ICapabilityEnchant
         }
 
         return itemStack;
+    }
+
+    @Override
+    public NBTTagCompound serializeNBT() {
+        final NBTTagCompound tag = super.serializeNBT();
+
+        tag.setTag("enchantments", this.enchantments.serializeNBT());
+
+        return tag;
+    }
+
+    @Override
+    public void deserializeNBT(final NBTTagCompound tag) {
+        super.deserializeNBT(tag);
+
+        this.enchantments.deserializeNBT(tag.getCompoundTag("enchantments"));
     }
 }

@@ -18,8 +18,8 @@ import javax.annotation.Nonnull;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
 
-public class ItemSoulSword extends ItemSoulWeapon {
-    public ItemSoulSword(final String name) {
+public class ItemSoulboundSword extends ItemSoulboundWeapon {
+    public ItemSoulboundSword(final String name) {
         super(2, -2.4F, 1.5F, name);
     }
 

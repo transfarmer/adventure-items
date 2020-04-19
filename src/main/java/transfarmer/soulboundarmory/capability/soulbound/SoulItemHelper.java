@@ -12,9 +12,9 @@ import net.minecraft.util.NonNullList;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
-import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.item.ISoulItem;
-import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.soulboundarmory.item.IItemSoulboundTool;
+import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import javax.annotation.Nonnull;
@@ -33,10 +33,10 @@ public class SoulItemHelper {
     public static ICapabilityEnchantable getFirstCapability(final EntityPlayer player, @Nullable Item item) {
         ICapabilityEnchantable capability = null;
 
-        if (item instanceof ISoulItem) {
-            if (item instanceof ItemSoulWeapon) {
+        if (item instanceof ISoulboundItem) {
+            if (item instanceof ItemSoulboundWeapon) {
                 capability = WeaponProvider.get(player);
-            } else if (item instanceof IItemSoulTool) {
+            } else if (item instanceof IItemSoulboundTool) {
                 capability = ToolProvider.get(player);
             }
         }
@@ -67,14 +67,14 @@ public class SoulItemHelper {
     }
 
     public static boolean isSoulWeaponEquipped(final EntityPlayer player) {
-        return player.getHeldItemMainhand().getItem() instanceof ItemSoulWeapon
-                || player.getHeldItemOffhand().getItem() instanceof ItemSoulWeapon;
+        return player.getHeldItemMainhand().getItem() instanceof ItemSoulboundWeapon
+                || player.getHeldItemOffhand().getItem() instanceof ItemSoulboundWeapon;
     }
 
     public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player, boolean hasReservedSlot) {
         final InventoryPlayer inventory = player.inventory;
 
-        if (!(itemStack.getItem() instanceof ISoulItem)) {
+        if (!(itemStack.getItem() instanceof ISoulboundItem)) {
             hasReservedSlot = false;
         }
 
@@ -176,7 +176,7 @@ public class SoulItemHelper {
         inventory[player.inventory.getSizeInventory()] = player.getHeldItemOffhand();
 
         for (final ItemStack itemStack : inventory) {
-            if (itemStack != null && itemStack.getItem() instanceof ItemSoulWeapon) {
+            if (itemStack != null && itemStack.getItem() instanceof ItemSoulboundWeapon) {
                 return true;
             }
         }
@@ -186,7 +186,7 @@ public class SoulItemHelper {
 
     public static void removeSoulWeapons(final EntityPlayer player) {
         for (final ItemStack itemStack : player.inventory.mainInventory) {
-            if (itemStack.getItem() instanceof ItemSoulWeapon) {
+            if (itemStack.getItem() instanceof ItemSoulboundWeapon) {
                 player.inventory.deleteStack(itemStack);
             }
         }

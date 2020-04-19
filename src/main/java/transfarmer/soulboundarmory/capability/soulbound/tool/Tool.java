@@ -10,8 +10,8 @@ import transfarmer.soulboundarmory.capability.soulbound.ISkillable;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.item.IItemSoulboundTool;
+import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.enumeration.Skill;
@@ -63,14 +63,17 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
     }
 
     @Override
-    public double getAttribute(final IItem type, final IStatistic attribute, boolean relative, final boolean total) {
-        if (relative) {
-            if (attribute == REACH_DISTANCE) {
-                return this.getAttribute(type, REACH_DISTANCE) - 3;
-            }
+    public double getAttributeRelative(final IItem type, final IStatistic attribute) {
+        if (attribute == REACH_DISTANCE) {
+            return this.getAttribute(type, REACH_DISTANCE) - 3;
         }
 
         return this.statistics.get(type, attribute).doubleValue();
+    }
+
+    @Override
+    public double getAttributeTotal(final IItem item, final IStatistic statistic) {
+        return this.getAttribute(item, statistic);
     }
 
     @Override
@@ -159,11 +162,11 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
         final Minecraft minecraft = Minecraft.getMinecraft();
         final EntityPlayer player = minecraft.player;
 
-        if (player.getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
+        if (player.getHeldItemMainhand().getItem() instanceof IItemSoulboundTool) {
             minecraft.displayGuiScreen(new SoulToolMenu());
         } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_PICKAXE) {
             minecraft.displayGuiScreen(new SoulToolMenu(-1));
-        } else if (player.getHeldItemOffhand().getItem() instanceof IItemSoulTool) {
+        } else if (player.getHeldItemOffhand().getItem() instanceof IItemSoulboundTool) {
             minecraft.displayGuiScreen(new SoulToolMenu());
         } else if (player.getHeldItemOffhand().getItem() == Items.WOODEN_PICKAXE) {
             minecraft.displayGuiScreen(new SoulToolMenu(-1));
@@ -173,12 +176,16 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
     @Override
     @SideOnly(CLIENT)
     public void refresh() {
-        Minecraft.getMinecraft().displayGuiScreen(new SoulToolMenu());
+        final Minecraft minecraft = Minecraft.getMinecraft();
+
+        if (minecraft.currentScreen instanceof SoulToolMenu) {
+            minecraft.displayGuiScreen(new SoulToolMenu());
+        }
     }
 
     @Override
-    public Class<? extends ISoulItem> getBaseItemClass() {
-        return IItemSoulTool.class;
+    public Class<? extends ISoulboundItem> getBaseItemClass() {
+        return IItemSoulboundTool.class;
     }
 
     @Override

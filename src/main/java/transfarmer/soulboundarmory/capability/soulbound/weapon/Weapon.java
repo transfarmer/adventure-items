@@ -18,8 +18,8 @@ import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.ISoulItem;
-import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
@@ -104,30 +104,31 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
     }
 
     @Override
-    public double getAttribute(final IItem item, final IStatistic statistic, final boolean relative,
-                               final boolean total) {
-        if (relative) {
-            if (statistic == ATTACK_SPEED) {
-                return this.getAttribute(item, ATTACK_SPEED) - 4;
-            }
-
-            if (statistic == REACH_DISTANCE) {
-                return this.getAttribute(item, REACH_DISTANCE) - 3;
-            }
+    public double getAttributeRelative(final IItem item, final IStatistic statistic) {
+        if (statistic == ATTACK_SPEED) {
+            return this.getAttribute(item, ATTACK_SPEED) - 4;
         }
 
-        if (total) {
-            if (statistic == ATTACK_DAMAGE) {
-                final double attackDamage = this.getAttribute(item, ATTACK_DAMAGE);
-
-                return this.getEnchantment(item, SHARPNESS) > 0
-                        ? attackDamage + 1 + (this.getEnchantment(item, SHARPNESS) - 1) / 2F
-                        : attackDamage;
-            }
+        if (statistic == REACH_DISTANCE) {
+            return this.getAttribute(item, REACH_DISTANCE) - 3;
         }
 
         return this.getStatistic(item, statistic).doubleValue();
     }
+
+    @Override
+    public double getAttributeTotal(final IItem item, final IStatistic statistic) {
+        if (statistic == ATTACK_DAMAGE) {
+            final double attackDamage = this.getAttribute(this.item, ATTACK_DAMAGE);
+
+            return this.getEnchantment(this.item, SHARPNESS) > 0
+                    ? attackDamage + 1 + (this.getEnchantment(this.item, SHARPNESS) - 1) / 2F
+                    : attackDamage;
+        }
+
+        return this.getAttribute(item, statistic);
+    }
+
 
     @Override
     public void addAttribute(final IItem type, final IStatistic attribute, final int amount) {
@@ -169,7 +170,7 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                     : statistic == KNOCKBACK_ATTRIBUTE
                     ? 0.2
                     : statistic == EFFICIENCY_ATTRIBUTE
-                    ? 0.2
+                    ? 0.15
                     : 0;
         }
 
@@ -183,7 +184,7 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                     : statistic == KNOCKBACK_ATTRIBUTE
                     ? 0.35
                     : statistic == EFFICIENCY_ATTRIBUTE
-                    ? 0.3
+                    ? 0.2
                     : 0;
         }
 
@@ -197,7 +198,7 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                     : statistic == KNOCKBACK_ATTRIBUTE
                     ? 0.6
                     : statistic == EFFICIENCY_ATTRIBUTE
-                    ? 0.5
+                    ? 0.3
                     : 0;
         }
 
@@ -228,8 +229,8 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                         SharedMonsterAttributes.ATTACK_SPEED.getName(),
                         SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
                 },
-                new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttribute(type, ATTACK_SPEED, true), ADD),
-                new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttribute(type, ATTACK_DAMAGE), ADD)
+                new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttribute(type, ATTACK_SPEED), ADD),
+                new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttributeTotal(type, ATTACK_DAMAGE), ADD)
         );
     }
 
@@ -240,7 +241,7 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
         final List<String> tooltip = new ArrayList<>(7);
 
         tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_SPEED_FORMAT, FORMAT.format(this.getAttribute(type, ATTACK_SPEED)), Mappings.ATTACK_SPEED_NAME));
-        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_DAMAGE_FORMAT, FORMAT.format(this.getAttribute(type, ATTACK_DAMAGE)), Mappings.ATTACK_DAMAGE_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_DAMAGE_FORMAT, FORMAT.format(this.getAttributeTotal(type, ATTACK_DAMAGE)), Mappings.ATTACK_DAMAGE_NAME));
 
         tooltip.add("");
         tooltip.add("");
@@ -270,11 +271,11 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
         final EntityPlayer player = this.getPlayer();
         Item item = player.getHeldItemMainhand().getItem();
 
-        if (item instanceof ItemSoulWeapon) {
+        if (item instanceof ItemSoulboundWeapon) {
             minecraft.displayGuiScreen(new SoulWeaponMenu());
         } else if (item == Items.WOODEN_SWORD) {
             minecraft.displayGuiScreen(new SoulWeaponMenu(0));
-        } else if ((item = player.getHeldItemOffhand().getItem()) instanceof ItemSoulWeapon) {
+        } else if ((item = player.getHeldItemOffhand().getItem()) instanceof ItemSoulboundWeapon) {
             minecraft.displayGuiScreen(new SoulWeaponMenu());
         } else if (item == Items.WOODEN_SWORD) {
             minecraft.displayGuiScreen(new SoulWeaponMenu(0));
@@ -284,7 +285,11 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
     @Override
     @SideOnly(CLIENT)
     public void refresh() {
-        Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
+        final Minecraft minecraft = Minecraft.getMinecraft();
+
+        if (minecraft.currentScreen instanceof SoulWeaponMenu) {
+            minecraft.displayGuiScreen(new SoulWeaponMenu());
+        }
     }
 
     @Override
@@ -364,6 +369,7 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
 
     @Override
     public void setLeapForce(final double force) {
+        this.resetLeapForce();
         this.leapForce = force;
     }
 
@@ -398,8 +404,8 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
     }
 
     @Override
-    public Class<? extends ISoulItem> getBaseItemClass() {
-        return ItemSoulWeapon.class;
+    public Class<? extends ISoulboundItem> getBaseItemClass() {
+        return ItemSoulboundWeapon.class;
     }
 
     @Override

@@ -33,7 +33,7 @@ import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
-import transfarmer.soulboundarmory.item.ItemSoulDagger;
+import transfarmer.soulboundarmory.item.ItemSoulboundDagger;
 import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
@@ -220,34 +220,40 @@ public class EntityEventHandlers {
                         player.posX + horizontalRadius, player.posY + verticalRadius, player.posZ + horizontalRadius
                 ));
 
+                boolean froze = false;
+
                 for (final Entity entity : nearbyEntities) {
                     final IFrozen frozenCapability = FrozenProvider.get(entity);
 
                     if (frozenCapability != null && entity.getDistanceSq(entity) <= horizontalRadius * horizontalRadius) {
-                        capability.freeze(player, (int) Math.min(60, 12 * event.getDistance()), 0.4F * event.getDistance());
+                        capability.freeze(entity, (int) Math.min(60, 12 * event.getDistance()), 0.4F * event.getDistance());
+
+                        froze = true;
                     }
                 }
 
-                if (!nearbyEntities.isEmpty() && player.world instanceof WorldServer) {
-                    final WorldServer world = (WorldServer) player.world;
+                if (froze) {
+                    if (!nearbyEntities.isEmpty() && player.world instanceof WorldServer) {
+                        final WorldServer world = (WorldServer) player.world;
 
-                    for (double i = 0; i <= 2 * horizontalRadius; i += horizontalRadius / 48D) {
-                        final double x = horizontalRadius - i;
-                        final double z = Math.sqrt((horizontalRadius * horizontalRadius - x * x));
-                        final int particles = 1;
+                        for (double i = 0; i <= 2 * horizontalRadius; i += horizontalRadius / 48D) {
+                            final double x = horizontalRadius - i;
+                            final double z = Math.sqrt((horizontalRadius * horizontalRadius - x * x));
+                            final int particles = 1;
 
-                        world.spawnParticle(EnumParticleTypes.SNOWBALL,
-                                player.posX + x,
-                                player.posY + player.eyeHeight,
-                                player.posZ + z,
-                                particles, 0, 0, 0, 0D
-                        );
-                        world.spawnParticle(EnumParticleTypes.SNOWBALL,
-                                player.posX + x,
-                                player.posY + player.eyeHeight,
-                                player.posZ - z,
-                                particles, 0, 0, 0, 0D
-                        );
+                            world.spawnParticle(EnumParticleTypes.SNOWBALL,
+                                    player.posX + x,
+                                    player.posY + player.eyeHeight,
+                                    player.posZ + z,
+                                    particles, 0, 0, 0, 0D
+                            );
+                            world.spawnParticle(EnumParticleTypes.SNOWBALL,
+                                    player.posX + x,
+                                    player.posY + player.eyeHeight,
+                                    player.posZ - z,
+                                    particles, 0, 0, 0, 0D
+                            );
+                        }
                     }
                 }
 
@@ -269,8 +275,8 @@ public class EntityEventHandlers {
             final EntityPlayer player = (EntityPlayer) event.getEntity();
             final IWeapon capability = WeaponProvider.get(player);
 
-            if (event.getItem().getItem() instanceof ItemSoulDagger) {
-                final ItemSoulDagger item = (ItemSoulDagger) event.getItem().getItem();
+            if (event.getItem().getItem() instanceof ItemSoulboundDagger) {
+                final ItemSoulboundDagger item = (ItemSoulboundDagger) event.getItem().getItem();
 
                 if (item.getMaxUsageRatio((float) capability.getAttribute(DAGGER, ATTACK_SPEED), event.getDuration()) == 1) {
                     event.setDuration(event.getDuration() + 1);

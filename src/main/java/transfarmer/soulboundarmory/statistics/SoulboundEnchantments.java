@@ -80,7 +80,7 @@ public class SoulboundEnchantments implements Iterable<IItem>, INBTSerializable<
         final IndexedMap<Enchantment, Integer> enchantments = this.get(item);
 
         for (final Enchantment enchantment : enchantments.keySet()) {
-            tag.setInteger(enchantment.getName(), enchantments.get(enchantment));
+            tag.setInteger(enchantment.getRegistryName().toString(), enchantments.get(enchantment));
         }
 
         return tag;

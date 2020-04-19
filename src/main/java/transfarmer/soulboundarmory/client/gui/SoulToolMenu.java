@@ -7,7 +7,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.item.IItemSoulTool;
+import transfarmer.soulboundarmory.item.IItemSoulboundTool;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolAttributePoints;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolBindSlot;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolTab;
@@ -45,7 +45,7 @@ public class SoulToolMenu extends Menu {
     public void initGui() {
         super.initGui();
 
-        if (ItemUtil.getClassEquippedItemStack(this.mc.player, IItemSoulTool.class) != null) {
+        if (ItemUtil.getClassEquippedItemStack(this.mc.player, IItemSoulboundTool.class) != null) {
             this.tabs[0] = addButton(guiFactory.tabButton(16, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
             this.tabs[1] = addButton(guiFactory.tabButton(17, 1, Mappings.MENU_BUTTON_ENCHANTMENTS));
             this.tabs[2] = addButton(guiFactory.tabButton(18, 2, Mappings.MENU_BUTTON_SKILLS));
@@ -87,8 +87,8 @@ public class SoulToolMenu extends Menu {
 
     protected void displayAttributes() {
         final GuiButton resetButton = this.addButton(this.guiFactory.resetButton(20));
-        final GuiButton[] removePointButtons = this.addRemovePointButtons(23, this.capability.size(ATTRIBUTE));
-        final GuiButton[] addPointButtons = this.addPointButtons(4, this.capability.size(ATTRIBUTE), this.capability.getDatum(this.item, ATTRIBUTE_POINTS));
+        final GuiButton[] removePointButtons = guiFactory.removePointsButtons(23, this.capability.size(ATTRIBUTE));
+        final GuiButton[] addPointButtons = guiFactory.addPointButtons(4, this.capability.size(ATTRIBUTE), this.capability.getDatum(this.item, ATTRIBUTE_POINTS));
         resetButton.enabled = this.capability.getDatum(this.item, SPENT_ATTRIBUTE_POINTS) > 0;
 
         for (int index = 0; index < this.capability.size(ATTRIBUTE); index++) {

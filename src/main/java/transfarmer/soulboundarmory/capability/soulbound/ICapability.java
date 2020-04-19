@@ -7,7 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.item.ISoulItem;
+import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
@@ -68,9 +68,9 @@ public interface ICapability extends INBTSerializable<NBTTagCompound> {
 
     boolean addDatum(IItem type, IStatistic datum, int amount);
 
-    double getAttribute(IItem type, IStatistic attribute, boolean total, boolean effective);
+    double getAttributeRelative(IItem type, IStatistic attribute);
 
-    double getAttribute(IItem type, IStatistic attribute, boolean total);
+    double getAttributeTotal(IItem item, IStatistic statistic);
 
     double getAttribute(IItem type, IStatistic attribute);
 
@@ -114,7 +114,7 @@ public interface ICapability extends INBTSerializable<NBTTagCompound> {
     @SideOnly(CLIENT)
     void refresh();
 
-    Class<? extends ISoulItem> getBaseItemClass();
+    Class<? extends ISoulboundItem> getBaseItemClass();
 
     boolean hasSoulItem();
 

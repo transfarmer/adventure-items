@@ -99,8 +99,8 @@ public class SoulWeaponMenu extends Menu {
     protected void displayAttributes() {
         final int size = this.capability.size(ATTRIBUTE) - 1;
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(20));
-        final GuiButton[] addPointButtons = addPointButtons(4, size, this.capability.getDatum(this.item, ATTRIBUTE_POINTS));
-        final GuiButton[] removePointButtons = addRemovePointButtons(23, size);
+        final GuiButton[] addPointButtons = guiFactory.addPointButtons(4, size, this.capability.getDatum(this.item, ATTRIBUTE_POINTS));
+        final GuiButton[] removePointButtons = guiFactory.removePointsButtons(23, size);
         resetButton.enabled = this.capability.getDatum(this.item, SPENT_ATTRIBUTE_POINTS) > 0;
 
         addPointButtons[2].enabled &= this.capability.getAttribute(this.item, CRITICAL) < 1;

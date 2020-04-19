@@ -19,8 +19,8 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGE
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
 
-public class ItemSoulDagger extends ItemSoulWeapon {
-    public ItemSoulDagger(final String name) {
+public class ItemSoulboundDagger extends ItemSoulboundWeapon {
+    public ItemSoulboundDagger(final String name) {
         super(1, -2, 0, name);
     }
 

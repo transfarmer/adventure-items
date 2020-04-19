@@ -18,12 +18,12 @@ import javax.annotation.Nonnull;
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 
-public abstract class ItemSoulWeapon extends ItemSword implements ISoulItem {
+public abstract class ItemSoulboundWeapon extends ItemSword implements ISoulboundItem {
     private final float attackDamage;
     private final float attackSpeed;
     private final float reachDistance;
 
-    public ItemSoulWeapon(final int attackDamage, final float attackSpeed, final float reachDistance, final String name) {
+    public ItemSoulboundWeapon(final int attackDamage, final float attackSpeed, final float reachDistance, final String name) {
         super(ToolMaterial.WOOD);
 
 
