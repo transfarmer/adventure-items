@@ -33,6 +33,13 @@ public class SoulItemHelper {
     public static ICapabilityEnchantable getFirstCapability(final EntityPlayer player, @Nullable Item item) {
         ICapabilityEnchantable capability = null;
 
+        boolean mainhand = false;
+
+        if (item == null) {
+            item = player.getHeldItemMainhand().getItem();
+            mainhand = true;
+        }
+
         if (item instanceof ISoulboundItem) {
             if (item instanceof ItemSoulboundWeapon) {
                 capability = WeaponProvider.get(player);
@@ -47,6 +54,10 @@ public class SoulItemHelper {
             } else if (item == Items.WOODEN_PICKAXE) {
                 capability = ToolProvider.get(player);
             }
+        }
+
+        if (capability == null && mainhand) {
+            capability = getFirstCapability(player, player.getHeldItemOffhand());
         }
 
         return capability;

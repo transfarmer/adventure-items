@@ -82,9 +82,9 @@ public class SoulWeaponMenu extends Menu {
         final int ySep = 32;
 
         final GuiButton[] weaponButtons = {
-                this.addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_GREATSWORD_NAME)),
+                this.addButton(new GuiButton(0, xCenter, yCenter + ySep, buttonWidth, buttonHeight, Mappings.SOUL_DAGGER_NAME)),
                 this.addButton(new GuiButton(1, xCenter, yCenter, buttonWidth, buttonHeight, Mappings.SOUL_SWORD_NAME)),
-                this.addButton(new GuiButton(2, xCenter, yCenter + ySep, buttonWidth, buttonHeight, Mappings.SOUL_DAGGER_NAME))
+                this.addButton(new GuiButton(2, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_GREATSWORD_NAME))
         };
 
         if (SoulItemHelper.hasSoulWeapon(this.mc.player)) {
@@ -154,7 +154,7 @@ public class SoulWeaponMenu extends Menu {
         }
 
         this.renderer.drawMiddleAttribute(attackSpeed, capability.getAttribute(this.item, ATTACK_SPEED), 0);
-        this.renderer.drawMiddleAttribute(attackDamage, capability.getAttribute(this.item, ATTACK_DAMAGE), 1);
+        this.renderer.drawMiddleAttribute(attackDamage, capability.getAttributeTotal(this.item, ATTACK_DAMAGE), 1);
         this.renderer.drawMiddleAttribute(critical, capability.getAttribute(this.item, CRITICAL) * 100, 2);
         this.renderer.drawMiddleAttribute(knockback, capability.getAttribute(this.item, KNOCKBACK_ATTRIBUTE), 3);
         this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(this.item, EFFICIENCY_ATTRIBUTE), 4);

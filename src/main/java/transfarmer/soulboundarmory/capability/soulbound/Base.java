@@ -280,7 +280,7 @@ public abstract class Base implements IItemCapability {
     public Map<String, AttributeModifier> getAttributeModifiers(final IItem type) {
         return CollectionUtil.hashMap(
                 new String[]{EntityPlayer.REACH_DISTANCE.getName()},
-                new AttributeModifier(REACH_DISTANCE_UUID, "generic.reachDistance", this.getAttribute(type, REACH_DISTANCE), ADD)
+                new AttributeModifier(REACH_DISTANCE_UUID, "generic.reachDistance", this.getAttributeRelative(type, REACH_DISTANCE), ADD)
         );
     }
 

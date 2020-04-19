@@ -133,6 +133,7 @@ public abstract class Menu extends GuiScreen {
 
         for (int i = 0; i < enchantments.size(); i++) {
             this.renderer.drawMiddleEnchantment(enchantments.getKey(i).getTranslatedName(enchantments.getValue(i)), i);
+            Main.LOGGER.warn(enchantments.getKey(i).getName().toLowerCase());
         }
     }
 
@@ -205,7 +206,7 @@ public abstract class Menu extends GuiScreen {
         }
     }
 
-    abstract protected boolean displayXPBar();
+    protected abstract boolean displayXPBar();
 
     private boolean isMouseOverXPBar(final int mouseX, final int mouseY) {
         final int barLeftX = (width - 182) / 2;
@@ -284,6 +285,7 @@ public abstract class Menu extends GuiScreen {
         }
     }
 
+    @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
         ColorConfig.instance().save();

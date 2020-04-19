@@ -54,9 +54,13 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
                         {EFFICIENCY_ATTRIBUTE, REACH_DISTANCE, HARVEST_LEVEL}
                 }, new double[][][]{{{0, 0, 0, 0, 0, 0, 0}, {0.5, 2, 0}}},
                 new ItemSoulboundPick[]{SOULBOUND_PICK},
-                (final Enchantment enchantment) ->
-                        !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
-                                && !enchantment.getName().toLowerCase().contains("soulbound")
+                (final Enchantment enchantment) -> {
+                    final String name = enchantment.getName().toLowerCase();
+
+                    return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
+                            && !name.contains("soulbound") && !name.contains("holding") && !name.contains("smelt")
+                            && !name.contains("mending");
+                }
         );
 
         this.currentTab = 0;

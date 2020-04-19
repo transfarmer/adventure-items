@@ -10,6 +10,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
 import transfarmer.soulboundarmory.capability.soulbound.BaseEnchantable;
@@ -87,13 +88,18 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                         {XP, LEVEL, SKILLS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
                         {ATTACK_SPEED, ATTACK_DAMAGE, CRITICAL, KNOCKBACK_ATTRIBUTE, EFFICIENCY_ATTRIBUTE, REACH_DISTANCE}
                 }, new double[][][]{
-                        {{0, 0, 0, 0, 0, 0, 0}, {2, 1, 0, 0, 0, 3}},
-                        {{0, 0, 0, 0, 0, 0, 0}, {1.6, 2, 0, 0, 0, 4.5}},
+                        {{0, 0, 0, 0, 0, 0, 0}, {2, 1, 0, 0, 0, 2}},
+                        {{0, 0, 0, 0, 0, 0, 0}, {1.6, 2, 0, 0, 0, 3}},
                         {{0, 0, 0, 0, 0, 0, 0}, {0.8, 3, 0, 0, 0, 6}}
                 }, new Item[]{SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD},
-                (final Enchantment enchantment) ->
-                        !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
-                                && !enchantment.getName().toLowerCase().contains("soulbound")
+                (final Enchantment enchantment) -> {
+                    final String name = enchantment.getName().toLowerCase();
+
+                    Main.LOGGER.warn(name);
+
+                    return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
+                            && !name.contains("soulbound") && !name.contains("holding") && !name.contains("mending");
+                }
         );
 
         this.currentTab = 1;
@@ -109,6 +115,10 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
             return this.getAttribute(item, ATTACK_SPEED) - 4;
         }
 
+        if (statistic == ATTACK_DAMAGE) {
+            return this.getAttribute(item, ATTACK_DAMAGE) - 1;
+        }
+
         if (statistic == REACH_DISTANCE) {
             return this.getAttribute(item, REACH_DISTANCE) - 3;
         }
@@ -120,9 +130,10 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
     public double getAttributeTotal(final IItem item, final IStatistic statistic) {
         if (statistic == ATTACK_DAMAGE) {
             final double attackDamage = this.getAttribute(this.item, ATTACK_DAMAGE);
+            final int level = this.getEnchantment(this.item, SHARPNESS);
 
-            return this.getEnchantment(this.item, SHARPNESS) > 0
-                    ? attackDamage + 1 + (this.getEnchantment(this.item, SHARPNESS) - 1) / 2F
+            return level > 0
+                    ? attackDamage + 1 + (level - 1) / 2F
                     : attackDamage;
         }
 
@@ -230,7 +241,7 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                         SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
                 },
                 new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttribute(type, ATTACK_SPEED), ADD),
-                new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttributeTotal(type, ATTACK_DAMAGE), ADD)
+                new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttributeRelative(type, ATTACK_DAMAGE), ADD)
         );
     }
 

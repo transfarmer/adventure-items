@@ -96,9 +96,10 @@ public class SoulboundEnchantments implements Iterable<IItem>, INBTSerializable<
     public void deserializeNBT(final NBTTagCompound tag, final IItem item) {
         for (final String key : tag.getKeySet()) {
             final Enchantment enchantment = Enchantment.getEnchantmentByLocation(key);
+            final IndexedMap<Enchantment, Integer> enchantments = this.enchantments.get(item);
 
-            if (enchantment != null) {
-                this.enchantments.get(item).put(enchantment, tag.getInteger(key));
+            if (enchantments.containsKey(enchantment)) {
+                enchantments.put(enchantment, tag.getInteger(key));
             }
         }
     }

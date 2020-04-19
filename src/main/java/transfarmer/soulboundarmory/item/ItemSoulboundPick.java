@@ -72,11 +72,10 @@ public class ItemSoulboundPick extends ItemPickaxe implements IItemSoulboundTool
 
     @Override
     public boolean onBlockDestroyed(@Nonnull final ItemStack itemStack, @Nonnull final World world, @Nonnull final IBlockState blockState, @Nonnull final BlockPos blockPos, @Nonnull final EntityLivingBase entity) {
-        if (entity instanceof EntityPlayer && this.isEffectiveAgainst(blockState)
-                && this.canHarvestBlock(blockState, (EntityPlayer) entity)) {
+        if (entity instanceof EntityPlayer && this.canHarvestBlock(blockState, (EntityPlayer) entity)) {
             final ITool capability = ToolProvider.get(entity);
             final IItem type = capability.getItemType(itemStack);
-            final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5);
+            final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5) + blockState.getBlock().getHarvestLevel(blockState);
 
             if (capability.addDatum(type, XP, xp) && !world.isRemote && MainConfig.instance().getLevelupNotifications()) {
                 Main.CHANNEL.sendTo(new S2CLevelupMessage(itemStack, capability.getDatum(type, LEVEL)), (EntityPlayerMP) entity);
