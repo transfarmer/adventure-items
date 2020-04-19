@@ -2,14 +2,15 @@ package transfarmer.soulboundarmory.capability.frozen;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import transfarmer.soulboundarmory.capability.ICapabilitySerializable;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.INBTSerializable;
 
-public interface IFrozen extends ICapabilitySerializable {
+public interface IFrozen extends INBTSerializable<NBTTagCompound> {
     Entity getEntity();
 
     void setEntity(Entity entity);
 
-    void freeze(EntityPlayer freezer, float damage, int ticks);
+    void freeze(EntityPlayer freezer, int ticks, float damage);
 
     boolean update();
 }

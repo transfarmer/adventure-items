@@ -9,21 +9,23 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 
-import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponAttribute.ATTACK_SPEED;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
+import javax.annotation.Nonnull;
+
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
 
 public class ItemSoulDagger extends ItemSoulWeapon {
-    public ItemSoulDagger() {
-        super(1, -2, 0);
+    public ItemSoulDagger(final String name) {
+        super(1, -2, 0, name);
     }
 
     @Override
-    public int getMaxItemUseDuration(final ItemStack itemStack) {
+    public int getMaxItemUseDuration(@Nonnull final ItemStack itemStack) {
         return this.getMaxItemUseDuration();
     }
 
@@ -36,15 +38,17 @@ public class ItemSoulDagger extends ItemSoulWeapon {
     }
 
     @Override
-    public EnumAction getItemUseAction(final ItemStack itemStack) {
+    @Nonnull
+    public EnumAction getItemUseAction(@Nonnull final ItemStack itemStack) {
         return EnumAction.BOW;
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
-        final ISoulWeapon capability = SoulWeaponProvider.get(player);
+    @Nonnull
+    public ActionResult<ItemStack> onItemRightClick(final World world, @Nonnull final EntityPlayer player, @Nonnull final EnumHand hand) {
+        final IWeapon capability = WeaponProvider.get(player);
 
-        if (!world.isRemote && capability.getDatum(DATA.skills, DAGGER) >= 1) {
+        if (!world.isRemote && capability.getDatum(DAGGER, SKILLS) >= 1) {
             player.setActiveHand(hand);
 
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
@@ -54,13 +58,13 @@ public class ItemSoulDagger extends ItemSoulWeapon {
     }
 
     @Override
-    public void onPlayerStoppedUsing(final ItemStack itemStack, final World world, final EntityLivingBase entity, final int timeLeft) {
+    public void onPlayerStoppedUsing(@Nonnull final ItemStack itemStack, final World world, @Nonnull final EntityLivingBase entity, final int timeLeft) {
         final EntityPlayer player = (EntityPlayer) entity;
-        final ISoulWeapon capability = SoulWeaponProvider.get(player);
+        final IWeapon capability = WeaponProvider.get(player);
 
         if (!world.isRemote) {
-            final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack, capability.getDatum(DATA.skills, DAGGER) >= 2);
-            final float attackSpeed = 4 + capability.getAttribute(ATTACK_SPEED, DAGGER, true);
+            final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack, capability.getDatum(DAGGER, SKILLS) >= 2);
+            final float attackSpeed = 4 + (float) capability.getAttribute(DAGGER, ATTACK_DAMAGE, true);
             final float velocity = this.getMaxUsageRatio(attackSpeed, timeLeft) * attackSpeed;
 
             dagger.shoot(entity, entity.rotationPitch, entity.rotationYaw, velocity, velocity / attackSpeed, 0);

@@ -1,59 +1,58 @@
 package transfarmer.soulboundarmory.network.client.weapon;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
-import transfarmer.soulboundarmory.statistics.SoulEnchantment;
-import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
+import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.IExtendedMessage;
+import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class S2CWeaponSpendEnchantmentPoints implements IMessage {
+public class S2CWeaponSpendEnchantmentPoints implements IExtendedMessage {
     private int amount;
-    private int enchantmentIndex;
-    private int weaponIndex;
+    private String enchantment;
+    private String item;
 
-    public S2CWeaponSpendEnchantmentPoints() {}
+    public S2CWeaponSpendEnchantmentPoints() {
+    }
 
-    public S2CWeaponSpendEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
+    public S2CWeaponSpendEnchantmentPoints(final int amount, final Enchantment enchantment, final IItem item) {
         this.amount = amount;
-        this.enchantmentIndex = enchantment.getIndex();
-        this.weaponIndex = type.getIndex();
+        this.enchantment = enchantment.getName();
+        this.item = item.toString();
     }
 
     @Override
-    public void fromBytes(final ByteBuf buffer) {
+    public void fromBytes(final ExtendedPacketBuffer buffer) {
         this.amount = buffer.readInt();
-        this.enchantmentIndex = buffer.readInt();
-        this.weaponIndex = buffer.readInt();
+        this.enchantment = buffer.readString();
+        this.item = buffer.readString();
     }
 
     @Override
-    public void toBytes(final ByteBuf buffer) {
+    public void toBytes(final ExtendedPacketBuffer buffer) {
         buffer.writeInt(this.amount);
-        buffer.writeInt(this.enchantmentIndex);
-        buffer.writeInt(this.weaponIndex);
+        buffer.writeString(this.enchantment);
+        buffer.writeString(this.item);
     }
 
-    public static final class Handler implements IMessageHandler<S2CWeaponSpendEnchantmentPoints, IMessage> {
+    public static final class Handler implements IExtendedMessageHandler<S2CWeaponSpendEnchantmentPoints> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final S2CWeaponSpendEnchantmentPoints message, final MessageContext context) {
+        public IExtendedMessage onMessage(final S2CWeaponSpendEnchantmentPoints message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final SoulEnchantment enchantment = SoulWeaponEnchantment.get(message.enchantmentIndex);
-            final SoulType weaponType = SoulWeaponType.get(message.weaponIndex);
-            final ISoulWeapon instance = SoulWeaponProvider.get(minecraft.player);
+            final Enchantment enchantment = Enchantment.getEnchantmentByLocation(message.enchantment);
+            final IItem weaponType = IItem.get(message.item);
+            final IWeapon instance = WeaponProvider.get(minecraft.player);
 
             minecraft.addScheduledTask(() -> {
-                instance.addEnchantment(message.amount, enchantment, weaponType);
+                instance.addEnchantment(weaponType, enchantment, message.amount);
                 minecraft.displayGuiScreen(new SoulWeaponMenu());
             });
 

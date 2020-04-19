@@ -2,68 +2,86 @@ package transfarmer.soulboundarmory.statistics;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
+import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
+import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Statistics<I extends IItem, C extends ICategory, S extends IStatistic> implements INBTSerializable<NBTTagCompound> {
-    private Map<I, Map<C, Map<S, Statistic<C, S>>>> statistics;
-    private final Map<String, I> itemNBTNames = new HashMap<>();
-    private final Map<String, C> categoryNBTNames = new HashMap<>();
-    private final Map<String, S> statisticNBTNames = new HashMap<>();
+public class Statistics implements INBTSerializable<NBTTagCompound> {
+    private final Map<IItem, Map<ICategory, Map<IStatistic, Statistic>>> statistics;
 
-    public Statistics(final I[] items, final C[] categories, final S[][] statisticNames, final double[][] min) {
+    public Statistics(
+            final IItem[] items, final ICategory[] categories, final IStatistic[][] statisticNames,
+            final double[][][] min
+    ) {
         this.statistics = new HashMap<>(items.length, 1);
 
-        for (final I item : items) {
-            final Map<C, Map<S, Statistic<C, S>>> statisticCategory = new HashMap<>(categories.length, 1);
+        for (int i = 0, itemsLength = items.length; i < itemsLength; i++) {
+            final IItem item = items[i];
+            final Map<ICategory, Map<IStatistic, Statistic>> statisticCategory = new HashMap<>(categories.length, 1);
 
             this.statistics.put(item, statisticCategory);
 
             for (int j = 0; j < categories.length; j++) {
-                final Map<S, Statistic<C, S>> statisticTypes = new HashMap<>();
+                final Map<IStatistic, Statistic> statisticTypes = new HashMap<>();
 
                 statisticCategory.put(categories[j], statisticTypes);
 
-                final S[] names = statisticNames[j];
-                final double[] statisticMin = min[j];
+                final IStatistic[] names = statisticNames[j];
 
-                for (int k = 0; k < statisticNames.length; k++) {
-                    statisticTypes.put(names[k], new Statistic<>(categories[j], names[k], statisticMin[k]));
-                }
-            }
-
-            this.itemNBTNames.put(item.toString(), item);
-        }
-
-        for (final C category : categories) {
-            this.categoryNBTNames.put(category.toString(), category);
-        }
-
-        for (final S[] category : statisticNames) {
-            for (final S statistic : category) {
-                final String key = statistic.toString();
-
-                if (!this.statisticNBTNames.containsKey(key)) {
-                    this.statisticNBTNames.put(key, statistic);
+                for (int k = 0; k < names.length; k++) {
+                    statisticTypes.put(names[k], new Statistic(categories[j], names[k], min[i][j][k]));
                 }
             }
         }
     }
 
-    public Map<C, Map<S, Statistic<C, S>>> get(final I itemName) {
-        return this.statistics.get(itemName);
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+
+        for (final IItem item : this.get().keySet()) {
+            builder.append(this.toString(item));
+        }
+
+        return String.format("\t%s{\n%s\t}", super.toString(), builder.toString());
     }
 
-    public Map<S, Statistic<C, S>> get(final I item, final C category) {
+    public String toString(final IItem item) {
+        final StringBuilder builder = new StringBuilder();
+
+        for (final ICategory category : this.get(item).keySet()) {
+            builder.append(this.toString(item, category));
+        }
+
+        return String.format("\t\t%s{\n%s\t\t}\n", item, builder.toString());
+    }
+
+    public String toString(final IItem item, final ICategory category) {
+        final StringBuilder builder = new StringBuilder();
+
+        for (final IStatistic statistic : this.get(item, category).keySet()) {
+            builder.append(String.format("\t\t\t\t%s\n", this.get(item, category, statistic)));
+        }
+
+        return String.format("\t\t\t%s{\n%s\t\t\t}\n", category, builder.toString());
+    }
+
+    public Map<ICategory, Map<IStatistic, Statistic>> get(final IItem item) {
+        return this.statistics.get(item);
+    }
+
+    public Map<IStatistic, Statistic> get(final IItem item, final ICategory category) {
         return this.get(item).get(category);
     }
 
-    public Statistic<C, S> get(final I itemType, final S type) {
-        for (final Map<S, Statistic<C, S>> category : this.get(itemType).values()) {
-            final Statistic<C, S> statistic = category.get(type);
+    public Statistic get(final IItem item, final IStatistic type) {
+        for (final Map<IStatistic, Statistic> category : this.get(item).values()) {
+            final Statistic statistic = category.get(type);
 
             if (statistic != null) {
                 return statistic;
@@ -73,31 +91,31 @@ public class Statistics<I extends IItem, C extends ICategory, S extends IStatist
         return null;
     }
 
-    public void set(final I itemType, final S name, final Number value) {
-        this.get(itemType, name).setValue(value);
+    public Statistic get(final IItem item, final ICategory category, final IStatistic statistic) {
+        return this.get(item, category).get(statistic);
     }
 
-    public void set(final I itemType, C category, final Map<S, Statistic<C, S>> newValues) {
+    public void set(final IItem item, final IStatistic name, final Number value) {
+        this.get(item, name).setValue(value);
+    }
+
+    public void set(final IItem itemType, ICategory category, final Map<IStatistic, Statistic> newValues) {
         this.get(itemType).put(category, newValues);
     }
 
-    public void set(final I itemType, final Map<C, Map<S, Statistic<C, S>>> itemMap) {
+    public void set(final IItem itemType, final Map<ICategory, Map<IStatistic, Statistic>> itemMap) {
         this.statistics.put(itemType, itemMap);
     }
 
-    public void set(Map<I, Map<C, Map<S, Statistic<C, S>>>> statistics) {
-        this.statistics = statistics;
-    }
-
-    public Statistic<C, S> add(final I itemType, final S statisticType, final Number value) {
-        final Statistic<C, S> statistic = this.get(itemType, statisticType);
+    public Statistic add(final IItem itemType, final IStatistic statisticType, final Number value) {
+        final Statistic statistic = this.get(itemType, statisticType);
 
         statistic.addInPlace(value);
 
         return statistic;
     }
 
-    public Map<I, Map<C, Map<S, Statistic<C, S>>>> get() {
+    public Map<IItem, Map<ICategory, Map<IStatistic, Statistic>>> get() {
         return this.statistics;
     }
 
@@ -105,29 +123,29 @@ public class Statistics<I extends IItem, C extends ICategory, S extends IStatist
     public NBTTagCompound serializeNBT() {
         final NBTTagCompound tag = new NBTTagCompound();
 
-        for (final I item : this.get().keySet()) {
+        for (final IItem item : this.get().keySet()) {
             tag.setTag(item.toString(), this.serializeNBT(item));
         }
 
         return tag;
     }
 
-    public NBTTagCompound serializeNBT(final I item) {
+    public NBTTagCompound serializeNBT(final IItem item) {
         final NBTTagCompound tag = new NBTTagCompound();
-        final Map<C, Map<S, Statistic<C, S>>> categories = this.get(item);
+        final Map<ICategory, Map<IStatistic, Statistic>> categories = this.get(item);
 
-        for (final C category : categories.keySet()) {
+        for (final ICategory category : categories.keySet()) {
             tag.setTag(category.toString(), this.serializeNBT(item, category));
         }
 
         return tag;
     }
 
-    public NBTTagCompound serializeNBT(final I item, final C category) {
+    public NBTTagCompound serializeNBT(final IItem item, final ICategory category) {
         final NBTTagCompound tag = new NBTTagCompound();
-        final Map<S, Statistic<C, S>> statistics = this.get(item, category);
+        final Map<IStatistic, Statistic> statistics = this.get(item, category);
 
-        for (final Statistic<C, S> statistic : statistics.values()) {
+        for (final Statistic statistic : statistics.values()) {
             tag.setTag(statistic.getType().toString(), statistic.serializeNBT());
         }
 
@@ -136,29 +154,54 @@ public class Statistics<I extends IItem, C extends ICategory, S extends IStatist
 
     @Override
     public void deserializeNBT(final NBTTagCompound tag) {
-        for (final String key : tag.getKeySet()) {
-            this.deserializeNBT((NBTTagCompound) tag.getTag(key), this.itemNBTNames.get(key));
-        }
-    }
-
-    public void deserializeNBT(@Nullable final NBTTagCompound tag, final I item) {
         if (tag != null) {
             for (final String key : tag.getKeySet()) {
-                this.deserializeNBT((NBTTagCompound) tag.getTag(key), item, this.categoryNBTNames.get(key));
+                this.deserializeNBT(tag.getCompoundTag(key), IItem.get(key));
             }
         }
     }
 
-    public void deserializeNBT(@Nullable final NBTTagCompound tag, final I item, final C category) {
+    public void deserializeNBT(@Nullable final NBTTagCompound tag, final IItem item) {
         if (tag != null) {
             for (final String key : tag.getKeySet()) {
-                final NBTTagCompound statisticNBT = (NBTTagCompound) tag.getTag(key);
-                final Statistic<C, S> statistic = new Statistic<>(category, this.statisticNBTNames.get(key), statisticNBT.getDouble("min"),
-                        new BigDecimal(statisticNBT.getString("value")), statisticNBT.getInteger("points")
-                );
-
-                this.set(item, statistic.getType(), statistic);
+                this.deserializeNBT(tag.getCompoundTag(key), item, ICategory.get(key));
             }
+        }
+    }
+
+    public void deserializeNBT(@Nullable final NBTTagCompound tag, final IItem item, final ICategory category) {
+        if (tag != null) {
+            for (final String key : tag.getKeySet()) {
+                final NBTTagCompound statisticNBT = tag.getCompoundTag(key);
+                final IStatistic type = IStatistic.get(key);
+
+                if (type != null) {
+                    final Statistic statistic = new Statistic(category, type, statisticNBT.getDouble("min"),
+                            new BigDecimal(statisticNBT.getString("value")), statisticNBT.getInteger("points")
+                    );
+
+                    this.set(item, statistic.getType(), statistic);
+                }
+
+            }
+        }
+    }
+
+    public void reset() {
+        for (final IItem item : this.get().keySet()) {
+            this.reset(item);
+        }
+    }
+
+    public void reset(final IItem item) {
+        for (final ICategory category : this.get(item).keySet()) {
+            this.reset(item, category);
+        }
+    }
+
+    public void reset(final IItem item, final ICategory category) {
+        for (final Statistic statistic : this.get(item, category).values()) {
+            statistic.reset();
         }
     }
 }

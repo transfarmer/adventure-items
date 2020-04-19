@@ -9,8 +9,11 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.math.Vec3d;
+import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
+
+import javax.annotation.Nonnull;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
@@ -20,16 +23,22 @@ public abstract class ItemSoulWeapon extends ItemSword implements ISoulItem {
     private final float attackSpeed;
     private final float reachDistance;
 
-    public ItemSoulWeapon(final int attackDamage, final float attackSpeed, final float reachDistance) {
+    public ItemSoulWeapon(final int attackDamage, final float attackSpeed, final float reachDistance, final String name) {
         super(ToolMaterial.WOOD);
-        this.setMaxDamage(0).setNoRepair();
+
+
+        this.setRegistryName(Main.MOD_ID, name);
+        this.setTranslationKey(String.format("%s.%s", Main.MOD_ID, name));
+
+        this.setMaxDamage(0);
+        this.setNoRepair();
         this.attackDamage = attackDamage;
         this.attackSpeed = attackSpeed;
         this.reachDistance = reachDistance;
     }
 
     @Override
-    public boolean onEntitySwing(EntityLivingBase entity, ItemStack itemStack) {
+    public boolean onEntitySwing(final EntityLivingBase entity, @Nonnull final ItemStack itemStack) {
         if (!entity.world.isRemote && entity instanceof EntityPlayer) {
             final Vec3d look = entity.getLookVec();
             final EntityReachModifier entityReachModifier = new EntityReachModifier(entity.world, entity, 4 + this.reachDistance);
@@ -39,21 +48,6 @@ public abstract class ItemSoulWeapon extends ItemSword implements ISoulItem {
         }
 
         return false;
-    }
-
-    @Override
-    public float getDamage() {
-        return this.attackDamage;
-    }
-
-    @Override
-    public float getAttackSpeed() {
-        return this.attackSpeed;
-    }
-
-    @Override
-    public float getReachDistance() {
-        return this.reachDistance;
     }
 
     @Override

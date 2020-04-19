@@ -22,16 +22,16 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.util.SoulboundDamageSource;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
+import transfarmer.soulboundarmory.entity.damage.SoulboundDamageSource;
 
 import java.util.UUID;
 
-import static transfarmer.soulboundarmory.statistics.SoulAttribute.ATTACK_DAMAGE;
-import static transfarmer.soulboundarmory.statistics.SoulEnchantment.SOUL_FIRE_ASPECT;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.DAGGER;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.SWORD;
+import static net.minecraft.init.Enchantments.FIRE_ASPECT;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
 
 public class EntitySoulLightningBolt extends EntityLightningBolt {
     private UUID casterUUID;
@@ -107,7 +107,7 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                         new AxisAlignedBB(this.posX - radius, this.posY - radius, this.posZ - radius, this.posX + radius, this.posY + 6 + radius, this.posZ + radius))) {
                     final EntityLivingBase caster = this.getCaster();
                     final float attackDamage = caster instanceof EntityPlayer
-                            ? SoulWeaponProvider.get(caster).getAttribute(ATTACK_DAMAGE, SWORD, true, true)
+                            ? (float) WeaponProvider.get(caster).getAttribute(SWORD, ATTACK_DAMAGE, true, true)
                             : 5;
 
                     if (entity != caster && entity instanceof EntityLivingBase
@@ -121,7 +121,7 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                         if (caster instanceof EntityPlayer) {
                             final EntityLivingBase target = (EntityLivingBase) entity;
                             final ItemStack itemStack = caster.getHeldItemMainhand();
-                            final ISoulWeapon capability = SoulWeaponProvider.get(caster);
+                            final IWeapon capability = WeaponProvider.get(caster);
                             final DamageSource damageSource = SoulboundDamageSource.causeIndirectDamage(this, caster);
                             final float attackDamageModifier = EnchantmentHelper.getModifierForCreature(itemStack, target.getCreatureAttribute());
                             int burnTime = 0;
@@ -136,8 +136,8 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                                     burnTime += 5;
                                 }
 
-                                if (capability.getEnchantments(DAGGER).containsKey(SOUL_FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
-                                    burnTime += capability.getEnchantment(SOUL_FIRE_ASPECT, DAGGER) * 4;
+                                if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
+                                    burnTime += capability.getEnchantment(DAGGER, FIRE_ASPECT) * 4;
                                 }
 
                                 if (burnTime > 0 && !entity.isBurning()) {

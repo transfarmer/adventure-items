@@ -11,14 +11,14 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.ICapability;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
 import transfarmer.soulboundarmory.item.ISoulItem;
-import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.util.EntityHelper;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
+import transfarmer.soulboundarmory.util.EntityUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,14 +34,14 @@ public class GeneralEventHandlers {
 
         if (!event.getWorld().isRemote && entity instanceof EntityPlayer) {
             final EntityPlayer player = (EntityPlayer) entity;
-            final ISoulWeapon capability = SoulWeaponProvider.get(player);
+            final IWeapon capability = WeaponProvider.get(player);
             final double leapForce = capability.getLeapForce();
 
             if (leapForce > 0) {
                 final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, event.getAabb());
 
                 for (final Entity nearbyEntity : nearbyEntities) {
-                    capability.freeze(nearbyEntity, (float) EntityHelper.getVelocity(player) * (float) leapForce, (int) (20 * leapForce));
+                    capability.freeze(nearbyEntity, (int) (20 * leapForce), (float) EntityUtil.getVelocity(player) * (float) leapForce);
                 }
 
                 if (capability.getLeapDuration() <= 0 && player.onGround && (player.motionY <= 0.01 || player.isCreative())) {
@@ -64,18 +64,20 @@ public class GeneralEventHandlers {
             final ItemStack itemStack = event.getItemStack();
 
             if (itemStack.getItem() instanceof ISoulItem) {
-                final ISoulCapability capability = SoulItemHelper.getCapability(player, itemStack.getItem());
-                final SoulType type = capability.getType(itemStack);
+                final ICapability capability = SoulItemHelper.getCapability(player, itemStack.getItem());
+                final IItem type = capability.getItemType(itemStack);
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
 
                 final String[] prior = tooltip.subList(0, startIndex).toArray(new String[0]);
+                final List<String> insertion = capability.getTooltip(type);
                 final String[] posterior = tooltip.subList(startIndex + itemStack.getAttributeModifiers(MAINHAND).size(), tooltip.size()).toArray(new String[0]);
 
                 tooltip.clear();
                 tooltip.addAll(Arrays.asList(prior));
-                tooltip.addAll(capability.getTooltip(type));
+                tooltip.addAll(insertion);
                 tooltip.addAll(Arrays.asList(posterior));
+                TooltipXPBar.setRow(prior.length + insertion.lastIndexOf(""));
             }
         }
     }

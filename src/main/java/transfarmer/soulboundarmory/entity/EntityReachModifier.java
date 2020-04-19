@@ -25,8 +25,8 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 
 public class EntityReachModifier extends EntityArrow {
     private float reachDistance;
@@ -88,7 +88,7 @@ public class EntityReachModifier extends EntityArrow {
         if (!this.world.isRemote && result.entityHit != this.shootingEntity && this.shootingEntity instanceof EntityPlayer) {
             final Entity target = result.entityHit;
             final EntityPlayer player = (EntityPlayer) this.shootingEntity;
-            final ISoulWeapon capability = SoulWeaponProvider.get(player);
+            final IWeapon capability = WeaponProvider.get(player);
 
             if (target != null) {
                 if (this.distanceToHit(result) <= this.reachDistance * this.reachDistance
@@ -99,7 +99,7 @@ public class EntityReachModifier extends EntityArrow {
                         ? EnchantmentHelper.getModifierForCreature(player.getHeldItemMainhand(), ((EntityLivingBase) target).getCreatureAttribute())
                         : EnchantmentHelper.getModifierForCreature(player.getHeldItemMainhand(), EnumCreatureAttribute.UNDEFINED);
 
-                    final float cooldownRatio = capability.getAttackRatio(capability.getCurrentType());
+                    final double cooldownRatio = capability.getAttackRatio(capability.getItemType());
                     attackDamageModifier *= 0.2 + cooldownRatio * cooldownRatio * 0.8;
                     attackDamageRatio *= cooldownRatio;
 
@@ -230,7 +230,7 @@ public class EntityReachModifier extends EntityArrow {
                 }
             }
 
-            capability.resetCooldown(capability.getCurrentType());
+            capability.resetCooldown(capability.getItemType());
         }
 
         this.setDead();

@@ -4,36 +4,51 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.config.GuiSlider;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.capability.soulbound.ICapabilityEnchantable;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.ColorConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulItem;
-import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.util.ItemHelper;
+import transfarmer.soulboundarmory.network.server.C2SReset;
+import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponBindSlot;
+import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponEnchantmentPoints;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
+import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
+import transfarmer.soulboundarmory.util.IndexedMap;
+import transfarmer.soulboundarmory.util.ItemUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.meta.When;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import static transfarmer.soulboundarmory.Main.ResourceLocations.XP_BAR;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ENCHANTMENT;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ENCHANTMENT_POINTS;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
 public abstract class Menu extends GuiScreen {
     protected final GUIFactory guiFactory;
     protected final Renderer renderer;
     protected final GuiButton[] tabs;
     protected final Item[] consumableItems;
-    protected final ISoulCapability capability;
-    protected final SoulType type;
+    protected final ICapabilityEnchantable capability;
+    protected final IItem type;
     protected final int slot;
     protected GuiSlider sliderRed;
     protected GuiSlider sliderGreen;
@@ -47,28 +62,49 @@ public abstract class Menu extends GuiScreen {
         this.tabs = new GuiButton[tabs];
         this.consumableItems = consumableItems;
 
-        ItemStack equippedItemStack = ItemHelper.getClassEquippedItemStack(this.mc.player, ISoulItem.class);
+        ItemStack equippedItemStack = ItemUtil.getClassEquippedItemStack(this.mc.player, ISoulItem.class);
 
         if (equippedItemStack == null) {
-            equippedItemStack = ItemHelper.getEquippedItemStack(this.mc.player, this.consumableItems);
+            equippedItemStack = ItemUtil.getEquippedItemStack(this.mc.player, this.consumableItems);
         }
 
         this.capability = SoulItemHelper.getCapability(this.mc.player, equippedItemStack);
-        this.type = this.capability.getCurrentType();
+        this.type = this.capability.getItemType();
         this.slot = this.mc.player.inventory.getSlotFor(equippedItemStack);
     }
 
     @Override
     public void initGui() {
         if (ColorConfig.getDisplaySliders() && this.displayXPBar()) {
-            this.addButton(this.sliderRed = this.guiFactory.colorSlider(100, 0, ColorConfig.getRed(), "red: "));
-            this.addButton(this.sliderGreen = this.guiFactory.colorSlider(101, 1, ColorConfig.getGreen(), "green: "));
-            this.addButton(this.sliderBlue = this.guiFactory.colorSlider(102, 2, ColorConfig.getBlue(), "blue: "));
-            this.addButton(this.sliderAlpha = this.guiFactory.colorSlider(103, 3, ColorConfig.getAlpha(), "alpha: "));
+            this.addButton(this.sliderRed = this.guiFactory.colorSlider(100, 0, ColorConfig.getRed(), Mappings.RED + ": "));
+            this.addButton(this.sliderGreen = this.guiFactory.colorSlider(101, 1, ColorConfig.getGreen(), Mappings.GREEN + ": "));
+            this.addButton(this.sliderBlue = this.guiFactory.colorSlider(102, 2, ColorConfig.getBlue(), Mappings.BLUE + ": "));
+            this.addButton(this.sliderAlpha = this.guiFactory.colorSlider(103, 3, ColorConfig.getAlpha(), Mappings.ALPHA + ": "));
+        }
+
+        if (ItemUtil.getClassEquippedItemStack(this.mc.player, ISoulItem.class) != null) {
+            this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, this.slot != capability.getBoundSlot()
+                    ? Mappings.MENU_BUTTON_BIND
+                    : Mappings.MENU_BUTTON_UNBIND)
+            );
         }
     }
 
-    protected GuiButton[] addAddPointButtons(final int id, final int rows, final int points) {
+    protected void displayEnchantments() {
+        final IndexedMap<Enchantment, Integer> enchantments = this.capability.getEnchantments(this.type);
+        final int size = enchantments.size();
+        final GuiButton resetButton = this.addButton(guiFactory.resetButton(3000));
+        final GuiButton[] removePointButtons = addRemovePointButtons(2000, size);
+        resetButton.enabled = this.capability.getDatum(this.type, SPENT_ENCHANTMENT_POINTS) > 0;
+
+        addPointButtons(1000, size, this.capability.getDatum(this.type, ENCHANTMENT_POINTS));
+
+        for (int i = 0; i < size; i++) {
+            removePointButtons[i].enabled = enchantments.getValue(i) > 0;
+        }
+    }
+
+    protected GuiButton[] addPointButtons(final int id, final int rows, final int points) {
         final GuiButton[] buttons = new GuiButton[rows];
 
         for (int row = 0; row < rows; row++) {
@@ -99,11 +135,25 @@ public abstract class Menu extends GuiScreen {
         }
     }
 
+    protected void drawEnchantments() {
+        final IndexedMap<Enchantment, Integer> enchantments = this.capability.getEnchantments();
+        final int points = this.capability.getDatum(this.type, ENCHANTMENT_POINTS);
+
+        if (points > 0) {
+            this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
+                    Math.round(width / 2F), 4, 0xFFFFFF);
+        }
+
+        for (int i = 0; i < enchantments.size(); i++) {
+            this.renderer.drawMiddleEnchantment(enchantments.getKey(i).getTranslatedName(enchantments.getValue(i)), i);
+        }
+    }
+
     protected void drawXPBar(final int mouseX, final int mouseY) {
         if (ColorConfig.getAlpha() >= 26F / 255) {
             final int barLeftX = (width - 182) / 2;
-            final int barTopY = (height - 4) / 2;
-            final int xp = capability.getDatum(DATA.xp, this.type);
+            final int barTopY = height - 29;
+            final int xp = capability.getDatum(this.type, XP);
 
             GlStateManager.color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha());
             this.mc.getTextureManager().bindTexture(XP_BAR);
@@ -113,11 +163,12 @@ public abstract class Menu extends GuiScreen {
                     : 182, 5);
             this.mc.getTextureManager().deleteTexture(XP_BAR);
 
-            final int level = this.capability.getDatum(DATA.level, this.type);
+            final int level = this.capability.getDatum(this.type, LEVEL);
             final String levelString = String.format("%d", level);
-            final int levelLeftX = Math.round((width - this.fontRenderer.getStringWidth(levelString)) / 2F) + 1;
-            final int levelTopY = height / 2 - 8;
+            final int levelLeftX = (width - this.fontRenderer.getStringWidth(levelString)) / 2;
+            final int levelTopY = barTopY - 6;
             final int color = (new java.awt.Color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha())).getRGB();
+
             this.fontRenderer.drawString(levelString, levelLeftX + 1, levelTopY, 0);
             this.fontRenderer.drawString(levelString, levelLeftX - 1, levelTopY, 0);
             this.fontRenderer.drawString(levelString, levelLeftX, levelTopY + 1, 0);
@@ -126,7 +177,7 @@ public abstract class Menu extends GuiScreen {
 
             if (mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
                     && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT && MainConfig.instance().getMaxLevel() >= 0) {
-                this.drawHoveringText(String.format("%d/%d", capability.getDatum(DATA.level, this.type), MainConfig.instance().getMaxLevel()), mouseX, mouseY);
+                this.drawHoveringText(String.format("%d/%d", level, MainConfig.instance().getMaxLevel()), mouseX, mouseY);
             } else if (this.isMouseOverXPBar(mouseX, mouseY)) {
                 this.drawHoveringText(this.capability.canLevelUp(this.type)
                         ? String.format("%d/%d", xp, capability.getNextLevelXP(this.type))
@@ -260,13 +311,54 @@ public abstract class Menu extends GuiScreen {
 
     @Override
     protected void actionPerformed(GuiButton button) {
-        switch (button.id) {
-            case 100:
-            case 101:
-            case 102:
-            case 103:
-                this.updateSettings();
-            default:
+        Enchantment enchantment = Enchantment.getEnchantmentByID(button.id - 1000);
+
+        if (enchantment != null) {
+            int amount = 1;
+
+            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+                amount = this.capability.getDatum(this.type, ENCHANTMENT_POINTS);
+            }
+
+            Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(this.type, enchantment, amount));
+        } else if ((enchantment = Enchantment.getEnchantmentByID(button.id - 2000)) != null) {
+            int amount = 1;
+
+            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+                amount = this.capability.getDatum(this.type, SPENT_ENCHANTMENT_POINTS);
+            }
+
+            Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(this.type, enchantment, -amount));
+        } else {
+            switch (button.id) {
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                    this.refresh(button.id - 16);
+                    break;
+                case 20:
+                    Main.CHANNEL.sendToServer(new C2SReset(this.capability.getType(), this.type, ATTRIBUTE));
+                    break;
+                case 21:
+                    Main.CHANNEL.sendToServer(new C2SReset(this.capability.getType(), this.type, ENCHANTMENT));
+                    break;
+                case 22:
+                    if (capability.getBoundSlot() == this.slot) {
+                        capability.unbindSlot();
+                    } else {
+                        capability.bindSlot(this.slot);
+                    }
+
+                    this.mc.displayGuiScreen(new SoulWeaponMenu());
+                    Main.CHANNEL.sendToServer(new C2SWeaponBindSlot(this.slot));
+                    break;
+                case 100:
+                case 101:
+                case 102:
+                case 103:
+                    this.updateSettings();
+            }
         }
     }
 
@@ -315,7 +407,7 @@ public abstract class Menu extends GuiScreen {
     public class Renderer {
         private final NumberFormat FORMAT = DecimalFormat.getInstance();
 
-        public void drawMiddleAttribute(String format, float value, int row) {
+        public void drawMiddleAttribute(String format, double value, int row) {
             drawString(fontRenderer, String.format(format, FORMAT.format(value)), (width - 182) / 2, (row + 1) * height / 16, 0xFFFFFF);
         }
 
@@ -323,4 +415,7 @@ public abstract class Menu extends GuiScreen {
             drawString(fontRenderer, entry, (width - 182) / 2, (row + 1) * height / 16, 0xFFFFFF);
         }
     }
+
+    @Nonnull(when = When.MAYBE)
+    protected abstract IStatistic getAttribute(final int index);
 }

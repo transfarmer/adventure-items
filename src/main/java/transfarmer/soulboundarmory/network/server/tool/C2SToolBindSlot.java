@@ -1,15 +1,15 @@
 package transfarmer.soulboundarmory.network.server.tool;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.IItemCapability;
+import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
+import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.IExtendedMessage;
+import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolBindSlot;
 
-public class C2SToolBindSlot implements IMessage {
+public class C2SToolBindSlot implements IExtendedMessage {
     private int slot;
 
     public C2SToolBindSlot() {}
@@ -19,20 +19,20 @@ public class C2SToolBindSlot implements IMessage {
     }
 
     @Override
-    public void fromBytes(final ByteBuf buffer) {
+    public void fromBytes(final ExtendedPacketBuffer buffer) {
         this.slot = buffer.readInt();
     }
 
     @Override
-    public void toBytes(final ByteBuf buffer) {
+    public void toBytes(final ExtendedPacketBuffer buffer) {
         buffer.writeInt(this.slot);
     }
 
-    public static final class Handler implements IMessageHandler<C2SToolBindSlot, IMessage> {
+    public static final class Handler implements IExtendedMessageHandler<C2SToolBindSlot> {
         @Override
-        public IMessage onMessage(final C2SToolBindSlot message, final MessageContext context) {
+        public IExtendedMessage onMessage(final C2SToolBindSlot message, final MessageContext context) {
             final EntityPlayer player = context.getServerHandler().player;
-            final ISoulCapability capability = SoulToolProvider.get(player);
+            final IItemCapability capability = ToolProvider.get(player);
 
             if (capability.getBoundSlot() == message.slot) {
                 capability.unbindSlot();

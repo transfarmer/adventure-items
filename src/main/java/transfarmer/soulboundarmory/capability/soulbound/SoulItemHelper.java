@@ -10,13 +10,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
-import transfarmer.soulboundarmory.util.ListUtils;
+import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -30,17 +30,17 @@ public class SoulItemHelper {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
     private static boolean datumEquality;
 
-    public static ISoulCapability getCapability(final Class<? extends ISoulCapability> cls, final EntityPlayer player) {
-        if (cls == ISoulWeapon.class) {
-            return SoulWeaponProvider.get(player);
-        } else if (cls == ISoulCapability.class) {
-            return SoulToolProvider.get(player);
+    public static IItemCapability getCapability(final Class<? extends IItemCapability> cls, final EntityPlayer player) {
+        if (cls == IWeapon.class) {
+            return WeaponProvider.get(player);
+        } else if (cls == IItemCapability.class) {
+            return ToolProvider.get(player);
         }
 
         return null;
     }
 
-    public static ISoulCapability getCapability(final EntityPlayer player, @Nullable Item item) {
+    public static ICapabilityEnchantable getCapability(final EntityPlayer player, @Nullable Item item) {
         if (item == null) {
             item = player.getHeldItemMainhand().getItem();
 
@@ -50,13 +50,13 @@ public class SoulItemHelper {
         }
 
         return item instanceof ItemSoulWeapon || item == Items.WOODEN_SWORD
-                ? SoulWeaponProvider.get(player)
+                ? WeaponProvider.get(player)
                 : item instanceof IItemSoulTool || item == Items.WOODEN_PICKAXE
-                ? SoulToolProvider.get(player)
+                ? ToolProvider.get(player)
                 : null;
     }
 
-    public static ISoulCapability getCapability(final EntityPlayer player, ItemStack itemStack) {
+    public static ICapabilityEnchantable getCapability(final EntityPlayer player, ItemStack itemStack) {
         return getCapability(player, itemStack.getItem());
     }
 
@@ -73,11 +73,11 @@ public class SoulItemHelper {
         }
 
         if (!hasReservedSlot) {
-            final int weaponBoundSlot = SoulWeaponProvider.get(player).getBoundSlot();
-            final int toolBoundSlot = SoulToolProvider.get(player).getBoundSlot();
+            final int weaponBoundSlot = WeaponProvider.get(player).getBoundSlot();
+            final int toolBoundSlot = ToolProvider.get(player).getBoundSlot();
             final int slot = inventory.storeItemStack(itemStack);
             final int size = inventory.mainInventory.size();
-            final List<ItemStack> mergedInventory = ListUtils.fromArray(NonNullList.create(), inventory.mainInventory, inventory.offHandInventory);
+            final List<ItemStack> mergedInventory = CollectionUtil.fromCollections(NonNullList.create(), inventory.mainInventory, inventory.offHandInventory);
 
             if (slot != -1) {
                 final ItemStack slotStack = slot != 40 ? mergedInventory.get(slot) : mergedInventory.get(size);

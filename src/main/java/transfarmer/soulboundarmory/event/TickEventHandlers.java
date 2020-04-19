@@ -12,9 +12,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.IItemCapability;
+import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
@@ -39,8 +39,8 @@ public class TickEventHandlers {
     @SubscribeEvent
     public static void onPlayerTick(final PlayerTickEvent event) {
         if (event.phase == END) {
-            final ISoulCapability weaponCapability = SoulWeaponProvider.get(event.player);
-            final ISoulCapability toolCapability = SoulToolProvider.get(event.player);
+            final IItemCapability weaponCapability = WeaponProvider.get(event.player);
+            final IItemCapability toolCapability = ToolProvider.get(event.player);
 
             weaponCapability.onTick();
             toolCapability.onTick();

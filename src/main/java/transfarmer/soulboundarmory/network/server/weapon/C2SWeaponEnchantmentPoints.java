@@ -1,51 +1,51 @@
 package transfarmer.soulboundarmory.network.server.weapon;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
+import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.IExtendedMessage;
+import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
 import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponSpendEnchantmentPoints;
-import transfarmer.soulboundarmory.statistics.SoulEnchantment;
-import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponEnchantment;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
-public class C2SWeaponEnchantmentPoints implements IMessage {
+public class C2SWeaponEnchantmentPoints implements IExtendedMessage {
     private int amount;
-    private int enchantmentIndex;
-    private int typeIndex;
+    private String enchantment;
+    private String item;
 
-    public C2SWeaponEnchantmentPoints() {}
+    public C2SWeaponEnchantmentPoints() {
+    }
 
-    public C2SWeaponEnchantmentPoints(final int amount, final SoulEnchantment enchantment, final SoulType type) {
+    public C2SWeaponEnchantmentPoints(final IItem item, final Enchantment enchantment, final int amount) {
         this.amount = amount;
-        this.enchantmentIndex = enchantment.getIndex();
-        this.typeIndex = type.getIndex();
+        this.enchantment = enchantment.getName();
+        this.item = item.toString();
     }
 
     @Override
-    public void fromBytes(final ByteBuf buffer) {
+    public void fromBytes(final ExtendedPacketBuffer buffer) {
         this.amount = buffer.readInt();
-        this.enchantmentIndex = buffer.readInt();
-        this.typeIndex = buffer.readInt();
+        this.enchantment = buffer.readString();
+        this.item = buffer.readString();
     }
 
     @Override
-    public void toBytes(final ByteBuf buffer) {
+    public void toBytes(final ExtendedPacketBuffer buffer) {
         buffer.writeInt(this.amount);
-        buffer.writeInt(this.enchantmentIndex);
-        buffer.writeInt(this.typeIndex);
+        buffer.writeString(this.enchantment);
+        buffer.writeString(this.item);
     }
 
-    public static final class Handler implements IMessageHandler<C2SWeaponEnchantmentPoints, IMessage> {
+    public static final class Handler implements IExtendedMessageHandler<C2SWeaponEnchantmentPoints> {
         @Override
-        public IMessage onMessage(final C2SWeaponEnchantmentPoints message, final MessageContext context) {
-            final ISoulWeapon instance = SoulWeaponProvider.get(context.getServerHandler().player);
-            final SoulEnchantment enchantment = SoulWeaponEnchantment.get(message.enchantmentIndex);
-            final SoulType weaponType = instance.getType(message.typeIndex);
+        public IExtendedMessage onMessage(final C2SWeaponEnchantmentPoints message, final MessageContext context) {
+            final IWeapon instance = WeaponProvider.get(context.getServerHandler().player);
+            final Enchantment enchantment = Enchantment.getEnchantmentByLocation(message.enchantment);
+            final IItem weaponType = instance.getItemType(message.item);
 
-            instance.addEnchantment(message.amount, enchantment, weaponType);
+            instance.addEnchantment(weaponType, enchantment, message.amount);
 
             return new S2CWeaponSpendEnchantmentPoints(message.amount, enchantment, weaponType);
         }

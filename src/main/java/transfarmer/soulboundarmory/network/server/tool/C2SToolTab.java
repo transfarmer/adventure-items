@@ -1,12 +1,12 @@
 package transfarmer.soulboundarmory.network.server.tool;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
+import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.IExtendedMessage;
+import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
 
-public class C2SToolTab implements IMessage {
+public class C2SToolTab implements IExtendedMessage {
     int tab;
 
     public C2SToolTab() {}
@@ -15,18 +15,18 @@ public class C2SToolTab implements IMessage {
         this.tab = tab;
     }
 
-    public void fromBytes(final ByteBuf buffer) {
+    public void fromBytes(final ExtendedPacketBuffer buffer) {
         this.tab = buffer.readInt();
     }
 
-    public void toBytes(final ByteBuf buffer) {
+    public void toBytes(final ExtendedPacketBuffer buffer) {
         buffer.writeInt(this.tab);
     }
 
-    public static final class Handler implements IMessageHandler<C2SToolTab, IMessage> {
+    public static final class Handler implements IExtendedMessageHandler<C2SToolTab> {
         @Override
-        public IMessage onMessage(C2SToolTab message, MessageContext context) {
-            SoulToolProvider.get(context.getServerHandler().player).setCurrentTab(message.tab);
+        public IExtendedMessage onMessage(C2SToolTab message, MessageContext context) {
+            ToolProvider.get(context.getServerHandler().player).setCurrentTab(message.tab);
 
             return null;
         }

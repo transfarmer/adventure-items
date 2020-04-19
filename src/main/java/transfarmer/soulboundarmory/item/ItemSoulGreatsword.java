@@ -11,34 +11,34 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 
 import javax.annotation.Nonnull;
 
-import static transfarmer.soulboundarmory.statistics.SoulDatum.SoulWeaponDatum.WEAPON_DATA;
-import static transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType.GREATSWORD;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
 
 public class ItemSoulGreatsword extends ItemSoulWeapon {
-    public ItemSoulGreatsword() {
-        super(3, -3.2F, 3);
+    public ItemSoulGreatsword(final String name) {
+        super(3, -3.2F, 3, name);
     }
 
     @Override
-    public int getMaxItemUseDuration(final ItemStack stack) {
+    public int getMaxItemUseDuration(@Nonnull final ItemStack stack) {
         return 200;
     }
 
     @Override
     @Nonnull
-    public EnumAction getItemUseAction(final ItemStack stack) {
+    public EnumAction getItemUseAction(@Nonnull final ItemStack stack) {
         return EnumAction.BOW;
     }
 
     @Override
     @Nonnull
     public ActionResult<ItemStack> onItemRightClick(final World world, @Nonnull final EntityPlayer player, @Nonnull final EnumHand hand) {
-        if (!world.isRemote && SoulWeaponProvider.get(player).getDatum(WEAPON_DATA.skills, GREATSWORD) >= 1) {
+        if (!world.isRemote && WeaponProvider.get(player).getDatum(GREATSWORD, SKILLS) >= 1) {
             player.setActiveHand(hand);
 
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
@@ -60,7 +60,7 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
             entity.setSprinting(true);
 
             if (entity instanceof EntityPlayer) {
-                final ISoulWeapon capability = SoulWeaponProvider.get(entity);
+                final IWeapon capability = WeaponProvider.get(entity);
 
                 capability.setLeapForce(maxSpeed / speed);
             }
@@ -69,7 +69,7 @@ public class ItemSoulGreatsword extends ItemSoulWeapon {
 
 
     @Override
-    public void onUpdate(final ItemStack itemStack, final World world, final Entity entity, final int itemSlot, final boolean isSelected) {
+    public void onUpdate(@Nonnull final ItemStack itemStack, final World world, @Nonnull final Entity entity, final int itemSlot, final boolean isSelected) {
         if (world.isRemote && isSelected) {
             final EntityPlayerSP player = (EntityPlayerSP) entity;
             final ItemStack activeStack = player.getActiveItemStack();

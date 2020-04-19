@@ -1,54 +1,48 @@
 package transfarmer.soulboundarmory.network.client;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.IExtendedMessage;
+import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
+import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class S2CSync implements IMessage {
-    private String capabilityType;
+public class S2CSync implements IExtendedMessage {
+    private String capability;
     private NBTTagCompound tag;
 
     public S2CSync() {}
 
-    public S2CSync(final String capabilityType, final NBTTagCompound tag) {
-        this.capabilityType = capabilityType;
+    public S2CSync(final ICapabilityType capability, final NBTTagCompound tag) {
+        this.capability = capability.toString();
         this.tag = tag;
     }
 
     @SideOnly(CLIENT)
-    public void fromBytes(final ByteBuf buffer) {
-        this.capabilityType = ByteBufUtils.readUTF8String(buffer);
-        this.tag = ByteBufUtils.readTag(buffer);
+    public void fromBytes(final ExtendedPacketBuffer buffer) {
+        this.capability = buffer.readString();
+        this.tag = buffer.readCompoundTag();
     }
 
-    public void toBytes(final ByteBuf buffer) {
-        ByteBufUtils.writeUTF8String(buffer, this.capabilityType);
-        ByteBufUtils.writeTag(buffer, this.tag);
+    public void toBytes(final ExtendedPacketBuffer buffer) {
+        buffer.writeString(this.capability);
+        buffer.writeCompoundTag(this.tag);
     }
 
-    public static final class Handler implements IMessageHandler<S2CSync, IMessage> {
+    public static final class Handler implements IExtendedMessageHandler<S2CSync> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final S2CSync message, final MessageContext context) {
+        public IExtendedMessage onMessage(final S2CSync message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
 
             minecraft.addScheduledTask(() -> {
-                switch (message.capabilityType) {
-                    case "tool":
-                        SoulToolProvider.get(minecraft.player).readFromNBT(message.tag);
-                        break;
-                    case "weapon":
-                        SoulWeaponProvider.get(minecraft.player).readFromNBT(message.tag);
-                }
+                final ICapabilityType type = ICapabilityType.get(message.capability);
+
+                minecraft.player.getCapability(type.getCapability(), null).deserializeNBT(message.tag);
             });
 
             return null;

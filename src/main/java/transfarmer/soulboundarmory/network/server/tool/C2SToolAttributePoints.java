@@ -1,52 +1,50 @@
 package transfarmer.soulboundarmory.network.server.tool;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.IItemCapability;
+import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
+import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.IExtendedMessage;
+import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolSpendAttributePoints;
-import transfarmer.soulboundarmory.statistics.SoulAttribute;
-import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
+import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 
-public class C2SToolAttributePoints implements IMessage {
+public class C2SToolAttributePoints implements IExtendedMessage {
     private int amount;
-    private int attributeIndex;
-    private int ToolIndex;
+    private String statistic;
+    private String item;
 
     public C2SToolAttributePoints() {}
 
-    public C2SToolAttributePoints(final int amount, final SoulAttribute attribute, final SoulType type) {
+    public C2SToolAttributePoints(final IItem type, final IStatistic attribute, final int amount) {
         this.amount = amount;
-        this.attributeIndex = attribute.getIndex();
-        this.ToolIndex = type.getIndex();
+        this.statistic = attribute.toString();
+        this.item = type.toString();
     }
 
     @Override
-    public void fromBytes(final ByteBuf buffer) {
+    public void fromBytes(final ExtendedPacketBuffer buffer) {
         this.amount = buffer.readInt();
-        this.attributeIndex = buffer.readInt();
-        this.ToolIndex = buffer.readInt();
+        this.statistic = buffer.readString();
+        this.item = buffer.readString();
     }
 
     @Override
-    public void toBytes(final ByteBuf buffer) {
+    public void toBytes(final ExtendedPacketBuffer buffer) {
         buffer.writeInt(this.amount);
-        buffer.writeInt(this.attributeIndex);
-        buffer.writeInt(this.ToolIndex);
+        buffer.writeString(this.statistic);
+        buffer.writeString(this.item);
     }
 
-    public static final class Handler implements IMessageHandler<C2SToolAttributePoints, IMessage> {
+    public static final class Handler implements IExtendedMessageHandler<C2SToolAttributePoints> {
         @Override
-        public IMessage onMessage(final C2SToolAttributePoints message, final MessageContext context) {
-            final SoulAttribute attribute = SoulToolAttribute.get(message.attributeIndex);
-            final SoulType type = SoulToolType.get(message.ToolIndex);
-            final ISoulCapability instance = SoulToolProvider.get(context.getServerHandler().player);
+        public IExtendedMessage onMessage(final C2SToolAttributePoints message, final MessageContext context) {
+            final IStatistic attribute = IStatistic.get(message.statistic);
+            final IItem type = IItem.get(message.item);
+            final IItemCapability instance = ToolProvider.get(context.getServerHandler().player);
 
-            instance.addAttribute(message.amount, attribute, type);
+            instance.addAttribute(type, attribute, message.amount);
 
             return new S2CToolSpendAttributePoints(message.amount, attribute, type);
         }

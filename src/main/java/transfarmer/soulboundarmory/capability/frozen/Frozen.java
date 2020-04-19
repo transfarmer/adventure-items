@@ -26,7 +26,7 @@ public class Frozen implements IFrozen {
     }
 
     @Override
-    public void freeze(final EntityPlayer freezer, final float damage, final int ticks) {
+    public void freeze(final EntityPlayer freezer, final int ticks, final float damage) {
         ((WorldServer) freezer.world).spawnParticle(
                 EnumParticleTypes.SNOWBALL,
                 this.entity.posX, this.entity.posY + this.entity.getEyeHeight(), this.entity.posZ, 32, 0.1, 0, 0.1, 2D);
@@ -70,7 +70,7 @@ public class Frozen implements IFrozen {
     }
 
     @Override
-    public NBTTagCompound writeToNBT() {
+    public NBTTagCompound serializeNBT() {
         final NBTTagCompound tag = new NBTTagCompound();
 
         tag.setInteger("soulboundarmory.frozen.freezeTicks", this.freezeTicks);
@@ -79,7 +79,7 @@ public class Frozen implements IFrozen {
     }
 
     @Override
-    public void readFromNBT(final NBTTagCompound nbt) {
+    public void deserializeNBT(final NBTTagCompound nbt) {
         this.freezeTicks = nbt.getInteger("soulboundarmory.frozen.freezeTicks");
     }
 }

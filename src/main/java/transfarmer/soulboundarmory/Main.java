@@ -31,16 +31,14 @@ import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigStorage;
 import transfarmer.soulboundarmory.capability.frozen.Frozen;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
-import transfarmer.soulboundarmory.capability.frozen.FrozenStorage;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulTool;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolStorage;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponStorage;
+import transfarmer.soulboundarmory.capability.soulbound.Storage;
+import transfarmer.soulboundarmory.capability.soulbound.tool.ITool;
+import transfarmer.soulboundarmory.capability.soulbound.tool.Tool;
+import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.Weapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.client.render.RenderReachModifier;
 import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
 import transfarmer.soulboundarmory.command.CommandSoulboundArmory;
@@ -52,30 +50,22 @@ import transfarmer.soulboundarmory.network.client.S2CConfig;
 import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
 import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolBindSlot;
-import transfarmer.soulboundarmory.network.client.tool.S2CToolDatum;
-import transfarmer.soulboundarmory.network.client.tool.S2CToolResetAttributes;
-import transfarmer.soulboundarmory.network.client.tool.S2CToolResetEnchantments;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolSpendAttributePoints;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolSpendEnchantmentPoints;
 import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponBindSlot;
-import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponResetAttributes;
-import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponResetEnchantments;
 import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponSpendEnchantmentPoints;
 import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponSpentAttributePoints;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
+import transfarmer.soulboundarmory.network.server.C2SReset;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolAttributePoints;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolBindSlot;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolEnchantmentPoints;
-import transfarmer.soulboundarmory.network.server.tool.C2SToolResetAttributes;
-import transfarmer.soulboundarmory.network.server.tool.C2SToolResetEnchantments;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolTab;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolType;
 import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponAttributePoints;
 import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponBindSlot;
 import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponEnchantmentPoints;
-import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponResetAttributes;
-import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponResetEnchantments;
-import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponTAb;
+import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponTab;
 import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -95,9 +85,9 @@ public class Main {
 
     @EventHandler
     public static void onPreinit(final FMLPreInitializationEvent event) {
-        CapabilityManager.INSTANCE.register(ISoulWeapon.class, new SoulWeaponStorage(), SoulWeapon::new);
-        CapabilityManager.INSTANCE.register(ISoulCapability.class, new SoulToolStorage(), SoulTool::new);
-        CapabilityManager.INSTANCE.register(IFrozen.class, new FrozenStorage(), Frozen::new);
+        CapabilityManager.INSTANCE.register(IWeapon.class, new Storage<>(), Weapon::new);
+        CapabilityManager.INSTANCE.register(ITool.class, new Storage<>(), Tool::new);
+        CapabilityManager.INSTANCE.register(IFrozen.class, new Storage<>(), Frozen::new);
         CapabilityManager.INSTANCE.register(IPlayerConfig.class, new PlayerConfigStorage(), PlayerConfig::new);
 
         CHANNEL.registerMessage(S2CSync.Handler.class, S2CSync.class, id++, CLIENT);
@@ -105,34 +95,26 @@ public class Main {
 
         CHANNEL.registerMessage(S2CToolSpendAttributePoints.Handler.class, S2CToolSpendAttributePoints.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CToolSpendEnchantmentPoints.Handler.class, S2CToolSpendEnchantmentPoints.class, id++, CLIENT);
-        CHANNEL.registerMessage(S2CToolResetAttributes.Handler.class, S2CToolResetAttributes.class, id++, CLIENT);
-        CHANNEL.registerMessage(S2CToolResetEnchantments.Handler.class, S2CToolResetEnchantments.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CToolBindSlot.Handler.class, S2CToolBindSlot.class, id++, CLIENT);
-        CHANNEL.registerMessage(S2CToolDatum.Handler.class, S2CToolDatum.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CLevelupMessage.Handler.class, S2CLevelupMessage.class, id++, CLIENT);
 
         CHANNEL.registerMessage(S2CWeaponSpentAttributePoints.Handler.class, S2CWeaponSpentAttributePoints.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CWeaponSpendEnchantmentPoints.Handler.class, S2CWeaponSpendEnchantmentPoints.class, id++, CLIENT);
-        CHANNEL.registerMessage(S2CWeaponResetAttributes.Handler.class, S2CWeaponResetAttributes.class, id++, CLIENT);
-        CHANNEL.registerMessage(S2CWeaponResetEnchantments.Handler.class, S2CWeaponResetEnchantments.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CWeaponBindSlot.Handler.class, S2CWeaponBindSlot.class, id++, CLIENT);
 
         CHANNEL.registerMessage(C2SConfig.Handler.class, C2SConfig.class, id++, SERVER);
+        CHANNEL.registerMessage(C2SReset.Handler.class, C2SReset.class, id++, SERVER);
 
         CHANNEL.registerMessage(C2SToolType.Handler.class, C2SToolType.class, id++, SERVER);
         CHANNEL.registerMessage(C2SToolAttributePoints.Handler.class, C2SToolAttributePoints.class, id++, SERVER);
         CHANNEL.registerMessage(C2SToolEnchantmentPoints.Handler.class, C2SToolEnchantmentPoints.class, id++, SERVER);
         CHANNEL.registerMessage(C2SToolTab.Handler.class, C2SToolTab.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SToolResetAttributes.Handler.class, C2SToolResetAttributes.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SToolResetEnchantments.Handler.class, C2SToolResetEnchantments.class, id++, SERVER);
         CHANNEL.registerMessage(C2SToolBindSlot.Handler.class, C2SToolBindSlot.class, id++, SERVER);
 
         CHANNEL.registerMessage(C2SWeaponType.Handler.class, C2SWeaponType.class, id++, SERVER);
         CHANNEL.registerMessage(C2SWeaponAttributePoints.Handler.class, C2SWeaponAttributePoints.class, id++, SERVER);
         CHANNEL.registerMessage(C2SWeaponEnchantmentPoints.Handler.class, C2SWeaponEnchantmentPoints.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SWeaponTAb.Handler.class, C2SWeaponTAb.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SWeaponResetAttributes.Handler.class, C2SWeaponResetAttributes.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SWeaponResetEnchantments.Handler.class, C2SWeaponResetEnchantments.class, id++, SERVER);
+        CHANNEL.registerMessage(C2SWeaponTab.Handler.class, C2SWeaponTab.class, id++, SERVER);
         CHANNEL.registerMessage(C2SWeaponBindSlot.Handler.class, C2SWeaponBindSlot.class, id++, SERVER);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
@@ -182,8 +164,8 @@ public class Main {
             final Entity entity = event.getObject();
 
             if (entity instanceof EntityPlayer) {
-                event.addCapability(new ResourceLocation(MOD_ID, "soulboundtool"), new SoulToolProvider());
-                event.addCapability(new ResourceLocation(MOD_ID, "soulboundweapon"), new SoulWeaponProvider());
+                event.addCapability(new ResourceLocation(MOD_ID, "soulboundtool"), new ToolProvider());
+                event.addCapability(new ResourceLocation(MOD_ID, "soulboundweapon"), new WeaponProvider());
                 event.addCapability(new ResourceLocation(MOD_ID, "playerconfig"), new PlayerConfigProvider());
             }
 

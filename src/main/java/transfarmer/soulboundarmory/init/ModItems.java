@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.init;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -9,12 +8,10 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.item.ItemSoulPick;
-import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ItemSoulDagger;
 import transfarmer.soulboundarmory.item.ItemSoulGreatsword;
+import transfarmer.soulboundarmory.item.ItemSoulboundPick;
 import transfarmer.soulboundarmory.item.ItemSoulSword;
-import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 
 import javax.annotation.Nonnull;
 
@@ -33,28 +30,20 @@ public class ModItems {
     @Nonnull
     public static final ItemSoulDagger SOULBOUND_DAGGER = null;
     @Nonnull
-    public static final ItemSoulPick SOULBOUND_PICK = null;
+    public static final ItemSoulboundPick SOULBOUND_PICK = null;
+
+    private static final Item[] ITEMS = {SOULBOUND_DAGGER, SOULBOUND_GREATSWORD, SOULBOUND_SWORD, SOULBOUND_PICK};
 
     @EventBusSubscriber(modid = MOD_ID)
     public static class RegistrationHandler {
         @SubscribeEvent
         public static void onRegisterItems(RegistryEvent.Register<Item> event) {
             event.getRegistry().registerAll(
-                    setup(new ItemSoulGreatsword(), "soulbound_greatsword"),
-                    setup(new ItemSoulSword(), "soulbound_sword"),
-                    setup(new ItemSoulDagger(), "soulbound_dagger"),
-                    setup(new ItemSoulPick(), "soulbound_pick")
+                    new ItemSoulGreatsword("soulbound_greatsword"),
+                    new ItemSoulSword("soulbound_sword"),
+                    new ItemSoulDagger("soulbound_dagger"),
+                    new ItemSoulboundPick("soulbound_pick")
             );
-        }
-
-        public static Item setup(ItemSoulWeapon item, String name) {
-            return item.setRegistryName(MOD_ID, name).setCreativeTab(CreativeTabs.COMBAT)
-                    .setTranslationKey(String.format("%s.%s", MOD_ID, name));
-        }
-
-        public static Item setup(IItemSoulTool item, String name) {
-            return ((Item) item).setRegistryName(MOD_ID, name).setCreativeTab(CreativeTabs.TOOLS)
-                    .setTranslationKey(String.format("%s.%s", MOD_ID, name));
         }
 
         @SideOnly(CLIENT)

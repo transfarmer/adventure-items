@@ -1,17 +1,17 @@
 package transfarmer.soulboundarmory.network.client.tool;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
-import transfarmer.soulboundarmory.capability.soulbound.tool.SoulToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.IItemCapability;
+import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
+import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.IExtendedMessage;
+import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class S2CToolBindSlot implements IMessage {
+public class S2CToolBindSlot implements IExtendedMessage {
     private int slot;
 
     public S2CToolBindSlot() {}
@@ -21,21 +21,21 @@ public class S2CToolBindSlot implements IMessage {
     }
 
     @Override
-    public void fromBytes(final ByteBuf buffer) {
+    public void fromBytes(final ExtendedPacketBuffer buffer) {
         this.slot = buffer.readInt();
     }
 
     @Override
-    public void toBytes(final ByteBuf buffer) {
+    public void toBytes(final ExtendedPacketBuffer buffer) {
         buffer.writeInt(this.slot);
     }
 
-    public static final class Handler implements IMessageHandler<S2CToolBindSlot, IMessage> {
+    public static final class Handler implements IExtendedMessageHandler<S2CToolBindSlot> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final S2CToolBindSlot message, final MessageContext context) {
+        public IExtendedMessage onMessage(final S2CToolBindSlot message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final ISoulCapability capability = SoulToolProvider.get(minecraft.player);
+            final IItemCapability capability = ToolProvider.get(minecraft.player);
 
             minecraft.addScheduledTask(() -> capability.bindSlot(message.slot));
 

@@ -6,39 +6,46 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.IItemCapability;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.config.ColorConfig;
-import transfarmer.soulboundarmory.statistics.SoulType;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
 import java.awt.*;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.XP_BAR;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
 @SideOnly(CLIENT)
 public class TooltipXPBar extends Gui {
-    protected static TooltipXPBar instance = new TooltipXPBar();
+    protected static final TooltipXPBar instance = new TooltipXPBar();
 
-    protected static final Minecraft minecraft = Minecraft.getMinecraft();
-    protected static final FontRenderer fontRenderer = minecraft.fontRenderer;
+    protected final Minecraft minecraft = Minecraft.getMinecraft();
+    protected final FontRenderer fontRenderer = minecraft.fontRenderer;
 
     protected ItemStack itemStack;
-    protected ISoulCapability capability;
-    protected SoulType type;
+    protected IItemCapability capability;
+    protected IItem item;
+    protected int row;
 
-    protected void init(final ItemStack itemStack) {
+    public static void setRow(final int row) {
+        if (instance.row != row) {
+            instance.row = row;
+        }
+    }
+
+    protected void setItemStack(final ItemStack itemStack) {
         this.itemStack = itemStack;
-        this.capability = SoulItemHelper.getCapability(minecraft.player, itemStack.getItem());
-        this.type = this.capability.getType(itemStack);
+        this.capability = SoulItemHelper.getCapability(this.minecraft.player, itemStack.getItem());
+        this.item = this.capability.getItemType(itemStack);
     }
 
     protected void renderXPBar(final int tooltipX, final int tooltipY) {
-        final int originalEnchantments = this.itemStack.getEnchantmentTagList().tagCount();
-        final int level = this.capability.getDatum(DATA.level, this.type);
+        final int level = this.capability.getDatum(this.item, LEVEL);
         final int barLeftX = tooltipX + 44;
-        final int barTopY = tooltipY + (originalEnchantments + this.capability.getTooltip(this.type).indexOf("") + 4) * 10;
+        final int barTopY = tooltipY + row * 10;
         final int length = 62;
 
         GlStateManager.disableDepth();
@@ -48,7 +55,7 @@ public class TooltipXPBar extends Gui {
 
         this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 10, length, 5);
         this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 15,
-                Math.min(length, Math.round((float) this.capability.getDatum(DATA.xp, this.type) / this.capability.getNextLevelXP(this.type) * length)), 5);
+                Math.min(length, Math.round((float) this.capability.getDatum(this.item, XP) / this.capability.getNextLevelXP(this.item) * length)), 5);
 
         minecraft.getTextureManager().deleteTexture(XP_BAR);
 
@@ -68,8 +75,8 @@ public class TooltipXPBar extends Gui {
     }
 
     public static void render(final int tooltipX, final int tooltipY, final ItemStack itemStack) {
-        if (instance.itemStack == null || !instance.itemStack.getItem().equals(itemStack.getItem())) {
-            instance.init(itemStack);
+        if (instance.itemStack != itemStack) {
+            instance.setItemStack(itemStack);
         }
 
         instance.renderXPBar(tooltipX, tooltipY);

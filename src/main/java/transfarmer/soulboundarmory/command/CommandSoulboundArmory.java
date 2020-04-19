@@ -8,23 +8,27 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import transfarmer.soulboundarmory.capability.soulbound.ISoulCapability;
+import transfarmer.soulboundarmory.capability.soulbound.IItemCapability;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
-import transfarmer.soulboundarmory.statistics.SoulDatum;
-import transfarmer.soulboundarmory.util.ListUtils;
+import transfarmer.soulboundarmory.client.i18n.Mappings;
+import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
+import transfarmer.soulboundarmory.util.CollectionUtil;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-import static transfarmer.soulboundarmory.statistics.SoulDatum.DATA;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
 public class CommandSoulboundArmory extends CommandBase {
-    private static final List<String> COMMAND_TYPES = ListUtils.arrayList("xp", "level", "reset");
-    private static final List<String> OPERATIONS = ListUtils.arrayList("add", "set");
+    private static final List<String> COMMAND_TYPES = CollectionUtil.arrayList("xp", "level", "reset");
+    private static final List<String> OPERATIONS = CollectionUtil.arrayList("add", "set");
 
     @Override
+    @Nonnull
     public String getName() {
         return "sba";
     }
@@ -34,10 +38,10 @@ public class CommandSoulboundArmory extends CommandBase {
         return 2;
     }
 
-    @ParametersAreNonnullByDefault
     @Override
-    public String getUsage(final ICommandSender sender) {
-        return "command.soulboundarmory.usage";
+    @Nonnull
+    public String getUsage(@Nullable final ICommandSender sender) {
+        return String.format("%s\n%s", Mappings.COMMAND_USAGE_0, Mappings.COMMAND_USAGE_1);
     }
 
     @ParametersAreNonnullByDefault
@@ -54,61 +58,77 @@ public class CommandSoulboundArmory extends CommandBase {
                         : (EntityPlayerMP) sender;
 
                 if (player != null) {
-                    final ISoulCapability capability = SoulItemHelper.getCapability(player, (Item) null);
+                    final IItemCapability capability = SoulItemHelper.getCapability(player, (Item) null);
 
-                    if (commandType.equals("reset")) {
-                        capability.init();
-                    } else {
-                        if (args.length < 3) {
-                            throw new WrongUsageException(this.getUsage(null));
-                        }
-
-                        final String operation = args[1];
-                        final SoulDatum datum;
-
-                        if (commandType.equals("xp")) {
-                            datum = DATA.xp;
+                    if (capability != null) {
+                        if (commandType.equals("reset")) {
+                            capability.reset();
                         } else {
-                            datum = DATA.level;
-                        }
+                            if (args.length < 3) {
+                                throw new WrongUsageException(this.getUsage(null));
+                            }
 
-                        if (operation.equals("add") || operation.equals("set")) {
-                            final int amount = Integer.parseInt(args[2]);
+                            final String operation = args[1];
+                            final IStatistic datum;
 
-                            if (operation.equals("add")) {
-                                capability.addDatum(amount, datum, capability.getCurrentType());
+                            if (commandType.equals("xp")) {
+                                datum = XP;
                             } else {
-                                capability.setDatum(amount, datum, capability.getCurrentType());
+                                datum = LEVEL;
+                            }
+
+                            if (operation.equals("add") || operation.equals("set")) {
+                                final int amount = Integer.parseInt(args[2]);
+
+                                if (operation.equals("add")) {
+                                    capability.addDatum(capability.getItemType(), datum, amount);
+                                } else {
+                                    capability.setDatum(capability.getItemType(), datum, amount);
+                                }
                             }
                         }
-                    }
 
-                    capability.sync();
+                        capability.sync();
+                    } else {
+                        throw new WrongUsageException(Mappings.COMMAND_NO_ITEM);
+                    }
                 }
             }
         }
     }
 
     @Override
-    public List<String> getTabCompletions(final MinecraftServer server, final ICommandSender sender, final String[] args, @Nullable final BlockPos blockPos) {
-        boolean notReset = COMMAND_TYPES.contains(args[0]) && !args[0].equals("reset");
+    @Nonnull
+    public List<String> getTabCompletions(@Nonnull final MinecraftServer server, @Nonnull final ICommandSender sender, final String[] args, @Nullable final BlockPos blockPos) {
+        final boolean notReset = COMMAND_TYPES.contains(args[0]) && !args[0].equals("reset");
+        List<String> result = new ArrayList<>();
 
         switch (args.length) {
             case 1:
-                return getListOfStringsMatchingLastWord(args, COMMAND_TYPES);
+                result = getListOfStringsMatchingLastWord(args, COMMAND_TYPES);
+                break;
             case 2:
-                return notReset ? getListOfStringsMatchingLastWord(args, OPERATIONS) : null;
+                if (notReset) {
+                    result = getListOfStringsMatchingLastWord(args, OPERATIONS);
+                }
+                break;
             case 3:
-                return args[0].equals("reset") ? getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames()) : null;
+                if (args[0].equals("reset")) {
+                    result = getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+                }
+                break;
             case 4:
-                return notReset ? getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames()) : null;
-            default:
-                return new ArrayList<>();
+                if (notReset) {
+                    result = getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+                }
+                break;
         }
+
+        return result;
     }
 
     @Override
-    public boolean isUsernameIndex(final String[] args, final int index) {
-        return index == 1;
+    public boolean isUsernameIndex(@Nonnull final String[] args, final int index) {
+        return index == 2 || index == 3;
     }
 }

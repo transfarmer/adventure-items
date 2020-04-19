@@ -2,18 +2,20 @@ package transfarmer.soulboundarmory.statistics;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
+import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
+import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Statistic<C extends ICategory, S extends IStatistic> extends BigDecimal implements INBTSerializable<NBTTagCompound> {
-    private final C category;
-    private final S type;
+public class Statistic extends BigDecimal implements INBTSerializable<NBTTagCompound> {
+    private final ICategory category;
+    private final IStatistic type;
     private double min;
     private BigDecimal value;
     private int points;
 
-    public Statistic(final C category, final S statistic, final double min, final BigDecimal value, final int points) {
+    public Statistic(final ICategory category, final IStatistic statistic, final double min, final BigDecimal value, final int points) {
         super(min);
 
         this.type = statistic;
@@ -23,11 +25,11 @@ public class Statistic<C extends ICategory, S extends IStatistic> extends BigDec
         this.points = points;
     }
 
-    public Statistic(final C category, final S statistic, final double min, final BigDecimal value) {
+    public Statistic(final ICategory category, final IStatistic statistic, final double min, final BigDecimal value) {
         this(category, statistic, min, value, 0);
     }
 
-    public Statistic(final C category, final S statistic, final double min) {
+    public Statistic(final ICategory category, final IStatistic statistic, final double min) {
         this(category, statistic, min, BigDecimal.valueOf(min));
     }
 
@@ -36,19 +38,19 @@ public class Statistic<C extends ICategory, S extends IStatistic> extends BigDec
         return String.format("Statistic{name: %s, type: %s, min: %f, value: %f}", this.type, this.category, this.min, this.value.doubleValue());
     }
 
-    public Statistic<C, S> clone(final BigDecimal value) {
-        return new Statistic<>(this.category, this.type, this.min, value, this.points);
+    public Statistic clone(final BigDecimal value) {
+        return new Statistic(this.category, this.type, this.min, value, this.points);
     }
 
-    public S getType() {
+    public IStatistic getType() {
         return this.type;
     }
 
-    public C getCategory() {
+    public ICategory getCategory() {
         return this.category;
     }
 
-    public double getMin() {
+    public double min() {
         return this.min;
     }
 
@@ -62,6 +64,10 @@ public class Statistic<C extends ICategory, S extends IStatistic> extends BigDec
 
     public void addPoints(final int points) {
         this.points += points;
+    }
+
+    public void addPoint() {
+        this.points++;
     }
 
     public void setValue(final BigDecimal value) {
@@ -118,7 +124,7 @@ public class Statistic<C extends ICategory, S extends IStatistic> extends BigDec
         return this.lessThan(number) || this.doubleValue() == number.doubleValue();
     }
 
-    public Statistic<C, S> add(final Number number) {
+    public Statistic add(final Number number) {
         return this.clone(this.value.add(BigDecimal.valueOf(number.doubleValue())));
     }
 
@@ -126,19 +132,19 @@ public class Statistic<C extends ICategory, S extends IStatistic> extends BigDec
         this.value = this.value.add(BigDecimal.valueOf(number.doubleValue()));
     }
 
-    public Statistic<C, S> subtract(final Number number) {
+    public Statistic subtract(final Number number) {
         return this.clone(this.value.subtract(BigDecimal.valueOf(number.doubleValue())));
     }
 
-    public Statistic<C, S> multiply(final Number number) {
+    public Statistic multiply(final Number number) {
         return this.clone(this.value.multiply(BigDecimal.valueOf(number.doubleValue())));
     }
 
-    public Statistic<C, S> divide(final Number number) {
+    public Statistic divide(final Number number) {
         return this.clone(this.value.divide(BigDecimal.valueOf(number.doubleValue()), RoundingMode.HALF_UP));
     }
 
-    public Statistic<C, S> add(final BigDecimal number) {
+    public Statistic add(final BigDecimal number) {
         return this.clone(this.value.add(number));
     }
 
@@ -146,15 +152,15 @@ public class Statistic<C extends ICategory, S extends IStatistic> extends BigDec
         this.value = this.value.add(number);
     }
 
-    public Statistic<C, S> subtract(final BigDecimal number) {
+    public Statistic subtract(final BigDecimal number) {
         return this.clone(this.value.subtract(number));
     }
 
-    public Statistic<C, S> multiply(final BigDecimal number) {
+    public Statistic multiply(final BigDecimal number) {
         return this.clone(this.value.multiply(number));
     }
 
-    public Statistic<C, S> divide(final BigDecimal number) {
+    public Statistic divide(final BigDecimal number) {
         return this.clone(this.value.divide(number, RoundingMode.HALF_UP));
     }
 
@@ -174,5 +180,10 @@ public class Statistic<C extends ICategory, S extends IStatistic> extends BigDec
         this.min = tag.getDouble("min");
         this.value = new BigDecimal(tag.getString("value"));
         this.points = tag.getInteger("points");
+    }
+
+    public void reset() {
+        this.setValue(this.min);
+        this.setPoints(0);
     }
 }

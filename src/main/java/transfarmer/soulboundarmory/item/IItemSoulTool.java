@@ -7,6 +7,4 @@ public interface IItemSoulTool extends ISoulItem {
     boolean isEffectiveAgainst(IBlockState blockState);
 
     boolean canHarvestBlock(IBlockState blockState, EntityPlayer player);
-
-    float getEfficiency();
 }

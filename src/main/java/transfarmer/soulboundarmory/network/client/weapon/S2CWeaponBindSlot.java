@@ -1,17 +1,17 @@
 package transfarmer.soulboundarmory.network.client.weapon;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
+import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.IExtendedMessage;
+import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class S2CWeaponBindSlot implements IMessage {
+public class S2CWeaponBindSlot implements IExtendedMessage {
     private int slot;
 
     public S2CWeaponBindSlot() {}
@@ -21,21 +21,21 @@ public class S2CWeaponBindSlot implements IMessage {
     }
 
     @Override
-    public void fromBytes(final ByteBuf buffer) {
+    public void fromBytes(final ExtendedPacketBuffer buffer) {
         this.slot = buffer.readInt();
     }
 
     @Override
-    public void toBytes(final ByteBuf buffer) {
+    public void toBytes(final ExtendedPacketBuffer buffer) {
         buffer.writeInt(this.slot);
     }
 
-    public static final class Handler implements IMessageHandler<S2CWeaponBindSlot, IMessage> {
+    public static final class Handler implements IExtendedMessageHandler<S2CWeaponBindSlot> {
         @SideOnly(CLIENT)
         @Override
-        public IMessage onMessage(final S2CWeaponBindSlot message, final MessageContext context) {
+        public IExtendedMessage onMessage(final S2CWeaponBindSlot message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
-            final ISoulWeapon capability = SoulWeaponProvider.get(minecraft.player);
+            final IWeapon capability = WeaponProvider.get(minecraft.player);
 
             minecraft.addScheduledTask(() -> capability.bindSlot(message.slot));
 

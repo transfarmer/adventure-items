@@ -8,18 +8,25 @@ import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
-import transfarmer.soulboundarmory.network.server.tool.*;
-import transfarmer.soulboundarmory.statistics.SoulAttribute;
-import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolAttribute;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolEnchantment;
-import transfarmer.soulboundarmory.statistics.tool.SoulToolType;
-import transfarmer.soulboundarmory.util.ItemHelper;
+import transfarmer.soulboundarmory.network.server.tool.C2SToolAttributePoints;
+import transfarmer.soulboundarmory.network.server.tool.C2SToolBindSlot;
+import transfarmer.soulboundarmory.network.server.tool.C2SToolTab;
+import transfarmer.soulboundarmory.network.server.tool.C2SToolType;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
+import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
+import transfarmer.soulboundarmory.util.ItemUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.meta.When;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.statistics.SoulAttribute.*;
-import static transfarmer.soulboundarmory.statistics.SoulDatum.*;
-import static transfarmer.soulboundarmory.statistics.SoulEnchantment.*;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTRIBUTE_POINTS;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.EFFICIENCY_ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.HARVEST_LEVEL;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.REACH_DISTANCE;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ATTRIBUTE_POINTS;
 
 @SideOnly(CLIENT)
 public class SoulToolMenu extends Menu {
@@ -37,12 +44,7 @@ public class SoulToolMenu extends Menu {
     public void initGui() {
         super.initGui();
 
-        if (ItemHelper.getClassEquippedItemStack(this.mc.player, IItemSoulTool.class) != null) {
-            final String text = this.mc.player.inventory.currentItem != this.capability.getBoundSlot()
-                    ? Mappings.MENU_BUTTON_BIND
-                    : Mappings.MENU_BUTTON_UNBIND;
-
-            this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, text));
+        if (ItemUtil.getClassEquippedItemStack(this.mc.player, IItemSoulTool.class) != null) {
             this.tabs[0] = addButton(guiFactory.tabButton(16, 0, Mappings.MENU_BUTTON_ATTRIBUTES));
             this.tabs[1] = addButton(guiFactory.tabButton(17, 1, Mappings.MENU_BUTTON_ENCHANTMENTS));
             this.tabs[2] = addButton(guiFactory.tabButton(18, 2, Mappings.MENU_BUTTON_SKILLS));
@@ -51,18 +53,16 @@ public class SoulToolMenu extends Menu {
 
         switch (this.capability.getCurrentTab()) {
             case 0:
-                this.showAttributes();
+                this.displayAttributes();
                 break;
             case 1:
-                this.showEnchantments();
+                this.displayEnchantments();
                 break;
             case 2:
-                this.showSkills();
+                this.displaySkills();
                 break;
-            case 3:
-                this.showTraits();
             default:
-                this.showConfirmation();
+                this.displayConfirmation();
         }
 
         this.addButton(this.guiFactory.centeredButton(3, 3 * height / 4, width / 8, Mappings.MENU_CLOSE));
@@ -73,7 +73,7 @@ public class SoulToolMenu extends Menu {
         return this.capability.getCurrentTab() >= 0 && this.capability.getCurrentTab() <= 2;
     }
 
-    private void showConfirmation() {
+    private void displayConfirmation() {
         final int buttonWidth = 128;
         final int buttonHeight = 20;
         final int xCenter = (width - buttonWidth) / 2;
@@ -81,39 +81,26 @@ public class SoulToolMenu extends Menu {
         final int ySep = 32;
         final GuiButton choiceButton = this.addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_PICK_NAME));
 
-        if (this.capability.hasSoulItem() || !ItemHelper.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
+        if (this.capability.hasSoulItem() || !ItemUtil.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
             choiceButton.enabled = false;
         }
     }
 
-    private void showAttributes() {
+    protected void displayAttributes() {
         final GuiButton resetButton = this.addButton(this.guiFactory.resetButton(20));
-        final GuiButton[] removePointButtons = this.addRemovePointButtons(23, this.capability.getAttributeAmount());
-        final GuiButton[] addPointButtons = this.addAddPointButtons(4, this.capability.getAttributeAmount(), this.capability.getDatum(DATA.attributePoints, this.type));
-        resetButton.enabled = this.capability.getDatum(DATA.spentAttributePoints, this.type) > 0;
+        final GuiButton[] removePointButtons = this.addRemovePointButtons(23, this.capability.size(ATTRIBUTE));
+        final GuiButton[] addPointButtons = this.addPointButtons(4, this.capability.size(ATTRIBUTE), this.capability.getDatum(this.type, ATTRIBUTE_POINTS));
+        resetButton.enabled = this.capability.getDatum(this.type, SPENT_ATTRIBUTE_POINTS) > 0;
 
-        for (int index = 0; index < this.capability.getAttributeAmount(); index++) {
-            removePointButtons[index].enabled = this.capability.getAttribute(SoulAttribute.get(this.type, index), this.type) > 0;
+        for (int index = 0; index < this.capability.size(ATTRIBUTE); index++) {
+            removePointButtons[index].enabled = this.capability.getAttribute(this.type, this.getAttribute(index)) > 0;
         }
 
-        addPointButtons[HARVEST_LEVEL.getIndex()].enabled &= this.capability.getAttribute(HARVEST_LEVEL, this.type) < 3;
+        addPointButtons[2].enabled &= this.capability.getAttribute(this.type, HARVEST_LEVEL) < 3;
     }
 
-    private void showEnchantments() {
-        final GuiButton resetButton = this.addButton(guiFactory.resetButton(21));
-        final GuiButton[] removePointButtons = addRemovePointButtons(28, this.capability.getEnchantmentAmount());
-        resetButton.enabled = this.capability.getDatum(DATA.spentEnchantmentPoints, this.type) > 0;
-
-        this.addAddPointButtons(9, this.capability.getEnchantmentAmount(), this.capability.getDatum(DATA.enchantmentPoints, this.type));
-
-        for (int index = 0; index < this.capability.getEnchantmentAmount(); index++) {
-            removePointButtons[index].enabled = this.capability.getEnchantment(SoulToolEnchantment.get(index), this.type) > 0;
-        }
+    private void displaySkills() {
     }
-
-    private void showSkills() {}
-
-    private void showTraits() {}
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -144,36 +131,23 @@ public class SoulToolMenu extends Menu {
     private void drawAttributes() {
         final String efficiency = String.format("%s%s: %%s", Mappings.WEAPON_EFFICIENCY_FORMAT, Mappings.EFFICIENCY_NAME);
         final String harvestLevel = String.format("%s%s: %%s (%s)", Mappings.HARVEST_LEVEL_FORMAT, Mappings.HARVEST_LEVEL_NAME,
-                Mappings.getMiningLevels()[(int) this.capability.getAttribute(HARVEST_LEVEL, this.type)]);
+                Mappings.getMiningLevels()[(int) this.capability.getAttribute(this.type, HARVEST_LEVEL)]);
         final String reachDistance = String.format("%s%s: %%s", Mappings.REACH_DISTANCE_FORMAT, Mappings.REACH_DISTANCE_NAME);
-        final int points = this.capability.getDatum(DATA.attributePoints, this.type);
+        final int points = this.capability.getDatum(this.type, ATTRIBUTE_POINTS);
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(EFFICIENCY_ATTRIBUTE, this.type, true, true), 0);
-        this.renderer.drawMiddleAttribute(reachDistance, capability.getAttribute(REACH_DISTANCE, this.type, true, true), 1);
-        this.renderer.drawMiddleAttribute(harvestLevel, capability.getAttribute(HARVEST_LEVEL, this.type), 2);
-    }
-
-    private void drawEnchantments() {
-        final int points = this.capability.getDatum(DATA.enchantmentPoints, this.type);
-
-        if (points > 0) {
-            this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
-                    Math.round(width / 2F), 4, 0xFFFFFF);
-        }
-
-        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.EFFICIENCY_ENCHANTMENT_NAME, this.capability.getEnchantment(SOUL_EFFICIENCY, this.type)), 0);
-        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.FORTUNE_NAME, this.capability.getEnchantment(SOUL_FORTUNE, this.type)), 1);
-        this.renderer.drawMiddleEnchantment(String.format("%s: %s", Mappings.SILK_TOUCH_NAME, this.capability.getEnchantment(SOUL_SILK_TOUCH, this.type)), 2);
+        this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(this.type, EFFICIENCY_ATTRIBUTE, true, true), 0);
+        this.renderer.drawMiddleAttribute(reachDistance, capability.getAttribute(this.type, REACH_DISTANCE, true, true), 1);
+        this.renderer.drawMiddleAttribute(harvestLevel, capability.getAttribute(this.type, HARVEST_LEVEL), 2);
     }
 
     private void drawSkills() {
-        for (int i = 0; i < this.capability.getDatum(DATA.skills, this.type); i++) {
-            this.drawCenteredString(this.fontRenderer, this.capability.getCurrentType().getSkills()[i],
+        for (int i = 0; i < this.capability.getDatum(this.type, SKILLS); i++) {
+            this.drawCenteredString(this.fontRenderer, this.capability.getSkills()[i].getName(),
                     this.width / 2, (i + 2) * this.height / 16, 0xFFFFFF);
         }
     }
@@ -184,7 +158,7 @@ public class SoulToolMenu extends Menu {
 
         switch (button.id) {
             case 0:
-                final SoulType type = SoulToolType.get(button.id);
+                final IItem type = this.capability.getItemType(button.id);
                 final GuiScreen screen = !this.capability.hasSoulItem() ? null : new SoulToolMenu();
 
                 if (screen == null) {
@@ -192,7 +166,7 @@ public class SoulToolMenu extends Menu {
                     Main.CHANNEL.sendToServer(new C2SToolTab(this.capability.getCurrentTab()));
                 }
 
-                this.capability.setCurrentType(type);
+                this.capability.setItemType(type);
                 this.mc.displayGuiScreen(screen);
                 Main.CHANNEL.sendToServer(new C2SToolType(type));
 
@@ -208,37 +182,10 @@ public class SoulToolMenu extends Menu {
                 int amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(DATA.attributePoints, this.type);
+                    amount = this.capability.getDatum(this.type, ATTRIBUTE_POINTS);
                 }
 
-                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(amount, SoulToolAttribute.get(button.id - 4), this.type));
-                break;
-            case 9:
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-                amount = 1;
-
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(DATA.enchantmentPoints, this.type);
-                }
-
-                Main.CHANNEL.sendToServer(new C2SToolEnchantmentPoints(amount, SoulToolEnchantment.get(button.id - 9), this.type));
-                break;
-            case 16:
-            case 17:
-            case 18:
-            case 19:
-                this.mc.displayGuiScreen(new SoulToolMenu(button.id - 16));
-                break;
-            case 20:
-                Main.CHANNEL.sendToServer(new C2SToolResetAttributes(this.type));
-                break;
-            case 21:
-                Main.CHANNEL.sendToServer(new C2SToolResetEnchantments(this.type));
+                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(this.type, this.getAttribute(button.id - 4), amount));
                 break;
             case 22:
                 if (capability.getBoundSlot() == this.slot) {
@@ -258,25 +205,26 @@ public class SoulToolMenu extends Menu {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(DATA.spentAttributePoints, this.type);
+                    amount = this.capability.getDatum(this.type, SPENT_ATTRIBUTE_POINTS);
                 }
 
-                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(-amount, SoulToolAttribute.get(button.id - 23), this.type));
+                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(this.type, this.getAttribute(button.id - 23), -amount));
                 break;
-            case 28:
-            case 29:
-            case 30:
-            case 31:
-            case 32:
-            case 33:
-            case 34:
-                amount = 1;
+        }
+    }
 
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(DATA.spentEnchantmentPoints, this.type);
-                }
-
-                Main.CHANNEL.sendToServer(new C2SToolEnchantmentPoints(-amount, SoulToolEnchantment.get(button.id - 28), this.type));
+    @Nonnull(when = When.MAYBE)
+    @Override
+    protected IStatistic getAttribute(final int index) {
+        switch (index) {
+            case 0:
+                return EFFICIENCY_ATTRIBUTE;
+            case 1:
+                return REACH_DISTANCE;
+            case 2:
+                return HARVEST_LEVEL;
+            default:
+                return null;
         }
     }
 }

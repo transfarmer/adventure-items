@@ -1,48 +1,46 @@
 package transfarmer.soulboundarmory.network.server.weapon;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.ISoulWeapon;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.SoulWeaponProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
-import transfarmer.soulboundarmory.statistics.SoulType;
-import transfarmer.soulboundarmory.statistics.weapon.SoulWeaponType;
+import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.IExtendedMessage;
+import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
-public class C2SWeaponType implements IMessage {
-    private int index;
+public class C2SWeaponType implements IExtendedMessage {
+    private String item;
 
     public C2SWeaponType() {
-        this.index = -1;
     }
 
-    public C2SWeaponType(final SoulType type) {
-        this.index = type.getIndex();
-    }
-
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        this.index = buf.readInt();
+    public C2SWeaponType(final IItem item) {
+        this.item = item.toString();
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {
-        buf.writeInt(index);
+    public void fromBytes(final ExtendedPacketBuffer buf) {
+        this.item = buf.readString();
     }
 
-    public static final class Handler implements IMessageHandler<C2SWeaponType, IMessage> {
+    @Override
+    public void toBytes(final ExtendedPacketBuffer buf) {
+        buf.writeString(item);
+    }
+
+    public static final class Handler implements IExtendedMessageHandler<C2SWeaponType> {
         @Override
-        public IMessage onMessage(C2SWeaponType message, MessageContext context) {
-            final SoulType type = SoulWeaponType.get(message.index);
+        public IExtendedMessage onMessage(C2SWeaponType message, MessageContext context) {
             final EntityPlayerMP player = context.getServerHandler().player;
-            final ISoulWeapon instance = SoulWeaponProvider.get(player);
+            final IWeapon instance = WeaponProvider.get(player);
+            final IItem type = instance.getItemType(message.item);
             int slot = instance.getBoundSlot();
-            instance.setCurrentType(type);
+            instance.setItemType(type);
 
             if (!SoulItemHelper.hasSoulWeapon(player)) {
                 player.inventory.clearMatchingItems(Items.WOODEN_SWORD, -1, 37, null);
@@ -64,7 +62,7 @@ public class C2SWeaponType implements IMessage {
                 slot = player.inventory.getFirstEmptyStack();
             }
 
-            player.inventory.setInventorySlotContents(slot, new ItemStack(instance.getCurrentType().getItem()));
+            player.inventory.setInventorySlotContents(slot, new ItemStack(instance.getItem()));
 
             return null;
         }

@@ -1,3 +1,5 @@
+
+# item names
 item.soulboundarmory.soulbound_greatsword.name=§4Soulbound great sword§r
 item.soulboundarmory.soulbound_sword.name=§4Soulbound sword§r
 item.soulboundarmory.soulbound_dagger.name=§4Soulbound dagger§r
@@ -8,8 +10,12 @@ item.soulboundarmory.soulboundSword=soulbound sword
 item.soulboundarmory.soulboundDagger=soulbound dagger
 item.soulboundarmory.soulboundStaff=soulbound staff
 item.soulboundarmory.soulboundPick=soulbound pick
+
+# key bindings
 key.categories.soulboundarmory=soulbound armory
 key.soulboundarmory.menu=soulbound armory menu
+
+# soulbound armory menu
 menu.soulboundarmory.selection=weapon selection
 menu.soulboundarmory.confirmation=tool confirmation
 menu.soulboundarmory.attributes=attributes
@@ -20,6 +26,8 @@ menu.soulboundarmory.bind=bind current slot
 menu.soulboundarmory.unbind=unbind current slot
 menu.soulboundarmory.points=unspent points
 menu.soulboundarmory.close=close
+
+# formatting
 format.soulboundarmory.attackDamage=§6
 format.soulboundarmory.attackSpeed=§c
 format.soulboundarmory.critical=§e
@@ -28,6 +36,8 @@ format.soulboundarmory.weaponEfficiency=§a
 format.soulboundarmory.toolEfficiency=§6
 format.soulboundarmory.harvestLevel=§c
 format.soulboundarmory.reachDistance=§e
+
+# attribute names
 attribute.soulboundarmory.attackDamage=attack damage
 attribute.soulboundarmory.attackSpeed=attack speed
 attribute.soulboundarmory.critical=critical strike chance
@@ -35,28 +45,39 @@ attribute.soulboundarmory.knockback=knockback
 attribute.soulboundarmory.efficiency=efficiency
 attribute.soulboundarmory.harvestLevel=harvest level
 attribute.soulboundarmory.reachDistance=reach distance
-enchantment.soulboundarmory.sharpness=sharpness
-enchantment.soulboundarmory.sweepingEdge=sweeping edge
-enchantment.soulboundarmory.looting=looting
-enchantment.soulboundarmory.fireAspect=fire aspect
-enchantment.soulboundarmory.knockback=knockback
-enchantment.soulboundarmory.smite=smite
-enchantment.soulboundarmory.baneOfArthropods=bane of arthropods
-enchantment.soulboundarmory.efficiency=efficiency
-enchantment.soulboundarmory.fortune=fortune
-enchantment.soulboundarmory.silkTouch=silk touch
-skill.soulboundarmory.leap=leap
+
+# skill names
+skill.soulboundarmory.leaping=leaping
 skill.soulboundarmory.summonLightning=summon lightning
 skill.soulboundarmory.throwing=throwing
-skill.soulboundarmory.perforation=perforation
+skill.soulboundarmory.shadowClone=shadow clone
 skill.soulboundarmory.return=return
 skill.soulboundarmory.sneakReturn=sneak return
+
+# messages
 message.soulboundarmory.levelup=Your %%s leveled up to level %%d.
+
+# harvest level names
 miningLevel.soulboundarmory.coal=coal
 miningLevel.soulboundarmory.iron=iron
 miningLevel.soulboundarmory.diamond=diamond
 miningLevel.soulboundarmory.obsidian=obsidian
-command.soulboundarmory.usage=/sba <xp|level> <add|set> <amount> [player]\n/sba reset [player]
+
+# command usages
+command.soulboundarmory.clientUsage0=/sba <xp|level> <add|set> <amount> [player]
+command.soulboundarmory.clientUsage1=/sba reset [player]
+command.soulboundarmory.serverUsage0=/sba <xp|level> <add|set> <amount> <player>
+command.soulboundarmory.serverUsage1=/sba reset <player>
+command.soulboundarmory.noItem=The selected user must be holding a soulbound item.
+
+# color slider text
+color.soulboundarmory.red=red
+color.soulboundarmory.green=green
+color.soulboundarmory.blue=blue
+color.soulboundarmory.alpha=alpha
+
+# readable unsupported enchantment level names
+enchantment.level.0=nulla
 enchantment.level.11=XI
 enchantment.level.12=XII
 enchantment.level.13=XIII
