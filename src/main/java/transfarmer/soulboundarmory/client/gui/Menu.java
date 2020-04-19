@@ -133,7 +133,6 @@ public abstract class Menu extends GuiScreen {
 
         for (int i = 0; i < enchantments.size(); i++) {
             this.renderer.drawMiddleEnchantment(enchantments.getKey(i).getTranslatedName(enchantments.getValue(i)), i);
-            Main.LOGGER.warn(enchantments.getKey(i).getName().toLowerCase());
         }
     }
 

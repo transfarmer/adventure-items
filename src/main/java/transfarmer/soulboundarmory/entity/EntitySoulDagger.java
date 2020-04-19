@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.entity;
 
+import com.sun.istack.internal.NotNull;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -26,14 +27,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
-import transfarmer.soulboundarmory.init.ModItems;
-import transfarmer.soulboundarmory.util.EntityUtil;
 import transfarmer.soulboundarmory.entity.damage.ISoulboundDamageSource;
 import transfarmer.soulboundarmory.entity.damage.SoulboundDamageSource;
+import transfarmer.soulboundarmory.init.ModItems;
+import transfarmer.soulboundarmory.util.EntityUtil;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;

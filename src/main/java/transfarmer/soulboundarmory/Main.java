@@ -77,7 +77,7 @@ import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 public class Main {
     public static final String MOD_ID = "soulboundarmory";
     public static final String NAME = "soulbound armory";
-    public static final String VERSION = "2.6.4";
+    public static final String VERSION = "2.7.0";
 
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 

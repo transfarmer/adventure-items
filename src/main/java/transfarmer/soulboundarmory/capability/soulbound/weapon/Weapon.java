@@ -10,7 +10,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
 import transfarmer.soulboundarmory.capability.soulbound.BaseEnchantable;
@@ -94,8 +93,6 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                 }, new Item[]{SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD},
                 (final Enchantment enchantment) -> {
                     final String name = enchantment.getName().toLowerCase();
-
-                    Main.LOGGER.warn(name);
 
                     return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
                             && !name.contains("soulbound") && !name.contains("holding") && !name.contains("mending");

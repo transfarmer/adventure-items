@@ -8,7 +8,9 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import transfarmer.soulboundarmory.Main;
 
-@EventBusSubscriber(modid = Main.MOD_ID)
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+
+@EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
 public class ClientEventHandlers {
     private static int tick = 0;
 
