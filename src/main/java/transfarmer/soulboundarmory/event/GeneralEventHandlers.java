@@ -64,7 +64,7 @@ public class GeneralEventHandlers {
             final ItemStack itemStack = event.getItemStack();
 
             if (itemStack.getItem() instanceof ISoulItem) {
-                final ICapability capability = SoulItemHelper.getCapability(player, itemStack.getItem());
+                final ICapability capability = SoulItemHelper.getFirstCapability(player, itemStack.getItem());
                 final IItem type = capability.getItemType(itemStack);
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;

@@ -5,6 +5,7 @@ import transfarmer.soulboundarmory.capability.soulbound.ICapability;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
+import transfarmer.soulboundarmory.network.client.S2CRefresh;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
@@ -34,12 +35,16 @@ public class C2SReset implements IExtendedMessage {
 
     @Override
     public void fromBytes(final ExtendedPacketBuffer buffer) {
+        this.capability = buffer.readString();
         this.item = buffer.readString();
+        this.category = buffer.readString();
     }
 
     @Override
     public void toBytes(final ExtendedPacketBuffer buffer) {
+        buffer.writeString(this.capability);
         buffer.writeString(this.item);
+        buffer.writeString(this.category);
     }
 
     public static final class Handler implements IExtendedMessageHandler<C2SReset> {
@@ -69,6 +74,8 @@ public class C2SReset implements IExtendedMessage {
                 }
 
                 capability.sync();
+
+                return new S2CRefresh(capabilityType);
             }
 
             return null;

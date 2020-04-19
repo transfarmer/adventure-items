@@ -1,9 +1,13 @@
 package transfarmer.soulboundarmory.capability.soulbound.tool;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.soulbound.BaseEnchantable;
 import transfarmer.soulboundarmory.capability.soulbound.ISkillable;
+import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
@@ -49,7 +53,10 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
                         {XP, LEVEL, SKILLS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
                         {EFFICIENCY_ATTRIBUTE, REACH_DISTANCE, HARVEST_LEVEL}
                 }, new double[][][]{{{0, 0, 0, 0, 0, 0, 0}, {0.5, 2, 0}}},
-                new ItemSoulboundPick[]{SOULBOUND_PICK}, CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE)
+                new ItemSoulboundPick[]{SOULBOUND_PICK},
+                (final Enchantment enchantment) ->
+                        !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
+                                && !enchantment.getName().toLowerCase().contains("soulbound")
         );
 
         this.currentTab = 0;
@@ -132,7 +139,7 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
         final List<String> tooltip = new ArrayList<>(5);
 
         tooltip.add(String.format(" %s%s %s", Mappings.REACH_DISTANCE_FORMAT, FORMAT.format(this.getAttribute(type, REACH_DISTANCE)), Mappings.REACH_DISTANCE_NAME));
-        tooltip.add(String.format(" %s%s %s", Mappings.TOOL_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(type, EFFICIENCY_ATTRIBUTE, true, true)), Mappings.EFFICIENCY_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.TOOL_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(type, EFFICIENCY_ATTRIBUTE)), Mappings.EFFICIENCY_NAME));
         tooltip.add(String.format(" %s%s %s", Mappings.HARVEST_LEVEL_FORMAT, FORMAT.format(this.getAttribute(type, HARVEST_LEVEL)), Mappings.HARVEST_LEVEL_NAME));
 
         tooltip.add("");
@@ -144,6 +151,29 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
     @Override
     public List<net.minecraft.item.Item> getConsumableItems() {
         return Collections.singletonList(Items.WOODEN_PICKAXE);
+    }
+
+    @Override
+    @SideOnly(CLIENT)
+    public void onKeyPress() {
+        final Minecraft minecraft = Minecraft.getMinecraft();
+        final EntityPlayer player = minecraft.player;
+
+        if (player.getHeldItemMainhand().getItem() instanceof IItemSoulTool) {
+            minecraft.displayGuiScreen(new SoulToolMenu());
+        } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_PICKAXE) {
+            minecraft.displayGuiScreen(new SoulToolMenu(-1));
+        } else if (player.getHeldItemOffhand().getItem() instanceof IItemSoulTool) {
+            minecraft.displayGuiScreen(new SoulToolMenu());
+        } else if (player.getHeldItemOffhand().getItem() == Items.WOODEN_PICKAXE) {
+            minecraft.displayGuiScreen(new SoulToolMenu(-1));
+        }
+    }
+
+    @Override
+    @SideOnly(CLIENT)
+    public void refresh() {
+        Minecraft.getMinecraft().displayGuiScreen(new SoulToolMenu());
     }
 
     @Override

@@ -26,6 +26,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
@@ -148,14 +149,14 @@ public class EntitySoulDagger extends EntityArrow {
 
         if (this.shootingEntity instanceof EntityPlayer) {
             final IWeapon capability = WeaponProvider.get(this.shootingEntity);
-            final double attackSpeed = capability.getAttribute(DAGGER, ATTACK_SPEED, true, true);
+            final double attackSpeed = capability.getAttribute(DAGGER, ATTACK_SPEED);
 
             if (capability.getDatum(DAGGER, SKILLS) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
                     || capability.getDatum(DAGGER, SKILLS) >= 3
                     && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed
                     || this.shootingEntity.getDistance(this) >= 256 || this.posY <= 0)) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();
-                double multiplier = 1.8 / capability.getAttribute(DAGGER, ATTACK_SPEED, true, true);
+                double multiplier = 1.8 / attackSpeed;
                 final double dX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
                 final double dY = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) / 2 - this.posY;
                 final double dZ = boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ) / 2 - this.posZ;
@@ -334,7 +335,7 @@ public class EntitySoulDagger extends EntityArrow {
                 final float attackDamageModifier = entity instanceof EntityLivingBase
                         ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
                         : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);
-                final double attackDamage = (capability.getAttribute(DAGGER, ATTACK_DAMAGE, true, true) + attackDamageModifier) * this.attackDamageRatio;
+                final double attackDamage = (capability.getAttribute(DAGGER, ATTACK_DAMAGE) + attackDamageModifier) * this.attackDamageRatio;
                 int burnTime = 0;
 
                 if (attackDamage > 0) {
@@ -444,7 +445,7 @@ public class EntitySoulDagger extends EntityArrow {
 
     @Override
     public void onCollideWithPlayer(@Nonnull final EntityPlayer player) {
-        if (!this.world.isRemote && this.ticksExisted > 20 / (WeaponProvider.get(player).getAttribute(DAGGER, ATTACK_SPEED, true, true))
+        if (!this.world.isRemote && this.ticksExisted > 20 / (WeaponProvider.get(player).getAttribute(DAGGER, ATTACK_SPEED))
                 && this.arrowShake <= 0 && player.getUniqueID().equals(this.shooterUUID) && (this.pickupStatus == PickupStatus.ALLOWED
                 || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
             if (this.isClone) {
@@ -461,7 +462,7 @@ public class EntitySoulDagger extends EntityArrow {
     }
 
     @Override
-    public void writeEntityToNBT(final NBTTagCompound compound) {
+    public void writeEntityToNBT(@NotNull final NBTTagCompound compound) {
         super.writeEntityToNBT(compound);
         compound.setString("UUID", this.shooterUUID.toString());
         compound.setInteger("dimensionID", this.world.provider.getDimension());
@@ -469,7 +470,7 @@ public class EntitySoulDagger extends EntityArrow {
     }
 
     @Override
-    public void readEntityFromNBT(final NBTTagCompound compound) {
+    public void readEntityFromNBT(@NotNull final NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
         this.shooterUUID = UUID.fromString(compound.getString("UUID"));
         this.world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(compound.getInteger("dimensionID"));

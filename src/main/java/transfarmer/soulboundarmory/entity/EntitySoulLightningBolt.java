@@ -107,7 +107,7 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                         new AxisAlignedBB(this.posX - radius, this.posY - radius, this.posZ - radius, this.posX + radius, this.posY + 6 + radius, this.posZ + radius))) {
                     final EntityLivingBase caster = this.getCaster();
                     final float attackDamage = caster instanceof EntityPlayer
-                            ? (float) WeaponProvider.get(caster).getAttribute(SWORD, ATTACK_DAMAGE, true, true)
+                            ? (float) WeaponProvider.get(caster).getAttribute(SWORD, ATTACK_DAMAGE)
                             : 5;
 
                     if (entity != caster && entity instanceof EntityLivingBase

@@ -13,13 +13,12 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.Predicate;
 
 public class SoulboundEnchantments implements Iterable<IItem>, INBTSerializable<NBTTagCompound> {
     private final Map<IItem, IndexedMap<Enchantment, Integer>> enchantments;
 
-    @SafeVarargs
-    public SoulboundEnchantments(final IItem[] types, final Item[] items, final Set<Enchantment>... exclusions) {
+    public SoulboundEnchantments(final IItem[] types, final Item[] items, final Predicate<Enchantment> condition) {
         this.enchantments = new HashMap<>();
 
         for (int i = 0; i < items.length; i++) {
@@ -28,17 +27,9 @@ public class SoulboundEnchantments implements Iterable<IItem>, INBTSerializable<
             this.enchantments.put(types[i], entry);
 
             for (final Enchantment enchantment : Enchantment.REGISTRY) {
-                final Set<Enchantment> exclusion;
-
-                if (exclusions.length != types.length) {
-                    exclusion = exclusions[0];
-                } else {
-                    exclusion = exclusions[i];
-                }
-
                 final EnumEnchantmentType type = enchantment.type;
 
-                if (type != null && type.canEnchantItem(items[i]) && !exclusion.contains(enchantment)) {
+                if (type != null && type.canEnchantItem(items[i]) && condition.test(enchantment)) {
                     entry.put(enchantment, 0);
                 }
             }

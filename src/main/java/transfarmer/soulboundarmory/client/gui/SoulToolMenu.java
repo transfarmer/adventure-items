@@ -12,6 +12,7 @@ import transfarmer.soulboundarmory.network.server.tool.C2SToolAttributePoints;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolBindSlot;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolTab;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolType;
+import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.ItemUtil;
@@ -64,8 +65,6 @@ public class SoulToolMenu extends Menu {
             default:
                 this.displayConfirmation();
         }
-
-        this.addButton(this.guiFactory.centeredButton(3, 3 * height / 4, width / 8, Mappings.MENU_CLOSE));
     }
 
     @Override
@@ -89,14 +88,16 @@ public class SoulToolMenu extends Menu {
     protected void displayAttributes() {
         final GuiButton resetButton = this.addButton(this.guiFactory.resetButton(20));
         final GuiButton[] removePointButtons = this.addRemovePointButtons(23, this.capability.size(ATTRIBUTE));
-        final GuiButton[] addPointButtons = this.addPointButtons(4, this.capability.size(ATTRIBUTE), this.capability.getDatum(this.type, ATTRIBUTE_POINTS));
-        resetButton.enabled = this.capability.getDatum(this.type, SPENT_ATTRIBUTE_POINTS) > 0;
+        final GuiButton[] addPointButtons = this.addPointButtons(4, this.capability.size(ATTRIBUTE), this.capability.getDatum(this.item, ATTRIBUTE_POINTS));
+        resetButton.enabled = this.capability.getDatum(this.item, SPENT_ATTRIBUTE_POINTS) > 0;
 
         for (int index = 0; index < this.capability.size(ATTRIBUTE); index++) {
-            removePointButtons[index].enabled = this.capability.getAttribute(this.type, this.getAttribute(index)) > 0;
+            final Statistic statistic = this.capability.getStatistic(this.item, this.getAttribute(index));
+
+            removePointButtons[index].enabled = statistic.greaterThan(statistic.min());
         }
 
-        addPointButtons[2].enabled &= this.capability.getAttribute(this.type, HARVEST_LEVEL) < 3;
+        addPointButtons[2].enabled &= this.capability.getAttribute(this.item, HARVEST_LEVEL) < 3;
     }
 
     private void displaySkills() {
@@ -131,22 +132,22 @@ public class SoulToolMenu extends Menu {
     private void drawAttributes() {
         final String efficiency = String.format("%s%s: %%s", Mappings.WEAPON_EFFICIENCY_FORMAT, Mappings.EFFICIENCY_NAME);
         final String harvestLevel = String.format("%s%s: %%s (%s)", Mappings.HARVEST_LEVEL_FORMAT, Mappings.HARVEST_LEVEL_NAME,
-                Mappings.getMiningLevels()[(int) this.capability.getAttribute(this.type, HARVEST_LEVEL)]);
+                Mappings.getMiningLevels()[(int) this.capability.getAttribute(this.item, HARVEST_LEVEL)]);
         final String reachDistance = String.format("%s%s: %%s", Mappings.REACH_DISTANCE_FORMAT, Mappings.REACH_DISTANCE_NAME);
-        final int points = this.capability.getDatum(this.type, ATTRIBUTE_POINTS);
+        final int points = this.capability.getDatum(this.item, ATTRIBUTE_POINTS);
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(this.type, EFFICIENCY_ATTRIBUTE, true, true), 0);
-        this.renderer.drawMiddleAttribute(reachDistance, capability.getAttribute(this.type, REACH_DISTANCE, true, true), 1);
-        this.renderer.drawMiddleAttribute(harvestLevel, capability.getAttribute(this.type, HARVEST_LEVEL), 2);
+        this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(this.item, EFFICIENCY_ATTRIBUTE), 0);
+        this.renderer.drawMiddleAttribute(reachDistance, capability.getAttribute(this.item, REACH_DISTANCE), 1);
+        this.renderer.drawMiddleAttribute(harvestLevel, capability.getAttribute(this.item, HARVEST_LEVEL), 2);
     }
 
     private void drawSkills() {
-        for (int i = 0; i < this.capability.getDatum(this.type, SKILLS); i++) {
+        for (int i = 0; i < this.capability.getDatum(this.item, SKILLS); i++) {
             this.drawCenteredString(this.fontRenderer, this.capability.getSkills()[i].getName(),
                     this.width / 2, (i + 2) * this.height / 16, 0xFFFFFF);
         }
@@ -171,9 +172,6 @@ public class SoulToolMenu extends Menu {
                 Main.CHANNEL.sendToServer(new C2SToolType(type));
 
                 break;
-            case 3:
-                this.mc.displayGuiScreen(null);
-                break;
             case 4:
             case 5:
             case 6:
@@ -182,10 +180,10 @@ public class SoulToolMenu extends Menu {
                 int amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(this.type, ATTRIBUTE_POINTS);
+                    amount = this.capability.getDatum(this.item, ATTRIBUTE_POINTS);
                 }
 
-                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(this.type, this.getAttribute(button.id - 4), amount));
+                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(this.item, this.getAttribute(button.id - 4), amount));
                 break;
             case 22:
                 if (capability.getBoundSlot() == this.slot) {
@@ -205,10 +203,10 @@ public class SoulToolMenu extends Menu {
                 amount = 1;
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(this.type, SPENT_ATTRIBUTE_POINTS);
+                    amount = this.capability.getDatum(this.item, SPENT_ATTRIBUTE_POINTS);
                 }
 
-                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(this.type, this.getAttribute(button.id - 23), -amount));
+                Main.CHANNEL.sendToServer(new C2SToolAttributePoints(this.item, this.getAttribute(button.id - 23), -amount));
                 break;
         }
     }

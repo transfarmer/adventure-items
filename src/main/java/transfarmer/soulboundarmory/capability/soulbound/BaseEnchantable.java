@@ -13,7 +13,7 @@ import transfarmer.soulboundarmory.util.IndexedMap;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.function.Predicate;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ENCHANTMENT;
@@ -27,10 +27,10 @@ public abstract class BaseEnchantable extends Base implements ICapabilityEnchant
 
     protected BaseEnchantable(final ICapabilityType type, final IItem[] itemTypes, final ICategory[] categories,
                               final IStatistic[][] statistics, final double[][][] min, final Item[] items,
-                              final Set<Enchantment> exclusions) {
+                              final Predicate<Enchantment> condition) {
         super(type, itemTypes, categories, statistics, min, items);
 
-        this.enchantments = new SoulboundEnchantments(itemTypes, items, exclusions);
+        this.enchantments = new SoulboundEnchantments(itemTypes, items, condition);
     }
 
     @Override

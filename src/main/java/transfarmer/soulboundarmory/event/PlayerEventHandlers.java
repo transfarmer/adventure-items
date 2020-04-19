@@ -99,9 +99,7 @@ public class PlayerEventHandlers {
                 player.addItemStackToInventory(newWeapons.getItemStack(type));
             }
 
-            type = newTools.getItemType();
-
-            if (type != null && newTools.getDatum(type, LEVEL) >= MainConfig.instance().getPreservationLevel()) {
+            if ((type = newTools.getItemType()) != null && newTools.getDatum(type, LEVEL) >= MainConfig.instance().getPreservationLevel()) {
                 player.addItemStackToInventory(newTools.getItemStack(type));
             }
         }
@@ -134,7 +132,7 @@ public class PlayerEventHandlers {
     public static void onBreakSpeed(final BreakSpeed event) {
         if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ISoulItem) {
             final ISoulItem item = (ISoulItem) event.getEntityPlayer().getHeldItemMainhand().getItem();
-            final ICapabilityEnchantable capability = SoulItemHelper.getCapability(event.getEntityPlayer(), (Item) item);
+            final ICapabilityEnchantable capability = SoulItemHelper.getFirstCapability(event.getEntityPlayer(), (Item) item);
             final IItem type = capability.getItemType();
 
             if (item instanceof IItemSoulTool) {

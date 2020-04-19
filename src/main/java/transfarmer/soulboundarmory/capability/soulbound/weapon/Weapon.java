@@ -1,9 +1,11 @@
 package transfarmer.soulboundarmory.capability.soulbound.weapon;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,10 +15,12 @@ import transfarmer.soulboundarmory.capability.frozen.IFrozen;
 import transfarmer.soulboundarmory.capability.soulbound.BaseEnchantable;
 import transfarmer.soulboundarmory.capability.soulbound.ISkillable;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
+import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
+import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.ISkill;
@@ -87,10 +91,9 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                         {{0, 0, 0, 0, 0, 0, 0}, {1.6, 2, 0, 0, 0, 4.5}},
                         {{0, 0, 0, 0, 0, 0, 0}, {0.8, 3, 0, 0, 0, 6}}
                 }, new Item[]{SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD},
-                CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE,
-                        Enchantment.getEnchantmentByLocation("enchantment.cofhcore.soulbound"),
-                        Enchantment.getEnchantmentByLocation("enchantment.enderio.soulbound")
-                )
+                (final Enchantment enchantment) ->
+                        !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
+                                && !enchantment.getName().toLowerCase().contains("soulbound")
         );
 
         this.currentTab = 1;
@@ -142,8 +145,10 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                 return;
             }
 
-            if (this.getAttribute(type, attribute) + change <= this.statistics.get(type, attribute).min()) {
-                this.setAttribute(type, attribute, 0);
+            final Statistic statistic = this.statistics.get(type, attribute);
+
+            if (this.getAttribute(type, attribute) + change <= statistic.min()) {
+                this.setAttribute(type, attribute, statistic.min());
 
                 return;
             }
@@ -259,6 +264,30 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
     }
 
     @Override
+    @SideOnly(CLIENT)
+    public void onKeyPress() {
+        final Minecraft minecraft = Minecraft.getMinecraft();
+        final EntityPlayer player = this.getPlayer();
+        Item item = player.getHeldItemMainhand().getItem();
+
+        if (item instanceof ItemSoulWeapon) {
+            minecraft.displayGuiScreen(new SoulWeaponMenu());
+        } else if (item == Items.WOODEN_SWORD) {
+            minecraft.displayGuiScreen(new SoulWeaponMenu(0));
+        } else if ((item = player.getHeldItemOffhand().getItem()) instanceof ItemSoulWeapon) {
+            minecraft.displayGuiScreen(new SoulWeaponMenu());
+        } else if (item == Items.WOODEN_SWORD) {
+            minecraft.displayGuiScreen(new SoulWeaponMenu(0));
+        }
+    }
+
+    @Override
+    @SideOnly(CLIENT)
+    public void refresh() {
+        Minecraft.getMinecraft().displayGuiScreen(new SoulWeaponMenu());
+    }
+
+    @Override
     public int getLevelXP(final IItem type, final int level) {
         return this.canLevelUp(type)
                 ? MainConfig.instance().getInitialWeaponXP() + 3 * (int) Math.round(Math.pow(level, 1.65))
@@ -298,7 +327,7 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
 
     @Override
     public int getCooldown(final IItem type) {
-        return (int) Math.round(20 / this.getAttribute(type, ATTACK_SPEED, true, true));
+        return (int) Math.round(20 / this.getAttribute(type, ATTACK_SPEED));
     }
 
     @Override
@@ -319,7 +348,7 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
     @Override
     public void resetLightningCooldown() {
         if (!this.getPlayer().isCreative()) {
-            this.lightningCooldown = (int) Math.round(96 / this.getAttribute(this.item, ATTACK_SPEED, true, true));
+            this.lightningCooldown = (int) Math.round(96 / this.getAttribute(this.item, ATTACK_SPEED));
         }
     }
 

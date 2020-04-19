@@ -58,7 +58,7 @@ public class CommandSoulboundArmory extends CommandBase {
                         : (EntityPlayerMP) sender;
 
                 if (player != null) {
-                    final IItemCapability capability = SoulItemHelper.getCapability(player, (Item) null);
+                    final IItemCapability capability = SoulItemHelper.getFirstCapability(player, (Item) null);
 
                     if (capability != null) {
                         if (commandType.equals("reset")) {

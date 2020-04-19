@@ -1,9 +1,9 @@
 package transfarmer.soulboundarmory.network.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import transfarmer.soulboundarmory.client.gui.Menu;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
@@ -11,35 +11,37 @@ import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public class S2CSync implements IExtendedMessage {
-    private String capability;
-    private NBTTagCompound tag;
+public class S2CRefresh implements IExtendedMessage {
+    String capability;
 
-    public S2CSync() {}
-
-    public S2CSync(final ICapabilityType capability, final NBTTagCompound tag) {
-        this.capability = capability.toString();
-        this.tag = tag;
+    public S2CRefresh() {
     }
 
-    @SideOnly(CLIENT)
+    public S2CRefresh(final ICapabilityType capability) {
+        this.capability = capability.toString();
+    }
+
+    @Override
     public void fromBytes(final ExtendedPacketBuffer buffer) {
         this.capability = buffer.readString();
-        this.tag = buffer.readCompoundTag();
     }
 
+    @Override
     public void toBytes(final ExtendedPacketBuffer buffer) {
         buffer.writeString(this.capability);
-        buffer.writeCompoundTag(this.tag);
     }
 
-    public static final class Handler implements IExtendedMessageHandler<S2CSync> {
-        @SideOnly(CLIENT)
+    public static final class Handler implements IExtendedMessageHandler<S2CRefresh> {
         @Override
-        public IExtendedMessage onMessage(final S2CSync message, final MessageContext context) {
+        @SideOnly(CLIENT)
+        public IExtendedMessage onMessage(final S2CRefresh message, final MessageContext context) {
             final Minecraft minecraft = Minecraft.getMinecraft();
 
-            minecraft.addScheduledTask(() -> minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null).deserializeNBT(message.tag));
+            minecraft.addScheduledTask(() -> {
+                if (minecraft.currentScreen instanceof Menu) {
+                    minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null).onKeyPress();
+                }
+            });
 
             return null;
         }

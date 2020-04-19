@@ -272,7 +272,7 @@ public class EntityEventHandlers {
             if (event.getItem().getItem() instanceof ItemSoulDagger) {
                 final ItemSoulDagger item = (ItemSoulDagger) event.getItem().getItem();
 
-                if (item.getMaxUsageRatio((float) capability.getAttribute(DAGGER, ATTACK_SPEED, true, true), event.getDuration()) == 1) {
+                if (item.getMaxUsageRatio((float) capability.getAttribute(DAGGER, ATTACK_SPEED), event.getDuration()) == 1) {
                     event.setDuration(event.getDuration() + 1);
                 }
 

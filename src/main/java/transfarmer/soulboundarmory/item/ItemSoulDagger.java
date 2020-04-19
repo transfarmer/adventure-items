@@ -64,7 +64,7 @@ public class ItemSoulDagger extends ItemSoulWeapon {
 
         if (!world.isRemote) {
             final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack, capability.getDatum(DAGGER, SKILLS) >= 2);
-            final float attackSpeed = 4 + (float) capability.getAttribute(DAGGER, ATTACK_DAMAGE, true);
+            final float attackSpeed = 4 + (float) capability.getAttribute(DAGGER, ATTACK_DAMAGE);
             final float velocity = this.getMaxUsageRatio(attackSpeed, timeLeft) * attackSpeed;
 
             dagger.shoot(entity, entity.rotationPitch, entity.rotationYaw, velocity, velocity / attackSpeed, 0);

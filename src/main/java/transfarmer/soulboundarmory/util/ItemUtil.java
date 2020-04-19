@@ -1,6 +1,7 @@
 package transfarmer.soulboundarmory.util;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -46,6 +47,19 @@ public class ItemUtil {
 
         if (cls.isInstance(offhandStack.getItem())) {
             return offhandStack;
+        }
+
+        return null;
+    }
+
+    public static ItemStack getRequiredItemStack(final EntityPlayer player, final EntityEquipmentSlot slot, final Class<?>... classes) {
+        final ItemStack itemStack = player.getHeldItemMainhand();
+        final Item item = itemStack.getItem();
+
+        for (final Class<?> clazz : classes) {
+            if (clazz.isInstance(item)) {
+                return itemStack;
+            }
         }
 
         return null;

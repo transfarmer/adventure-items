@@ -11,13 +11,13 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.item.IItemSoulTool;
 import transfarmer.soulboundarmory.item.ISoulItem;
 import transfarmer.soulboundarmory.item.ItemSoulWeapon;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
@@ -30,34 +30,40 @@ public class SoulItemHelper {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
     private static boolean datumEquality;
 
-    public static IItemCapability getCapability(final Class<? extends IItemCapability> cls, final EntityPlayer player) {
-        if (cls == IWeapon.class) {
-            return WeaponProvider.get(player);
-        } else if (cls == IItemCapability.class) {
-            return ToolProvider.get(player);
-        }
+    public static ICapabilityEnchantable getFirstCapability(final EntityPlayer player, @Nullable Item item) {
+        ICapabilityEnchantable capability = null;
 
-        return null;
-    }
-
-    public static ICapabilityEnchantable getCapability(final EntityPlayer player, @Nullable Item item) {
-        if (item == null) {
-            item = player.getHeldItemMainhand().getItem();
-
-            if (!(item instanceof ISoulItem)) {
-                item = player.getHeldItemOffhand().getItem();
+        if (item instanceof ISoulItem) {
+            if (item instanceof ItemSoulWeapon) {
+                capability = WeaponProvider.get(player);
+            } else if (item instanceof IItemSoulTool) {
+                capability = ToolProvider.get(player);
             }
         }
 
-        return item instanceof ItemSoulWeapon || item == Items.WOODEN_SWORD
-                ? WeaponProvider.get(player)
-                : item instanceof IItemSoulTool || item == Items.WOODEN_PICKAXE
-                ? ToolProvider.get(player)
-                : null;
+        if (capability == null) {
+            if (item == Items.WOODEN_SWORD) {
+                capability = WeaponProvider.get(player);
+            } else if (item == Items.WOODEN_PICKAXE) {
+                capability = ToolProvider.get(player);
+            }
+        }
+
+        return capability;
     }
 
-    public static ICapabilityEnchantable getCapability(final EntityPlayer player, ItemStack itemStack) {
-        return getCapability(player, itemStack.getItem());
+    public static ICapabilityEnchantable getFirstCapability(final EntityPlayer player, @Nonnull ItemStack itemStack) {
+        return getFirstCapability(player, itemStack.getItem());
+    }
+
+    public static ICapabilityEnchantable getFirstHeldCapability(final EntityPlayer player) {
+        final ICapabilityEnchantable capability = getFirstCapability(player, player.getHeldItemMainhand());
+
+        if (capability == null) {
+            return getFirstCapability(player, player.getHeldItemOffhand());
+        }
+
+        return capability;
     }
 
     public static boolean isSoulWeaponEquipped(final EntityPlayer player) {
@@ -109,7 +115,7 @@ public class SoulItemHelper {
             return false;
         }
 
-        final int boundSlot = getCapability(player, itemStack.getItem()).getBoundSlot();
+        final int boundSlot = getFirstCapability(player, itemStack.getItem()).getBoundSlot();
 
         if (boundSlot >= 0 && inventory.getStackInSlot(boundSlot).isEmpty()) {
             return inventory.add(boundSlot, itemStack);

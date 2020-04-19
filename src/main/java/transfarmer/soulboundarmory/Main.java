@@ -48,6 +48,7 @@ import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.network.client.S2CConfig;
 import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
+import transfarmer.soulboundarmory.network.client.S2CRefresh;
 import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolBindSlot;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolSpendAttributePoints;
@@ -92,6 +93,7 @@ public class Main {
 
         CHANNEL.registerMessage(S2CSync.Handler.class, S2CSync.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CConfig.Handler.class, S2CConfig.class, id++, CLIENT);
+        CHANNEL.registerMessage(S2CRefresh.Handler.class, S2CRefresh.class, id++, CLIENT);
 
         CHANNEL.registerMessage(S2CToolSpendAttributePoints.Handler.class, S2CToolSpendAttributePoints.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CToolSpendEnchantmentPoints.Handler.class, S2CToolSpendEnchantmentPoints.class, id++, CLIENT);

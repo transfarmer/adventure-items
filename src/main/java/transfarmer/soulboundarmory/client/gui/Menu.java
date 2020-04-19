@@ -48,7 +48,7 @@ public abstract class Menu extends GuiScreen {
     protected final GuiButton[] tabs;
     protected final Item[] consumableItems;
     protected final ICapabilityEnchantable capability;
-    protected final IItem type;
+    protected final IItem item;
     protected final int slot;
     protected GuiSlider sliderRed;
     protected GuiSlider sliderGreen;
@@ -68,8 +68,8 @@ public abstract class Menu extends GuiScreen {
             equippedItemStack = ItemUtil.getEquippedItemStack(this.mc.player, this.consumableItems);
         }
 
-        this.capability = SoulItemHelper.getCapability(this.mc.player, equippedItemStack);
-        this.type = this.capability.getItemType();
+        this.capability = SoulItemHelper.getFirstCapability(this.mc.player, equippedItemStack);
+        this.item = this.capability.getItemType();
         this.slot = this.mc.player.inventory.getSlotFor(equippedItemStack);
     }
 
@@ -91,13 +91,13 @@ public abstract class Menu extends GuiScreen {
     }
 
     protected void displayEnchantments() {
-        final IndexedMap<Enchantment, Integer> enchantments = this.capability.getEnchantments(this.type);
+        final IndexedMap<Enchantment, Integer> enchantments = this.capability.getEnchantments(this.item);
         final int size = enchantments.size();
         final GuiButton resetButton = this.addButton(guiFactory.resetButton(3000));
         final GuiButton[] removePointButtons = addRemovePointButtons(2000, size);
-        resetButton.enabled = this.capability.getDatum(this.type, SPENT_ENCHANTMENT_POINTS) > 0;
+        resetButton.enabled = this.capability.getDatum(this.item, SPENT_ENCHANTMENT_POINTS) > 0;
 
-        addPointButtons(1000, size, this.capability.getDatum(this.type, ENCHANTMENT_POINTS));
+        addPointButtons(1000, size, this.capability.getDatum(this.item, ENCHANTMENT_POINTS));
 
         for (int i = 0; i < size; i++) {
             removePointButtons[i].enabled = enchantments.getValue(i) > 0;
@@ -137,7 +137,7 @@ public abstract class Menu extends GuiScreen {
 
     protected void drawEnchantments() {
         final IndexedMap<Enchantment, Integer> enchantments = this.capability.getEnchantments();
-        final int points = this.capability.getDatum(this.type, ENCHANTMENT_POINTS);
+        final int points = this.capability.getDatum(this.item, ENCHANTMENT_POINTS);
 
         if (points > 0) {
             this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
@@ -153,17 +153,17 @@ public abstract class Menu extends GuiScreen {
         if (ColorConfig.getAlpha() >= 26F / 255) {
             final int barLeftX = (width - 182) / 2;
             final int barTopY = height - 29;
-            final int xp = capability.getDatum(this.type, XP);
+            final int xp = capability.getDatum(this.item, XP);
 
             GlStateManager.color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha());
             this.mc.getTextureManager().bindTexture(XP_BAR);
             this.drawTexturedModalRect(barLeftX, barTopY, 0, 0, 182, 5);
-            this.drawTexturedModalRect(barLeftX, barTopY, 0, 5, this.capability.canLevelUp(this.type)
-                    ? Math.min(182, Math.round((float) xp / capability.getNextLevelXP(this.type) * 182))
+            this.drawTexturedModalRect(barLeftX, barTopY, 0, 5, this.capability.canLevelUp(this.item)
+                    ? Math.min(182, Math.round((float) xp / capability.getNextLevelXP(this.item) * 182))
                     : 182, 5);
             this.mc.getTextureManager().deleteTexture(XP_BAR);
 
-            final int level = this.capability.getDatum(this.type, LEVEL);
+            final int level = this.capability.getDatum(this.item, LEVEL);
             final String levelString = String.format("%d", level);
             final int levelLeftX = (width - this.fontRenderer.getStringWidth(levelString)) / 2;
             final int levelTopY = barTopY - 6;
@@ -179,8 +179,8 @@ public abstract class Menu extends GuiScreen {
                     && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT && MainConfig.instance().getMaxLevel() >= 0) {
                 this.drawHoveringText(String.format("%d/%d", level, MainConfig.instance().getMaxLevel()), mouseX, mouseY);
             } else if (this.isMouseOverXPBar(mouseX, mouseY)) {
-                this.drawHoveringText(this.capability.canLevelUp(this.type)
-                        ? String.format("%d/%d", xp, capability.getNextLevelXP(this.type))
+                this.drawHoveringText(this.capability.canLevelUp(this.item)
+                        ? String.format("%d/%d", xp, capability.getNextLevelXP(this.item))
                         : String.format("%d", xp), mouseX, mouseY);
             }
 
@@ -222,7 +222,7 @@ public abstract class Menu extends GuiScreen {
 
     private boolean isMouseOverXPBar(final int mouseX, final int mouseY) {
         final int barLeftX = (width - 182) / 2;
-        final int barTopY = (height - 4) / 2;
+        final int barTopY = height - 29;
 
         return this.displayXPBar() && mouseX >= barLeftX && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4;
     }
@@ -317,18 +317,18 @@ public abstract class Menu extends GuiScreen {
             int amount = 1;
 
             if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                amount = this.capability.getDatum(this.type, ENCHANTMENT_POINTS);
+                amount = this.capability.getDatum(this.item, ENCHANTMENT_POINTS);
             }
 
-            Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(this.type, enchantment, amount));
+            Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(this.item, enchantment, amount));
         } else if ((enchantment = Enchantment.getEnchantmentByID(button.id - 2000)) != null) {
             int amount = 1;
 
             if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                amount = this.capability.getDatum(this.type, SPENT_ENCHANTMENT_POINTS);
+                amount = this.capability.getDatum(this.item, SPENT_ENCHANTMENT_POINTS);
             }
 
-            Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(this.type, enchantment, -amount));
+            Main.CHANNEL.sendToServer(new C2SWeaponEnchantmentPoints(this.item, enchantment, -amount));
         } else {
             switch (button.id) {
                 case 16:
@@ -338,10 +338,10 @@ public abstract class Menu extends GuiScreen {
                     this.refresh(button.id - 16);
                     break;
                 case 20:
-                    Main.CHANNEL.sendToServer(new C2SReset(this.capability.getType(), this.type, ATTRIBUTE));
+                    Main.CHANNEL.sendToServer(new C2SReset(this.capability.getType(), this.item, ATTRIBUTE));
                     break;
                 case 21:
-                    Main.CHANNEL.sendToServer(new C2SReset(this.capability.getType(), this.type, ENCHANTMENT));
+                    Main.CHANNEL.sendToServer(new C2SReset(this.capability.getType(), this.item, ENCHANTMENT));
                     break;
                 case 22:
                     if (capability.getBoundSlot() == this.slot) {

@@ -38,7 +38,7 @@ public class TooltipXPBar extends Gui {
 
     protected void setItemStack(final ItemStack itemStack) {
         this.itemStack = itemStack;
-        this.capability = SoulItemHelper.getCapability(this.minecraft.player, itemStack.getItem());
+        this.capability = SoulItemHelper.getFirstCapability(this.minecraft.player, itemStack.getItem());
         this.item = this.capability.getItemType(itemStack);
     }
 
