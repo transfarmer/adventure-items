@@ -35,6 +35,7 @@ repositories {
 }
 
 dependencies {
+    compile 'org.jetbrains:annotations:19.0.0'
 }
 
 processResources {

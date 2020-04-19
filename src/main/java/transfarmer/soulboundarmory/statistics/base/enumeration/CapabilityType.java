@@ -1,7 +1,7 @@
 package transfarmer.soulboundarmory.statistics.base.enumeration;
 
-import com.sun.istack.internal.NotNull;
 import net.minecraftforge.common.capabilities.Capability;
+import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.capability.soulbound.ICapability;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.util.CollectionUtil;
