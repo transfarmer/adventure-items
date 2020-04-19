@@ -1,7 +1,5 @@
-## to do
-- overhaul the soulbound item statistic system;
-- rewrite the enchantment system;
-- implement skill trees;
-- implement the soulbound staff;
-- finish updating to 1.15.2;
-- implement 3-dimensional textures for the soulbound weapons
+## features to implement
+- skill trees;
+- the soulbound staff;
+- 1.15.2 update;
+- dynamic 3-dimensional textures for the soulbound weapons
