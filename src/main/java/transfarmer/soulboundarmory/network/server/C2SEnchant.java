@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.network.server.weapon;
+package transfarmer.soulboundarmory.network.server;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.ResourceLocation;
@@ -7,7 +7,7 @@ import transfarmer.soulboundarmory.capability.soulbound.ICapabilityEnchantable;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
-import transfarmer.soulboundarmory.network.client.weapon.S2CEnchantmentPoints;
+import transfarmer.soulboundarmory.network.client.S2CEnchantmentPoints;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 

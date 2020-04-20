@@ -6,7 +6,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
@@ -17,9 +18,9 @@ import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import java.util.List;
 import java.util.Map;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-
 public interface ICapability extends INBTSerializable<NBTTagCompound> {
+    Side SIDE = FMLCommonHandler.instance().getSide();
+
     EntityPlayer getPlayer();
 
     void initPlayer(EntityPlayer player);
@@ -108,11 +109,11 @@ public interface ICapability extends INBTSerializable<NBTTagCompound> {
 
     List<Item> getConsumableItems();
 
-    @SideOnly(CLIENT)
     void onKeyPress();
 
-    @SideOnly(CLIENT)
     void refresh();
+
+    void refresh(final int tab);
 
     Class<? extends ISoulboundItem> getBaseItemClass();
 

@@ -2,8 +2,8 @@ package transfarmer.soulboundarmory.capability.soulbound.tool;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.soulbound.BaseEnchantable;
 import transfarmer.soulboundarmory.capability.soulbound.ISkillable;
@@ -164,26 +164,32 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
     @SideOnly(CLIENT)
     public void onKeyPress() {
         final Minecraft minecraft = Minecraft.getMinecraft();
-        final EntityPlayer player = minecraft.player;
+        final ItemStack equippedItemStack = this.getEquippedItemStack();
 
-        if (player.getHeldItemMainhand().getItem() instanceof IItemSoulboundTool) {
-            minecraft.displayGuiScreen(new SoulToolMenu());
-        } else if (player.getHeldItemMainhand().getItem() == Items.WOODEN_PICKAXE) {
-            minecraft.displayGuiScreen(new SoulToolMenu(-1));
-        } else if (player.getHeldItemOffhand().getItem() instanceof IItemSoulboundTool) {
-            minecraft.displayGuiScreen(new SoulToolMenu());
-        } else if (player.getHeldItemOffhand().getItem() == Items.WOODEN_PICKAXE) {
-            minecraft.displayGuiScreen(new SoulToolMenu(-1));
+        if (equippedItemStack != null) {
+            if (equippedItemStack.getItem() instanceof IItemSoulboundTool) {
+                if (this.currentTab < 0) {
+                    minecraft.displayGuiScreen(new SoulToolMenu(0));
+                } else {
+                    minecraft.displayGuiScreen(new SoulToolMenu());
+                }
+            } else {
+                minecraft.displayGuiScreen(new SoulToolMenu(-1));
+            }
         }
     }
 
     @Override
-    @SideOnly(CLIENT)
     public void refresh() {
+        this.refresh(this.currentTab);
+    }
+
+    @Override
+    public void refresh(final int tab) {
         final Minecraft minecraft = Minecraft.getMinecraft();
 
         if (minecraft.currentScreen instanceof SoulToolMenu) {
-            minecraft.displayGuiScreen(new SoulToolMenu());
+            minecraft.displayGuiScreen(new SoulToolMenu(tab));
         }
     }
 

@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.network.client.weapon;
+package transfarmer.soulboundarmory.network.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;

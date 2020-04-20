@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.client.gui;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -9,10 +8,7 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponAttributePoints;
-import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponTab;
-import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponType;
 import transfarmer.soulboundarmory.statistics.Statistic;
-import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.ItemUtil;
 
@@ -38,8 +34,9 @@ public class SoulWeaponMenu extends Menu {
 
     public SoulWeaponMenu(final int tab) {
         this();
+
         this.capability.setCurrentTab(tab);
-        Main.CHANNEL.sendToServer(new C2SWeaponTab(tab));
+        this.capability.sync();
     }
 
     @Override
@@ -167,24 +164,6 @@ public class SoulWeaponMenu extends Menu {
         super.actionPerformed(button);
 
         switch (button.id) {
-            case 0:
-            case 1:
-            case 2:
-                final IItem type = this.capability.getItemType(button.id);
-                final GuiScreen screen = !SoulItemHelper.hasSoulWeapon(this.mc.player)
-                        ? null
-                        : new SoulWeaponMenu();
-
-                if (screen == null) {
-                    this.capability.setCurrentTab(1);
-                    Main.CHANNEL.sendToServer(new C2SWeaponTab(this.capability.getCurrentTab()));
-                }
-
-                this.capability.setItemType(type);
-                this.mc.displayGuiScreen(screen);
-                Main.CHANNEL.sendToServer(new C2SWeaponType(type));
-
-                break;
             case 4:
             case 5:
             case 6:

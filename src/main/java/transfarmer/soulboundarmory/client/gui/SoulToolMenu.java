@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.client.gui;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Items;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -9,11 +8,7 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.item.IItemSoulboundTool;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolAttributePoints;
-import transfarmer.soulboundarmory.network.server.tool.C2SToolBindSlot;
-import transfarmer.soulboundarmory.network.server.tool.C2SToolTab;
-import transfarmer.soulboundarmory.network.server.tool.C2SToolType;
 import transfarmer.soulboundarmory.statistics.Statistic;
-import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.ItemUtil;
 
@@ -37,8 +32,9 @@ public class SoulToolMenu extends Menu {
 
     public SoulToolMenu(final int tab) {
         this();
+
         this.capability.setCurrentTab(tab);
-        Main.CHANNEL.sendToServer(new C2SToolTab(tab));
+        this.capability.sync();
     }
 
     @Override
@@ -153,20 +149,6 @@ public class SoulToolMenu extends Menu {
         super.actionPerformed(button);
 
         switch (button.id) {
-            case 0:
-                final IItem type = this.capability.getItemType(button.id);
-                final GuiScreen screen = !this.capability.hasSoulItem() ? null : new SoulToolMenu();
-
-                if (screen == null) {
-                    this.capability.setCurrentTab(0);
-                    Main.CHANNEL.sendToServer(new C2SToolTab(this.capability.getCurrentTab()));
-                }
-
-                this.capability.setItemType(type);
-                this.mc.displayGuiScreen(screen);
-                Main.CHANNEL.sendToServer(new C2SToolType(type));
-
-                break;
             case 4:
             case 5:
             case 6:
@@ -179,16 +161,6 @@ public class SoulToolMenu extends Menu {
                 }
 
                 Main.CHANNEL.sendToServer(new C2SToolAttributePoints(this.item, this.getAttribute(button.id - 4), amount));
-                break;
-            case 22:
-                if (capability.getBoundSlot() == this.slot) {
-                    capability.unbindSlot();
-                } else {
-                    capability.bindSlot(this.slot);
-                }
-
-                this.mc.displayGuiScreen(new SoulToolMenu());
-                Main.CHANNEL.sendToServer(new C2SToolBindSlot(this.slot));
                 break;
             case 23:
             case 24:

@@ -39,7 +39,7 @@ public class S2CRefresh implements IExtendedMessage {
 
             minecraft.addScheduledTask(() -> {
                 if (minecraft.currentScreen instanceof Menu) {
-                    minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null).onKeyPress();
+                    minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null).refresh();
                 }
             });
 

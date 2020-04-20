@@ -6,10 +6,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
 import transfarmer.soulboundarmory.capability.soulbound.BaseEnchantable;
@@ -20,6 +22,7 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
+import transfarmer.soulboundarmory.network.client.S2CRefresh;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
@@ -277,9 +280,9 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
     public void onKeyPress() {
         final Minecraft minecraft = Minecraft.getMinecraft();
         final EntityPlayer player = this.getPlayer();
-        Item item = player.getHeldItemMainhand().getItem();
+        Item item;
 
-        if (item instanceof ItemSoulboundWeapon) {
+        if ((item = player.getHeldItemMainhand().getItem()) instanceof ItemSoulboundWeapon) {
             minecraft.displayGuiScreen(new SoulWeaponMenu());
         } else if (item == Items.WOODEN_SWORD) {
             minecraft.displayGuiScreen(new SoulWeaponMenu(0));
@@ -291,12 +294,20 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
     }
 
     @Override
-    @SideOnly(CLIENT)
     public void refresh() {
-        final Minecraft minecraft = Minecraft.getMinecraft();
+        this.refresh(this.currentTab);
+    }
 
-        if (minecraft.currentScreen instanceof SoulWeaponMenu) {
-            minecraft.displayGuiScreen(new SoulWeaponMenu());
+    @Override
+    public void refresh(final int tab) {
+        if (SIDE.isClient()) {
+            final Minecraft minecraft = Minecraft.getMinecraft();
+
+            if (minecraft.currentScreen instanceof SoulWeaponMenu) {
+                minecraft.displayGuiScreen(new SoulWeaponMenu(tab));
+            }
+        } else {
+            Main.CHANNEL.sendTo(new S2CRefresh(this.type), (EntityPlayerMP) this.player);
         }
     }
 

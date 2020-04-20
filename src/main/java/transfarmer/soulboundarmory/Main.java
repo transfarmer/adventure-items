@@ -49,24 +49,19 @@ import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.network.client.S2CConfig;
 import transfarmer.soulboundarmory.network.client.S2CRefresh;
 import transfarmer.soulboundarmory.network.client.S2CSync;
-import transfarmer.soulboundarmory.network.client.tool.S2CToolBindSlot;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolSpendAttributePoints;
 import transfarmer.soulboundarmory.network.client.tool.S2CToolSpendEnchantmentPoints;
-import transfarmer.soulboundarmory.network.client.weapon.S2CEnchantmentPoints;
-import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponBindSlot;
+import transfarmer.soulboundarmory.network.client.S2CEnchantmentPoints;
 import transfarmer.soulboundarmory.network.client.weapon.S2CWeaponSpentAttributePoints;
+import transfarmer.soulboundarmory.network.server.C2SBindSlot;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
+import transfarmer.soulboundarmory.network.server.C2SEnchant;
+import transfarmer.soulboundarmory.network.server.C2SItemType;
 import transfarmer.soulboundarmory.network.server.C2SReset;
+import transfarmer.soulboundarmory.network.server.C2STab;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolAttributePoints;
-import transfarmer.soulboundarmory.network.server.tool.C2SToolBindSlot;
 import transfarmer.soulboundarmory.network.server.tool.C2SToolEnchantmentPoints;
-import transfarmer.soulboundarmory.network.server.tool.C2SToolTab;
-import transfarmer.soulboundarmory.network.server.tool.C2SToolType;
-import transfarmer.soulboundarmory.network.server.weapon.C2SBindSlot;
-import transfarmer.soulboundarmory.network.server.weapon.C2SEnchant;
 import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponAttributePoints;
-import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponTab;
-import transfarmer.soulboundarmory.network.server.weapon.C2SWeaponType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
@@ -92,30 +87,25 @@ public class Main {
 
         CHANNEL.registerMessage(S2CSync.Handler.class, S2CSync.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CConfig.Handler.class, S2CConfig.class, id++, CLIENT);
+        CHANNEL.registerMessage(S2CEnchantmentPoints.Handler.class, S2CEnchantmentPoints.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CRefresh.Handler.class, S2CRefresh.class, id++, CLIENT);
 
         CHANNEL.registerMessage(S2CToolSpendAttributePoints.Handler.class, S2CToolSpendAttributePoints.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CToolSpendEnchantmentPoints.Handler.class, S2CToolSpendEnchantmentPoints.class, id++, CLIENT);
-        CHANNEL.registerMessage(S2CToolBindSlot.Handler.class, S2CToolBindSlot.class, id++, CLIENT);
 
         CHANNEL.registerMessage(S2CWeaponSpentAttributePoints.Handler.class, S2CWeaponSpentAttributePoints.class, id++, CLIENT);
-        CHANNEL.registerMessage(S2CEnchantmentPoints.Handler.class, S2CEnchantmentPoints.class, id++, CLIENT);
-        CHANNEL.registerMessage(S2CWeaponBindSlot.Handler.class, S2CWeaponBindSlot.class, id++, CLIENT);
 
         CHANNEL.registerMessage(C2SConfig.Handler.class, C2SConfig.class, id++, SERVER);
+        CHANNEL.registerMessage(C2SBindSlot.Handler.class, C2SBindSlot.class, id++, SERVER);
+        CHANNEL.registerMessage(C2SEnchant.Handler.class, C2SEnchant.class, id++, SERVER);
+        CHANNEL.registerMessage(C2SItemType.Handler.class, C2SItemType.class, id++, SERVER);
         CHANNEL.registerMessage(C2SReset.Handler.class, C2SReset.class, id++, SERVER);
+        CHANNEL.registerMessage(C2STab.Handler.class, C2STab.class, id++, SERVER);
 
-        CHANNEL.registerMessage(C2SToolType.Handler.class, C2SToolType.class, id++, SERVER);
         CHANNEL.registerMessage(C2SToolAttributePoints.Handler.class, C2SToolAttributePoints.class, id++, SERVER);
         CHANNEL.registerMessage(C2SToolEnchantmentPoints.Handler.class, C2SToolEnchantmentPoints.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SToolTab.Handler.class, C2SToolTab.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SToolBindSlot.Handler.class, C2SToolBindSlot.class, id++, SERVER);
 
-        CHANNEL.registerMessage(C2SWeaponType.Handler.class, C2SWeaponType.class, id++, SERVER);
         CHANNEL.registerMessage(C2SWeaponAttributePoints.Handler.class, C2SWeaponAttributePoints.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SEnchant.Handler.class, C2SEnchant.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SWeaponTab.Handler.class, C2SWeaponTab.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SBindSlot.Handler.class, C2SBindSlot.class, id++, SERVER);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(MENU_KEY);

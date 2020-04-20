@@ -19,9 +19,10 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.ColorConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.network.server.C2SBindSlot;
+import transfarmer.soulboundarmory.network.server.C2SEnchant;
+import transfarmer.soulboundarmory.network.server.C2SItemType;
 import transfarmer.soulboundarmory.network.server.C2SReset;
-import transfarmer.soulboundarmory.network.server.weapon.C2SEnchant;
-import transfarmer.soulboundarmory.network.server.weapon.C2SBindSlot;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.IndexedMap;
@@ -30,7 +31,6 @@ import transfarmer.soulboundarmory.util.ItemUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.meta.When;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -83,7 +83,7 @@ public abstract class Menu extends GuiScreen {
         }
 
         if (ItemUtil.getClassEquippedItemStack(this.mc.player, ISoulboundItem.class) != null) {
-            this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 112, 20, this.slot != capability.getBoundSlot()
+            this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 96, 20, this.slot != capability.getBoundSlot()
                     ? Mappings.MENU_BUTTON_BIND
                     : Mappings.MENU_BUTTON_UNBIND)
             );
@@ -195,7 +195,7 @@ public abstract class Menu extends GuiScreen {
             }
 
             ColorConfig.instance().save();
-            this.refresh();
+            this.capability.refresh();
         } else {
             try {
                 super.mouseClicked(mouseX, mouseY, button);
@@ -263,20 +263,8 @@ public abstract class Menu extends GuiScreen {
                 slider.updateSlider();
             }
         } else if (dWheel != 0 && this.capability != null) {
-            refresh(MathHelper.clamp(this.capability.getCurrentTab() - dWheel, 0, this.tabs.length - 1));
+            this.capability.refresh(MathHelper.clamp(this.capability.getCurrentTab() - dWheel, 0, this.tabs.length - 1));
         }
-    }
-
-    protected void refresh(final int tab) {
-        try {
-            this.mc.displayGuiScreen(this.getClass().getDeclaredConstructor(int.class).newInstance(tab));
-        } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    protected void refresh() {
-        this.refresh(this.capability.getCurrentTab());
     }
 
     @Override
@@ -321,11 +309,16 @@ public abstract class Menu extends GuiScreen {
             Main.CHANNEL.sendToServer(new C2SEnchant(this.capability.getType(), this.item, enchantment, -amount));
         } else {
             switch (button.id) {
+                case 0:
+                case 1:
+                case 2:
+                    Main.CHANNEL.sendToServer(new C2SItemType(this.capability.getType(), this.capability.getItemType(button.id)));
+                    break;
                 case 16:
                 case 17:
                 case 18:
                 case 19:
-                    this.refresh(button.id - 16);
+                    this.capability.refresh(button.id - 16);
                     break;
                 case 20:
                     Main.CHANNEL.sendToServer(new C2SReset(this.capability.getType(), this.item, ATTRIBUTE));
@@ -334,13 +327,6 @@ public abstract class Menu extends GuiScreen {
                     Main.CHANNEL.sendToServer(new C2SReset(this.capability.getType(), this.item, ENCHANTMENT));
                     break;
                 case 22:
-                    if (capability.getBoundSlot() == this.slot) {
-                        capability.unbindSlot();
-                    } else {
-                        capability.bindSlot(this.slot);
-                    }
-
-                    this.mc.displayGuiScreen(new SoulWeaponMenu());
                     Main.CHANNEL.sendToServer(new C2SBindSlot(this.capability.getType(), this.slot));
                     break;
                 case 100:

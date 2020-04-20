@@ -11,6 +11,7 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.network.client.S2CSync;
+import transfarmer.soulboundarmory.network.server.C2STab;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.Statistics;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
@@ -293,9 +294,14 @@ public abstract class Base implements IItemCapability {
     public ItemStack getEquippedItemStack() {
         final Class<? extends ISoulboundItem> baseItemClass = this.getBaseItemClass();
         final ItemStack mainhandStack = this.getPlayer().getHeldItemMainhand();
+        final ItemStack offhandStack = this.getPlayer().getHeldItemOffhand();
 
         if (baseItemClass.isInstance(mainhandStack.getItem())) {
             return mainhandStack;
+        }
+
+        if (baseItemClass.isInstance(offhandStack.getItem())) {
+            return offhandStack;
         }
 
         final List<Item> consumableItems = this.getConsumableItems();
@@ -304,14 +310,8 @@ public abstract class Base implements IItemCapability {
             return mainhandStack;
         }
 
-        final ItemStack offhandStack = this.getPlayer().getHeldItemOffhand();
-
-        if (baseItemClass.isInstance(offhandStack.getItem())) {
-            return offhandStack;
-        }
-
         if (consumableItems.contains(offhandStack.getItem())) {
-            return mainhandStack;
+            return offhandStack;
         }
 
         return null;
@@ -322,8 +322,8 @@ public abstract class Base implements IItemCapability {
         if (this.hasSoulItem()) {
             final Class<? extends ISoulboundItem> baseItemClass = this.getBaseItemClass();
             final InventoryPlayer inventory = this.getPlayer().inventory;
-            final ItemStack equippedItemStack = this.getEquippedItemStack();
             final List<ItemStack> mainInventory = new ArrayList<>(this.getPlayer().inventory.mainInventory);
+            final ItemStack equippedItemStack = this.getEquippedItemStack();
             mainInventory.add(this.getPlayer().getHeldItemOffhand());
 
             if (equippedItemStack != null && baseItemClass.isInstance(equippedItemStack.getItem())) {
@@ -371,7 +371,7 @@ public abstract class Base implements IItemCapability {
 
         tag.setInteger("index", this.getIndex());
         tag.setInteger("tab", this.getCurrentTab());
-        tag.setInteger("boundSlot", this.getBoundSlot());
+        tag.setInteger("slot", this.getBoundSlot());
         tag.setTag("statistics", this.statistics.serializeNBT());
 
         return tag;
@@ -381,7 +381,7 @@ public abstract class Base implements IItemCapability {
     public void deserializeNBT(final NBTTagCompound tag) {
         this.setItemType(tag.getInteger("index"));
         this.setCurrentTab(tag.getInteger("tab"));
-        this.bindSlot(tag.getInteger("boundSlot"));
+        this.bindSlot(tag.getInteger("slot"));
         this.statistics.deserializeNBT(tag.getCompoundTag("statistics"));
     }
 
@@ -389,6 +389,8 @@ public abstract class Base implements IItemCapability {
     public void sync() {
         if (!this.getPlayer().world.isRemote) {
             Main.CHANNEL.sendTo(new S2CSync(this.type, this.serializeNBT()), (EntityPlayerMP) this.getPlayer());
+        } else {
+            Main.CHANNEL.sendToServer(new C2STab(this.type, this.currentTab));
         }
     }
 }

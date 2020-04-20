@@ -1,8 +1,5 @@
-package transfarmer.soulboundarmory.network.server.weapon;
+package transfarmer.soulboundarmory.network.server;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.soulbound.ICapability;
@@ -39,22 +36,11 @@ public class C2SBindSlot implements IExtendedMessage {
         @Override
         public IExtendedMessage onMessage(final C2SBindSlot message, final MessageContext context) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-                final EntityPlayer player = context.getServerHandler().player;
-                final ICapability capability = player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
-                final NonNullList<ItemStack> inventory = player.inventory.mainInventory;
+                final ICapability capability = context.getServerHandler().player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
 
                 if (capability.getBoundSlot() == message.slot) {
                     capability.unbindSlot();
                 } else {
-                    if (inventory.get(message.slot).isEmpty()) {
-                        for (final ItemStack itemStack : inventory) {
-                            if (capability.getItemType(itemStack) == capability.getItemType()) {
-                                inventory.set(capability.getBoundSlot(), ItemStack.EMPTY);
-                                player.inventory.setInventorySlotContents(message.slot, itemStack);
-                            }
-                        }
-                    }
-
                     capability.bindSlot(message.slot);
                 }
 
