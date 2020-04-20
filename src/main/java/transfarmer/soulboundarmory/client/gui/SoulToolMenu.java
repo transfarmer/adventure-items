@@ -67,11 +67,6 @@ public class SoulToolMenu extends Menu {
         }
     }
 
-    @Override
-    protected boolean displayXPBar() {
-        return this.capability.getCurrentTab() >= 0 && this.capability.getCurrentTab() <= 2;
-    }
-
     private void displayConfirmation() {
         final int buttonWidth = 128;
         final int buttonHeight = 20;

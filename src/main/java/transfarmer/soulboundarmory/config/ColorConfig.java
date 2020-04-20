@@ -35,7 +35,7 @@ public class ColorConfig {
         this.configFile.get(CATEGORY_COLOR, "green", 1D).set(green);
         this.configFile.get(CATEGORY_COLOR, "blue", 160D / 255D).set(blue);
         this.configFile.get(CATEGORY_COLOR, "alpha", 1D).set(alpha);
-        this.configFile.get(CATEGORY_OTHER, "displaySliders", true).getBoolean();
+        this.configFile.get(CATEGORY_OTHER, "displaySliders", true).set(displaySliders);
 
         this.configFile.save();
     }

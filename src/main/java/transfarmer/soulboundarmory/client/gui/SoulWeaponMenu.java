@@ -69,11 +69,6 @@ public class SoulWeaponMenu extends Menu {
         }
     }
 
-    @Override
-    protected boolean displayXPBar() {
-        return (this.capability.getCurrentTab() >= 1 && this.capability.getCurrentTab() <= 3);
-    }
-
     private void displayWeapons() {
         final int buttonWidth = 128;
         final int buttonHeight = 20;

@@ -205,7 +205,9 @@ public abstract class Menu extends GuiScreen {
         }
     }
 
-    protected abstract boolean displayXPBar();
+    protected boolean displayXPBar() {
+        return this.capability.getType() != null;
+    }
 
     private boolean isMouseOverXPBar(final int mouseX, final int mouseY) {
         final int barLeftX = (width - 182) / 2;
