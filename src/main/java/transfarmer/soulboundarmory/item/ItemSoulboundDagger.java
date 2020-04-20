@@ -16,7 +16,7 @@ import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import javax.annotation.Nonnull;
 
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
 
 public class ItemSoulboundDagger extends ItemSoulboundWeapon {
@@ -54,7 +54,7 @@ public class ItemSoulboundDagger extends ItemSoulboundWeapon {
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }
 
-        return new ActionResult<>(EnumActionResult.PASS, player.getHeldItem(hand));
+        return new ActionResult<>(EnumActionResult.FAIL, player.getHeldItem(hand));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ItemSoulboundDagger extends ItemSoulboundWeapon {
 
         if (!world.isRemote) {
             final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack, capability.getDatum(DAGGER, SKILLS) >= 2);
-            final float attackSpeed = 4 + (float) capability.getAttribute(DAGGER, ATTACK_DAMAGE);
+            final float attackSpeed = (float) capability.getAttributeTotal(DAGGER, ATTACK_SPEED);
             final float velocity = this.getMaxUsageRatio(attackSpeed, timeLeft) * attackSpeed;
 
             dagger.shoot(entity, entity.rotationPitch, entity.rotationYaw, velocity, velocity / attackSpeed, 0);

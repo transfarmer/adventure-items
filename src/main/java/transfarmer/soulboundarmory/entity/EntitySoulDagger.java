@@ -301,6 +301,8 @@ public class EntitySoulDagger extends EntityArrow {
             this.doBlockCollisions();
         }
 
+        this.velocityChanged = true;
+
         if (this.shootingEntity != null && !this.shootingEntity.isEntityAlive()) {
             this.setDead();
         }
