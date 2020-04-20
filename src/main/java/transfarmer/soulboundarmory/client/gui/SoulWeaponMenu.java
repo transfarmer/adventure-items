@@ -104,8 +104,6 @@ public class SoulWeaponMenu extends Menu {
         }
     }
 
-    private void displaySkills() {}
-
     @Override
     public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);

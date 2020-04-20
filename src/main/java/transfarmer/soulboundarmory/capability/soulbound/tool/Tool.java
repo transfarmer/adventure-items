@@ -14,10 +14,10 @@ import transfarmer.soulboundarmory.item.IItemSoulboundTool;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
 import transfarmer.soulboundarmory.statistics.Statistic;
-import transfarmer.soulboundarmory.statistics.base.enumeration.Skill;
+import transfarmer.soulboundarmory.statistics.skill.Skills;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
-import transfarmer.soulboundarmory.statistics.base.iface.ISkill;
+import transfarmer.soulboundarmory.statistics.skill.ISkill;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
@@ -200,6 +200,6 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
 
     @Override
     public ISkill[] getSkills(final IItem type) {
-        return new ISkill[]{Skill.TELEPORTATION, Skill.AMBIDEXTERITY};
+        return new ISkill[]{Skills.TELEPORTATION, Skills.AMBIDEXTERITY};
     }
 }

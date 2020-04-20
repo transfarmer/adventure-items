@@ -112,6 +112,10 @@ public abstract class Menu extends GuiScreen {
         }
     }
 
+    protected void displaySkills() {
+        this.mc.displayGuiScreen(new GuiSkills(this.capability));
+    }
+
     @Override
     public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
         this.drawDefaultBackground();

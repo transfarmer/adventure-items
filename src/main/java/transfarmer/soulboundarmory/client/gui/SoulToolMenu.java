@@ -91,9 +91,6 @@ public class SoulToolMenu extends Menu {
         addPointButtons[2].enabled &= this.capability.getAttribute(this.item, HARVEST_LEVEL) < 3;
     }
 
-    private void displaySkills() {
-    }
-
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);

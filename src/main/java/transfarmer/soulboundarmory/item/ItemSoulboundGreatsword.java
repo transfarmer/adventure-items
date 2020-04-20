@@ -48,22 +48,18 @@ public class ItemSoulboundGreatsword extends ItemSoulboundWeapon {
     }
 
     @Override
-    public void onPlayerStoppedUsing(@Nonnull final ItemStack itemStack, @Nonnull final World world, @Nonnull final EntityLivingBase entity, final int timeLeft) {
+    public void onPlayerStoppedUsing(@Nonnull final ItemStack itemStack, @Nonnull final World world, @Nonnull final EntityLivingBase player, final int timeLeft) {
         final int timeTaken = 200 - timeLeft;
 
         if (timeTaken > 5) {
-            final Vec3d look = entity.getLookVec();
+            final IWeapon capability = WeaponProvider.get(player);
+            final Vec3d look = player.getLookVec();
             final float maxSpeed = 1.25F;
             final float speed = Math.min(maxSpeed, timeTaken / 20F * maxSpeed);
 
-            entity.addVelocity(look.x * speed, look.y * speed / 4 + 0.2, look.z * speed);
-            entity.setSprinting(true);
-
-            if (entity instanceof EntityPlayer) {
-                final IWeapon capability = WeaponProvider.get(entity);
-
-                capability.setLeapForce(maxSpeed / speed);
-            }
+            player.addVelocity(look.x * speed, look.y * speed / 4 + 0.2, look.z * speed);
+            player.setSprinting(true);
+            capability.setLeapForce(speed / maxSpeed);
         }
     }
 
