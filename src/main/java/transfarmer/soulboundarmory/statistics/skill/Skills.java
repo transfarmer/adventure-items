@@ -1,5 +1,7 @@
 package transfarmer.soulboundarmory.statistics.skill;
 
+import transfarmer.soulboundarmory.statistics.skill.impl.*;
+
 public class Skills {
     public static final ISkill LEAPING = new SkillLeaping();
 
