@@ -5,11 +5,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -34,7 +34,6 @@ import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.item.ItemSoulboundDagger;
-import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.ItemUtil;
@@ -76,6 +75,20 @@ public class EntityEventHandlers {
 
         if (config != null && event.getWorld().isRemote) {
             Main.CHANNEL.sendToServer(new C2SConfig());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingAttack(final LivingAttackEvent event) {
+        final Entity entity = event.getEntity();
+
+        if (entity instanceof EntityPlayer && WeaponProvider.get(entity).getLeapForce() > 0) {
+            final DamageSource damageSource = event.getSource();
+
+            if (!damageSource.damageType.equals("explosion") && !damageSource.damageType.equals("explosion.player")
+                    && !(damageSource instanceof EntityDamageSourceIndirect)) {
+                event.setCanceled(true);
+            }
         }
     }
 
@@ -145,62 +158,60 @@ public class EntityEventHandlers {
     @SuppressWarnings("ConstantConditions")
     @SubscribeEvent
     public static void onLivingDeath(final LivingDeathEvent event) {
-        if (event.getSource().getTrueSource() != null && !event.getSource().getTrueSource().world.isRemote) {
-            final EntityLivingBase entity = event.getEntityLiving();
-            final IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
-            final IAttributeInstance armor = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR);
-            final Entity trueSource = event.getSource().getTrueSource();
-            final IWeapon instance;
-            final IItem weaponType;
-            final String displayName;
-            Entity source = event.getSource().getImmediateSource();
+        final EntityLivingBase entity = event.getEntityLiving();
 
-            if (trueSource instanceof EntityPlayer) {
-                final EntityPlayer player = ((EntityPlayer) trueSource);
-                instance = WeaponProvider.get(trueSource);
+        if (!entity.world.isRemote) {
+            Entity attacker = event.getSource().getTrueSource();
 
-                if (source instanceof EntitySoulDagger) {
-                    weaponType = DAGGER;
-                    displayName = ((EntitySoulDagger) source).itemStack.getDisplayName();
-                    source = ((EntitySoulDagger) source).shootingEntity;
-                } else if (source instanceof EntitySoulLightningBolt) {
-                    weaponType = SWORD;
-                    source = ((EntitySoulLightningBolt) source).getCaster();
-                    displayName = ItemUtil.getEquippedItemStack(player, SOULBOUND_SWORD).getDisplayName();
-                } else if (source instanceof EntityPlayer) {
-                    weaponType = instance.getItemType((player.getHeldItemMainhand()));
-                    displayName = player.getHeldItemMainhand().getDisplayName();
-                } else {
-                    return;
-                }
-            } else {
-                return;
+            if (attacker == null) {
+                attacker = entity.getCombatTracker().getBestAttacker();
             }
 
-            if (source instanceof EntityPlayer && weaponType != null) {
-                double xp = entity.getMaxHealth()
-                        * source.world.getDifficulty().getId() * MainConfig.instance().getDifficultyMultiplier()
-                        * (1 + armor.getAttributeValue() * MainConfig.instance().getArmorMultiplier());
+            if ((attacker instanceof EntityPlayer) && !attacker.world.isRemote) {
+                final IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
+                final IAttributeInstance armor = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR);
+                final Entity immediateSource = event.getSource().getImmediateSource();
+                final EntityPlayer player = ((EntityPlayer) attacker);
+                final IWeapon capability = WeaponProvider.get(attacker);
+                final IItem item;
+                final String displayName;
 
-                xp *= attackDamage != null ? 1 + attackDamage.getAttributeValue() * MainConfig.instance().getAttackDamageMultiplier() : MainConfig.instance().getPassiveMultiplier();
-
-                if (!entity.isNonBoss()) {
-                    xp *= MainConfig.instance().getBossMultiplier();
+                if (immediateSource instanceof EntitySoulDagger) {
+                    item = DAGGER;
+                    displayName = ((EntitySoulDagger) immediateSource).itemStack.getDisplayName();
+                } else if (immediateSource instanceof EntitySoulLightningBolt) {
+                    item = SWORD;
+                    displayName = ItemUtil.getEquippedItemStack(player, SOULBOUND_SWORD).getDisplayName();
+                } else {
+                    item = capability.getItemType((player.getHeldItemMainhand()));
+                    displayName = player.getHeldItemMainhand().getDisplayName();
                 }
 
-                if (source.world.getWorldInfo().isHardcoreModeEnabled()) {
-                    xp *= MainConfig.instance().getHardcoreMultiplier();
-                }
+                if (item != null) {
+                    double xp = entity.getMaxHealth()
+                            * attacker.world.getDifficulty().getId() * MainConfig.instance().getDifficultyMultiplier()
+                            * (1 + armor.getAttributeValue() * MainConfig.instance().getArmorMultiplier());
 
-                if (attackDamage != null && entity.isChild()) {
-                    xp *= MainConfig.instance().getBabyMultiplier();
-                }
+                    xp *= attackDamage != null ? 1 + attackDamage.getAttributeValue() * MainConfig.instance().getAttackDamageMultiplier() : MainConfig.instance().getPassiveMultiplier();
 
-                if (instance.addDatum(weaponType, XP, (int) Math.round(xp)) && MainConfig.instance().getLevelupNotifications()) {
-                    Main.CHANNEL.sendTo(new S2CLevelupMessage(displayName, instance.getDatum(weaponType, LEVEL)), (EntityPlayerMP) source);
-                }
+                    if (!entity.isNonBoss()) {
+                        xp *= MainConfig.instance().getBossMultiplier();
+                    }
 
-                instance.sync();
+                    if (attacker.world.getWorldInfo().isHardcoreModeEnabled()) {
+                        xp *= MainConfig.instance().getHardcoreMultiplier();
+                    }
+
+                    if (attackDamage != null && entity.isChild()) {
+                        xp *= MainConfig.instance().getBabyMultiplier();
+                    }
+
+                    if (capability.addDatum(item, XP, (int) Math.round(xp)) && MainConfig.instance().getLevelupNotifications()) {
+                        attacker.sendMessage(new TextComponentTranslation("message.soulboundarmory.levelup", displayName, capability.getDatum(item, LEVEL)));
+                    }
+
+                    capability.sync();
+                }
             }
         }
     }
@@ -287,20 +298,6 @@ public class EntityEventHandlers {
 //                }
 //
 //                event.setDuration(Math.round(item.getMaxItemUseDuration() - 20 * item.getMaxUsageRatio(capability.getAttribute(ATTACK_SPEED, DAGGER, true, true), event.getDuration())));
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onLivingAttack(final LivingAttackEvent event) {
-        final Entity entity = event.getEntity();
-
-        if (entity instanceof EntityPlayer && WeaponProvider.get(entity).getLeapForce() > 0) {
-            final DamageSource damageSource = event.getSource();
-
-            if (!damageSource.damageType.equals("explosion") && !damageSource.damageType.equals("explosion.player")
-                    && !(damageSource instanceof EntityDamageSourceIndirect)) {
-                event.setCanceled(true);
             }
         }
     }

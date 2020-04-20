@@ -55,7 +55,7 @@ skill.soulboundarmory.return=return
 skill.soulboundarmory.sneakReturn=sneak return
 
 # messages
-message.soulboundarmory.levelup=Your %%s leveled up to level %%d.
+message.soulboundarmory.levelup=Your %s leveled up to level %d.
 
 # harvest level names
 miningLevel.soulboundarmory.coal=coal

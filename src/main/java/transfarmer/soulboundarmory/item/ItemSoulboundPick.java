@@ -6,21 +6,20 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ITool;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.network.client.S2CLevelupMessage;
-import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.enumeration.Item;
 import transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -78,7 +77,7 @@ public class ItemSoulboundPick extends ItemPickaxe implements IItemSoulboundTool
             final int xp = Math.min(Math.round(blockState.getBlockHardness(world, blockPos)), 5) + blockState.getBlock().getHarvestLevel(blockState);
 
             if (capability.addDatum(type, XP, xp) && !world.isRemote && MainConfig.instance().getLevelupNotifications()) {
-                Main.CHANNEL.sendTo(new S2CLevelupMessage(itemStack, capability.getDatum(type, LEVEL)), (EntityPlayerMP) entity);
+                entity.sendMessage(new TextComponentTranslation("message.soulboundarmory.levelup", itemStack.getDisplayName(), capability.getDatum(type, LEVEL)));
             }
 
             capability.sync();
