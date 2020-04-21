@@ -113,7 +113,7 @@ public abstract class Menu extends GuiScreen {
     }
 
     protected void displaySkills() {
-        this.mc.displayGuiScreen(new GuiSkills(this.capability));
+        this.mc.displayGuiScreen(new GuiSkills());
     }
 
     @Override
