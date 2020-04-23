@@ -3,16 +3,14 @@ package transfarmer.soulboundarmory.capability.config;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import transfarmer.soulboundarmory.util.ReflectionUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@SuppressWarnings("ConstantConditions")
 public class PlayerConfigProvider implements ICapabilityProvider {
-    @CapabilityInject(IPlayerConfig.class)
-    private static final Capability<IPlayerConfig> CAPABILITY = null;
+    private static final Capability<IPlayerConfig> CAPABILITY = ReflectionUtil.createCapability(IPlayerConfig.class, new PlayerConfigStorage(), PlayerConfig::new);
     private final IPlayerConfig instance = CAPABILITY.getDefaultInstance();
 
     @Override

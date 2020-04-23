@@ -12,8 +12,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.ICapability;
-import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
@@ -31,8 +31,9 @@ import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 public class ClientEventHandlers {
     private static int tick = 0;
 
+
     @SubscribeEvent
-    public static void on(final ClientTickEvent event) {
+    public static void onStartup(final ClientTickEvent event) {
         if (event.phase == Phase.END && tick == 0) {
             Minecraft.getMinecraft().displayGuiScreen(new GuiScreen() {
                 @Override
@@ -41,8 +42,8 @@ public class ClientEventHandlers {
 
                     this.drawDefaultBackground();
                     this.drawCenteredString(this.mc.fontRenderer, "soulbound armory warning", width / 2, 40, 0xFF8000);
-                    this.drawCenteredString(this.mc.fontRenderer, "This version of soulbound armory is a beta test.", width / 2, height / 2, 0xFFFFFF);
-                    this.drawCenteredString(this.mc.fontRenderer, "It and all future versions will not load progress from previous versions.", width / 2, height / 2 + 20, 0xFFFFFF);
+                    this.drawCenteredString(this.mc.fontRenderer, "Soulbound armory versions 2.7.0 and above", width / 2, height / 2 - 5, 0xFFFFFF);
+                    this.drawCenteredString(this.mc.fontRenderer, "will not load progress from previous versions.", width / 2, height / 2 + 5, 0xFFFFFF);
                     this.drawCenteredString(this.mc.fontRenderer, "Press the escape key to continue.", width / 2, height / 2 + 100, 0xFFFFFF);
                 }
             });
@@ -59,7 +60,7 @@ public class ClientEventHandlers {
             final ItemStack itemStack = event.getItemStack();
 
             if (itemStack.getItem() instanceof ISoulboundItem) {
-                final ICapability capability = SoulItemHelper.getFirstCapability(player, itemStack.getItem());
+                final ISoulbound capability = SoulItemHelper.getFirstCapability(player, itemStack.getItem());
                 final IItem type = capability.getItemType(itemStack);
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
@@ -91,10 +92,10 @@ public class ClientEventHandlers {
 
             if (MENU_KEY.isPressed()) {
                 final EntityPlayer player = minecraft.player;
-                final ICapability capability = SoulItemHelper.getFirstHeldCapability(player);
+                final ISoulbound capability = SoulItemHelper.getFirstHeldCapability(player);
 
                 if (capability != null) {
-                    capability.onKeyPress();
+                    capability.openGUI();
                 }
             }
         }

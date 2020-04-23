@@ -1,23 +1,25 @@
 package transfarmer.soulboundarmory.capability.soulbound.tool;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.BaseEnchantable;
-import transfarmer.soulboundarmory.capability.soulbound.ISkillable;
-import transfarmer.soulboundarmory.client.gui.SoulToolMenu;
+import transfarmer.soulboundarmory.capability.soulbound.common.Base;
+import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
+import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabEnchantments;
+import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSkills;
+import transfarmer.soulboundarmory.client.gui.screen.tool.GuiTabToolAttributes;
+import transfarmer.soulboundarmory.client.gui.screen.tool.GuiTabToolConfirmation;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulboundTool;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
+import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skills;
 import transfarmer.soulboundarmory.statistics.Statistic;
-import transfarmer.soulboundarmory.statistics.skill.Skills;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
-import transfarmer.soulboundarmory.statistics.skill.ISkill;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
@@ -30,6 +32,7 @@ import java.util.List;
 import static net.minecraft.init.Enchantments.UNBREAKING;
 import static net.minecraft.init.Enchantments.VANISHING_CURSE;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider.TOOLS;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_PICK;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.CapabilityType.TOOL;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
@@ -46,7 +49,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
-public class Tool extends BaseEnchantable implements ITool, ISkillable {
+public class Tool extends Base implements ITool {
     public Tool() {
         super(TOOL, new IItem[]{PICK}, new ICategory[]{DATUM, ATTRIBUTE},
                 new IStatistic[][]{
@@ -62,8 +65,6 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
                             && !name.contains("mending");
                 }
         );
-
-        this.currentTab = 0;
     }
 
     @Override
@@ -161,36 +162,24 @@ public class Tool extends BaseEnchantable implements ITool, ISkillable {
     }
 
     @Override
-    @SideOnly(CLIENT)
-    public void onKeyPress() {
-        final Minecraft minecraft = Minecraft.getMinecraft();
-        final ItemStack equippedItemStack = this.getEquippedItemStack();
+    public void openGUI() {
+        final ItemStack itemStack = this.getEquippedItemStack();
 
-        if (equippedItemStack != null) {
-            if (equippedItemStack.getItem() instanceof IItemSoulboundTool) {
-                if (this.currentTab < 0) {
-                    minecraft.displayGuiScreen(new SoulToolMenu(0));
-                } else {
-                    minecraft.displayGuiScreen(new SoulToolMenu());
-                }
+        if (itemStack != null) {
+            if (itemStack.getItem() instanceof IItemSoulboundTool) {
+                this.openGUI(this.currentTab);
             } else {
-                minecraft.displayGuiScreen(new SoulToolMenu(-1));
+                this.openGUI(0);
             }
         }
     }
 
     @Override
-    public void refresh() {
-        this.refresh(this.currentTab);
-    }
+    public List<GuiTab> getTabs() {
+        List<GuiTab> tabs = new ArrayList<>();
+        tabs = CollectionUtil.arrayList(new GuiTabToolConfirmation(tabs), new GuiTabToolAttributes(tabs), new GuiTabEnchantments(TOOLS, tabs), new GuiTabSkills(TOOLS, tabs));
 
-    @Override
-    public void refresh(final int tab) {
-        final Minecraft minecraft = Minecraft.getMinecraft();
-
-        if (minecraft.currentScreen instanceof SoulToolMenu) {
-            minecraft.displayGuiScreen(new SoulToolMenu(tab));
-        }
+        return tabs;
     }
 
     @Override

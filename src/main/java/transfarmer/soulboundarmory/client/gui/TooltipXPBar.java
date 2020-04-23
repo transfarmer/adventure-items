@@ -6,8 +6,8 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.IItemCapability;
-import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.config.ColorConfig;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
@@ -26,7 +26,7 @@ public class TooltipXPBar extends Gui {
     protected final FontRenderer fontRenderer = minecraft.fontRenderer;
 
     protected ItemStack itemStack;
-    protected IItemCapability capability;
+    protected ISoulbound capability;
     protected IItem item;
     protected int row;
 

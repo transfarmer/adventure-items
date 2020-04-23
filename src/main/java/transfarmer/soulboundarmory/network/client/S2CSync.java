@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.ICapability;
+import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
@@ -41,7 +41,7 @@ public class S2CSync implements IExtendedMessage {
             final Minecraft minecraft = Minecraft.getMinecraft();
 
             minecraft.addScheduledTask(() -> {
-                final ICapability capability = minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
+                final ISoulbound capability = minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
 
                 capability.deserializeNBT(message.tag);
                 capability.sync();

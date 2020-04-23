@@ -2,15 +2,19 @@ package transfarmer.soulboundarmory.event;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -20,17 +24,20 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.config.IPlayerConfig;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
-import transfarmer.soulboundarmory.capability.soulbound.IItemCapability;
-import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
+import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.item.ItemSoulboundDagger;
@@ -58,8 +65,8 @@ public class EntityEventHandlers {
         final Entity entity = event.getEntity();
         final IFrozen frozenCapability = FrozenProvider.get(entity);
         final IPlayerConfig config = PlayerConfigProvider.get(entity);
-        final IItemCapability toolCapability = ToolProvider.get(entity);
-        final IItemCapability weaponCapability = WeaponProvider.get(entity);
+        final ISoulbound toolCapability = ToolProvider.get(entity);
+        final ISoulbound weaponCapability = WeaponProvider.get(entity);
 
         if (frozenCapability != null && frozenCapability.getEntity() == null) {
             frozenCapability.setEntity(entity);
@@ -100,7 +107,7 @@ public class EntityEventHandlers {
             final IItem weaponType;
 
             if (trueSource instanceof EntityPlayer) {
-                final IItemCapability instance = WeaponProvider.get(trueSource);
+                final ISoulbound instance = WeaponProvider.get(trueSource);
 
                 if (source instanceof EntitySoulDagger) {
                     weaponType = DAGGER;
@@ -112,7 +119,7 @@ public class EntityEventHandlers {
                     return;
                 }
 
-                final float attackDamage = weaponType != null && instance.getAttribute(weaponType, CRITICAL) > new Random().nextInt(100)
+                final float attackDamage = weaponType != null && instance.getAttribute(weaponType, CRITICAL) > new Random().nextDouble()
                         ? 2 * event.getAmount()
                         : event.getAmount();
 
@@ -130,7 +137,7 @@ public class EntityEventHandlers {
         if (!event.getEntity().world.isRemote) {
             Entity attacker = event.getAttacker();
             IItem weaponType = null;
-            final IItemCapability instance = WeaponProvider.get(attacker);
+            final ISoulbound instance = WeaponProvider.get(attacker);
 
             if (attacker instanceof EntitySoulDagger) {
                 attacker = ((EntitySoulDagger) attacker).shootingEntity;
@@ -292,13 +299,48 @@ public class EntityEventHandlers {
                 if (item.getMaxUsageRatio((float) capability.getAttribute(DAGGER, ATTACK_SPEED), event.getDuration()) == 1) {
                     event.setDuration(event.getDuration() + 1);
                 }
-
+//
 //                if (event.getDuration() == item.getMaxItemUseDuration()) {
 //                    event.setDuration(item.getMaxItemUseDuration() - 1);
 //                }
 //
 //                event.setDuration(Math.round(item.getMaxItemUseDuration() - 20 * item.getMaxUsageRatio(capability.getAttribute(ATTACK_SPEED, DAGGER, true, true), event.getDuration())));
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRegisterEntityEntry(final Register<EntityEntry> entry) {
+        entry.getRegistry().register(EntityEntryBuilder.create()
+                .entity(EntitySoulDagger.class)
+                .id(new ResourceLocation(Main.MOD_ID, "entity_soul_dagger"), 0)
+                .name("soul dagger")
+                .tracker(512, 1, true)
+                .build()
+        );
+        entry.getRegistry().register(EntityEntryBuilder.create()
+                .entity(EntityReachModifier.class)
+                .id(new ResourceLocation(Main.MOD_ID, "entity_reach_extender"), 1)
+                .name("reach extender")
+                .tracker(16, 1, true)
+                .build()
+        );
+    }
+
+    @SubscribeEvent
+    public static void onAttachCapabilities(final AttachCapabilitiesEvent<Entity> event) {
+        final Entity entity = event.getObject();
+
+        if (entity instanceof EntityPlayer) {
+            event.addCapability(new ResourceLocation(Main.MOD_ID, "soulboundtool"), new ToolProvider());
+            event.addCapability(new ResourceLocation(Main.MOD_ID, "soulboundweapon"), new WeaponProvider());
+            event.addCapability(new ResourceLocation(Main.MOD_ID, "playerconfig"), new PlayerConfigProvider());
+        }
+
+        if ((entity instanceof EntityLivingBase || entity instanceof IProjectile)
+                && !(entity instanceof EntityReachModifier) && !(entity instanceof EntitySoulDagger)
+                && entity.world instanceof WorldServer) {
+            event.addCapability(new ResourceLocation(Main.MOD_ID, "frozen"), new FrozenProvider());
         }
     }
 }

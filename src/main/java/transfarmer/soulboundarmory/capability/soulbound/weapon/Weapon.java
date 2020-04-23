@@ -1,32 +1,31 @@
 package transfarmer.soulboundarmory.capability.soulbound.weapon;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
-import transfarmer.soulboundarmory.capability.soulbound.BaseEnchantable;
-import transfarmer.soulboundarmory.capability.soulbound.ISkillable;
-import transfarmer.soulboundarmory.capability.soulbound.SoulItemHelper;
-import transfarmer.soulboundarmory.client.gui.SoulWeaponMenu;
+import transfarmer.soulboundarmory.capability.soulbound.common.Base;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
+import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabEnchantments;
+import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSkills;
+import transfarmer.soulboundarmory.client.gui.screen.weapon.GuiTabWeaponAttributes;
+import transfarmer.soulboundarmory.client.gui.screen.weapon.GuiTabWeaponSelection;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
-import transfarmer.soulboundarmory.network.client.S2CRefresh;
+import transfarmer.soulboundarmory.skill.ISkill;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
-import transfarmer.soulboundarmory.statistics.skill.ISkill;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 import transfarmer.soulboundarmory.util.EntityUtil;
@@ -47,21 +46,22 @@ import static net.minecraft.init.Enchantments.UNBREAKING;
 import static net.minecraft.init.Enchantments.VANISHING_CURSE;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider.WEAPONS;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_DAGGER;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_GREATSWORD;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
+import static transfarmer.soulboundarmory.skill.Skills.LEAPING;
+import static transfarmer.soulboundarmory.skill.Skills.RETURN;
+import static transfarmer.soulboundarmory.skill.Skills.SHADOW_CLONE;
+import static transfarmer.soulboundarmory.skill.Skills.SNEAK_RETURN;
+import static transfarmer.soulboundarmory.skill.Skills.SUMMON_LIGHTNING;
+import static transfarmer.soulboundarmory.skill.Skills.THROWING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.CapabilityType.WEAPON;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.DATUM;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
-import static transfarmer.soulboundarmory.statistics.skill.Skills.LEAPING;
-import static transfarmer.soulboundarmory.statistics.skill.Skills.RETURN;
-import static transfarmer.soulboundarmory.statistics.skill.Skills.SHADOW_CLONE;
-import static transfarmer.soulboundarmory.statistics.skill.Skills.SNEAK_RETURN;
-import static transfarmer.soulboundarmory.statistics.skill.Skills.SUMMON_LIGHTNING;
-import static transfarmer.soulboundarmory.statistics.skill.Skills.THROWING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTRIBUTE_POINTS;
@@ -76,7 +76,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
-public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
+public class Weapon extends Base implements IWeapon {
     private final Set<UUID> cannotFreeze;
     private double leapForce;
     private int attackCooldown;
@@ -102,7 +102,6 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
                 }
         );
 
-        this.currentTab = 1;
         this.boundSlot = -1;
         this.attackCooldown = 0;
         this.lightningCooldown = 60;
@@ -151,8 +150,8 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
 
             final double change = sign * this.getIncrease(type, attribute);
 
-            if ((attribute.equals(CRITICAL) && this.getAttribute(type, CRITICAL) + change >= 100)) {
-                this.setAttribute(type, attribute, 100);
+            if ((attribute.equals(CRITICAL) && this.getAttribute(type, CRITICAL) + change >= 1)) {
+                this.setAttribute(type, attribute, 1);
 
                 return;
             }
@@ -276,39 +275,24 @@ public class Weapon extends BaseEnchantable implements IWeapon, ISkillable {
     }
 
     @Override
-    @SideOnly(CLIENT)
-    public void onKeyPress() {
-        final Minecraft minecraft = Minecraft.getMinecraft();
-        final EntityPlayer player = this.getPlayer();
-        Item item;
+    public void openGUI() {
+        final ItemStack itemStack = this.getEquippedItemStack();
 
-        if ((item = player.getHeldItemMainhand().getItem()) instanceof ItemSoulboundWeapon) {
-            minecraft.displayGuiScreen(new SoulWeaponMenu());
-        } else if (item == Items.WOODEN_SWORD) {
-            minecraft.displayGuiScreen(new SoulWeaponMenu(0));
-        } else if ((item = player.getHeldItemOffhand().getItem()) instanceof ItemSoulboundWeapon) {
-            minecraft.displayGuiScreen(new SoulWeaponMenu());
-        } else if (item == Items.WOODEN_SWORD) {
-            minecraft.displayGuiScreen(new SoulWeaponMenu(0));
-        }
-    }
-
-    @Override
-    public void refresh() {
-        this.refresh(this.currentTab);
-    }
-
-    @Override
-    public void refresh(final int tab) {
-        if (SIDE.isClient()) {
-            final Minecraft minecraft = Minecraft.getMinecraft();
-
-            if (minecraft.currentScreen instanceof SoulWeaponMenu) {
-                minecraft.displayGuiScreen(new SoulWeaponMenu(tab));
+        if (itemStack != null) {
+            if (itemStack.getItem() instanceof ItemSoulboundWeapon) {
+                this.openGUI(this.currentTab);
+            } else {
+                this.openGUI(0);
             }
-        } else {
-            Main.CHANNEL.sendTo(new S2CRefresh(this.type), (EntityPlayerMP) this.player);
         }
+    }
+
+    @Override
+    public List<GuiTab> getTabs() {
+        List<GuiTab> tabs = new ArrayList<>();
+        tabs = CollectionUtil.arrayList(new GuiTabWeaponSelection(tabs), new GuiTabWeaponAttributes(tabs), new GuiTabEnchantments(WEAPONS, tabs), new GuiTabSkills(WEAPONS, tabs));
+
+        return tabs;
     }
 
     @Override

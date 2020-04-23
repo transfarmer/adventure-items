@@ -36,7 +36,7 @@ public class ItemUtil {
         return null;
     }
 
-    public static ItemStack getClassEquippedItemStack(final EntityPlayer player, final Class<?> cls) {
+    public static ItemStack getEquippedItemStack(final EntityPlayer player, final Class<?> cls) {
         final ItemStack mainhandStack = player.getHeldItemMainhand();
 
         if (cls.isInstance(mainhandStack.getItem())) {

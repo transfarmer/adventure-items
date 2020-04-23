@@ -23,7 +23,7 @@ public class CollectionUtil {
     }
 
     @SafeVarargs
-    public static <T> List<T> fromArrays(T[]... from) {
+    public static <T> List<T> arrayList(T[]... from) {
         final List<T> to = new ArrayList<>();
 
         for (final T[] array : from) {
