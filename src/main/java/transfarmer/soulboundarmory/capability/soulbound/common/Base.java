@@ -224,13 +224,13 @@ public abstract class Base implements ISoulbound {
     }
 
     @Override
-    public double getAttribute(final IItem item, final IStatistic staitsitc) {
-        return this.statistics.get(item, staitsitc).doubleValue();
+    public double getAttribute(final IItem item, final IStatistic statistic) {
+        return this.statistics.get(item, statistic).doubleValue();
     }
 
     @Override
-    public void setAttribute(final IItem type, final IStatistic attribute, final double value) {
-        this.statistics.set(type, attribute, value);
+    public void setAttribute(final IItem type, final IStatistic statistic, final double value) {
+        this.statistics.set(type, statistic, value);
     }
 
     @Override

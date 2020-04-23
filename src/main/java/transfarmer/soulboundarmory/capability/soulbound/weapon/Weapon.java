@@ -128,8 +128,8 @@ public class Weapon extends Base implements IWeapon {
     @Override
     public double getAttributeTotal(final IItem item, final IStatistic statistic) {
         if (statistic == ATTACK_DAMAGE) {
-            final double attackDamage = this.getAttribute(this.item, ATTACK_DAMAGE);
-            final int level = this.getEnchantment(this.item, SHARPNESS);
+            final double attackDamage = this.getAttribute(item, ATTACK_DAMAGE);
+            final int level = this.getEnchantment(item, SHARPNESS);
 
             return level > 0
                     ? attackDamage + 1 + (level - 1) / 2F
@@ -141,30 +141,30 @@ public class Weapon extends Base implements IWeapon {
 
 
     @Override
-    public void addAttribute(final IItem type, final IStatistic attribute, final int amount) {
+    public void addAttribute(final IItem item, final IStatistic attribute, final int amount) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
-            this.addDatum(type, ATTRIBUTE_POINTS, -sign);
-            this.addDatum(type, SPENT_ATTRIBUTE_POINTS, sign);
+            this.addDatum(item, ATTRIBUTE_POINTS, -sign);
+            this.addDatum(item, SPENT_ATTRIBUTE_POINTS, sign);
 
-            final double change = sign * this.getIncrease(type, attribute);
+            final double change = sign * this.getIncrease(item, attribute);
 
-            if ((attribute.equals(CRITICAL) && this.getAttribute(type, CRITICAL) + change >= 1)) {
-                this.setAttribute(type, attribute, 1);
-
-                return;
-            }
-
-            final Statistic statistic = this.statistics.get(type, attribute);
-
-            if (this.getAttribute(type, attribute) + change <= statistic.min()) {
-                this.setAttribute(type, attribute, statistic.min());
+            if ((attribute.equals(CRITICAL) && this.getAttribute(item, CRITICAL) + change >= 1)) {
+                this.setAttribute(item, attribute, 1);
 
                 return;
             }
 
-            this.statistics.add(type, attribute, change);
+            final Statistic statistic = this.statistics.get(item, attribute);
+
+            if (this.getAttribute(item, attribute) + change <= statistic.min()) {
+                this.setAttribute(item, attribute, statistic.min());
+
+                return;
+            }
+
+            this.statistics.add(item, attribute, change);
         }
     }
 
@@ -244,8 +244,8 @@ public class Weapon extends Base implements IWeapon {
         );
     }
 
-    @SideOnly(CLIENT)
     @Override
+    @SideOnly(CLIENT)
     public List<String> getTooltip(final IItem type) {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
         final List<String> tooltip = new ArrayList<>(7);

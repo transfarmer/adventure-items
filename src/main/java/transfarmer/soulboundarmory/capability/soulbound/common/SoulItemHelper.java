@@ -32,12 +32,10 @@ public class SoulItemHelper {
 
     public static ISoulbound getFirstCapability(final EntityPlayer player, @Nullable Item item) {
         ISoulbound capability = null;
+        boolean passedNull = item == null;
 
-        boolean mainhand = false;
-
-        if (item == null) {
+        if (passedNull) {
             item = player.getHeldItemMainhand().getItem();
-            mainhand = true;
         }
 
         if (item instanceof ISoulboundItem) {
@@ -48,7 +46,7 @@ public class SoulItemHelper {
             }
         }
 
-        if (capability == null) {
+        if (passedNull && capability == null) {
             if (item == Items.WOODEN_SWORD) {
                 capability = WeaponProvider.get(player);
             } else if (item == Items.WOODEN_PICKAXE) {
@@ -56,7 +54,7 @@ public class SoulItemHelper {
             }
         }
 
-        if (capability == null && mainhand) {
+        if (passedNull && capability == null) {
             capability = getFirstCapability(player, player.getHeldItemOffhand());
         }
 
