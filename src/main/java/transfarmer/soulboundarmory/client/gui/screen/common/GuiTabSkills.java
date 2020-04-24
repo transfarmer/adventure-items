@@ -81,8 +81,8 @@ public class GuiTabSkills extends GuiTabSoulbound {
         this.windowHeight = 192;
         this.insideWidth = this.windowWidth - 23;
         this.insideHeight = this.windowHeight - 27;
-        this.centerX = this.width / 2;
-        this.centerY = this.height / 2;
+        this.centerX = Math.max(this.button.endX + this.windowWidth / 2 + 4, this.width / 2);
+        this.centerY = Math.min(this.getXPBarY() - 16 - this.windowHeight / 2, this.height / 2);
         this.insideX = this.centerX - this.insideWidth / 2;
         this.insideY = this.centerY - this.insideHeight / 2;
         this.x = this.centerX - this.windowHeight / 2;
@@ -189,12 +189,37 @@ public class GuiTabSkills extends GuiTabSoulbound {
 
             if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
                 final String name = skill.getName();
-                final int barWidth = 36 + FONT_RENDERER.getStringWidth(name);
+                final int titleWidth = 36 + FONT_RENDERER.getStringWidth(name);
+                final int barWidth;
+                List<String> tooltip = skill.getTooltip();
 
                 this.setChroma(1);
+                TEXTURE_MANAGER.bindTexture(WIDGETS);
+
+                if (tooltip != null && tooltip.size() > 0) {
+                    barWidth = titleWidth;
+
+                    for (int i = 0, size = tooltip.size(); i < size; i++) {
+                        final String entry = tooltip.remove(0);
+
+                        tooltip.addAll(FONT_RENDERER.listFormattedStringToWidth(entry, 8 + barWidth));
+                    }
+
+                    final int y = posY + (posY > this.centerY ? -16 : 14);
+
+                    this.drawInterpolatedTexturedRect(posX - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, 1 + (1 + tooltip.size()) * FONT_RENDERER.FONT_HEIGHT);
+
+                    int i = 0;
+
+                    for (final String line : tooltip) {
+                        Main.LOGGER.error(line);
+                        this.drawString(FONT_RENDERER, line, posX - 3, posY + 21 + i++ * FONT_RENDERER.FONT_HEIGHT, 0xFFFFFF);
+                    }
+                } else {
+                    barWidth = titleWidth;
+                }
 
                 TEXTURE_MANAGER.bindTexture(WIDGETS);
-                this.drawInterpolatedTexturedRect(posX - 8, posY + 20, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, 30);
                 this.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 3, 2, 198, 200, barWidth, 20);
                 TEXTURE_MANAGER.deleteTexture(WIDGETS);
 
@@ -273,7 +298,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
     }
 
     protected int drawHorizontalInterpolatedTexturedRect(int x, final int y, final int startV, final int middleU,
-                                                       final int endU, int width, final int height) {
+                                                         final int endU, int width, final int height) {
         while (width > 0) {
             final int middleWidth = Math.min(width, endU - middleU);
 
@@ -300,7 +325,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
     }
 
     protected int drawVerticalInterpolatedTexturedRect(final int x, int y, final int startU, final int middleV,
-                                                     final int endV, final int width, int height) {
+                                                       final int endV, final int width, int height) {
         while (height > 0) {
             final int middleHeight = Math.min(height, endV - middleV);
 

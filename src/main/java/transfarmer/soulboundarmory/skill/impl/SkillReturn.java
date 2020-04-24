@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.skill.impl;
 
 import transfarmer.soulboundarmory.skill.ISkill;
-import transfarmer.soulboundarmory.skill.ISkillContext;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
@@ -13,7 +12,7 @@ public class SkillReturn extends SkillBaseLevelable {
     }
 
     public SkillReturn(final int level) {
-        super("return", level);
+        super("return", level, "causes the dagger to return when on ground, too far or airborne for too long");
     }
 
     @Override

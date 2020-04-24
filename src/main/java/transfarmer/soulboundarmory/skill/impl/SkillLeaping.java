@@ -13,7 +13,7 @@ public class SkillLeaping extends SkillBaseLevelable {
     }
 
     public SkillLeaping(final int level) {
-        super("leaping", level);
+        super("leaping", level, "enables you to leap by using the greatsword");
     }
 
     @Override

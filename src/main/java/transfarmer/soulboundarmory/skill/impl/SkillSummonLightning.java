@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.skill.impl;
 
 import transfarmer.soulboundarmory.skill.ISkill;
-import transfarmer.soulboundarmory.skill.ISkillContext;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ public class SkillSummonLightning extends SkillBaseLevelable {
     }
 
     public SkillSummonLightning(final int level) {
-        super("summon_lightning", level);
+        super("summon_lightning", level, "causes a lightning bolt to be summoned when used");
     }
 
     @Override

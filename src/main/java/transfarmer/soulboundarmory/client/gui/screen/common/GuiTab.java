@@ -1,6 +1,7 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiExtendedButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.config.GuiSlider;
@@ -13,6 +14,7 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -23,12 +25,15 @@ public abstract class GuiTab extends GuiScreen {
     protected final Renderer renderer;
 
     protected final List<GuiTab> tabs;
+    protected final List<GuiExtendedButton> tabButtons;
     protected final int index;
+    protected GuiExtendedButton button;
 
     public GuiTab(final List<GuiTab> tabs) {
         this.guiFactory = new GUIFactory(this);
         this.renderer = new Renderer(this);
         this.tabs = tabs;
+        this.tabButtons = new ArrayList<>();
 
         if (!tabs.contains(this)) {
             tabs.add(this);
@@ -39,7 +44,7 @@ public abstract class GuiTab extends GuiScreen {
 
     @SafeVarargs
     protected final <T extends GuiButton> T[] addButtons(final T... buttons) {
-        for (final GuiButton button : buttons) {
+        for (final T button : buttons) {
             this.addButton(button);
         }
 
@@ -53,9 +58,12 @@ public abstract class GuiTab extends GuiScreen {
         super.initGui();
 
         for (int row = 0; row < this.tabs.size(); row++) {
-            final GuiButton button = this.addButton(new GuiButton(16 + row, width / 24, height / 16 + row * Math.max(height / 16, 30), Math.max(96, Math.round(width / 7.5F)), 20, this.tabs.get(row).getLabel()));
+            final GuiExtendedButton button = this.addButton(new GuiExtendedButton(16 + row, width / 24, height / 16 + row * Math.max(height / 16, 30), Math.max(96, Math.round(width / 7.5F)), 20, this.tabs.get(row).getLabel()));
 
-            button.enabled = row != this.index;
+            if (row == this.index) {
+                this.button = button;
+                button.enabled = false;
+            }
         }
     }
 
@@ -93,12 +101,12 @@ public abstract class GuiTab extends GuiScreen {
         try {
             this.mc.displayGuiScreen(this.tabs.get(tab));
         } catch (final Throwable exception) {
-            exception.printStackTrace();
+            Main.LOGGER.error(exception);
         }
     }
 
     public void refresh() {
-        this.setTab(this.index);
+        this.initGui();
     }
 
     @Override

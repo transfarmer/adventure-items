@@ -83,8 +83,8 @@ public abstract class GuiTabSoulbound extends GuiTab {
     protected void drawXPBar(final int mouseX, final int mouseY) {
         if (ColorConfig.getAlpha() >= 26F / 255) {
             final int length = 182;
-            final int barX = (this.width - length) / 2;
-            final int barY = this.height - 29;
+            final int barX = this.getXPBarX();
+            final int barY = this.getXPBarY();
             final int xp = capability.getDatum(this.item, XP);
             final TextureManager textureManager = this.mc.getTextureManager();
 
@@ -125,10 +125,18 @@ public abstract class GuiTabSoulbound extends GuiTab {
     }
 
     protected boolean isMouseOverXPBar(final int mouseX, final int mouseY) {
-        final int barLeftX = (width - 182) / 2;
-        final int barTopY = height - 29;
+        final int barX = this.getXPBarX();
+        final int barY = this.getXPBarY();
 
-        return this.displayXPBar() && mouseX >= barLeftX && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4;
+        return this.displayXPBar() && mouseX >= barX && mouseX <= barX + 182 && mouseY >= barY && mouseY <= barY + 4;
+    }
+
+    protected int getXPBarY() {
+        return this.height - 29;
+    }
+
+    protected int getXPBarX() {
+        return (this.width - 182) / 2;
     }
 
     protected boolean isMouseOverLevel(final int mouseX, final int mouseY) {

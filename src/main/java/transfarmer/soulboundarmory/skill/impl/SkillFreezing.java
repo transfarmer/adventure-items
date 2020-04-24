@@ -12,7 +12,7 @@ public class SkillFreezing extends SkillBaseLevelable {
     }
 
     public SkillFreezing(final int level) {
-        super("freezing", level);
+        super("freezing", level, "freezes enemies if passed while leaping", "freezes nearby enemies when landing from a leap");
     }
 
     @Override

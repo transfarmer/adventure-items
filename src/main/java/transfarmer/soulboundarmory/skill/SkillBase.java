@@ -2,6 +2,7 @@ package transfarmer.soulboundarmory.skill;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
@@ -14,11 +15,15 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public abstract class SkillBase implements ISkill {
     protected final String name;
-    protected final List<String> tooltip;
+    @SideOnly(CLIENT)
+    protected List<String> tooltip;
 
     protected SkillBase(final String name, final String... tooltip) {
         this.name = name;
-        this.tooltip = CollectionUtil.arrayList(tooltip);
+
+        if (FMLCommonHandler.instance().getSide().isClient()) {
+            this.tooltip = CollectionUtil.arrayList(tooltip);
+        }
     }
 
     @Override

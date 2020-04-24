@@ -1,11 +1,11 @@
 
 # item names
-item.soulboundarmory.soulbound_greatsword.name=§4Soulbound great sword§r
+item.soulboundarmory.soulbound_greatsword.name=§4Soulbound greatsword§r
 item.soulboundarmory.soulbound_sword.name=§4Soulbound sword§r
 item.soulboundarmory.soulbound_dagger.name=§4Soulbound dagger§r
 item.soulboundarmory.soulbound_staff.name=§4Soulbound staff§r
 item.soulboundarmory.soulbound_pick.name=§4Soulbound pick§r
-item.soulboundarmory.soulboundGreatsword=soulbound great sword
+item.soulboundarmory.soulboundGreatsword=soulbound greatsword
 item.soulboundarmory.soulboundSword=soulbound sword
 item.soulboundarmory.soulboundDagger=soulbound dagger
 item.soulboundarmory.soulboundStaff=soulbound staff
