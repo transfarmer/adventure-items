@@ -35,8 +35,9 @@ public class GuiTabSkills extends GuiTabSoulbound {
     protected static final TextureAtlasSprite BACKGROUND = getSprite(Blocks.STONE, 5);
     protected static final ResourceLocation BACKGROUND_TEXTURE = getTexture(BACKGROUND);
     protected static final ResourceLocation WINDOW = new ResourceLocation("textures/gui/advancements/window.png");
-    protected static final ResourceLocation SKILL_BACKGROUND = new ResourceLocation("textures/gui/advancements/widgets.png");
+    protected static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/advancements/widgets.png");
     protected final Map<ISkill, List<Integer>> skills;
+    protected float fade;
     protected int windowWidth;
     protected int windowHeight;
     protected int insideWidth;
@@ -100,30 +101,37 @@ public class GuiTabSkills extends GuiTabSoulbound {
     public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        this.drawWindow();
+        this.drawWindow(mouseX, mouseY);
         this.drawSkills();
     }
 
-    public void drawWindow() {
+    public void drawWindow(final int mouseX, final int mouseY) {
         final int alphaWidth = 252;
         final int alphaHeight = 140;
         final int half = this.windowHeight / 2;
         final int x = this.centerX - this.windowWidth / 2;
         final int y = this.centerY - this.windowHeight / 2;
 
-        GlStateManager.color(1, 1, 1, 1);
+        GlStateManager.color(1F, 1F, 1F, 1F - this.fade / 255F);
         GlStateManager.enableBlend();
 
         TEXTURE_MANAGER.bindTexture(BACKGROUND_TEXTURE);
         drawModalRectWithCustomSizedTexture(x + 4, y + 4, 0, 0, this.windowWidth - 8, this.windowHeight - 8, BACKGROUND.getIconWidth(), BACKGROUND.getIconHeight());
         TEXTURE_MANAGER.deleteTexture(BACKGROUND_TEXTURE);
 
+        GlStateManager.color(1, 1, 1, 1);
         TEXTURE_MANAGER.bindTexture(WINDOW);
         this.drawTexturedModalRect(x, y, 0, 0, alphaWidth, half);
         this.drawTexturedModalRect(x, y + half, 0, 40, this.windowWidth, alphaHeight - 40);
         TEXTURE_MANAGER.deleteTexture(WINDOW);
 
         this.fontRenderer.drawString(Mappings.MENU_BUTTON_SKILLS, x + 8, y + 6, 0x404040);
+
+        if (this.isSkillSelected(mouseX, mouseY)) {
+            this.fade = Math.min(this.fade + 12F, 80F);
+        } else {
+            this.fade = Math.max(this.fade - 12F, 0F);
+        }
     }
 
     protected void drawSkills() {
@@ -148,14 +156,34 @@ public class GuiTabSkills extends GuiTabSoulbound {
             posX -= width / 2;
             posY -= height / 2;
 
-            TEXTURE_MANAGER.bindTexture(SKILL_BACKGROUND);
+            TEXTURE_MANAGER.bindTexture(WIDGETS);
             this.drawTexturedModalRect(posX - 4, posY - 4, 1, 155, 24, 24);
-            TEXTURE_MANAGER.deleteTexture(SKILL_BACKGROUND);
+            TEXTURE_MANAGER.deleteTexture(WIDGETS);
 
             TEXTURE_MANAGER.bindTexture(texture);
             drawScaledCustomSizeModalRect(posX, posY, 0, 0, imageWidth, imageHeight, width, height, imageWidth, imageHeight);
             TEXTURE_MANAGER.deleteTexture(texture);
         }
+    }
+
+    protected boolean isSkillSelected(final int mouseX, final int mouseY) {
+        return this.getSelectedSkill(mouseX, mouseY) != null;
+    }
+
+    protected ISkill getSelectedSkill(final int mouseX, final int mouseY) {
+        for (final ISkill skill : this.skills.keySet()) {
+            if (this.isSkillSelected(skill, mouseX, mouseY)) {
+                return skill;
+            }
+        }
+
+        return null;
+    }
+
+    protected boolean isSkillSelected(final ISkill skill, final int mouseX, final int mouseY) {
+        final List<Integer> positions = this.skills.get(skill);
+
+        return Math.abs(positions.get(0) - mouseX) <= 12 && Math.abs(positions.get(1) - mouseY) <= 12;
     }
 
     @Override
