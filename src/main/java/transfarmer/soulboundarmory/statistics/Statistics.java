@@ -14,10 +14,8 @@ import java.util.Map;
 public class Statistics implements INBTSerializable<NBTTagCompound> {
     private final Map<IItem, Map<ICategory, Map<IStatistic, Statistic>>> statistics;
 
-    public Statistics(
-            final IItem[] items, final ICategory[] categories, final IStatistic[][] statisticNames,
-            final double[][][] min
-    ) {
+    public Statistics(final IItem[] items, final ICategory[] categories, final IStatistic[][] statisticNames,
+                      final double[][][] min) {
         this.statistics = new HashMap<>(items.length, 1);
 
         for (int i = 0, itemsLength = items.length; i < itemsLength; i++) {

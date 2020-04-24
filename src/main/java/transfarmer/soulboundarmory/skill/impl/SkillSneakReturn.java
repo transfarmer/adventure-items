@@ -1,7 +1,11 @@
 package transfarmer.soulboundarmory.skill.impl;
 
-import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.ISkillContext;
 import transfarmer.soulboundarmory.skill.SkillBase;
+import transfarmer.soulboundarmory.util.CollectionUtil;
+
+import java.util.List;
 
 public class SkillSneakReturn extends SkillBase {
     public SkillSneakReturn() {
@@ -9,7 +13,7 @@ public class SkillSneakReturn extends SkillBase {
     }
 
     @Override
-    public void apply(final ExtendedPacketBuffer context) {
-
+    public List<ISkill> getDependencies() {
+        return CollectionUtil.arrayList(new SkillThrowing());
     }
 }

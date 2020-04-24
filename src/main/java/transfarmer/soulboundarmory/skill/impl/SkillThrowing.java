@@ -1,7 +1,11 @@
 package transfarmer.soulboundarmory.skill.impl;
 
-import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.ISkillContext;
 import transfarmer.soulboundarmory.skill.SkillBase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SkillThrowing extends SkillBase {
     public SkillThrowing() {
@@ -9,7 +13,7 @@ public class SkillThrowing extends SkillBase {
     }
 
     @Override
-    public void apply(final ExtendedPacketBuffer context) {
-
+    public List<ISkill> getDependencies() {
+        return new ArrayList<>();
     }
 }

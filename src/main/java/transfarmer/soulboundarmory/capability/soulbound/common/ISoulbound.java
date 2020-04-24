@@ -31,6 +31,10 @@ public interface ISoulbound extends INBTSerializable<NBTTagCompound> {
 
     void reset();
 
+    void resetEnchantments(IItem item);
+
+    void resetSkills(IItem item);
+
     ICapabilityType getType();
 
     IItem getItemType(int index);
@@ -122,8 +126,6 @@ public interface ISoulbound extends INBTSerializable<NBTTagCompound> {
     IndexedMap<Enchantment, Integer> getEnchantments(IItem type);
 
     void addEnchantment(IItem type, Enchantment enchantment, int amount);
-
-    void resetEnchantments(IItem item);
 
     ISkill[] getSkills();
 

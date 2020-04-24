@@ -9,12 +9,15 @@ import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ENCHANTMENT;
+
 public class C2SReset implements IExtendedMessage {
     private String capability;
     private String item;
     private String category;
 
-    public C2SReset() {}
+    public C2SReset() {
+    }
 
     public C2SReset(final ICapabilityType capability) {
         this.capability = capability.toString();
@@ -61,7 +64,9 @@ public class C2SReset implements IExtendedMessage {
                         if (message.category != null) {
                             final ICategory category = ICategory.get(message.category);
 
-                            if (category != null) {
+                            if (category == ENCHANTMENT) {
+                                capability.resetEnchantments(item);
+                            } else if (category != null) {
                                 capability.reset(item, category);
                             }
                         } else {

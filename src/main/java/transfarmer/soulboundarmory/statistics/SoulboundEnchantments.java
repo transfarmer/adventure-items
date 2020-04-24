@@ -56,6 +56,12 @@ public class SoulboundEnchantments implements Iterable<IItem>, INBTSerializable<
         return this.enchantments.keySet().iterator();
     }
 
+    public void reset() {
+        for (final IItem item : this) {
+            this.reset(item);
+        }
+    }
+
     public void reset(final IItem item) {
         final IndexedMap<Enchantment, Integer> enchantments = this.get(item);
 

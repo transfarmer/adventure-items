@@ -11,7 +11,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 
 import javax.annotation.Nonnull;
@@ -52,14 +51,13 @@ public class ItemSoulboundGreatsword extends ItemSoulboundWeapon {
         final int timeTaken = 200 - timeLeft;
 
         if (timeTaken > 5) {
-            final IWeapon capability = WeaponProvider.get(player);
             final Vec3d look = player.getLookVec();
             final float maxSpeed = 1.25F;
             final float speed = Math.min(maxSpeed, timeTaken / 20F * maxSpeed);
 
             player.addVelocity(look.x * speed, look.y * speed / 4 + 0.2, look.z * speed);
             player.setSprinting(true);
-            capability.setLeapForce(speed / maxSpeed);
+            WeaponProvider.get(player).setLeapForce(speed / maxSpeed);
         }
     }
 

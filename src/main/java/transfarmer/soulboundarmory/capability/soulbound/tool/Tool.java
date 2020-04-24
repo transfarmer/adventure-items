@@ -16,7 +16,8 @@ import transfarmer.soulboundarmory.item.IItemSoulboundTool;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
 import transfarmer.soulboundarmory.skill.ISkill;
-import transfarmer.soulboundarmory.skill.Skills;
+import transfarmer.soulboundarmory.skill.impl.SkillAmbidexterity;
+import transfarmer.soulboundarmory.skill.impl.SkillTeleportation;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
@@ -189,6 +190,6 @@ public class Tool extends Base implements ITool {
 
     @Override
     public ISkill[] getSkills(final IItem type) {
-        return new ISkill[]{Skills.TELEPORTATION, Skills.AMBIDEXTERITY};
+        return new ISkill[]{new SkillTeleportation(), new SkillAmbidexterity()};
     }
 }

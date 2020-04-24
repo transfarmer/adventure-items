@@ -1,24 +1,45 @@
 package transfarmer.soulboundarmory.skill;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
-import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public interface ISkill {
-    @SideOnly(CLIENT)
-    String getName();
+public interface ISkill extends INBTSerializable<NBTTagCompound> {
+    Set<ISkill> SKILLS = new HashSet<>();
 
-    String getRegistryName();
+    static ISkill get(final String name) {
+        for (final ISkill skill : SKILLS) {
+            if (skill.getRegistryName().equals(name)) {
+                return skill;
+            }
+        }
 
-    void apply(ExtendedPacketBuffer context);
+        return null;
+    }
+
+    List<ISkill> getDependencies();
+
+    boolean hasDependencies();
+
+    int getTier();
+
+    default ResourceLocation getTexture() {
+        return new ResourceLocation(this.getModID(), String.format("textures/skill/%s.png", this.getRegistryName()));
+    }
 
     @NotNull
     String getModID();
 
-    default ResourceLocation getTexture() {
-        return new ResourceLocation(getModID(), String.format("textures/skill/%s.png", this.getRegistryName()));
-    }
+    String getRegistryName();
+
+    @SideOnly(CLIENT)
+    String getName();
 }

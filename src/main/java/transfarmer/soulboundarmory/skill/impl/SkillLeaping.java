@@ -1,16 +1,24 @@
 package transfarmer.soulboundarmory.skill.impl;
 
 import net.minecraft.util.ResourceLocation;
-import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.skill.SkillBase;
+import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
-public class SkillLeaping extends SkillBase {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SkillLeaping extends SkillBaseLevelable {
     public SkillLeaping() {
-        super("leaping");
+        this(0);
+    }
+
+    public SkillLeaping(final int level) {
+        super("leaping", level);
     }
 
     @Override
-    public void apply(final ExtendedPacketBuffer buffer) {
+    public List<ISkill> getDependencies() {
+        return new ArrayList<>();
     }
 
     @Override

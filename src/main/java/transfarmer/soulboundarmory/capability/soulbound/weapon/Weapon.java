@@ -23,6 +23,12 @@ import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
 import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.impl.SkillLeaping;
+import transfarmer.soulboundarmory.skill.impl.SkillReturn;
+import transfarmer.soulboundarmory.skill.impl.SkillShadowClone;
+import transfarmer.soulboundarmory.skill.impl.SkillSneakReturn;
+import transfarmer.soulboundarmory.skill.impl.SkillSummonLightning;
+import transfarmer.soulboundarmory.skill.impl.SkillThrowing;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
@@ -50,12 +56,6 @@ import static transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProv
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_DAGGER;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_GREATSWORD;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
-import static transfarmer.soulboundarmory.skill.Skills.LEAPING;
-import static transfarmer.soulboundarmory.skill.Skills.RETURN;
-import static transfarmer.soulboundarmory.skill.Skills.SHADOW_CLONE;
-import static transfarmer.soulboundarmory.skill.Skills.SNEAK_RETURN;
-import static transfarmer.soulboundarmory.skill.Skills.SUMMON_LIGHTNING;
-import static transfarmer.soulboundarmory.skill.Skills.THROWING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.CapabilityType.WEAPON;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.DATUM;
@@ -218,15 +218,15 @@ public class Weapon extends Base implements IWeapon {
     @Override
     public ISkill[] getSkills(final IItem type) {
         if (type == DAGGER) {
-            return new ISkill[]{THROWING, SHADOW_CLONE, RETURN, SNEAK_RETURN};
+            return new ISkill[]{new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn()};
         }
 
         if (type == GREATSWORD) {
-            return new ISkill[]{LEAPING};
+            return new ISkill[]{new SkillLeaping()};
         }
 
         if (type == SWORD) {
-            return new ISkill[]{SUMMON_LIGHTNING};
+            return new ISkill[]{new SkillSummonLightning()};
         }
 
         return new ISkill[0];

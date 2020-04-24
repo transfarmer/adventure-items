@@ -1,23 +1,22 @@
 package transfarmer.soulboundarmory.skill.impl;
 
 import transfarmer.soulboundarmory.skill.ISkill;
-import transfarmer.soulboundarmory.skill.ISkillContext;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import java.util.List;
 
-public class SkillReturn extends SkillBaseLevelable {
-    public SkillReturn() {
+public class SkillFreezing extends SkillBaseLevelable {
+    public SkillFreezing() {
         this(0);
     }
 
-    public SkillReturn(final int level) {
-        super("return", level);
+    public SkillFreezing(final int level) {
+        super("freezing", level);
     }
 
     @Override
     public List<ISkill> getDependencies() {
-        return CollectionUtil.arrayList(new SkillThrowing());
+        return CollectionUtil.arrayList(new SkillLeaping());
     }
 }

@@ -9,10 +9,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
-public class ReflectionUtil {
-    @SuppressWarnings({"unchecked", "rawtypes", "ConstantConditions"})
+@SuppressWarnings({"unchecked", "rawtypes", "ConstantConditions"})
+public class ReflectUtil {
     @NotNull
-    public static <T> Capability<T> createCapability(Class<T> type, IStorage<T> storage, Callable<? extends T> factory) {
+    public static <T> Capability<T> createCapability(final Class<T> type, final IStorage<T> storage, final Callable<? extends T> factory) {
         try {
             final Constructor<Capability> constructor = Capability.class.getDeclaredConstructor(String.class, IStorage.class, Callable.class);
             constructor.setAccessible(true);
@@ -22,6 +22,16 @@ public class ReflectionUtil {
 
             return capability;
         } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException exception) {
+            Main.LOGGER.error(exception);
+        }
+
+        return null;
+    }
+
+    public static <T, U> U getStaticValue(final Class<?> clazz, final T object, final String field) {
+        try {
+            return (U) clazz.getDeclaredField(field).get(object);
+        } catch (final NoSuchFieldException | IllegalAccessException exception) {
             Main.LOGGER.error(exception);
         }
 

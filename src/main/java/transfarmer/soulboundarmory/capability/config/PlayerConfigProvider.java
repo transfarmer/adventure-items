@@ -4,13 +4,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import transfarmer.soulboundarmory.util.ReflectionUtil;
+import transfarmer.soulboundarmory.util.ReflectUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class PlayerConfigProvider implements ICapabilityProvider {
-    private static final Capability<IPlayerConfig> CAPABILITY = ReflectionUtil.createCapability(IPlayerConfig.class, new PlayerConfigStorage(), PlayerConfig::new);
+    private static final Capability<IPlayerConfig> CAPABILITY = ReflectUtil.createCapability(IPlayerConfig.class, new PlayerConfigStorage(), PlayerConfig::new);
     private final IPlayerConfig instance = CAPABILITY.getDefaultInstance();
 
     @Override

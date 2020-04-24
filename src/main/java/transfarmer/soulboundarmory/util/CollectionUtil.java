@@ -12,14 +12,12 @@ import java.util.Set;
 @SuppressWarnings({"UseBulkOperation", "ManualArrayToCollectionCopy"})
 public class CollectionUtil {
     @SafeVarargs
-    public static <T> List<T> fromCollections(Collection<? extends T>... from) {
-        final List<T> to = new ArrayList<>();
-
-        for (final Collection<? extends T> list : from) {
-            to.addAll(list);
+    public static <T extends Collection<U>, U> T merge(T... from) {
+        for (int i = 1; i < from.length; i++) {
+            from[0].addAll(from[i]);
         }
 
-        return to;
+        return from[0];
     }
 
     @SafeVarargs
@@ -62,6 +60,14 @@ public class CollectionUtil {
         for (final T element : from) {
             to.add(element);
         }
+
+        return to;
+    }
+
+    public static <K, V> Map<K, V> hashMap(final K key, V value) {
+        final Map<K, V> to = new HashMap<>(1);
+
+        to.put(key, value);
 
         return to;
     }

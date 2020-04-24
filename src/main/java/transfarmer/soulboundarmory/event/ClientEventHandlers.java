@@ -90,7 +90,7 @@ public class ClientEventHandlers {
 
     @SubscribeEvent
     public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
-        if (event.getStack().getItem() instanceof ISoulboundItem && SoulItemHelper.getFirstCapability(Minecraft.getMinecraft().player, event.getStack()).getItemType() != null) {
+        if (event.getStack().getItem() instanceof ISoulboundItem) {
             TooltipXPBar.render(event.getX(), event.getY(), event.getStack());
         }
     }

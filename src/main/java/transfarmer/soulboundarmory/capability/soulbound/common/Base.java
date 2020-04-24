@@ -19,6 +19,7 @@ import transfarmer.soulboundarmory.network.client.S2COpenGUI;
 import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.network.server.C2STab;
 import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.statistics.Skills;
 import transfarmer.soulboundarmory.statistics.SoulboundEnchantments;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.Statistics;
@@ -51,6 +52,7 @@ public abstract class Base implements ISoulbound {
     protected ICapabilityType type;
     protected Statistics statistics;
     protected SoulboundEnchantments enchantments;
+    protected Skills skills;
     protected List<IItem> itemTypes;
     protected List<Item> items;
     protected IItem item;
@@ -60,7 +62,7 @@ public abstract class Base implements ISoulbound {
     protected int currentTab;
 
     protected Base(final ICapabilityType type, final IItem[] itemTypes, ICategory[] categories,
-                   IStatistic[][] statistics, double[][][] min, final Item[] items, Predicate<Enchantment> condition) {
+                  IStatistic[][] statistics, double[][][] min, final Item[] items, Predicate<Enchantment> condition) {
         this.type = type;
         this.statistics = new Statistics(itemTypes, categories, statistics, min);
         this.itemTypes = CollectionUtil.arrayList(itemTypes);
@@ -69,6 +71,7 @@ public abstract class Base implements ISoulbound {
         this.currentTab = 0;
         this.statistics = new Statistics(itemTypes, categories, statistics, min);
         this.enchantments = new SoulboundEnchantments(itemTypes, items, condition);
+        this.skills = new Skills(itemTypes, this.itemTypes.stream().map(this::getSkills).toArray(ISkill[][]::new));
     }
 
     @Override
@@ -92,12 +95,18 @@ public abstract class Base implements ISoulbound {
 
     @Override
     public void reset() {
-        this.statistics.reset();
+        for (final IItem item : this.itemTypes) {
+            this.reset(item);
+            this.resetEnchantments(item);
+            this.resetSkills(item);
+        }
     }
 
     @Override
     public void reset(final IItem item) {
         this.statistics.reset(item);
+        this.enchantments.reset(item);
+        this.skills.reset(item);
     }
 
     @Override
@@ -108,6 +117,11 @@ public abstract class Base implements ISoulbound {
             this.addDatum(item, ATTRIBUTE_POINTS, this.getDatum(item, SPENT_ATTRIBUTE_POINTS));
             this.setDatum(item, SPENT_ATTRIBUTE_POINTS, 0);
         }
+    }
+
+    @Override
+    public void resetSkills(final IItem item) {
+        this.skills.reset(item);
     }
 
     @Override
@@ -331,7 +345,7 @@ public abstract class Base implements ISoulbound {
         this.enchantments.reset(item);
 
         this.statistics.add(item, ENCHANTMENT_POINTS, this.statistics.get(item, SPENT_ENCHANTMENT_POINTS));
-        this.statistics.add(item, SPENT_ENCHANTMENT_POINTS, 0);
+        this.statistics.set(item, SPENT_ENCHANTMENT_POINTS, 0);
     }
 
     @Override
@@ -363,7 +377,7 @@ public abstract class Base implements ISoulbound {
     @Override
     public Map<String, AttributeModifier> getAttributeModifiers(final IItem type) {
         return CollectionUtil.hashMap(
-                new String[]{EntityPlayer.REACH_DISTANCE.getName()},
+                EntityPlayer.REACH_DISTANCE.getName(),
                 new AttributeModifier(REACH_DISTANCE_UUID, "generic.reachDistance", this.getAttributeRelative(type, REACH_DISTANCE), ADD)
         );
     }

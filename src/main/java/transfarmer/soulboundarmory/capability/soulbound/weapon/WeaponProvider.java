@@ -6,13 +6,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import transfarmer.soulboundarmory.capability.Storage;
-import transfarmer.soulboundarmory.util.ReflectionUtil;
+import transfarmer.soulboundarmory.util.ReflectUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class WeaponProvider implements ICapabilitySerializable<NBTTagCompound> {
-    public static final Capability<IWeapon> WEAPONS = ReflectionUtil.createCapability(IWeapon.class, new Storage<>(), Weapon::new);
+    public static final Capability<IWeapon> WEAPONS = ReflectUtil.createCapability(IWeapon.class, new Storage<>(), Weapon::new);
 
     private final IWeapon instance = WEAPONS.getDefaultInstance();
 

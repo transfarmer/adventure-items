@@ -2,6 +2,7 @@ package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.client.config.GuiSlider;
@@ -17,6 +18,7 @@ import transfarmer.soulboundarmory.network.server.C2SBindSlot;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.ItemUtil;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -77,32 +79,33 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     protected void drawXPBar(final int mouseX, final int mouseY) {
         if (ColorConfig.getAlpha() >= 26F / 255) {
-            final int barLeftX = (width - 182) / 2;
-            final int barTopY = height - 29;
+            final int length = 182;
+            final int barX = (this.width - length) / 2;
+            final int barY = this.height - 29;
             final int xp = capability.getDatum(this.item, XP);
+            final TextureManager textureManager = this.mc.getTextureManager();
 
             GlStateManager.color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha());
-            this.mc.getTextureManager().bindTexture(XP_BAR);
-            this.drawTexturedModalRect(barLeftX, barTopY, 0, 0, 182, 5);
-            this.drawTexturedModalRect(barLeftX, barTopY, 0, 5, this.capability.canLevelUp(this.item)
-                    ? Math.min(182, Math.round((float) xp / capability.getNextLevelXP(this.item) * 182))
-                    : 182, 5);
-            this.mc.getTextureManager().deleteTexture(XP_BAR);
+            textureManager.bindTexture(XP_BAR);
+            this.drawTexturedModalRect(barX, barY, 0, 0, length, 5);
+            this.drawTexturedModalRect(barX, barY, 0, 5, this.capability.canLevelUp(this.item)
+                    ? Math.min(length, Math.round((float) xp / capability.getNextLevelXP(this.item) * length))
+                    : length, 5);
+            textureManager.deleteTexture(XP_BAR);
 
             final int level = this.capability.getDatum(this.item, LEVEL);
             final String levelString = String.format("%d", level);
-            final int levelLeftX = (width - this.fontRenderer.getStringWidth(levelString)) / 2;
-            final int levelTopY = barTopY - 6;
-            final int color = (new java.awt.Color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha())).getRGB();
+            final int levelX = barX + (length - this.fontRenderer.getStringWidth(levelString)) / 2;
+            final int levelY = barY - 6;
+            final int color = new Color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha()).getRGB();
 
-            this.fontRenderer.drawString(levelString, levelLeftX + 1, levelTopY, 0);
-            this.fontRenderer.drawString(levelString, levelLeftX - 1, levelTopY, 0);
-            this.fontRenderer.drawString(levelString, levelLeftX, levelTopY + 1, 0);
-            this.fontRenderer.drawString(levelString, levelLeftX, levelTopY - 1, 0);
-            this.fontRenderer.drawString(levelString, levelLeftX, levelTopY, color);
+            this.fontRenderer.drawString(levelString, levelX + 1, levelY, 0);
+            this.fontRenderer.drawString(levelString, levelX - 1, levelY, 0);
+            this.fontRenderer.drawString(levelString, levelX, levelY + 1, 0);
+            this.fontRenderer.drawString(levelString, levelX, levelY - 1, 0);
+            this.fontRenderer.drawString(levelString, levelX, levelY, color);
 
-            if (mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
-                    && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT && MainConfig.instance().getMaxLevel() >= 0) {
+            if (this.isMouseOverLevel(mouseX, mouseY) && MainConfig.instance().getMaxLevel() >= 0) {
                 this.drawHoveringText(String.format("%d/%d", level, MainConfig.instance().getMaxLevel()), mouseX, mouseY);
             } else if (this.isMouseOverXPBar(mouseX, mouseY)) {
                 this.drawHoveringText(this.capability.canLevelUp(this.item)
@@ -110,8 +113,6 @@ public abstract class GuiTabSoulbound extends GuiTab {
                         : String.format("%d", xp), mouseX, mouseY);
             }
 
-            GlStateManager.color(1, 1, 1, 1);
-            GlStateManager.disableDepth();
             GlStateManager.disableLighting();
         }
     }
@@ -120,14 +121,24 @@ public abstract class GuiTabSoulbound extends GuiTab {
         return this.capability.getItemType() != null;
     }
 
-    private boolean isMouseOverXPBar(final int mouseX, final int mouseY) {
+    protected boolean isMouseOverXPBar(final int mouseX, final int mouseY) {
         final int barLeftX = (width - 182) / 2;
         final int barTopY = height - 29;
 
         return this.displayXPBar() && mouseX >= barLeftX && mouseX <= barLeftX + 182 && mouseY >= barTopY && mouseY <= barTopY + 4;
     }
 
-    private int mouseOverSlider(final int mouseX, final int mouseY) {
+    protected boolean isMouseOverLevel(final int mouseX, final int mouseY) {
+        final String levelString = "" + this.capability.getDatum(this.item, LEVEL);
+
+        final int levelLeftX = (this.width - this.fontRenderer.getStringWidth(levelString)) / 2;
+        final int levelTopY = height - 35;
+
+        return mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
+                && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT;
+    }
+
+    protected int sliderMousedOver(final int mouseX, final int mouseY) {
         for (int slider = 0; slider < 4; slider++) {
             if (mouseX >= this.guiFactory.getColorSliderX() && mouseX <= this.guiFactory.getColorSliderX() + 100
                     && mouseY >= this.guiFactory.getColorSliderY(slider) && mouseY <= this.guiFactory.getColorSliderY(slider) + 20) {
@@ -171,7 +182,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
         final int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
         final int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
         final int dWheel = Mouse.getDWheel() / 120;
-        final int row = this.mouseOverSlider(mouseX, mouseY);
+        final int row = this.sliderMousedOver(mouseX, mouseY);
 
         if (row >= 0 && row <= 3) {
             final GuiSlider slider;
@@ -245,6 +256,6 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     @Override
     public boolean doesGuiPauseGame() {
-        return false;
+        return true;
     }
 }

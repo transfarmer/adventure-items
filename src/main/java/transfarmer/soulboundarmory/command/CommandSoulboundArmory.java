@@ -68,7 +68,7 @@ public class CommandSoulboundArmory extends CommandBase {
                         this.sendUsage(sender, true);
                     } else {
                         if (commandType.equals("reset")) {
-                            capability.reset();
+                            capability.reset(capability.getItemType());
                         } else {
                             if (args.length < 3) {
                                 this.sendUsage(sender, false);

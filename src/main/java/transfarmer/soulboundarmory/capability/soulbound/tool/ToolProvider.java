@@ -6,13 +6,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import transfarmer.soulboundarmory.capability.Storage;
-import transfarmer.soulboundarmory.util.ReflectionUtil;
+import transfarmer.soulboundarmory.util.ReflectUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ToolProvider implements ICapabilitySerializable<NBTBase> {
-    public static final Capability<ITool> TOOLS = ReflectionUtil.createCapability(ITool.class, new Storage<>(), Tool::new);
+    public static final Capability<ITool> TOOLS = ReflectUtil.createCapability(ITool.class, new Storage<>(), Tool::new);
     private final ITool instance = TOOLS.getDefaultInstance();
 
     @Override

@@ -92,7 +92,7 @@ public class SoulItemHelper {
             final int toolBoundSlot = ToolProvider.get(player).getBoundSlot();
             final int slot = inventory.storeItemStack(itemStack);
             final int size = inventory.mainInventory.size();
-            final List<ItemStack> mergedInventory = CollectionUtil.fromCollections(NonNullList.create(), inventory.mainInventory, inventory.offHandInventory);
+            final List<ItemStack> mergedInventory = CollectionUtil.merge(NonNullList.create(), inventory.mainInventory, inventory.offHandInventory);
 
             if (slot != -1) {
                 final ItemStack slotStack = slot != 40 ? mergedInventory.get(slot) : mergedInventory.get(size);

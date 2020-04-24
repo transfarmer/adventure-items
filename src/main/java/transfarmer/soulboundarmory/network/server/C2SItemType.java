@@ -41,14 +41,15 @@ public class C2SItemType implements IExtendedMessage {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                 final IItem item = IItem.get(message.item);
                 final EntityPlayerMP player = context.getServerHandler().player;
-                final ISoulbound capability = player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
+                final ICapabilityType type = ICapabilityType.get(message.capability);
+                final ISoulbound capability = player.getCapability(type.getCapability(), null);
 
                 capability.setItemType(item);
+                player.inventory.deleteStack(capability.getEquippedItemStack());
 
                 if (!capability.hasSoulItem()) {
                     capability.setCurrentTab(0);
-                    player.inventory.deleteStack(player.getHeldItemMainhand());
-                    Main.CHANNEL.sendToServer(new C2STab(capability.getType(), capability.getCurrentTab()));
+                    Main.CHANNEL.sendToServer(new C2STab(type, capability.getCurrentTab()));
                 }
 
                 SoulItemHelper.addItemStack(capability.getItemStack(item), player);

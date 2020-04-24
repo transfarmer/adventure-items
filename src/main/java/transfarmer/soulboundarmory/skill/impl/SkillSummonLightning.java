@@ -1,15 +1,23 @@
 package transfarmer.soulboundarmory.skill.impl;
 
-import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.skill.SkillBase;
+import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.ISkillContext;
+import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
-public class SkillSummonLightning extends SkillBase {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SkillSummonLightning extends SkillBaseLevelable {
     public SkillSummonLightning() {
-        super("summon_lightning");
+        this(0);
+    }
+
+    public SkillSummonLightning(final int level) {
+        super("summon_lightning", level);
     }
 
     @Override
-    public void apply(final ExtendedPacketBuffer context) {
-
+    public List<ISkill> getDependencies() {
+        return new ArrayList<>();
     }
 }

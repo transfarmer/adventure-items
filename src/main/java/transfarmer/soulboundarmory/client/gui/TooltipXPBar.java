@@ -44,34 +44,31 @@ public class TooltipXPBar extends Gui {
 
     protected void renderXPBar(final int tooltipX, final int tooltipY) {
         final int level = this.capability.getDatum(this.item, LEVEL);
-        final int barLeftX = tooltipX + 44;
-        final int barTopY = tooltipY + row * 10;
+        final int barX = tooltipX + 44;
+        final int barY = tooltipY + row * 10;
         final int length = 62;
 
-        GlStateManager.disableDepth();
-        GlStateManager.disableLighting();
         GlStateManager.color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha());
         minecraft.getTextureManager().bindTexture(XP_BAR);
 
-        this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 10, length, 5);
-        this.drawTexturedModalRect(barLeftX - length / 2, barTopY, 0, 15,
+        this.drawTexturedModalRect(barX - length / 2, barY, 0, 10, length, 5);
+        this.drawTexturedModalRect(barX - length / 2, barY, 0, 15,
                 Math.min(length, Math.round((float) this.capability.getDatum(this.item, XP) / this.capability.getNextLevelXP(this.item) * length)), 5);
 
         minecraft.getTextureManager().deleteTexture(XP_BAR);
 
         final String levelString = String.format("%d", level);
-        final int x1 = barLeftX - fontRenderer.getStringWidth(levelString) / 2;
-        final int y1 = barTopY - 6;
+        final int levelX = barX - fontRenderer.getStringWidth(levelString) / 2;
+        final int levelY = barY - 6;
 
-        fontRenderer.drawString(levelString, x1 + 1, y1, 0);
-        fontRenderer.drawString(levelString, x1 - 1, y1, 0);
-        fontRenderer.drawString(levelString, x1, y1 + 1, 0);
-        fontRenderer.drawString(levelString, x1, y1 - 1, 0);
-        fontRenderer.drawString(levelString, x1, y1,
+        fontRenderer.drawString(levelString, levelX + 1, levelY, 0);
+        fontRenderer.drawString(levelString, levelX - 1, levelY, 0);
+        fontRenderer.drawString(levelString, levelX, levelY + 1, 0);
+        fontRenderer.drawString(levelString, levelX, levelY - 1, 0);
+        fontRenderer.drawString(levelString, levelX, levelY,
                 new Color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha()).getRGB());
 
         GlStateManager.disableLighting();
-        GlStateManager.enableDepth();
     }
 
     public static void render(final int tooltipX, final int tooltipY, final ItemStack itemStack) {

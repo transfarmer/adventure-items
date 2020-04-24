@@ -6,13 +6,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import transfarmer.soulboundarmory.capability.Storage;
-import transfarmer.soulboundarmory.util.ReflectionUtil;
+import transfarmer.soulboundarmory.util.ReflectUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class FrozenProvider implements ICapabilitySerializable<NBTTagCompound> {
-    public static final Capability<IFrozen> FROZEN = ReflectionUtil.createCapability(IFrozen.class, new Storage<>(), Frozen::new);
+    public static final Capability<IFrozen> FROZEN = ReflectUtil.createCapability(IFrozen.class, new Storage<>(), Frozen::new);
     private final IFrozen instance = FROZEN.getDefaultInstance();
 
     @Override
