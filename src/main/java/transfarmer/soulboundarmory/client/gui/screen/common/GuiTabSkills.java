@@ -17,11 +17,15 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GuiTabSkills extends GuiTabSoulbound {
     protected static final Minecraft MINECRAFT = Minecraft.getMinecraft();
@@ -32,9 +36,22 @@ public class GuiTabSkills extends GuiTabSoulbound {
     protected static final ResourceLocation BACKGROUND_TEXTURE = getTexture(BACKGROUND);
     protected static final ResourceLocation WINDOW = new ResourceLocation("textures/gui/advancements/window.png");
     protected static final ResourceLocation SKILL_BACKGROUND = new ResourceLocation("textures/gui/advancements/widgets.png");
+    protected final Map<ISkill, List<Integer>> skills;
+    protected int windowWidth;
+    protected int windowHeight;
+    protected int insideWidth;
+    protected int insideHeight;
+    protected int centerX;
+    protected int centerY;
+    protected int insideX;
+    protected int insideY;
+    protected int x;
+    protected int y;
 
     public GuiTabSkills(final Capability<? extends ISoulbound> key, final List<GuiTab> tabs) {
         super(key, tabs);
+
+        this.skills = new LinkedHashMap<>();
     }
 
     @Override
@@ -45,6 +62,38 @@ public class GuiTabSkills extends GuiTabSoulbound {
     @Override
     public void initGui() {
         super.initGui();
+
+        this.windowWidth = 256;
+        this.windowHeight = 192;
+        this.insideWidth = this.windowWidth - 23;
+        this.insideHeight = this.windowHeight - 27;
+        this.centerX = this.width / 2;
+        this.centerY = this.height / 2;
+        this.insideX = this.centerX - this.insideWidth / 2;
+        this.insideY = this.centerY - this.insideHeight / 2;
+        this.x = this.centerX - this.windowHeight / 2;
+        this.y = this.centerY - this.windowWidth / 2;
+
+        final Map<Integer, Integer> tierOrders = new HashMap<>();
+        final ISkill[] skills = this.capability.getSkills();
+        int currentTierSkills;
+
+        this.skills.clear();
+
+        for (final ISkill skill : skills) {
+            final int tier = skill.getTier();
+            tierOrders.put(tier, tierOrders.getOrDefault(tier, -1) + 1);
+
+            currentTierSkills = 0;
+
+            for (final ISkill other : skills) {
+                if (other != skill) {
+                    currentTierSkills++;
+                }
+            }
+
+            this.skills.put(skill, CollectionUtil.arrayList(this.centerX + Math.round(48 * (tierOrders.get(tier) - currentTierSkills / 2F)), this.insideY + 24 + 32 * tier));
+        }
     }
 
     @Override
@@ -52,38 +101,39 @@ public class GuiTabSkills extends GuiTabSoulbound {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         this.drawWindow();
-
-        GlStateManager.color(1, 1, 1, 1);
-
-        final ISkill[] skills = this.capability.getSkills();
-
-        for (final ISkill skill : skills) {
-            this.drawSkill(skill);
-        }
+        this.drawSkills();
     }
 
     public void drawWindow() {
-        final int width = 256;
-        final int height = 192;
         final int alphaWidth = 252;
         final int alphaHeight = 140;
-        final int half = height / 2;
-        final int x = (this.width - width) / 2;
-        final int y = (this.height - height) / 2;
+        final int half = this.windowHeight / 2;
+        final int x = this.centerX - this.windowWidth / 2;
+        final int y = this.centerY - this.windowHeight / 2;
 
         GlStateManager.color(1, 1, 1, 1);
         GlStateManager.enableBlend();
 
         TEXTURE_MANAGER.bindTexture(BACKGROUND_TEXTURE);
-        drawModalRectWithCustomSizedTexture(x + 4, y + 4, 0, 0, width - 10, height - 10, BACKGROUND.getIconWidth(), BACKGROUND.getIconHeight());
+        drawModalRectWithCustomSizedTexture(x + 4, y + 4, 0, 0, this.windowWidth - 8, this.windowHeight - 8, BACKGROUND.getIconWidth(), BACKGROUND.getIconHeight());
         TEXTURE_MANAGER.deleteTexture(BACKGROUND_TEXTURE);
 
         TEXTURE_MANAGER.bindTexture(WINDOW);
         this.drawTexturedModalRect(x, y, 0, 0, alphaWidth, half);
-        this.drawTexturedModalRect(x, y + half, 0, 40, width, alphaHeight - 40);
+        this.drawTexturedModalRect(x, y + half, 0, 40, this.windowWidth, alphaHeight - 40);
         TEXTURE_MANAGER.deleteTexture(WINDOW);
 
         this.fontRenderer.drawString(Mappings.MENU_BUTTON_SKILLS, x + 8, y + 6, 0x404040);
+    }
+
+    protected void drawSkills() {
+        GlStateManager.color(1, 1, 1, 1);
+
+        for (final ISkill skill : this.skills.keySet()) {
+            final List<Integer> positions = this.skills.get(skill);
+
+            this.drawSkill(skill, positions.get(0), positions.get(1));
+        }
     }
 
     protected void drawSkill(final ISkill skill, int posX, int posY) {
@@ -106,10 +156,6 @@ public class GuiTabSkills extends GuiTabSoulbound {
             drawScaledCustomSizeModalRect(posX, posY, 0, 0, imageWidth, imageHeight, width, height, imageWidth, imageHeight);
             TEXTURE_MANAGER.deleteTexture(texture);
         }
-    }
-
-    protected void drawSkill(final ISkill skill) {
-        this.drawSkill(skill, this.width / 2 + 16 * skill.getTier(), this.height / 2 + 16 * skill.getTier());
     }
 
     @Override
