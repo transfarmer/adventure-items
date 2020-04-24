@@ -7,6 +7,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public class IndexedLinkedHashMap<K, V> extends LinkedHashMap<K, V> implements IndexedMap<K, V> {
+    public IndexedLinkedHashMap() {
+        super();
+    }
+
+    public IndexedLinkedHashMap(final int initialCapacity) {
+        super(initialCapacity);
+    }
+
     @Nonnull
     @Override
     public List<K> keyList() {
@@ -20,13 +28,11 @@ public class IndexedLinkedHashMap<K, V> extends LinkedHashMap<K, V> implements I
     }
 
     @Override
-    @Nonnull
     public K getKey(final int index) {
         return this.keyList().get(index);
     }
 
     @Override
-    @Nonnull
     public V getValue(final int index) {
         return this.valueList().get(index);
     }

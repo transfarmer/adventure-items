@@ -11,9 +11,7 @@ public interface IndexedMap<K, V> extends Map<K, V>, Iterable<K> {
     @Nonnull
     List<V> valueList();
 
-    @Nonnull
     K getKey(int index);
 
-    @Nonnull
     V getValue(int index);
 }

@@ -19,7 +19,7 @@ public abstract class SkillBase implements ISkill {
     @Override
     @SideOnly(CLIENT)
     public String getName() {
-        return I18n.format("skill.soulboundarmory.%s", StringUtil.macroCaseToCamelCase(this.getRegistryName()));
+        return I18n.format(String.format("skill.soulboundarmory.%s", StringUtil.macroCaseToCamelCase(this.name)));
     }
 
     @Override
