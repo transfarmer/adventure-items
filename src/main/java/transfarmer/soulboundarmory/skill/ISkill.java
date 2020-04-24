@@ -42,4 +42,7 @@ public interface ISkill extends INBTSerializable<NBTTagCompound> {
 
     @SideOnly(CLIENT)
     String getName();
+
+    @SideOnly(CLIENT)
+    List<String> getTooltip();
 }

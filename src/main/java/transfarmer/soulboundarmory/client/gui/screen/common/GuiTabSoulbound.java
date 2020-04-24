@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.client.config.GuiSlider;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
@@ -22,10 +23,12 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.Main.ResourceLocations.XP_BAR;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
+@SideOnly(CLIENT)
 public abstract class GuiTabSoulbound extends GuiTab {
     @NotNull
     private final Capability<? extends ISoulbound> key;

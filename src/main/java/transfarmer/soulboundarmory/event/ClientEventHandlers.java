@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.event;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -27,8 +26,6 @@ import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
 public class ClientEventHandlers {
-    private static int tick = 0;
-
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {
         if (event.phase == END) {
@@ -41,23 +38,6 @@ public class ClientEventHandlers {
                 if (capability != null) {
                     capability.openGUI();
                 }
-            }
-
-            if (tick == 0) {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiScreen() {
-                    @Override
-                    public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
-                        super.drawScreen(mouseX, mouseY, partialTicks);
-
-                        this.drawDefaultBackground();
-                        this.drawCenteredString(this.mc.fontRenderer, "soulbound armory warning", width / 2, 40, 0xFF8000);
-                        this.drawCenteredString(this.mc.fontRenderer, "Soulbound armory versions 2.7.0 and above", width / 2, height / 2 - 5, 0xFFFFFF);
-                        this.drawCenteredString(this.mc.fontRenderer, "will not load progress from previous versions.", width / 2, height / 2 + 5, 0xFFFFFF);
-                        this.drawCenteredString(this.mc.fontRenderer, "Press the escape key to continue.", width / 2, height / 2 + 100, 0xFFFFFF);
-                    }
-                });
-
-                tick++;
             }
         }
     }

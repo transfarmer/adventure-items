@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.config.GuiSlider;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.KeyBindings;
@@ -14,6 +15,9 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+
+@SideOnly(CLIENT)
 public abstract class GuiTab extends GuiScreen {
     protected final GUIFactory guiFactory;
     protected final Renderer renderer;

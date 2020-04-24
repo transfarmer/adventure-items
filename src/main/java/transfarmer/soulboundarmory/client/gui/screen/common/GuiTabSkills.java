@@ -13,6 +13,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
@@ -30,6 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+
+@SideOnly(CLIENT)
 public class GuiTabSkills extends GuiTabSoulbound {
     protected static final Minecraft MINECRAFT = Minecraft.getMinecraft();
     protected static final FontRenderer FONT_RENDERER = MINECRAFT.fontRenderer;
@@ -136,13 +140,12 @@ public class GuiTabSkills extends GuiTabSoulbound {
         this.drawVerticalInterpolatedTexturedRect(x, y, 0, 0, 22, 126, 140, this.windowWidth, this.windowHeight);
         TEXTURE_MANAGER.deleteTexture(WINDOW);
 
-        this.fontRenderer.drawString(Mappings.MENU_BUTTON_SKILLS, x + 8, y + 6, 0x404040);
+        FONT_RENDERER.drawString(Mappings.MENU_BUTTON_SKILLS, x + 8, y + 6, 0x404040);
 
-        if (this.isSkillSelected(mouseX, mouseY)) {
-            this.chroma = Math.max(this.chroma - 12F / 255F, 175F / 255F);
-        } else {
-            this.chroma = Math.min(this.chroma + 12F / 255F, 1F);
-        }
+        this.chroma = (this.isSkillSelected(mouseX, mouseY)
+                ? Math.max(this.chroma - 12F / 255F, 175F / 255F)
+                : Math.min(this.chroma + 12F / 255F, 1F)
+        );
     }
 
     protected void drawSkills(final int mouseX, final int mouseY) {
@@ -191,6 +194,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
                 this.setChroma(1);
 
                 TEXTURE_MANAGER.bindTexture(WIDGETS);
+                this.drawInterpolatedTexturedRect(posX - 8, posY + 20, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, 30);
                 this.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 3, 2, 198, 200, barWidth, 20);
                 TEXTURE_MANAGER.deleteTexture(WIDGETS);
 
@@ -242,6 +246,18 @@ public class GuiTabSkills extends GuiTabSoulbound {
         super.actionPerformed(button);
     }
 
+    protected void drawInterpolatedTexturedRect(int x, int y, final int startU, final int startV, final int middleU,
+                                                final int middleV, final int endU, final int endV, final int finalU,
+                                                final int finalV, int width, int height) {
+        final int leftWidth = middleU - startU;
+        final int topHeight = middleV - startV;
+        this.drawHorizontalInterpolatedTexturedRect(x, y, startU, startV, middleU, endU, finalU, width, topHeight);
+        this.drawHorizontalInterpolatedTexturedRect(x, y + height - topHeight, startU, endV, middleU, endU, finalU, width, topHeight);
+        this.drawVerticalInterpolatedTexturedRect(x, y, startU, startV, middleV, endV, finalV, leftWidth, height);
+        this.drawVerticalInterpolatedTexturedRect(x + width - leftWidth, y, endU, startV, middleV, endV, finalV, leftWidth, height);
+        this.drawVerticalInterpolatedTexturedRect(x + leftWidth, y + topHeight, middleU, middleV, endV, width - 2 * leftWidth, height - 2 * topHeight);
+    }
+
     protected void drawHorizontalInterpolatedTexturedRect(int x, final int y, final int startU, final int startV,
                                                           final int middleU, final int endU, final int finalU,
                                                           int width, final int height) {
@@ -249,10 +265,16 @@ public class GuiTabSkills extends GuiTabSoulbound {
         final int finalWidth = finalU - endU;
 
         this.drawTexturedModalRect(x, y, startU, startV, startWidth, height);
-        x += startWidth;
         width -= startWidth + finalWidth;
+        x += startWidth;
+        x = this.drawHorizontalInterpolatedTexturedRect(x, y, startV, middleU, endU, width, height);
 
-        while (width > finalWidth) {
+        this.drawTexturedModalRect(x, y, endU, startV, finalWidth, height);
+    }
+
+    protected int drawHorizontalInterpolatedTexturedRect(int x, final int y, final int startV, final int middleU,
+                                                       final int endU, int width, final int height) {
+        while (width > 0) {
             final int middleWidth = Math.min(width, endU - middleU);
 
             this.drawTexturedModalRect(x, y, middleU, startV, middleWidth, height);
@@ -260,7 +282,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
             width -= middleWidth;
         }
 
-        this.drawTexturedModalRect(x, y, endU, startV, finalWidth, height);
+        return x;
     }
 
     protected void drawVerticalInterpolatedTexturedRect(final int x, int y, final int startU, final int startV,
@@ -270,19 +292,23 @@ public class GuiTabSkills extends GuiTabSoulbound {
         final int finalHeight = finalV - endV;
 
         this.drawTexturedModalRect(x, y, startU, startV, width, startHeight);
-        y += startHeight;
-
         height -= startHeight + finalHeight;
+        y += startHeight;
+        y = drawVerticalInterpolatedTexturedRect(x, y, startU, middleV, endV, width, height);
 
-        while (height > finalHeight) {
+        this.drawTexturedModalRect(x, y, startU, endV, width, finalHeight);
+    }
+
+    protected int drawVerticalInterpolatedTexturedRect(final int x, int y, final int startU, final int middleV,
+                                                     final int endV, final int width, int height) {
+        while (height > 0) {
             final int middleHeight = Math.min(height, endV - middleV);
 
             this.drawTexturedModalRect(x, y, startU, middleV, width, middleHeight);
             y += middleHeight;
             height -= middleHeight;
         }
-
-        this.drawTexturedModalRect(x, y, startU, endV, width, finalHeight);
+        return y;
     }
 
     protected static BufferedImage readTexture(final ResourceLocation texture) {

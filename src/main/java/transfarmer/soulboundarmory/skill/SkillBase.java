@@ -5,21 +5,31 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.util.CollectionUtil;
 import transfarmer.soulboundarmory.util.StringUtil;
+
+import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public abstract class SkillBase implements ISkill {
-    protected String name;
+    protected final String name;
+    protected final List<String> tooltip;
 
-    protected SkillBase(final String name) {
+    protected SkillBase(final String name, final String... tooltip) {
         this.name = name;
+        this.tooltip = CollectionUtil.arrayList(tooltip);
     }
 
     @Override
     @SideOnly(CLIENT)
     public String getName() {
         return I18n.format(String.format("skill.soulboundarmory.%s", StringUtil.macroCaseToCamelCase(this.name)));
+    }
+
+    @Override
+    public List<String> getTooltip() {
+        return this.tooltip;
     }
 
     @Override
@@ -55,15 +65,10 @@ public abstract class SkillBase implements ISkill {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        final NBTTagCompound tag = new NBTTagCompound();
-
-        tag.setString("name", this.name);
-
-        return tag;
+        return new NBTTagCompound();
     }
 
     @Override
     public void deserializeNBT(final NBTTagCompound tag) {
-        this.name = tag.getString("name");
     }
 }

@@ -4,9 +4,13 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.fml.client.config.GuiConfig;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
 
+import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+
+@SideOnly(CLIENT)
 public class ConfigGUI extends GuiConfig {
     private boolean main;
 
