@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
 
 public class ItemSoulboundDagger extends ItemSoulboundWeapon {
     public ItemSoulboundDagger(final String name) {
@@ -48,7 +48,7 @@ public class ItemSoulboundDagger extends ItemSoulboundWeapon {
     public ActionResult<ItemStack> onItemRightClick(final World world, @Nonnull final EntityPlayer player, @Nonnull final EnumHand hand) {
         final IWeapon capability = WeaponProvider.get(player);
 
-        if (!world.isRemote && capability.getDatum(DAGGER, SKILLS) >= 1) {
+        if (!world.isRemote && capability.getDatum(DAGGER, SKILL_POINTS) >= 1) {
             player.setActiveHand(hand);
 
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
@@ -63,7 +63,7 @@ public class ItemSoulboundDagger extends ItemSoulboundWeapon {
         final IWeapon capability = WeaponProvider.get(player);
 
         if (!world.isRemote) {
-            final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack, capability.getDatum(DAGGER, SKILLS) >= 2);
+            final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack, capability.getDatum(DAGGER, SKILL_POINTS) >= 2);
             final float attackSpeed = (float) capability.getAttributeTotal(DAGGER, ATTACK_SPEED);
             final float velocity = this.getMaxUsageRatio(attackSpeed, timeLeft) * attackSpeed;
 

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class SkillShadowClone extends SkillBase {
     public SkillShadowClone() {
-        super("shadow_clone", "causes a clone to spawn when an enemy is hit");
+        super("shadow_clone");
     }
 
     @Override

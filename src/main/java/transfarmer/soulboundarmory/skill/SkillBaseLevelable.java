@@ -5,8 +5,8 @@ import org.jetbrains.annotations.NotNull;
 public abstract class SkillBaseLevelable extends SkillBase implements ISkillLevelable {
     protected int level;
 
-    protected SkillBaseLevelable(final String name, final int level, final String... tooltip) {
-        super(name, tooltip);
+    protected SkillBaseLevelable(final String name, final int level) {
+        super(name);
 
         this.level = level;
     }

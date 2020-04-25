@@ -47,14 +47,26 @@ attribute.soulboundarmory.harvestLevel=harvest level
 attribute.soulboundarmory.reachDistance=reach distance
 
 # skill names
-skill.soulboundarmory.leaping=leaping
-skill.soulboundarmory.summonLightning=summon lightning
-skill.soulboundarmory.throwing=throwing
-skill.soulboundarmory.shadowClone=shadow clone
-skill.soulboundarmory.return=return
-skill.soulboundarmory.sneakReturn=sneak return
-skill.soulboundarmory.teleportation=teleportation
 skill.soulboundarmory.ambidexterity=ambidexterity
+skill.soulboundarmory.freezing=freezing
+skill.soulboundarmory.leaping=leaping
+skill.soulboundarmory.shadowClone=shadow clone
+skill.soulboundarmory.sneakReturn=sneak return
+skill.soulboundarmory.summonLightning=summon lightning
+skill.soulboundarmory.return=return
+skill.soulboundarmory.teleportation=teleportation
+skill.soulboundarmory.throwing=throwing
+
+# skill descriptions
+skill.soulboundarmory.ambidexterity.desc=allows its user to mine with their left hand (incomplete)
+skill.soulboundarmory.freezing.desc=freezes enemies if passed while leaping\nfreezes nearby enemies when landing from a leap
+skill.soulboundarmory.leaping.desc=enables its user to leap by using the greatsword
+skill.soulboundarmory.shadowClone.desc=spawns a clone when an enemy is hit
+skill.soulboundarmory.sneakReturn.desc=causes the dagger to return early while sneaking
+skill.soulboundarmory.summonLightning.desc=summons a ligthning bolt when the sword is used
+skill.soulboundarmory.return.desc=causes the dagger to return when on ground, too far or airborne for too long
+skill.soulboundarmory.teleportation.desc=teleports mined items to their miner's inventory
+skill.soulboundarmory.throwing.desc=makes the dagger throwable
 
 # messages
 message.soulboundarmory.levelup=Your %s leveled up to level %d.

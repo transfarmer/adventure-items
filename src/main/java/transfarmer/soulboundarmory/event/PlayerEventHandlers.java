@@ -42,7 +42,7 @@ import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.PICK;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class PlayerEventHandlers {
@@ -175,7 +175,7 @@ public class PlayerEventHandlers {
     public static void onHarvestDrops(final HarvestDropsEvent event) {
         final EntityPlayer player = event.getHarvester();
 
-        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulboundPick && ToolProvider.get(player).getDatum(PICK, SKILLS) >= 1) {
+        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulboundPick && ToolProvider.get(player).getDatum(PICK, SKILL_POINTS) >= 1) {
             event.setDropChance(0);
 
             for (final ItemStack drop : event.getDrops()) {

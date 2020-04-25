@@ -2,39 +2,37 @@ package transfarmer.soulboundarmory.skill;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.util.CollectionUtil;
 import transfarmer.soulboundarmory.util.StringUtil;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public abstract class SkillBase implements ISkill {
     protected final String name;
-    @SideOnly(CLIENT)
-    protected List<String> tooltip;
+    protected boolean learned;
 
-    protected SkillBase(final String name, final String... tooltip) {
+    protected SkillBase(final String name) {
         this.name = name;
-
-        if (FMLCommonHandler.instance().getSide().isClient()) {
-            this.tooltip = CollectionUtil.arrayList(tooltip);
-        }
     }
 
     @Override
     @SideOnly(CLIENT)
     public String getName() {
-        return I18n.format(String.format("skill.soulboundarmory.%s", StringUtil.macroCaseToCamelCase(this.name)));
+        final String name = I18n.format(String.format("skill.soulboundarmory.%s", StringUtil.macroCaseToCamelCase(this.name)));
+
+        return name.replaceFirst("[A-Za-z]", String.valueOf(name.charAt(0)).toUpperCase());
     }
 
     @Override
+    @SideOnly(CLIENT)
     public List<String> getTooltip() {
-        return this.tooltip;
+        return Arrays.asList(I18n.format(String.format("skill.soulboundarmory.%s.desc", StringUtil.macroCaseToCamelCase(this.name))).split("\\\\n"));
     }
 
     @Override
@@ -55,6 +53,20 @@ public abstract class SkillBase implements ISkill {
         }
 
         return tier;
+    }
+
+    @Override
+    public boolean isLearned() {
+        return this.learned;
+    }
+
+    @Override
+    public void learn() {
+        this.learned = true;
+    }
+
+    public ResourceLocation getTexture() {
+        return new ResourceLocation(this.getModID(), String.format("textures/skill/%s.png", this.getRegistryName()));
     }
 
     @Override

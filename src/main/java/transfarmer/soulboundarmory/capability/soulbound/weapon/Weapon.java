@@ -23,6 +23,7 @@ import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
 import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.impl.SkillFreezing;
 import transfarmer.soulboundarmory.skill.impl.SkillLeaping;
 import transfarmer.soulboundarmory.skill.impl.SkillReturn;
 import transfarmer.soulboundarmory.skill.impl.SkillShadowClone;
@@ -71,7 +72,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.KNOCKBACK_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.REACH_DISTANCE;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ATTRIBUTE_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
@@ -87,7 +88,7 @@ public class Weapon extends Base implements IWeapon {
         super(WEAPON, new IItem[]{DAGGER, SWORD, GREATSWORD},
                 new ICategory[]{DATUM, ATTRIBUTE},
                 new IStatistic[][]{
-                        {XP, LEVEL, SKILLS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
+                        {XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
                         {ATTACK_SPEED, ATTACK_DAMAGE, CRITICAL, KNOCKBACK_ATTRIBUTE, EFFICIENCY_ATTRIBUTE, REACH_DISTANCE}
                 }, new double[][][]{
                         {{0, 0, 0, 0, 0, 0, 0}, {2, 1, 0, 0, 0, 2}},
@@ -222,7 +223,7 @@ public class Weapon extends Base implements IWeapon {
         }
 
         if (type == GREATSWORD) {
-            return new ISkill[]{new SkillLeaping()};
+            return new ISkill[]{new SkillLeaping(), new SkillFreezing()};
         }
 
         if (type == SWORD) {
@@ -300,17 +301,6 @@ public class Weapon extends Base implements IWeapon {
         return this.canLevelUp(type)
                 ? MainConfig.instance().getInitialWeaponXP() + 3 * (int) Math.round(Math.pow(level, 1.65))
                 : -1;
-    }
-
-    @Override
-    public int onLevel(final IItem item, final int sign) {
-        final int level = super.onLevel(item, sign);
-
-        if (level % MainConfig.instance().getLevelsPerSkill() == 0 && this.getDatum(item, SKILLS) < this.getSkills(item).length) {
-            this.addDatum(item, SKILLS, sign);
-        }
-
-        return level;
     }
 
     @Override

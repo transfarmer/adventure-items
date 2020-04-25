@@ -31,9 +31,11 @@ public interface ISkill extends INBTSerializable<NBTTagCompound> {
 
     int getTier();
 
-    default ResourceLocation getTexture() {
-        return new ResourceLocation(this.getModID(), String.format("textures/skill/%s.png", this.getRegistryName()));
-    }
+    boolean isLearned();
+
+    void learn();
+
+    ResourceLocation getTexture();
 
     @NotNull
     String getModID();

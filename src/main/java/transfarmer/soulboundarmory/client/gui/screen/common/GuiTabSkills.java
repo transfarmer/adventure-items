@@ -25,6 +25,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -184,43 +186,39 @@ public class GuiTabSkills extends GuiTabSoulbound {
             final int imageHeight = image.getHeight();
             final int width = 16;
             final int height = 16;
+            final int learned = skill.isLearned() ? 26 : 0;
             posX -= width / 2;
             posY -= height / 2;
 
             if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
                 final String name = skill.getName();
-                final int titleWidth = 36 + FONT_RENDERER.getStringWidth(name);
-                final int barWidth;
                 List<String> tooltip = skill.getTooltip();
+                int barWidth = 36 + FONT_RENDERER.getStringWidth(name);
 
                 this.setChroma(1);
                 TEXTURE_MANAGER.bindTexture(WIDGETS);
 
-                if (tooltip != null && tooltip.size() > 0) {
-                    barWidth = titleWidth;
+                if (tooltip != null) {
+                    int size = tooltip.size();
 
-                    for (int i = 0, size = tooltip.size(); i < size; i++) {
-                        final String entry = tooltip.remove(0);
+                    if (size > 0) {
+                        tooltip = this.wrap(12 + barWidth, tooltip.toArray(new String[0]));
+                        size = tooltip.size();
 
-                        tooltip.addAll(FONT_RENDERER.listFormattedStringToWidth(entry, 8 + barWidth));
+                        final int y = posY + (posY > this.centerY ? -16 : 14);
+
+                        barWidth = 8 + FONT_RENDERER.getStringWidth(tooltip.stream().max(Comparator.comparingInt(String::length)).get());
+
+                        this.drawInterpolatedTexturedRect(posX - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, 1 + (1 + size) * FONT_RENDERER.FONT_HEIGHT);
+
+                        for (int i = 0; i < size; i++) {
+                            this.drawString(FONT_RENDERER, tooltip.get(i), posX - 3, posY + 21 + i * FONT_RENDERER.FONT_HEIGHT, 0xFFFFFF);
+                        }
                     }
-
-                    final int y = posY + (posY > this.centerY ? -16 : 14);
-
-                    this.drawInterpolatedTexturedRect(posX - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, 1 + (1 + tooltip.size()) * FONT_RENDERER.FONT_HEIGHT);
-
-                    int i = 0;
-
-                    for (final String line : tooltip) {
-                        Main.LOGGER.error(line);
-                        this.drawString(FONT_RENDERER, line, posX - 3, posY + 21 + i++ * FONT_RENDERER.FONT_HEIGHT, 0xFFFFFF);
-                    }
-                } else {
-                    barWidth = titleWidth;
                 }
 
                 TEXTURE_MANAGER.bindTexture(WIDGETS);
-                this.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 3, 2, 198, 200, barWidth, 20);
+                this.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 29 - learned, 2, 198, 200, barWidth, 20);
                 TEXTURE_MANAGER.deleteTexture(WIDGETS);
 
                 this.drawString(FONT_RENDERER, name, posX + 24, posY + 4, 0xFFFFFF);
@@ -233,7 +231,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
             }
 
             TEXTURE_MANAGER.bindTexture(WIDGETS);
-            this.drawTexturedModalRect(posX - 4, posY - 4, 1, 155, 24, 24);
+            this.drawTexturedModalRect(posX - 4, posY - 4, 1, 155 - learned, 24, 24);
             TEXTURE_MANAGER.deleteTexture(WIDGETS);
 
             TEXTURE_MANAGER.bindTexture(texture);
@@ -264,6 +262,45 @@ public class GuiTabSkills extends GuiTabSoulbound {
 
     protected void setChroma(final float chroma) {
         GlStateManager.color(chroma, chroma, chroma);
+    }
+
+    protected List<String> wrap(final int width, final String... strings) {
+        final List<String> lines = new ArrayList<>();
+
+        for (final String string : strings) {
+            lines.addAll(this.wrap(width, string));
+        }
+
+        return lines;
+    }
+
+    protected List<String> wrap(final int width, final String string) {
+        final List<String> lines = new ArrayList<>();
+        StringBuilder currentLine = new StringBuilder();
+
+        for (final String word : string.split(" ")) {
+            final int wordWidth = FONT_RENDERER.getStringWidth(word);
+            final int lineWidth = FONT_RENDERER.getStringWidth(currentLine.toString());
+
+            final boolean wrap = lineWidth + wordWidth > width;
+
+            if (wrap && currentLine.length() == 0) {
+                lines.add(word);
+            } else {
+                if (wrap) {
+                    lines.add(currentLine.toString());
+                    currentLine = new StringBuilder();
+                }
+
+                currentLine.append(word).append(" ");
+            }
+        }
+
+        if (currentLine.length() > 0) {
+            lines.add(currentLine.toString());
+        }
+
+        return lines;
     }
 
     @Override

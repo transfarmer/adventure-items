@@ -12,7 +12,7 @@ public class SkillSummonLightning extends SkillBaseLevelable {
     }
 
     public SkillSummonLightning(final int level) {
-        super("summon_lightning", level, "causes a lightning bolt to be summoned when used");
+        super("summon_lightning", level);
     }
 
     @Override

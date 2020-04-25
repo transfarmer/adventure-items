@@ -42,7 +42,7 @@ import static net.minecraft.init.Enchantments.FIRE_ASPECT;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
 
 public class EntitySoulDagger extends EntityArrow {
     public ItemStack itemStack;
@@ -151,8 +151,8 @@ public class EntitySoulDagger extends EntityArrow {
             final IWeapon capability = WeaponProvider.get(this.shootingEntity);
             final double attackSpeed = capability.getAttribute(DAGGER, ATTACK_SPEED);
 
-            if (capability.getDatum(DAGGER, SKILLS) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
-                    || capability.getDatum(DAGGER, SKILLS) >= 3
+            if (capability.getDatum(DAGGER, SKILL_POINTS) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
+                    || capability.getDatum(DAGGER, SKILL_POINTS) >= 3
                     && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed
                     || this.shootingEntity.getDistance(this) >= 256 || this.posY <= 0)) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();

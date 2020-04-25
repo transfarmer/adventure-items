@@ -63,7 +63,9 @@ public abstract class GuiTabSoulbound extends GuiTab {
         }
 
         if (ItemUtil.getEquippedItemStack(this.mc.player, ISoulboundItem.class) != null) {
-            this.addButton(new GuiButton(22, width / 24, height - height / 16 - 20, 96, 20, this.slot != capability.getBoundSlot()
+            final int width = Math.max(112, Math.round(this.width / 7.5F));
+
+            this.addButton(new GuiButton(22, Math.min(this.getXPBarX() - width, this.width / 24), height - height / 16 - 20, width, 20, this.slot != capability.getBoundSlot()
                     ? Mappings.MENU_BUTTON_BIND
                     : Mappings.MENU_BUTTON_UNBIND)
             );

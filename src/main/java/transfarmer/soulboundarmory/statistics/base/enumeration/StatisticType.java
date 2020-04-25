@@ -7,7 +7,7 @@ import transfarmer.soulboundarmory.util.StringUtil;
 public enum StatisticType implements IStatistic {
     XP,
     LEVEL,
-    SKILLS,
+    SKILL_POINTS,
     ATTRIBUTE_POINTS,
     ENCHANTMENT_POINTS,
     SPENT_ATTRIBUTE_POINTS,
@@ -29,7 +29,7 @@ public enum StatisticType implements IStatistic {
         CollectionUtil.addAll(STATISTICS,
                 XP,
                 LEVEL,
-                SKILLS,
+                SKILL_POINTS,
                 ATTRIBUTE_POINTS,
                 ENCHANTMENT_POINTS,
                 SPENT_ATTRIBUTE_POINTS,

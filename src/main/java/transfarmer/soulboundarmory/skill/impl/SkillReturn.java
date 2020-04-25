@@ -12,7 +12,7 @@ public class SkillReturn extends SkillBaseLevelable {
     }
 
     public SkillReturn(final int level) {
-        super("return", level, "causes the dagger to return when on ground, too far or airborne for too long");
+        super("return", level);
     }
 
     @Override

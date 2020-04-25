@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.skill.impl;
 
+import net.minecraft.util.ResourceLocation;
 import transfarmer.soulboundarmory.skill.ISkill;
 import transfarmer.soulboundarmory.skill.SkillBase;
 
@@ -8,11 +9,16 @@ import java.util.List;
 
 public class SkillThrowing extends SkillBase {
     public SkillThrowing() {
-        super("throwing", "enables the dagger to be thrown");
+        super("throwing");
     }
 
     @Override
     public List<ISkill> getDependencies() {
         return new ArrayList<>();
+    }
+
+    @Override
+    public ResourceLocation getTexture() {
+        return new ResourceLocation("textures/items/arrow.png");
     }
 }

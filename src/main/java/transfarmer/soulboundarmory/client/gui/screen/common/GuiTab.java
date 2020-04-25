@@ -80,7 +80,11 @@ public abstract class GuiTab extends GuiScreen {
 
     public void handleMouseWheel(final int dWheel) {
         if (dWheel != 0) {
-            this.setTab(MathHelper.clamp(this.index - dWheel / 120, 0, this.tabs.size() - 1));
+            final int index = MathHelper.clamp(this.index - dWheel / 120, 0, this.tabs.size() - 1);
+
+            if (index != this.index) {
+                this.setTab(index);
+            }
         }
     }
 

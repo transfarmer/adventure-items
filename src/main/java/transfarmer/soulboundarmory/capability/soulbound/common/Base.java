@@ -44,6 +44,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.REACH_DISTANCE;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ATTRIBUTE_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
@@ -302,6 +303,10 @@ public abstract class Base implements ISoulbound {
 
         if (level % MainConfig.instance().getLevelsPerEnchantment() == 0) {
             this.addDatum(item, ENCHANTMENT_POINTS, sign);
+        }
+
+        if (level % MainConfig.instance().getLevelsPerSkill() == 0) {
+            this.addDatum(item, SKILL_POINTS, sign);
         }
 
         this.addDatum(item, ATTRIBUTE_POINTS, sign);

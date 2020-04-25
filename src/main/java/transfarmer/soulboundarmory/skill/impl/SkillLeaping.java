@@ -13,7 +13,7 @@ public class SkillLeaping extends SkillBaseLevelable {
     }
 
     public SkillLeaping(final int level) {
-        super("leaping", level, "enables you to leap by using the greatsword");
+        super("leaping", level);
     }
 
     @Override
@@ -23,6 +23,6 @@ public class SkillLeaping extends SkillBaseLevelable {
 
     @Override
     public ResourceLocation getTexture() {
-        return new ResourceLocation("textures/items/feather.png");
+        return new ResourceLocation("textures/items/rabbit_foot.png");
     }
 }

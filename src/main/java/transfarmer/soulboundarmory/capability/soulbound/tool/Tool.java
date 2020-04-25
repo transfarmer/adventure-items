@@ -45,7 +45,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.HARVEST_LEVEL;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.REACH_DISTANCE;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILLS;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ATTRIBUTE_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
@@ -54,7 +54,7 @@ public class Tool extends Base implements ITool {
     public Tool() {
         super(TOOL, new IItem[]{PICK}, new ICategory[]{DATUM, ATTRIBUTE},
                 new IStatistic[][]{
-                        {XP, LEVEL, SKILLS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
+                        {XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
                         {EFFICIENCY_ATTRIBUTE, REACH_DISTANCE, HARVEST_LEVEL}
                 }, new double[][][]{{{0, 0, 0, 0, 0, 0, 0}, {0.5, 2, 0}}},
                 new ItemSoulboundPick[]{SOULBOUND_PICK},
@@ -128,17 +128,6 @@ public class Tool extends Base implements ITool {
         return this.canLevelUp(type)
                 ? MainConfig.instance().getInitialToolXP() + (int) Math.round(4 * Math.pow(level, 1.25))
                 : -1;
-    }
-
-    @Override
-    public int onLevel(final IItem item, final int sign) {
-        final int level = super.onLevel(item, sign);
-
-        if (level % MainConfig.instance().getLevelsPerSkill() == 0 && this.getDatum(item, SKILLS) < this.getSkills(item).length) {
-            this.addDatum(item, SKILLS, sign);
-        }
-
-        return level;
     }
 
     @Override
