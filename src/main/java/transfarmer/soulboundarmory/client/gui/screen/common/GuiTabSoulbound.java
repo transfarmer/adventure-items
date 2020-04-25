@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
+import transfarmer.soulboundarmory.client.gui.GuiXPBar;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.ColorConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
@@ -18,21 +19,20 @@ import transfarmer.soulboundarmory.network.server.C2SBindSlot;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.ItemUtil;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Main.ResourceLocations.XP_BAR;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
 @SideOnly(CLIENT)
 public abstract class GuiTabSoulbound extends GuiTab {
     @NotNull
-    private final Capability<? extends SoulboundCapability> key;
-    protected IItem item;
+    protected final Capability<? extends SoulboundCapability> key;
     protected SoulboundCapability capability;
+    protected IItem item;
+    protected GuiXPBar xpBar;
     protected GuiSlider sliderRed;
     protected GuiSlider sliderGreen;
     protected GuiSlider sliderBlue;
@@ -51,6 +51,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
         this.capability = this.mc.player.getCapability(this.key, null);
         this.capability.setCurrentTab(this.index);
+        this.xpBar = new GuiXPBar(this.capability);
         this.item = capability.getItemType();
         this.slot = this.mc.player.inventory.getSlotFor(capability.getEquippedItemStack());
 
@@ -83,34 +84,12 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     protected void drawXPBar(final int mouseX, final int mouseY) {
         if (ColorConfig.getAlpha() >= 26F / 255) {
-            final int length = 182;
-            final int barX = this.getXPBarX();
-            final int barY = this.getXPBarY();
             final int xp = capability.getDatum(this.item, XP);
 
-            GlStateManager.color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha());
-            TEXTURE_MANAGER.bindTexture(XP_BAR);
-            this.drawTexturedModalRect(barX, barY, 0, 0, length, 5);
-            this.drawTexturedModalRect(barX, barY, 0, 5, this.capability.canLevelUp(this.item)
-                    ? Math.min(length, Math.round((float) xp / capability.getNextLevelXP(this.item) * length))
-                    : length, 5
-            );
-            TEXTURE_MANAGER.deleteTexture(XP_BAR);
-
-            final int level = this.capability.getDatum(this.item, LEVEL);
-            final String levelString = String.format("%d", level);
-            final int levelX = barX + (length - FONT_RENDERER.getStringWidth(levelString)) / 2;
-            final int levelY = barY - 6;
-            final int color = new Color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha()).getRGB();
-
-            FONT_RENDERER.drawString(levelString, levelX + 1, levelY, 0);
-            FONT_RENDERER.drawString(levelString, levelX - 1, levelY, 0);
-            FONT_RENDERER.drawString(levelString, levelX, levelY + 1, 0);
-            FONT_RENDERER.drawString(levelString, levelX, levelY - 1, 0);
-            FONT_RENDERER.drawString(levelString, levelX, levelY, color);
+            this.xpBar.drawXPBar(this.getXPBarX(), this.getXPBarY(), 182);
 
             if (this.isMouseOverLevel(mouseX, mouseY) && MainConfig.instance().getMaxLevel() >= 0) {
-                this.drawHoveringText(String.format("%d/%d", level, MainConfig.instance().getMaxLevel()), mouseX, mouseY);
+                this.drawHoveringText(String.format("%d/%d", this.capability.getDatum(LEVEL), MainConfig.instance().getMaxLevel()), mouseX, mouseY);
             } else if (this.isMouseOverXPBar(mouseX, mouseY)) {
                 this.drawHoveringText(this.capability.canLevelUp(this.item)
                         ? String.format("%d/%d", xp, capability.getNextLevelXP(this.item))

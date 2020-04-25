@@ -57,8 +57,8 @@ public interface GuiExtended {
     }
 
     static void drawHorizontalInterpolatedTexturedRect(int x, final int y, final int startU, final int startV,
-                                                          final int middleU, final int endU, final int finalU,
-                                                          int width, final int height) {
+                                                       final int middleU, final int endU, final int finalU,
+                                                       int width, final int height) {
         final int startWidth = middleU - startU;
         final int finalWidth = finalU - endU;
 
