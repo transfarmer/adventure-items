@@ -24,8 +24,12 @@ menu.soulboundarmory.skills=skills
 menu.soulboundarmory.reset=reset
 menu.soulboundarmory.bind=bind current slot
 menu.soulboundarmory.unbind=unbind current slot
-menu.soulboundarmory.points=unspent points
-menu.soulboundarmory.close=close
+menu.soulboundarmory.unspentPoints=unspent points
+menu.soulboundarmory.unspentPoint=unspent point
+menu.soulboundarmory.points=points
+menu.soulboundarmory.point=point
+menu.soulboundarmory.learnCost=costs %%d %%s to learn
+menu.soulboundarmory.upgradeCost=costs %%d %%s to upgrade
 
 # formatting
 format.soulboundarmory.attackDamage=§6

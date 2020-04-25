@@ -6,6 +6,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.statistics.Skills;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.StringUtil;
 
 import java.util.Arrays;
@@ -15,10 +17,32 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public abstract class SkillBase implements ISkill {
     protected final String name;
+    protected Skills storage;
+    protected IItem item;
     protected boolean learned;
 
-    protected SkillBase(final String name) {
+    public SkillBase(final String name) {
         this.name = name;
+
+        boolean registered = false;
+
+        for (final ISkill skill : SKILLS) {
+            if (skill.getRegistryName().equals(this.getRegistryName())) {
+                registered = true;
+
+                break;
+            }
+        }
+
+        if (!registered) {
+            SKILLS.add(this);
+        }
+    }
+
+    @Override
+    public void setStorage(final Skills storage, final IItem item) {
+        this.storage = storage;
+        this.item = item;
     }
 
     @Override
@@ -61,6 +85,22 @@ public abstract class SkillBase implements ISkill {
     }
 
     @Override
+    public boolean canBeLearned() {
+        for (final ISkill dependency : this.getDependencies()) {
+            if (!dependency.isLearned()) {
+                return false;
+            }
+        }
+
+        return !this.learned;
+    }
+
+    @Override
+    public boolean canBeLearned(final int points) {
+        return this.canBeLearned() && points >= this.getCost();
+    }
+
+    @Override
     public void learn() {
         this.learned = true;
     }
@@ -82,10 +122,15 @@ public abstract class SkillBase implements ISkill {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        return new NBTTagCompound();
+        final NBTTagCompound tag = new NBTTagCompound();
+
+        tag.setBoolean("learned", this.learned);
+
+        return tag;
     }
 
     @Override
     public void deserializeNBT(final NBTTagCompound tag) {
+        this.learned = tag.getBoolean("learned");
     }
 }

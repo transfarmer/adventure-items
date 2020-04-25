@@ -1,56 +1,50 @@
 package transfarmer.soulboundarmory.network.server;
 
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
+import transfarmer.soulboundarmory.skill.ISkill;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
-public class C2SItemType implements IExtendedMessage {
+public class C2SUpgradeSkill implements IExtendedMessage {
     private String capability;
     private String item;
+    private String skill;
 
-    public C2SItemType() {}
+    public C2SUpgradeSkill() {}
 
-    public C2SItemType(final ICapabilityType capability, final IItem type) {
+    public C2SUpgradeSkill(final ICapabilityType capability, final IItem item, final ISkill skill) {
         this.capability = capability.toString();
-        this.item = type.toString();
+        this.item = item.toString();
+        this.skill = skill.getRegistryName();
     }
 
     @Override
     public void fromBytes(final ExtendedPacketBuffer buffer) {
         this.capability = buffer.readString();
         this.item = buffer.readString();
+        this.skill = buffer.readString();
     }
 
     @Override
     public void toBytes(final ExtendedPacketBuffer buffer) {
         buffer.writeString(this.capability);
         buffer.writeString(this.item);
+        buffer.writeString(this.skill);
     }
 
-    public static final class Handler implements IExtendedMessageHandler<C2SItemType> {
+    public static final class Handler implements IExtendedMessageHandler<C2SUpgradeSkill> {
         @Override
-        public IExtendedMessage onMessage(final C2SItemType message, final MessageContext context) {
+        public IExtendedMessage onMessage(final C2SUpgradeSkill message, final MessageContext context) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+                final ISoulbound capability = context.getServerHandler().player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
                 final IItem item = IItem.get(message.item);
-                final EntityPlayerMP player = context.getServerHandler().player;
-                final ICapabilityType type = ICapabilityType.get(message.capability);
-                final ISoulbound capability = player.getCapability(type.getCapability(), null);
 
-                capability.setItemType(item);
-                player.inventory.deleteStack(capability.getEquippedItemStack());
-
-                if (!capability.hasSoulItem()) {
-                    capability.setCurrentTab(0);
-                }
-
-                SoulItemHelper.addItemStack(capability.getItemStack(item), player);
+                capability.upgradeSkill(item, capability.getSkill(item, message.skill));
                 capability.sync();
             });
 

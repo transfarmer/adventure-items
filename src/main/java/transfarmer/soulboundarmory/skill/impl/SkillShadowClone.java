@@ -6,6 +6,8 @@ import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import java.util.List;
 
+import static transfarmer.soulboundarmory.skill.Skills.THROWING;
+
 public class SkillShadowClone extends SkillBase {
     public SkillShadowClone() {
         super("shadow_clone");
@@ -13,6 +15,13 @@ public class SkillShadowClone extends SkillBase {
 
     @Override
     public List<ISkill> getDependencies() {
-        return CollectionUtil.arrayList(new SkillThrowing());
+        return this.storage == null
+                ? CollectionUtil.arrayList(new SkillThrowing())
+                : CollectionUtil.arrayList(this.storage.get(this.item, THROWING.getRegistryName()));
+    }
+
+    @Override
+    public int getCost() {
+        return 2;
     }
 }

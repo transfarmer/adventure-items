@@ -31,6 +31,7 @@ import transfarmer.soulboundarmory.network.server.C2SEnchant;
 import transfarmer.soulboundarmory.network.server.C2SItemType;
 import transfarmer.soulboundarmory.network.server.C2SReset;
 import transfarmer.soulboundarmory.network.server.C2STab;
+import transfarmer.soulboundarmory.network.server.C2SUpgradeSkill;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
@@ -61,6 +62,7 @@ public class Main {
         CHANNEL.registerMessage(C2SItemType.Handler.class, C2SItemType.class, id++, SERVER);
         CHANNEL.registerMessage(C2SReset.Handler.class, C2SReset.class, id++, SERVER);
         CHANNEL.registerMessage(C2STab.Handler.class, C2STab.class, id++, SERVER);
+        CHANNEL.registerMessage(C2SUpgradeSkill.Handler.class, C2SUpgradeSkill.class, id++, SERVER);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(MENU_KEY);

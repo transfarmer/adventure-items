@@ -78,7 +78,7 @@ public class C2SReset implements IExtendedMessage {
                 }
 
                 capability.sync();
-                capability.openGUI();
+                capability.refresh();
             }
 
             return null;

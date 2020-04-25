@@ -19,4 +19,14 @@ public class SkillSummonLightning extends SkillBaseLevelable {
     public List<ISkill> getDependencies() {
         return new ArrayList<>();
     }
+
+    @Override
+    public int getCost() {
+        return 3;
+    }
+
+    @Override
+    public boolean canBeUpgraded(final int points) {
+        return this.canBeUpgraded();
+    }
 }

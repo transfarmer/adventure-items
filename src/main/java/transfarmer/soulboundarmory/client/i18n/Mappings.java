@@ -24,8 +24,12 @@ public class Mappings {
     public static final String MENU_BUTTON_RESET = I18n.format("menu.soulboundarmory.reset");
     public static final String MENU_BUTTON_BIND = I18n.format("menu.soulboundarmory.bind");
     public static final String MENU_BUTTON_UNBIND = I18n.format("menu.soulboundarmory.unbind");
+    public static final String MENU_UNSPENT_POINTS = I18n.format("menu.soulboundarmory.unspentPoints");
+    public static final String MENU_UNSPENT_POINT = I18n.format("menu.soulboundarmory.unspentPoint");
     public static final String MENU_POINTS = I18n.format("menu.soulboundarmory.points");
-    public static final String MENU_CLOSE = I18n.format("menu.soulboundarmory.close");
+    public static final String MENU_POINT = I18n.format("menu.soulboundarmory.point");
+    public static final String MENU_SKILL_LEARN_COST = I18n.format("menu.soulboundarmory.learnCost");
+    public static final String MENU_SKILL_UPGRADE_COST = I18n.format("menu.soulboundarmory.upgradeCost");
 
     public static final String ATTACK_SPEED_FORMAT = I18n.format("format.soulboundarmory.attackSpeed");
     public static final String ATTACK_DAMAGE_FORMAT = I18n.format("format.soulboundarmory.attackDamage");

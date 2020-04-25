@@ -30,7 +30,10 @@ import transfarmer.soulboundarmory.skill.impl.SkillShadowClone;
 import transfarmer.soulboundarmory.skill.impl.SkillSneakReturn;
 import transfarmer.soulboundarmory.skill.impl.SkillSummonLightning;
 import transfarmer.soulboundarmory.skill.impl.SkillThrowing;
+import transfarmer.soulboundarmory.statistics.Skills;
+import transfarmer.soulboundarmory.statistics.SoulboundEnchantments;
 import transfarmer.soulboundarmory.statistics.Statistic;
+import transfarmer.soulboundarmory.statistics.Statistics;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
@@ -85,28 +88,33 @@ public class Weapon extends Base implements IWeapon {
     private int lightningCooldown;
 
     public Weapon() {
-        super(WEAPON, new IItem[]{DAGGER, SWORD, GREATSWORD},
+        super(WEAPON, new IItem[]{DAGGER, SWORD, GREATSWORD}, new Item[]{SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD});
+
+        this.attackCooldown = 0;
+        this.lightningCooldown = 60;
+        this.cannotFreeze = new HashSet<>();
+
+        this.statistics = new Statistics(this.itemTypes,
                 new ICategory[]{DATUM, ATTRIBUTE},
                 new IStatistic[][]{
                         {XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
                         {ATTACK_SPEED, ATTACK_DAMAGE, CRITICAL, KNOCKBACK_ATTRIBUTE, EFFICIENCY_ATTRIBUTE, REACH_DISTANCE}
                 }, new double[][][]{
-                        {{0, 0, 0, 0, 0, 0, 0}, {2, 1, 0, 0, 0, 2}},
-                        {{0, 0, 0, 0, 0, 0, 0}, {1.6, 2, 0, 0, 0, 3}},
-                        {{0, 0, 0, 0, 0, 0, 0}, {0.8, 3, 0, 0, 0, 6}}
-                }, new Item[]{SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD},
-                (final Enchantment enchantment) -> {
-                    final String name = enchantment.getName().toLowerCase();
+                {{0, 0, 0, 0, 0, 0, 0}, {2, 1, 0, 0, 0, 2}},
+                {{0, 0, 0, 0, 0, 0, 0}, {1.6, 2, 0, 0, 0, 3}},
+                {{0, 0, 0, 0, 0, 0, 0}, {0.8, 3, 0, 0, 0, 6}}
+        });
+        this.enchantments = new SoulboundEnchantments(this.itemTypes, this.items, (final Enchantment enchantment) -> {
+            final String name = enchantment.getName().toLowerCase();
 
-                    return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
-                            && !name.contains("soulbound") && !name.contains("holding") && !name.contains("mending");
-                }
+            return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
+                    && !name.contains("soulbound") && !name.contains("holding") && !name.contains("mending");
+        });
+        this.skills = new Skills(this.itemTypes,
+                new ISkill[]{new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn()},
+                new ISkill[]{new SkillSummonLightning()},
+                new ISkill[]{new SkillLeaping(), new SkillFreezing()}
         );
-
-        this.boundSlot = -1;
-        this.attackCooldown = 0;
-        this.lightningCooldown = 60;
-        this.cannotFreeze = new HashSet<>();
     }
 
     @Override
@@ -217,23 +225,6 @@ public class Weapon extends Base implements IWeapon {
     }
 
     @Override
-    public ISkill[] getSkills(final IItem type) {
-        if (type == DAGGER) {
-            return new ISkill[]{new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn()};
-        }
-
-        if (type == GREATSWORD) {
-            return new ISkill[]{new SkillLeaping(), new SkillFreezing()};
-        }
-
-        if (type == SWORD) {
-            return new ISkill[]{new SkillSummonLightning()};
-        }
-
-        return new ISkill[0];
-    }
-
-    @Override
     public Map<String, AttributeModifier> getAttributeModifiers(final IItem type) {
         return CollectionUtil.hashMap(super.getAttributeModifiers(type),
                 new String[]{
@@ -276,7 +267,7 @@ public class Weapon extends Base implements IWeapon {
     }
 
     @Override
-    public void openGUI() {
+    public void refresh() {
         final ItemStack itemStack = this.getEquippedItemStack();
 
         if (itemStack != null) {

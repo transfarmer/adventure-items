@@ -1,6 +1,7 @@
 package transfarmer.soulboundarmory.capability.soulbound.common;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,7 +19,9 @@ import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.network.client.S2COpenGUI;
 import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.network.server.C2STab;
+import transfarmer.soulboundarmory.network.server.C2SUpgradeSkill;
 import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.ISkillLevelable;
 import transfarmer.soulboundarmory.statistics.Skills;
 import transfarmer.soulboundarmory.statistics.SoulboundEnchantments;
 import transfarmer.soulboundarmory.statistics.Statistic;
@@ -31,10 +34,11 @@ import transfarmer.soulboundarmory.util.CollectionUtil;
 import transfarmer.soulboundarmory.util.IndexedMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Predicate;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
@@ -50,7 +54,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
 public abstract class Base implements ISoulbound {
-    protected ICapabilityType type;
+    protected final ICapabilityType type;
     protected Statistics statistics;
     protected SoulboundEnchantments enchantments;
     protected Skills skills;
@@ -62,17 +66,13 @@ public abstract class Base implements ISoulbound {
     protected int boundSlot;
     protected int currentTab;
 
-    protected Base(final ICapabilityType type, final IItem[] itemTypes, ICategory[] categories,
-                  IStatistic[][] statistics, double[][][] min, final Item[] items, Predicate<Enchantment> condition) {
+    protected Base(final ICapabilityType type, final IItem[] itemTypes, final Item[] items) {
         this.type = type;
-        this.statistics = new Statistics(itemTypes, categories, statistics, min);
-        this.itemTypes = CollectionUtil.arrayList(itemTypes);
-        this.items = CollectionUtil.arrayList(items);
+        this.itemTypes = Arrays.asList(itemTypes);
+        this.items = Arrays.asList(items);
         this.boundSlot = -1;
         this.currentTab = 0;
-        this.statistics = new Statistics(itemTypes, categories, statistics, min);
-        this.enchantments = new SoulboundEnchantments(itemTypes, items, condition);
-        this.skills = new Skills(itemTypes, this.itemTypes.stream().map(this::getSkills).toArray(ISkill[][]::new));
+
     }
 
     @Override
@@ -196,6 +196,11 @@ public abstract class Base implements ISoulbound {
     }
 
     @Override
+    public int getDatum(final IStatistic statistic) {
+        return this.getDatum(this.item, statistic);
+    }
+
+    @Override
     public int getDatum(final IItem type, final IStatistic datum) {
         return this.statistics.get(type, datum).intValue();
     }
@@ -203,6 +208,11 @@ public abstract class Base implements ISoulbound {
     @Override
     public void setDatum(final IItem type, final IStatistic datum, final int value) {
         this.statistics.set(type, datum, value);
+    }
+
+    @Override
+    public boolean addDatum(final IStatistic statistic, final int amount) {
+        return this.addDatum(this.item, statistic, amount);
     }
 
     @Override
@@ -259,8 +269,62 @@ public abstract class Base implements ISoulbound {
     }
 
     @Override
-    public ISkill[] getSkills() {
+    public List<ISkill> getSkills() {
         return this.getSkills(this.item);
+    }
+
+    @Override
+    public List<ISkill> getSkills(final IItem item) {
+        final List<ISkill> skills = new ArrayList<>(this.skills.get(item).values());
+
+        skills.sort(Comparator.comparingInt(ISkill::getTier));
+
+        return skills;
+    }
+
+    @Override
+    public ISkill getSkill(final String skill) {
+        return this.getSkill(this.item, skill);
+    }
+
+    @Override
+    public ISkill getSkill(final IItem item, final String skill) {
+        return this.skills.get(item, skill);
+    }
+
+    @Override
+    public boolean hasSkill(final IItem item, final ISkill skill) {
+        return this.skills.contains(item, skill);
+    }
+
+    @Override
+    public boolean hasSkill(final IItem item, final ISkillLevelable skill, final int level) {
+        return this.skills.contains(item, skill, level);
+    }
+
+    @Override
+    public void upgradeSkill(final IItem item, final ISkill skill) {
+        if (this.isRemote) {
+            Main.CHANNEL.sendToServer(new C2SUpgradeSkill(this.type, item, skill));
+        } else {
+            final int points = this.getDatum(SKILL_POINTS);
+            final int cost = skill.getCost();
+
+            if (skill.canBeLearned(points)) {
+                skill.learn();
+
+                this.addDatum(SKILL_POINTS, -cost);
+            } else if (skill instanceof ISkillLevelable) {
+                final ISkillLevelable levelable = (ISkillLevelable) skill;
+
+                if (levelable.canBeUpgraded(points)) {
+                    levelable.upgrade();
+
+                    this.addDatum(SKILL_POINTS, -cost);
+                }
+            }
+
+        }
     }
 
     @Override
@@ -390,9 +454,16 @@ public abstract class Base implements ISoulbound {
     @Override
     public void openGUI(final int tab) {
         if (this.isRemote) {
-            final List<GuiTab> tabs = this.getTabs();
+            final Minecraft minecraft = Minecraft.getMinecraft();
+            final GuiScreen currentScreen = minecraft.currentScreen;
 
-            Minecraft.getMinecraft().displayGuiScreen(tabs.get(MathHelper.clamp(tab, 0, tabs.size() - 1)));
+            if (currentScreen instanceof GuiTabSoulbound && this.currentTab == tab) {
+                ((GuiTabSoulbound) currentScreen).refresh();
+            } else {
+                final List<GuiTab> tabs = this.getTabs();
+
+                minecraft.displayGuiScreen(tabs.get(MathHelper.clamp(tab, 0, tabs.size() - 1)));
+            }
         } else {
             Main.CHANNEL.sendTo(new S2COpenGUI(this.type, tab), (EntityPlayerMP) this.player);
         }
@@ -495,6 +566,7 @@ public abstract class Base implements ISoulbound {
         tag.setInteger("slot", this.getBoundSlot());
         tag.setTag("statistics", this.statistics.serializeNBT());
         tag.setTag("enchantments", this.enchantments.serializeNBT());
+        tag.setTag("skills", this.skills.serializeNBT());
 
         return tag;
     }
@@ -506,6 +578,7 @@ public abstract class Base implements ISoulbound {
         this.bindSlot(tag.getInteger("slot"));
         this.statistics.deserializeNBT(tag.getCompoundTag("statistics"));
         this.enchantments.deserializeNBT(tag.getCompoundTag("enchantments"));
+        this.skills.deserializeNBT(tag.getCompoundTag("skills"));
     }
 
     @Override
@@ -516,7 +589,7 @@ public abstract class Base implements ISoulbound {
             Main.CHANNEL.sendToServer(new C2STab(this.type, this.currentTab));
 
             if (Minecraft.getMinecraft().currentScreen instanceof GuiTabSoulbound) {
-                this.openGUI();
+                this.refresh();
             }
         }
     }

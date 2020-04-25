@@ -4,22 +4,29 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.ISkillLevelable;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
-import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class Skills implements Iterable<IItem>, INBTSerializable<NBTTagCompound> {
     private final Map<IItem, Map<String, ISkill>> skills;
 
-    public Skills(final IItem[] items, final ISkill[]... skills) {
+    public Skills(final List<IItem> items, final ISkill[]... skills) {
         this.skills = new HashMap<>();
 
-        for (int i = 0; i < items.length; i++) {
+        for (int i = 0; i < items.size(); i++) {
+            final Map<String, ISkill> skillMap = new HashMap<>();
+            final IItem item = items.get(i);
+
+            this.skills.put(item, skillMap);
+
             for (final ISkill skill : skills[i]) {
-                this.skills.put(items[i], CollectionUtil.hashMap(skill.getRegistryName(), skill));
+                skillMap.put(skill.getRegistryName(), skill);
+                skill.setStorage(this, item);
             }
         }
     }
@@ -38,6 +45,22 @@ public class Skills implements Iterable<IItem>, INBTSerializable<NBTTagCompound>
 
     public void put(final IItem item, ISkill skill) {
         this.get().get(item).put(skill.getRegistryName(), skill);
+    }
+
+    public boolean contains(final IItem item, final ISkill skill) {
+        final ISkill instance = this.get(item, skill.getRegistryName());
+
+        if (skill instanceof ISkillLevelable && instance instanceof ISkillLevelable) {
+            return instance.isLearned() && ((ISkillLevelable) instance).getLevel() >= ((ISkillLevelable) skill).getLevel();
+        }
+
+        return instance != null && instance.isLearned();
+    }
+
+    public boolean contains(final IItem item, final ISkillLevelable skill, final int level) {
+        final ISkillLevelable instance = (ISkillLevelable) this.get(item, skill.getRegistryName());
+
+        return instance != null && instance.isLearned() && instance.getLevel() >= level;
     }
 
     public void reset() {
@@ -71,7 +94,7 @@ public class Skills implements Iterable<IItem>, INBTSerializable<NBTTagCompound>
 
         for (final ISkill skill : this.get(item).values()) {
             if (skill != null) {
-                tag.setString(skill.getRegistryName(), "");
+                tag.setTag(skill.getRegistryName(), skill.serializeNBT());
             }
         }
 
@@ -95,6 +118,8 @@ public class Skills implements Iterable<IItem>, INBTSerializable<NBTTagCompound>
 
             if (skill != null) {
                 this.put(item, skill);
+
+                skill.deserializeNBT(tag.getCompoundTag(skillName));
             }
         }
     }

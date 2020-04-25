@@ -29,8 +29,8 @@ import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulboundTool;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
-import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
+import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
 import transfarmer.soulboundarmory.network.client.S2CConfig;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
@@ -39,10 +39,10 @@ import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
+import static transfarmer.soulboundarmory.skill.Skills.TELEPORTATION;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.PICK;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class PlayerEventHandlers {
@@ -175,7 +175,7 @@ public class PlayerEventHandlers {
     public static void onHarvestDrops(final HarvestDropsEvent event) {
         final EntityPlayer player = event.getHarvester();
 
-        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulboundPick && ToolProvider.get(player).getDatum(PICK, SKILL_POINTS) >= 1) {
+        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemSoulboundPick && ToolProvider.get(player).hasSkill(PICK, TELEPORTATION)) {
             event.setDropChance(0);
 
             for (final ItemStack drop : event.getDrops()) {

@@ -18,6 +18,11 @@ public class SkillThrowing extends SkillBase {
     }
 
     @Override
+    public int getCost() {
+        return 2;
+    }
+
+    @Override
     public ResourceLocation getTexture() {
         return new ResourceLocation("textures/items/arrow.png");
     }

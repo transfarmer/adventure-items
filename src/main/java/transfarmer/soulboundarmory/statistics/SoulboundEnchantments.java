@@ -12,24 +12,25 @@ import transfarmer.soulboundarmory.util.IndexedMap;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
 public class SoulboundEnchantments implements Iterable<IItem>, INBTSerializable<NBTTagCompound> {
     private final Map<IItem, IndexedMap<Enchantment, Integer>> enchantments;
 
-    public SoulboundEnchantments(final IItem[] types, final Item[] items, final Predicate<Enchantment> condition) {
+    public SoulboundEnchantments(final List<IItem> types, final List<Item> items, final Predicate<Enchantment> condition) {
         this.enchantments = new HashMap<>();
 
-        for (int i = 0; i < items.length; i++) {
+        for (int i = 0; i < items.size(); i++) {
             final IndexedMap<Enchantment, Integer> entry = new IndexedLinkedHashMap<>();
 
-            this.enchantments.put(types[i], entry);
+            this.enchantments.put(types.get(i), entry);
 
             for (final Enchantment enchantment : Enchantment.REGISTRY) {
                 final EnumEnchantmentType type = enchantment.type;
 
-                if (type != null && type.canEnchantItem(items[i]) && condition.test(enchantment)) {
+                if (type != null && type.canEnchantItem(items.get(i)) && condition.test(enchantment)) {
                     entry.put(enchantment, 0);
                 }
             }

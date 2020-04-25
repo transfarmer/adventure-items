@@ -15,8 +15,8 @@ import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 
 import javax.annotation.Nonnull;
 
+import static transfarmer.soulboundarmory.skill.Skills.LEAPING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
 
 public class ItemSoulboundGreatsword extends ItemSoulboundWeapon {
     public ItemSoulboundGreatsword(final String name) {
@@ -37,7 +37,7 @@ public class ItemSoulboundGreatsword extends ItemSoulboundWeapon {
     @Override
     @Nonnull
     public ActionResult<ItemStack> onItemRightClick(final World world, @Nonnull final EntityPlayer player, @Nonnull final EnumHand hand) {
-        if (!world.isRemote && WeaponProvider.get(player).getDatum(GREATSWORD, SKILL_POINTS) >= 1) {
+        if (!world.isRemote && WeaponProvider.get(player).hasSkill(GREATSWORD, LEAPING)) {
             player.setActiveHand(hand);
 
             return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));

@@ -9,17 +9,18 @@ import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Statistics implements INBTSerializable<NBTTagCompound> {
     private final Map<IItem, Map<ICategory, Map<IStatistic, Statistic>>> statistics;
 
-    public Statistics(final IItem[] items, final ICategory[] categories, final IStatistic[][] statisticNames,
+    public Statistics(final List<IItem> items, final ICategory[] categories, final IStatistic[][] statisticNames,
                       final double[][][] min) {
-        this.statistics = new HashMap<>(items.length, 1);
+        this.statistics = new HashMap<>(items.size(), 1);
 
-        for (int i = 0, itemsLength = items.length; i < itemsLength; i++) {
-            final IItem item = items[i];
+        for (int i = 0, itemsLength = items.size(); i < itemsLength; i++) {
+            final IItem item = items.get(i);
             final Map<ICategory, Map<IStatistic, Statistic>> statisticCategory = new HashMap<>(categories.length, 1);
 
             this.statistics.put(item, statisticCategory);

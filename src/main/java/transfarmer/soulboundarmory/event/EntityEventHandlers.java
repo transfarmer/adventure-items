@@ -50,7 +50,9 @@ import java.util.Random;
 
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
+import static transfarmer.soulboundarmory.skill.Skills.FREEZING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.CRITICAL;
@@ -231,46 +233,48 @@ public class EntityEventHandlers {
             final double leapForce = capability.getLeapForce();
 
             if (leapForce > 0) {
-                final double horizontalRadius = Math.min(4, event.getDistance());
-                final double verticalRadius = Math.min(2, 0.5F * event.getDistance());
-                final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, new AxisAlignedBB(
-                        player.posX - horizontalRadius, player.posY - verticalRadius, player.posZ - horizontalRadius,
-                        player.posX + horizontalRadius, player.posY + verticalRadius, player.posZ + horizontalRadius
-                ));
+                if (capability.hasSkill(GREATSWORD, FREEZING)) {
+                    final double horizontalRadius = Math.min(4, event.getDistance());
+                    final double verticalRadius = Math.min(2, 0.5F * event.getDistance());
+                    final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, new AxisAlignedBB(
+                            player.posX - horizontalRadius, player.posY - verticalRadius, player.posZ - horizontalRadius,
+                            player.posX + horizontalRadius, player.posY + verticalRadius, player.posZ + horizontalRadius
+                    ));
 
-                boolean froze = false;
+                    boolean froze = false;
 
-                for (final Entity entity : nearbyEntities) {
-                    final IFrozen frozenCapability = FrozenProvider.get(entity);
+                    for (final Entity entity : nearbyEntities) {
+                        final IFrozen frozenCapability = FrozenProvider.get(entity);
 
-                    if (frozenCapability != null && entity.getDistanceSq(entity) <= horizontalRadius * horizontalRadius) {
-                        capability.freeze(entity, (int) Math.min(60, 12 * event.getDistance()), 0.4F * event.getDistance());
+                        if (frozenCapability != null && entity.getDistanceSq(entity) <= horizontalRadius * horizontalRadius) {
+                            capability.freeze(entity, (int) Math.min(60, 12 * event.getDistance()), 0.4F * event.getDistance());
 
-                        froze = true;
+                            froze = true;
+                        }
                     }
-                }
 
-                if (froze) {
-                    if (!nearbyEntities.isEmpty() && player.world instanceof WorldServer) {
-                        final WorldServer world = (WorldServer) player.world;
+                    if (froze) {
+                        if (!nearbyEntities.isEmpty() && player.world instanceof WorldServer) {
+                            final WorldServer world = (WorldServer) player.world;
 
-                        for (double i = 0; i <= 2 * horizontalRadius; i += horizontalRadius / 48D) {
-                            final double x = horizontalRadius - i;
-                            final double z = Math.sqrt((horizontalRadius * horizontalRadius - x * x));
-                            final int particles = 1;
+                            for (double i = 0; i <= 2 * horizontalRadius; i += horizontalRadius / 48D) {
+                                final double x = horizontalRadius - i;
+                                final double z = Math.sqrt((horizontalRadius * horizontalRadius - x * x));
+                                final int particles = 1;
 
-                            world.spawnParticle(EnumParticleTypes.SNOWBALL,
-                                    player.posX + x,
-                                    player.posY + player.eyeHeight,
-                                    player.posZ + z,
-                                    particles, 0, 0, 0, 0D
-                            );
-                            world.spawnParticle(EnumParticleTypes.SNOWBALL,
-                                    player.posX + x,
-                                    player.posY + player.eyeHeight,
-                                    player.posZ - z,
-                                    particles, 0, 0, 0, 0D
-                            );
+                                world.spawnParticle(EnumParticleTypes.SNOWBALL,
+                                        player.posX + x,
+                                        player.posY + player.eyeHeight,
+                                        player.posZ + z,
+                                        particles, 0, 0, 0, 0D
+                                );
+                                world.spawnParticle(EnumParticleTypes.SNOWBALL,
+                                        player.posX + x,
+                                        player.posY + player.eyeHeight,
+                                        player.posZ - z,
+                                        particles, 0, 0, 0, 0D
+                                );
+                            }
                         }
                     }
                 }

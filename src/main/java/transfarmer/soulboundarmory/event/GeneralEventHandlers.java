@@ -12,6 +12,9 @@ import transfarmer.soulboundarmory.util.EntityUtil;
 
 import java.util.List;
 
+import static transfarmer.soulboundarmory.skill.Skills.FREEZING;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
+
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class GeneralEventHandlers {
     @SubscribeEvent
@@ -24,10 +27,12 @@ public class GeneralEventHandlers {
             final double leapForce = capability.getLeapForce();
 
             if (leapForce > 0) {
-                final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, event.getAabb());
+                if (capability.hasSkill(GREATSWORD, FREEZING)) {
+                    final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, event.getAabb());
 
-                for (final Entity nearbyEntity : nearbyEntities) {
-                    capability.freeze(nearbyEntity, (int) (20 * leapForce), (float) EntityUtil.getVelocity(player) * (float) leapForce);
+                    for (final Entity nearbyEntity : nearbyEntities) {
+                        capability.freeze(nearbyEntity, (int) (20 * leapForce), (float) EntityUtil.getVelocity(player) * (float) leapForce);
+                    }
                 }
 
                 if (capability.getLeapDuration() <= 0 && player.onGround && (player.motionY <= 0.01 || player.isCreative())) {

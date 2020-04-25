@@ -13,7 +13,7 @@ public class SkillLeaping extends SkillBaseLevelable {
     }
 
     public SkillLeaping(final int level) {
-        super("leaping", level);
+        super("leaping", level, -1);
     }
 
     @Override
@@ -22,7 +22,17 @@ public class SkillLeaping extends SkillBaseLevelable {
     }
 
     @Override
+    public int getCost() {
+        return 1;
+    }
+
+    @Override
     public ResourceLocation getTexture() {
         return new ResourceLocation("textures/items/rabbit_foot.png");
+    }
+
+    @Override
+    public boolean canBeUpgraded(final int points) {
+        return this.canBeUpgraded();
     }
 }

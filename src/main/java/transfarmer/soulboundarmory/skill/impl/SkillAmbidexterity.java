@@ -15,4 +15,9 @@ public class SkillAmbidexterity extends SkillBase {
     public List<ISkill> getDependencies() {
         return new ArrayList<>();
     }
+
+    @Override
+    public int getCost() {
+        return 3;
+    }
 }

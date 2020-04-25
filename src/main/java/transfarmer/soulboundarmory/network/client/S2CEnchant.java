@@ -57,7 +57,7 @@ public class S2CEnchant implements IExtendedMessage {
 
             minecraft.addScheduledTask(() -> {
                 capability.addEnchantment(item, enchantment, message.amount);
-                capability.openGUI();
+                capability.refresh();
             });
 
             return null;

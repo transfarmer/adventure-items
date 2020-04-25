@@ -65,7 +65,7 @@ public class GuiTabWeaponAttributes extends GuiTabSoulbound {
         final int points = this.capability.getDatum(this.item, ATTRIBUTE_POINTS);
 
         if (points > 0) {
-            this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_POINTS, points),
+            this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_UNSPENT_POINTS, points),
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 

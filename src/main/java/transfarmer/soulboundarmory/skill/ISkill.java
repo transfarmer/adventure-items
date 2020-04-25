@@ -5,6 +5,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
+import transfarmer.soulboundarmory.statistics.Skills;
+import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +33,13 @@ public interface ISkill extends INBTSerializable<NBTTagCompound> {
 
     int getTier();
 
+    int getCost();
+
     boolean isLearned();
+
+    boolean canBeLearned();
+
+    boolean canBeLearned(int points);
 
     void learn();
 
@@ -41,6 +49,8 @@ public interface ISkill extends INBTSerializable<NBTTagCompound> {
     String getModID();
 
     String getRegistryName();
+
+    void setStorage(Skills storage, IItem item);
 
     @SideOnly(CLIENT)
     String getName();

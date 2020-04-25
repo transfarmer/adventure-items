@@ -1,6 +1,5 @@
 package transfarmer.soulboundarmory.entity;
 
-import org.jetbrains.annotations.NotNull;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -27,6 +26,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
@@ -39,10 +39,11 @@ import javax.annotation.Nonnull;
 import java.util.UUID;
 
 import static net.minecraft.init.Enchantments.FIRE_ASPECT;
+import static transfarmer.soulboundarmory.skill.Skills.RETURN;
+import static transfarmer.soulboundarmory.skill.Skills.SNEAK_RETURN;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
 
 public class EntitySoulDagger extends EntityArrow {
     public ItemStack itemStack;
@@ -151,8 +152,8 @@ public class EntitySoulDagger extends EntityArrow {
             final IWeapon capability = WeaponProvider.get(this.shootingEntity);
             final double attackSpeed = capability.getAttribute(DAGGER, ATTACK_SPEED);
 
-            if (capability.getDatum(DAGGER, SKILL_POINTS) >= 4 && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
-                    || capability.getDatum(DAGGER, SKILL_POINTS) >= 3
+            if (capability.hasSkill(DAGGER, SNEAK_RETURN) && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
+                    || capability.hasSkill(DAGGER, RETURN)
                     && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed
                     || this.shootingEntity.getDistance(this) >= 256 || this.posY <= 0)) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();

@@ -2,6 +2,7 @@ package transfarmer.soulboundarmory.capability.soulbound.tool;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.soulbound.common.Base;
@@ -14,11 +15,13 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulboundTool;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
-import transfarmer.soulboundarmory.item.ItemSoulboundPick;
 import transfarmer.soulboundarmory.skill.ISkill;
 import transfarmer.soulboundarmory.skill.impl.SkillAmbidexterity;
 import transfarmer.soulboundarmory.skill.impl.SkillTeleportation;
+import transfarmer.soulboundarmory.statistics.Skills;
+import transfarmer.soulboundarmory.statistics.SoulboundEnchantments;
 import transfarmer.soulboundarmory.statistics.Statistic;
+import transfarmer.soulboundarmory.statistics.Statistics;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
@@ -52,20 +55,23 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 
 public class Tool extends Base implements ITool {
     public Tool() {
-        super(TOOL, new IItem[]{PICK}, new ICategory[]{DATUM, ATTRIBUTE},
+        super(TOOL, new IItem[]{PICK}, new Item[]{SOULBOUND_PICK});
+
+        this.statistics = new Statistics(this.itemTypes,
+                new ICategory[]{DATUM, ATTRIBUTE},
                 new IStatistic[][]{
                         {XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
                         {EFFICIENCY_ATTRIBUTE, REACH_DISTANCE, HARVEST_LEVEL}
-                }, new double[][][]{{{0, 0, 0, 0, 0, 0, 0}, {0.5, 2, 0}}},
-                new ItemSoulboundPick[]{SOULBOUND_PICK},
-                (final Enchantment enchantment) -> {
-                    final String name = enchantment.getName().toLowerCase();
-
-                    return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
-                            && !name.contains("soulbound") && !name.contains("holding") && !name.contains("smelt")
-                            && !name.contains("mending");
-                }
+                }, new double[][][]{{{0, 0, 0, 0, 0, 0, 0}, {0.5, 2, 0}}}
         );
+        this.enchantments = new SoulboundEnchantments(this.itemTypes, this.items, (final Enchantment enchantment) -> {
+            final String name = enchantment.getName().toLowerCase();
+
+            return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
+                    && !name.contains("soulbound") && !name.contains("holding") && !name.contains("smelt")
+                    && !name.contains("mending");
+        });
+        this.skills = new Skills(this.itemTypes, new ISkill[]{new SkillTeleportation(), new SkillAmbidexterity()});
     }
 
     @Override
@@ -152,7 +158,7 @@ public class Tool extends Base implements ITool {
     }
 
     @Override
-    public void openGUI() {
+    public void refresh() {
         final ItemStack itemStack = this.getEquippedItemStack();
 
         if (itemStack != null) {
@@ -175,10 +181,5 @@ public class Tool extends Base implements ITool {
     @Override
     public Class<? extends ISoulboundItem> getBaseItemClass() {
         return IItemSoulboundTool.class;
-    }
-
-    @Override
-    public ISkill[] getSkills(final IItem type) {
-        return new ISkill[]{new SkillTeleportation(), new SkillAmbidexterity()};
     }
 }

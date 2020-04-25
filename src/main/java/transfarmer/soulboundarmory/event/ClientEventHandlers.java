@@ -36,7 +36,7 @@ public class ClientEventHandlers {
                 final ISoulbound capability = SoulItemHelper.getFirstHeldCapability(player);
 
                 if (capability != null) {
-                    capability.openGUI();
+                    capability.refresh();
                 }
             }
         }

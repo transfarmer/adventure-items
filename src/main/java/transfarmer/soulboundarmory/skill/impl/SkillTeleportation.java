@@ -18,6 +18,11 @@ public class SkillTeleportation extends SkillBase {
     }
 
     @Override
+    public int getCost() {
+        return 3;
+    }
+
+    @Override
     public ResourceLocation getTexture() {
         return new ResourceLocation("textures/items/ender_pearl.png");
     }
