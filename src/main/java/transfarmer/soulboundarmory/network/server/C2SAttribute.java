@@ -2,7 +2,7 @@ package transfarmer.soulboundarmory.network.server;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
@@ -47,7 +47,7 @@ public class C2SAttribute implements IExtendedMessage {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                 final IStatistic statistic = IStatistic.get(message.statistic);
                 final IItem type = IItem.get(message.item);
-                final ISoulbound capability = context.getServerHandler().player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
+                final SoulboundCapability capability = context.getServerHandler().player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
 
                 capability.addAttribute(type, statistic, message.amount);
                 capability.sync();

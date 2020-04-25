@@ -1,10 +1,10 @@
 package transfarmer.soulboundarmory.capability.soulbound.weapon;
 
 import net.minecraft.entity.Entity;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
-public interface IWeapon extends ISoulbound {
+public interface IWeapon extends SoulboundCapability {
     void resetCooldown(IItem type);
 
     void decrementCooldown();

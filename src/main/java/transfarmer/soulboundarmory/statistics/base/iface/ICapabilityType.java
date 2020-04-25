@@ -1,7 +1,7 @@
 package transfarmer.soulboundarmory.statistics.base.iface;
 
 import net.minecraftforge.common.capabilities.Capability;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ public interface ICapabilityType {
     List<ICapabilityType> CAPABILITIES = new ArrayList<>();
 
     @Nonnull
-    Capability<? extends ISoulbound> getCapability();
+    Capability<? extends SoulboundCapability> getCapability();
 
     @Override
     String toString();

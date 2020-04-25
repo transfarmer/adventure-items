@@ -3,7 +3,7 @@ package transfarmer.soulboundarmory.network.server;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
@@ -41,7 +41,7 @@ public class C2SItemType implements IExtendedMessage {
                 final IItem item = IItem.get(message.item);
                 final EntityPlayerMP player = context.getServerHandler().player;
                 final ICapabilityType type = ICapabilityType.get(message.capability);
-                final ISoulbound capability = player.getCapability(type.getCapability(), null);
+                final SoulboundCapability capability = player.getCapability(type.getCapability(), null);
 
                 capability.setItemType(item);
                 player.inventory.deleteStack(capability.getEquippedItemStack());

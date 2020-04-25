@@ -21,7 +21,7 @@ import transfarmer.soulboundarmory.util.IndexedMap;
 import java.util.List;
 import java.util.Map;
 
-public interface ISoulbound extends INBTSerializable<NBTTagCompound> {
+public interface SoulboundCapability extends INBTSerializable<NBTTagCompound> {
     EntityPlayer getPlayer();
 
     void initPlayer(EntityPlayer player);

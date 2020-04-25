@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.client.gui.TooltipXPBar;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
@@ -33,7 +33,7 @@ public class ClientEventHandlers {
 
             if (MENU_KEY.isPressed()) {
                 final EntityPlayer player = minecraft.player;
-                final ISoulbound capability = SoulItemHelper.getFirstHeldCapability(player);
+                final SoulboundCapability capability = SoulItemHelper.getFirstHeldCapability(player);
 
                 if (capability != null) {
                     capability.refresh();
@@ -50,7 +50,7 @@ public class ClientEventHandlers {
             final ItemStack itemStack = event.getItemStack();
 
             if (itemStack.getItem() instanceof ISoulboundItem) {
-                final ISoulbound capability = SoulItemHelper.getFirstCapability(player, itemStack.getItem());
+                final SoulboundCapability capability = SoulItemHelper.getFirstCapability(player, itemStack.getItem());
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
 

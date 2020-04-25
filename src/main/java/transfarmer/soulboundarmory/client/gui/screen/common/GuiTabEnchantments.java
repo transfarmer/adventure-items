@@ -6,7 +6,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.network.server.C2SEnchant;
 import transfarmer.soulboundarmory.network.server.C2SReset;
@@ -19,7 +19,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 
 public class GuiTabEnchantments extends GuiTabSoulbound {
-    public GuiTabEnchantments(final Capability<? extends ISoulbound> key, final List<GuiTab> tabs) {
+    public GuiTabEnchantments(final Capability<? extends SoulboundCapability> key, final List<GuiTab> tabs) {
         super(key, tabs);
     }
 

@@ -2,7 +2,7 @@ package transfarmer.soulboundarmory.statistics.base.enumeration;
 
 import net.minecraftforge.common.capabilities.Capability;
 import org.jetbrains.annotations.NotNull;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 import transfarmer.soulboundarmory.util.StringUtil;
@@ -20,15 +20,15 @@ public enum CapabilityType implements ICapabilityType {
         CollectionUtil.addAll(CAPABILITIES, TOOL, WEAPON);
     }
 
-    private final Capability<? extends ISoulbound> capability;
+    private final Capability<? extends SoulboundCapability> capability;
 
-    CapabilityType(final @NotNull Capability<? extends ISoulbound> capability) {
+    CapabilityType(final @NotNull Capability<? extends SoulboundCapability> capability) {
         this.capability = capability;
     }
 
     @Override
     @Nonnull
-    public Capability<? extends ISoulbound> getCapability() {
+    public Capability<? extends SoulboundCapability> getCapability() {
         return this.capability;
     }
 

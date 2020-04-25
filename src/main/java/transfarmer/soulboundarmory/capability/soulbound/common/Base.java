@@ -53,7 +53,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
-public abstract class Base implements ISoulbound {
+public abstract class Base implements SoulboundCapability {
     protected final ICapabilityType type;
     protected Statistics statistics;
     protected SoulboundEnchantments enchantments;

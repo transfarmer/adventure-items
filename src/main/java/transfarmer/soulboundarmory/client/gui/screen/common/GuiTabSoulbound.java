@@ -2,7 +2,6 @@ package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.client.config.GuiSlider;
@@ -10,7 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.ColorConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
@@ -31,16 +30,16 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 @SideOnly(CLIENT)
 public abstract class GuiTabSoulbound extends GuiTab {
     @NotNull
-    private final Capability<? extends ISoulbound> key;
+    private final Capability<? extends SoulboundCapability> key;
     protected IItem item;
-    protected ISoulbound capability;
+    protected SoulboundCapability capability;
     protected GuiSlider sliderRed;
     protected GuiSlider sliderGreen;
     protected GuiSlider sliderBlue;
     protected GuiSlider sliderAlpha;
     protected int slot;
 
-    public GuiTabSoulbound(@NotNull final Capability<? extends ISoulbound> key, final List<GuiTab> tabs) {
+    public GuiTabSoulbound(@NotNull final Capability<? extends SoulboundCapability> key, final List<GuiTab> tabs) {
         super(tabs);
 
         this.key = key;
@@ -88,27 +87,27 @@ public abstract class GuiTabSoulbound extends GuiTab {
             final int barX = this.getXPBarX();
             final int barY = this.getXPBarY();
             final int xp = capability.getDatum(this.item, XP);
-            final TextureManager textureManager = this.mc.getTextureManager();
 
             GlStateManager.color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha());
-            textureManager.bindTexture(XP_BAR);
+            TEXTURE_MANAGER.bindTexture(XP_BAR);
             this.drawTexturedModalRect(barX, barY, 0, 0, length, 5);
             this.drawTexturedModalRect(barX, barY, 0, 5, this.capability.canLevelUp(this.item)
                     ? Math.min(length, Math.round((float) xp / capability.getNextLevelXP(this.item) * length))
-                    : length, 5);
-            textureManager.deleteTexture(XP_BAR);
+                    : length, 5
+            );
+            TEXTURE_MANAGER.deleteTexture(XP_BAR);
 
             final int level = this.capability.getDatum(this.item, LEVEL);
             final String levelString = String.format("%d", level);
-            final int levelX = barX + (length - this.fontRenderer.getStringWidth(levelString)) / 2;
+            final int levelX = barX + (length - FONT_RENDERER.getStringWidth(levelString)) / 2;
             final int levelY = barY - 6;
             final int color = new Color(ColorConfig.getRed(), ColorConfig.getGreen(), ColorConfig.getBlue(), ColorConfig.getAlpha()).getRGB();
 
-            this.fontRenderer.drawString(levelString, levelX + 1, levelY, 0);
-            this.fontRenderer.drawString(levelString, levelX - 1, levelY, 0);
-            this.fontRenderer.drawString(levelString, levelX, levelY + 1, 0);
-            this.fontRenderer.drawString(levelString, levelX, levelY - 1, 0);
-            this.fontRenderer.drawString(levelString, levelX, levelY, color);
+            FONT_RENDERER.drawString(levelString, levelX + 1, levelY, 0);
+            FONT_RENDERER.drawString(levelString, levelX - 1, levelY, 0);
+            FONT_RENDERER.drawString(levelString, levelX, levelY + 1, 0);
+            FONT_RENDERER.drawString(levelString, levelX, levelY - 1, 0);
+            FONT_RENDERER.drawString(levelString, levelX, levelY, color);
 
             if (this.isMouseOverLevel(mouseX, mouseY) && MainConfig.instance().getMaxLevel() >= 0) {
                 this.drawHoveringText(String.format("%d/%d", level, MainConfig.instance().getMaxLevel()), mouseX, mouseY);
@@ -144,11 +143,11 @@ public abstract class GuiTabSoulbound extends GuiTab {
     protected boolean isMouseOverLevel(final int mouseX, final int mouseY) {
         final String levelString = "" + this.capability.getDatum(this.item, LEVEL);
 
-        final int levelLeftX = (this.width - this.fontRenderer.getStringWidth(levelString)) / 2;
+        final int levelLeftX = (this.width - FONT_RENDERER.getStringWidth(levelString)) / 2;
         final int levelTopY = height - 35;
 
-        return mouseX >= levelLeftX && mouseX <= levelLeftX + this.fontRenderer.getStringWidth(levelString)
-                && mouseY >= levelTopY && mouseY <= levelTopY + this.fontRenderer.FONT_HEIGHT;
+        return mouseX >= levelLeftX && mouseX <= levelLeftX + FONT_RENDERER.getStringWidth(levelString)
+                && mouseY >= levelTopY && mouseY <= levelTopY + FONT_RENDERER.FONT_HEIGHT;
     }
 
     protected int sliderMousedOver(final int mouseX, final int mouseY) {

@@ -3,7 +3,7 @@ package transfarmer.soulboundarmory.network.server;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
@@ -47,7 +47,7 @@ public class C2SEnchant implements IExtendedMessage {
         @Override
         public IExtendedMessage onMessage(final C2SEnchant message, final MessageContext context) {
             final ICapabilityType type = ICapabilityType.get(message.capability);
-            final ISoulbound instance = (ISoulbound) context.getServerHandler().player.getCapability(type.getCapability(), null);
+            final SoulboundCapability instance = (SoulboundCapability) context.getServerHandler().player.getCapability(type.getCapability(), null);
             final Enchantment enchantment = Enchantment.getEnchantmentByLocation(message.enchantment.toString());
             final IItem weaponType = instance.getItemType(message.item);
 

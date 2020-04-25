@@ -22,7 +22,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensio
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
@@ -68,7 +68,7 @@ public class PlayerEventHandlers {
         final EntityPlayer player = event.getEntityPlayer();
 
         if (!(player instanceof FakePlayer) && !player.world.getGameRules().getBoolean("keepInventory")) {
-            ISoulbound weapons = WeaponProvider.get(player);
+            SoulboundCapability weapons = WeaponProvider.get(player);
             IItem type = weapons.getItemType();
 
             if (type != null && weapons.getDatum(type, LEVEL) >= MainConfig.instance().getPreservationLevel()) {
@@ -89,10 +89,10 @@ public class PlayerEventHandlers {
         final EntityPlayer original = event.getOriginal();
         final EntityPlayer player = event.getEntityPlayer();
 
-        final ISoulbound originalTools = ToolProvider.get(original);
-        final ISoulbound originalWeapons = WeaponProvider.get(original);
-        final ISoulbound newTools = ToolProvider.get(player);
-        final ISoulbound newWeapons = WeaponProvider.get(player);
+        final SoulboundCapability originalTools = ToolProvider.get(original);
+        final SoulboundCapability originalWeapons = WeaponProvider.get(original);
+        final SoulboundCapability newTools = ToolProvider.get(player);
+        final SoulboundCapability newWeapons = WeaponProvider.get(player);
 
         newWeapons.deserializeNBT(originalWeapons.serializeNBT());
         newTools.deserializeNBT(originalTools.serializeNBT());
@@ -111,8 +111,8 @@ public class PlayerEventHandlers {
     }
 
     private static void updatePlayer(final EntityPlayer player) {
-        final ISoulbound weapons = WeaponProvider.get(player);
-        final ISoulbound tools = ToolProvider.get(player);
+        final SoulboundCapability weapons = WeaponProvider.get(player);
+        final SoulboundCapability tools = ToolProvider.get(player);
 
         weapons.initPlayer(player);
         tools.initPlayer(player);
@@ -135,7 +135,7 @@ public class PlayerEventHandlers {
     public static void onBreakSpeed(final BreakSpeed event) {
         if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ISoulboundItem) {
             final ISoulboundItem item = (ISoulboundItem) event.getEntityPlayer().getHeldItemMainhand().getItem();
-            final ISoulbound capability = SoulItemHelper.getFirstCapability(event.getEntityPlayer(), (Item) item);
+            final SoulboundCapability capability = SoulItemHelper.getFirstCapability(event.getEntityPlayer(), (Item) item);
             final IItem type = capability.getItemType();
 
             if (item instanceof IItemSoulboundTool) {

@@ -30,8 +30,8 @@ public class SoulItemHelper {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
     private static boolean datumEquality;
 
-    public static ISoulbound getFirstCapability(final EntityPlayer player, @Nullable Item item) {
-        ISoulbound capability = null;
+    public static SoulboundCapability getFirstCapability(final EntityPlayer player, @Nullable Item item) {
+        SoulboundCapability capability = null;
         boolean passedNull = item == null;
 
         if (passedNull) {
@@ -61,12 +61,12 @@ public class SoulItemHelper {
         return capability;
     }
 
-    public static ISoulbound getFirstCapability(final EntityPlayer player, @Nonnull ItemStack itemStack) {
+    public static SoulboundCapability getFirstCapability(final EntityPlayer player, @Nonnull ItemStack itemStack) {
         return getFirstCapability(player, itemStack.getItem());
     }
 
-    public static ISoulbound getFirstHeldCapability(final EntityPlayer player) {
-        final ISoulbound capability = getFirstCapability(player, player.getHeldItemMainhand());
+    public static SoulboundCapability getFirstHeldCapability(final EntityPlayer player) {
+        final SoulboundCapability capability = getFirstCapability(player, player.getHeldItemMainhand());
 
         if (capability == null) {
             return getFirstCapability(player, player.getHeldItemOffhand());

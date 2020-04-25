@@ -31,7 +31,7 @@ import transfarmer.soulboundarmory.capability.config.IPlayerConfig;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
@@ -67,8 +67,8 @@ public class EntityEventHandlers {
         final Entity entity = event.getEntity();
         final IFrozen frozenCapability = FrozenProvider.get(entity);
         final IPlayerConfig config = PlayerConfigProvider.get(entity);
-        final ISoulbound toolCapability = ToolProvider.get(entity);
-        final ISoulbound weaponCapability = WeaponProvider.get(entity);
+        final SoulboundCapability toolCapability = ToolProvider.get(entity);
+        final SoulboundCapability weaponCapability = WeaponProvider.get(entity);
 
         if (frozenCapability != null && frozenCapability.getEntity() == null) {
             frozenCapability.setEntity(entity);
@@ -109,7 +109,7 @@ public class EntityEventHandlers {
             final IItem weaponType;
 
             if (trueSource instanceof EntityPlayer) {
-                final ISoulbound instance = WeaponProvider.get(trueSource);
+                final SoulboundCapability instance = WeaponProvider.get(trueSource);
 
                 if (source instanceof EntitySoulDagger) {
                     weaponType = DAGGER;
@@ -139,7 +139,7 @@ public class EntityEventHandlers {
         if (!event.getEntity().world.isRemote) {
             Entity attacker = event.getAttacker();
             IItem weaponType = null;
-            final ISoulbound instance = WeaponProvider.get(attacker);
+            final SoulboundCapability instance = WeaponProvider.get(attacker);
 
             if (attacker instanceof EntitySoulDagger) {
                 attacker = ((EntitySoulDagger) attacker).shootingEntity;

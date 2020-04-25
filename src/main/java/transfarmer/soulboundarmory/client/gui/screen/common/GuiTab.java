@@ -20,7 +20,7 @@ import java.util.List;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 @SideOnly(CLIENT)
-public abstract class GuiTab extends GuiScreen {
+public abstract class GuiTab extends GuiScreen implements GuiExtended {
     protected final GUIFactory guiFactory;
     protected final Renderer renderer;
 
@@ -56,6 +56,8 @@ public abstract class GuiTab extends GuiScreen {
     @Override
     public void initGui() {
         super.initGui();
+
+        this.buttonList.clear();
 
         for (int row = 0; row < this.tabs.size(); row++) {
             final GuiExtendedButton button = this.addButton(new GuiExtendedButton(16 + row, width / 24, height / 16 + row * Math.max(height / 16, 30), Math.max(96, Math.round(width / 7.5F)), 20, this.tabs.get(row).getLabel()));

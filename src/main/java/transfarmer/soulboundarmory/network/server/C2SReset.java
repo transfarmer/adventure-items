@@ -1,7 +1,7 @@
 package transfarmer.soulboundarmory.network.server;
 
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
@@ -55,7 +55,7 @@ public class C2SReset implements IExtendedMessage {
             final ICapabilityType capabilityType = ICapabilityType.get(message.capability);
 
             if (capabilityType != null) {
-                final ISoulbound capability = context.getServerHandler().player.getCapability(capabilityType.getCapability(), null);
+                final SoulboundCapability capability = context.getServerHandler().player.getCapability(capabilityType.getCapability(), null);
 
                 if (message.item != null) {
                     final IItem item = IItem.get(message.item);

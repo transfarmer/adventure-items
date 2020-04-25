@@ -5,7 +5,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.common.ISoulbound;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
@@ -53,7 +53,7 @@ public class S2CEnchant implements IExtendedMessage {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final Enchantment enchantment = Enchantment.getEnchantmentByLocation(message.enchantment.toString());
             final IItem item = IItem.get(message.item);
-            final ISoulbound capability = (ISoulbound) minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
+            final SoulboundCapability capability = (SoulboundCapability) minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
 
             minecraft.addScheduledTask(() -> {
                 capability.addEnchantment(item, enchantment, message.amount);
