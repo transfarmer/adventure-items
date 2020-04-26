@@ -9,8 +9,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
-import transfarmer.soulboundarmory.skill.ISkill;
-import transfarmer.soulboundarmory.skill.ISkillLevelable;
+import transfarmer.soulboundarmory.skill.Skill;
+import transfarmer.soulboundarmory.skill.SkillLevelable;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
@@ -132,19 +132,25 @@ public interface SoulboundCapability extends INBTSerializable<NBTTagCompound> {
 
     void addEnchantment(IItem type, Enchantment enchantment, int amount);
 
-    List<ISkill> getSkills();
+    List<Skill> getSkills();
 
-    List<ISkill> getSkills(IItem type);
+    List<Skill> getSkills(IItem type);
 
-    ISkill getSkill(String skill);
+    Skill getSkill(String skill);
 
-    ISkill getSkill(IItem item, String skill);
+    Skill getSkill(IItem item, String skill);
 
-    boolean hasSkill(IItem item, ISkill skill);
+    Skill getSkill(Skill skill);
 
-    boolean hasSkill(IItem item, ISkillLevelable skill, int level);
+    Skill getSkill(IItem item, Skill skill);
 
-    void upgradeSkill(IItem item, ISkill skill);
+    boolean hasSkill(IItem item, String skill);
+
+    boolean hasSkill(IItem item, Skill skill);
+
+    boolean hasSkill(IItem item, SkillLevelable skill, int level);
+
+    void upgradeSkill(IItem item, Skill skill);
 
     Class<? extends ISoulboundItem> getBaseItemClass();
 

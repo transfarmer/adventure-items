@@ -3,13 +3,14 @@ package transfarmer.soulboundarmory.skill;
 import transfarmer.soulboundarmory.skill.impl.*;
 
 public class Skills {
-    public static final ISkill AMBIDEXTERITY = new SkillAmbidexterity();
-    public static final ISkill FREEZING = new SkillFreezing();
-    public static final ISkill LEAPING = new SkillLeaping();
-    public static final ISkill RETURN = new SkillReturn();
-    public static final ISkill SHADOW_CLONE = new SkillShadowClone();
-    public static final ISkill SNEAK_RETURN = new SkillSneakReturn();
-    public static final ISkill SUMMON_LIGHTNING = new SkillSummonLightning();
-    public static final ISkill TELEPORTATION = new SkillTeleportation();
-    public static final ISkill THROWING = new SkillThrowing();
+    public static final String AMBIDEXTERITY = new SkillAmbidexterity().getRegistryName();
+    public static final String FREEZING = new SkillFreezing().getRegistryName();
+    public static final String LEAPING = new SkillLeaping().getRegistryName();
+    public static final String LEECHING = new SkillLeeching().getRegistryName();
+    public static final String RETURN = new SkillReturn().getRegistryName();
+    public static final String SHADOW_CLONE = new SkillShadowClone().getRegistryName();
+    public static final String SNEAK_RETURN = new SkillSneakReturn().getRegistryName();
+    public static final String SUMMON_LIGHTNING = new SkillSummonLightning().getRegistryName();
+    public static final String TELEPORTATION = new SkillTeleportation().getRegistryName();
+    public static final String THROWING = new SkillThrowing().getRegistryName();
 }

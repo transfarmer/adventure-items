@@ -6,7 +6,7 @@ import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapabili
 import transfarmer.soulboundarmory.network.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.IExtendedMessage;
 import transfarmer.soulboundarmory.network.IExtendedMessageHandler;
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
@@ -17,7 +17,7 @@ public class C2SUpgradeSkill implements IExtendedMessage {
 
     public C2SUpgradeSkill() {}
 
-    public C2SUpgradeSkill(final ICapabilityType capability, final IItem item, final ISkill skill) {
+    public C2SUpgradeSkill(final ICapabilityType capability, final IItem item, final Skill skill) {
         this.capability = capability.toString();
         this.item = item.toString();
         this.skill = skill.getRegistryName();

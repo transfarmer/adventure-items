@@ -31,6 +31,7 @@ public class Mappings {
     public static final String MENU_POINT = I18n.format("menu.soulboundarmory.point");
     public static final String MENU_SKILL_LEARN_COST = I18n.format("menu.soulboundarmory.learnCost");
     public static final String MENU_SKILL_UPGRADE_COST = I18n.format("menu.soulboundarmory.upgradeCost");
+    public static final String MENU_LEVEL = I18n.format("menu.soulboundarmory.level");
 
     public static final String ATTACK_SPEED_FORMAT = I18n.format("format.soulboundarmory.attackSpeed");
     public static final String ATTACK_DAMAGE_FORMAT = I18n.format("format.soulboundarmory.attackDamage");

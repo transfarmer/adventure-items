@@ -14,11 +14,11 @@ import java.util.Set;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public interface ISkill extends INBTSerializable<NBTTagCompound> {
-    Set<ISkill> SKILLS = new HashSet<>();
+public interface Skill extends INBTSerializable<NBTTagCompound> {
+    Set<Skill> SKILLS = new HashSet<>();
 
-    static ISkill get(final String name) {
-        for (final ISkill skill : SKILLS) {
+    static Skill get(final String name) {
+        for (final Skill skill : SKILLS) {
             if (skill.getRegistryName().equals(name)) {
                 return skill;
             }
@@ -27,7 +27,7 @@ public interface ISkill extends INBTSerializable<NBTTagCompound> {
         return null;
     }
 
-    List<ISkill> getDependencies();
+    List<Skill> getDependencies();
 
     boolean hasDependencies();
 

@@ -43,6 +43,8 @@ import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.item.ItemSoulboundDagger;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
+import transfarmer.soulboundarmory.skill.SkillLevelable;
+import transfarmer.soulboundarmory.skill.impl.SkillLeeching;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.EntityUtil;
 import transfarmer.soulboundarmory.util.ItemUtil;
@@ -53,6 +55,7 @@ import java.util.Random;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
 import static transfarmer.soulboundarmory.skill.Skills.FREEZING;
+import static transfarmer.soulboundarmory.skill.Skills.LEECHING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
@@ -108,27 +111,32 @@ public class EntityEventHandlers {
         if (event.getSource().getTrueSource() != null && !event.getSource().getTrueSource().world.isRemote) {
             final Entity trueSource = event.getSource().getTrueSource();
             final Entity source = event.getSource().getImmediateSource();
-            final IItem weaponType;
+            final IItem item;
 
             if (trueSource instanceof EntityPlayer) {
                 final SoulboundCapability instance = WeaponProvider.get(trueSource);
 
                 if (source instanceof EntitySoulDagger) {
-                    weaponType = DAGGER;
+                    item = DAGGER;
                 } else if (source instanceof EntityPlayer) {
-                    weaponType = instance.getItemType();
+                    item = instance.getItemType();
                 } else if (source instanceof EntitySoulLightningBolt) {
-                    weaponType = SWORD;
+                    item = SWORD;
                 } else {
                     return;
                 }
 
-                final float attackDamage = weaponType != null && instance.getAttribute(weaponType, CRITICAL) > new Random().nextDouble()
+                final Random random = trueSource.world.rand;
+                final float attackDamage = item != null && instance.getAttribute(item, CRITICAL) > random.nextDouble()
                         ? 2 * event.getAmount()
                         : event.getAmount();
 
-                if (weaponType == SWORD) {
-                    ((EntityPlayer) trueSource).getFoodStats().addStats((int) attackDamage / 5, attackDamage / 5);
+                if (instance.hasSkill(item, new SkillLeeching())) {
+                    final SkillLevelable leeching = (SkillLevelable) instance.getSkill(item, LEECHING);
+
+                    final float food = (1 + leeching.getLevel()) * attackDamage / 20F;
+                    final int r = random.nextInt((int) Math.ceil(food) + 1);
+                    ((EntityPlayer) trueSource).getFoodStats().addStats(r, 2 * food);
                 }
 
                 event.setAmount(attackDamage);
@@ -171,7 +179,6 @@ public class EntityEventHandlers {
     public static void onLivingDeath(final LivingDeathEvent event) {
         final EntityLivingBase entity = event.getEntityLiving();
 
-        if (!entity.world.isRemote) {
             Entity attacker = event.getSource().getTrueSource();
 
             if (attacker == null) {
@@ -223,7 +230,6 @@ public class EntityEventHandlers {
 
                     capability.sync();
                 }
-            }
         }
     }
 
@@ -284,8 +290,9 @@ public class EntityEventHandlers {
                 if (event.getDistance() <= 16 * leapForce) {
                     event.setCanceled(true);
                 } else {
-                    event.setDamageMultiplier(event.getDamageMultiplier()
-                            / (float) (Math.max(1, Math.log(4 * leapForce) / Math.log(2))));
+                    final float multiplier = event.getDamageMultiplier() / (float) (Math.max(1, Math.log(4 * leapForce) / Math.log(2)));
+
+                    event.setDamageMultiplier(multiplier);
                 }
 
                 capability.setLeapDuration(4);

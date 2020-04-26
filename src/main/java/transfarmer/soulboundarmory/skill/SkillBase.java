@@ -15,7 +15,7 @@ import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public abstract class SkillBase implements ISkill {
+public abstract class SkillBase implements Skill {
     protected final String name;
     protected Skills storage;
     protected IItem item;
@@ -26,7 +26,7 @@ public abstract class SkillBase implements ISkill {
 
         boolean registered = false;
 
-        for (final ISkill skill : SKILLS) {
+        for (final Skill skill : SKILLS) {
             if (skill.getRegistryName().equals(this.getRegistryName())) {
                 registered = true;
 
@@ -68,7 +68,7 @@ public abstract class SkillBase implements ISkill {
     public int getTier() {
         int tier = this.hasDependencies() ? 1 : 0;
 
-        for (final ISkill dependency : this.getDependencies()) {
+        for (final Skill dependency : this.getDependencies()) {
             final int previous = dependency.getTier();
 
             if (previous > 0) {
@@ -86,7 +86,7 @@ public abstract class SkillBase implements ISkill {
 
     @Override
     public boolean canBeLearned() {
-        for (final ISkill dependency : this.getDependencies()) {
+        for (final Skill dependency : this.getDependencies()) {
             if (!dependency.isLearned()) {
                 return false;
             }

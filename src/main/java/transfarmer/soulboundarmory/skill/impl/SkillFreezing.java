@@ -1,7 +1,7 @@
 package transfarmer.soulboundarmory.skill.impl;
 
 import net.minecraft.util.ResourceLocation;
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
@@ -19,10 +19,10 @@ public class SkillFreezing extends SkillBaseLevelable {
     }
 
     @Override
-    public List<ISkill> getDependencies() {
+    public List<Skill> getDependencies() {
         return this.storage == null
                 ? CollectionUtil.arrayList(new SkillLeaping())
-                : CollectionUtil.arrayList(this.storage.get(this.item, LEAPING.getRegistryName()));
+                : CollectionUtil.arrayList(this.storage.get(this.item, LEAPING));
     }
 
     @Override
@@ -33,10 +33,5 @@ public class SkillFreezing extends SkillBaseLevelable {
     @Override
     public ResourceLocation getTexture() {
         return new ResourceLocation("textures/items/snowball.png");
-    }
-
-    @Override
-    public boolean canBeUpgraded(final int points) {
-        return this.canBeUpgraded();
     }
 }

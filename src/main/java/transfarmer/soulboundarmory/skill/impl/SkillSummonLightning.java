@@ -1,6 +1,6 @@
 package transfarmer.soulboundarmory.skill.impl;
 
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public class SkillSummonLightning extends SkillBaseLevelable {
     }
 
     @Override
-    public List<ISkill> getDependencies() {
+    public List<Skill> getDependencies() {
         return new ArrayList<>();
     }
 

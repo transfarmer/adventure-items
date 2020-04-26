@@ -20,8 +20,8 @@ import transfarmer.soulboundarmory.network.client.S2COpenGUI;
 import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.network.server.C2STab;
 import transfarmer.soulboundarmory.network.server.C2SUpgradeSkill;
-import transfarmer.soulboundarmory.skill.ISkill;
-import transfarmer.soulboundarmory.skill.ISkillLevelable;
+import transfarmer.soulboundarmory.skill.Skill;
+import transfarmer.soulboundarmory.skill.SkillLevelable;
 import transfarmer.soulboundarmory.statistics.Skills;
 import transfarmer.soulboundarmory.statistics.SoulboundEnchantments;
 import transfarmer.soulboundarmory.statistics.Statistic;
@@ -269,41 +269,56 @@ public abstract class Base implements SoulboundCapability {
     }
 
     @Override
-    public List<ISkill> getSkills() {
+    public List<Skill> getSkills() {
         return this.getSkills(this.item);
     }
 
     @Override
-    public List<ISkill> getSkills(final IItem item) {
-        final List<ISkill> skills = new ArrayList<>(this.skills.get(item).values());
+    public List<Skill> getSkills(final IItem item) {
+        final List<Skill> skills = new ArrayList<>(this.skills.get(item).values());
 
-        skills.sort(Comparator.comparingInt(ISkill::getTier));
+        skills.sort(Comparator.comparingInt(Skill::getTier));
 
         return skills;
     }
 
     @Override
-    public ISkill getSkill(final String skill) {
+    public Skill getSkill(final Skill skill) {
         return this.getSkill(this.item, skill);
     }
 
     @Override
-    public ISkill getSkill(final IItem item, final String skill) {
+    public Skill getSkill(final IItem item, final Skill skill) {
+        return this.getSkill(item, skill.getRegistryName());
+    }
+
+    @Override
+    public Skill getSkill(final String skill) {
+        return this.getSkill(this.item, skill);
+    }
+
+    @Override
+    public Skill getSkill(final IItem item, final String skill) {
         return this.skills.get(item, skill);
     }
 
     @Override
-    public boolean hasSkill(final IItem item, final ISkill skill) {
+    public boolean hasSkill(final IItem item, final String skill) {
         return this.skills.contains(item, skill);
     }
 
     @Override
-    public boolean hasSkill(final IItem item, final ISkillLevelable skill, final int level) {
+    public boolean hasSkill(final IItem item, final Skill skill) {
+        return this.skills.contains(item, skill);
+    }
+
+    @Override
+    public boolean hasSkill(final IItem item, final SkillLevelable skill, final int level) {
         return this.skills.contains(item, skill, level);
     }
 
     @Override
-    public void upgradeSkill(final IItem item, final ISkill skill) {
+    public void upgradeSkill(final IItem item, final Skill skill) {
         if (this.isRemote) {
             Main.CHANNEL.sendToServer(new C2SUpgradeSkill(this.type, item, skill));
         } else {
@@ -314,8 +329,8 @@ public abstract class Base implements SoulboundCapability {
                 skill.learn();
 
                 this.addDatum(SKILL_POINTS, -cost);
-            } else if (skill instanceof ISkillLevelable) {
-                final ISkillLevelable levelable = (ISkillLevelable) skill;
+            } else if (skill instanceof SkillLevelable) {
+                final SkillLevelable levelable = (SkillLevelable) skill;
 
                 if (levelable.canBeUpgraded(points)) {
                     levelable.upgrade();

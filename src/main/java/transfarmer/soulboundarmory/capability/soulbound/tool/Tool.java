@@ -15,7 +15,7 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.IItemSoulboundTool;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.impl.SkillAmbidexterity;
 import transfarmer.soulboundarmory.skill.impl.SkillTeleportation;
 import transfarmer.soulboundarmory.statistics.Skills;
@@ -71,7 +71,7 @@ public class Tool extends Base implements ITool {
                     && !name.contains("soulbound") && !name.contains("holding") && !name.contains("smelt")
                     && !name.contains("mending");
         });
-        this.skills = new Skills(this.itemTypes, new ISkill[]{new SkillTeleportation(), new SkillAmbidexterity()});
+        this.skills = new Skills(this.itemTypes, new Skill[]{new SkillTeleportation(), new SkillAmbidexterity()});
     }
 
     @Override

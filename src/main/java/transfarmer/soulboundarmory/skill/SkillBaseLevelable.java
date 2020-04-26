@@ -3,18 +3,19 @@ package transfarmer.soulboundarmory.skill;
 import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class SkillBaseLevelable extends SkillBase implements ISkillLevelable {
-    protected int level;
+public abstract class SkillBaseLevelable extends SkillBase implements SkillLevelable {
     protected int maxLevel;
+    protected int level;
+
+    public SkillBaseLevelable(final String name, final int level) {
+        this(name, level, -1);
+    }
 
     public SkillBaseLevelable(final String name, final int level, final int maxLevel) {
         super(name);
 
         this.level = level;
-    }
-
-    public SkillBaseLevelable(final String name, final int level) {
-        this(name, level, -1);
+        this.maxLevel = maxLevel;
     }
 
     @Override
@@ -28,8 +29,13 @@ public abstract class SkillBaseLevelable extends SkillBase implements ISkillLeve
     }
 
     @Override
+    public boolean canBeUpgraded(final int points) {
+        return this.canBeUpgraded() && points >= this.getCost();
+    }
+
+    @Override
     public boolean canBeUpgraded() {
-        return this.learned && (this.maxLevel < 0 || this.level < this.maxLevel);
+        return this.learned && (this.getCost() >= 0 || this.maxLevel < 0 || this.level < this.maxLevel);
     }
 
     @Override
@@ -38,7 +44,7 @@ public abstract class SkillBaseLevelable extends SkillBase implements ISkillLeve
     }
 
     @Override
-    public int compareTo(@NotNull final ISkillLevelable other) {
+    public int compareTo(@NotNull final SkillLevelable other) {
         return this.getLevel() - other.getLevel();
     }
 

@@ -32,6 +32,7 @@ import static transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended.F
 
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
 public class ClientEventHandlers {
+    public static final Minecraft MINECRAFT = Minecraft.getMinecraft();
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {
         if (event.phase == END) {
@@ -44,17 +45,18 @@ public class ClientEventHandlers {
                 }
             } else if (TOGGLE_XP_BAR_KEY.isPressed()) {
                 ClientConfig.setOverlayXPBar(!ClientConfig.getOverlayXPBar());
+                ClientConfig.instance().save();
             }
         }
     }
 
     @SubscribeEvent
     public static void onRenderGameOverlay(final RenderGameOverlayEvent.Pre event) {
-        if (ClientConfig.getOverlayXPBar() && event.getType() == EXPERIENCE) {
+        if (event.getType() == EXPERIENCE && ClientConfig.getOverlayXPBar()) {
             final ScaledResolution resolution = event.getResolution();
+            final ItemStack itemStack = MINECRAFT.player.getHeldItemMainhand();
 
-            GuiXPBar.update(Minecraft.getMinecraft().player.getHeldItemMainhand());
-            if (GuiXPBar.drawXPBar((resolution.getScaledWidth() - 182) / 2, resolution.getScaledHeight() - 29)) {
+            if (GuiXPBar.update(itemStack) && GuiXPBar.drawXPBar((resolution.getScaledWidth() - 182) / 2, resolution.getScaledHeight() - 29)) {
                 event.setCanceled(true);
             }
         }

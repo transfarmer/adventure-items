@@ -1,20 +1,21 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
+import transfarmer.soulboundarmory.skill.SkillLevelable;
 
 import java.awt.image.BufferedImage;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,9 +32,9 @@ public class GuiTabSkills extends GuiTabSoulbound {
     protected static final ResourceLocation BACKGROUND_TEXTURE = GuiExtended.getTexture(BACKGROUND);
     protected static final ResourceLocation WINDOW = new ResourceLocation("textures/gui/advancements/window.png");
     protected static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/advancements/widgets.png");
-    protected final Map<ISkill, List<Integer>> skills;
-    protected final Map<ISkill, Entry<ResourceLocation, BufferedImage>> textures;
-    protected ISkill selectedSkill;
+    protected final Map<Skill, List<Integer>> skills;
+    protected final Map<Skill, Entry<ResourceLocation, BufferedImage>> textures;
+    protected Skill selectedSkill;
     protected float chroma;
     protected int windowWidth;
     protected int windowHeight;
@@ -74,48 +75,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
         this.x = this.centerX - this.windowHeight / 2;
         this.y = this.centerY - this.windowWidth / 2;
 
-        this.skills.clear();
-
-        final Map<Integer, Integer> tierOrders = new HashMap<>();
-        final List<ISkill> skills = this.capability.getSkills();
-        final int spacing = 48;
-
-        for (final ISkill skill : skills) {
-            final ResourceLocation texture = skill.getTexture();
-            final int tier = skill.getTier();
-
-            this.textures.put(skill, new SimpleImmutableEntry<>(texture, GuiExtended.readTexture(texture)));
-
-            int currentTierSkills = 0;
-
-            for (final ISkill other : skills) {
-                if (other.getTier() == tier) {
-                    currentTierSkills++;
-                }
-            }
-
-            tierOrders.put(tier, tierOrders.getOrDefault(tier, -1) + 1);
-
-
-            final int offset = (1 - currentTierSkills) * spacing / 2;
-            int x = offset + tierOrders.get(tier) * spacing;
-
-            final List<ISkill> dependencies = skill.getDependencies();
-
-            if (skill.hasDependencies()) {
-                int total = 0;
-
-                for (final ISkill other : dependencies) {
-                    total += this.skills.get(other).get(0);
-                }
-
-                x += total / dependencies.size();
-            } else {
-                x += this.centerX;
-            }
-
-            this.skills.put(skill, Arrays.asList(x, this.insideY + 24 + 32 * tier));
-        }
+        this.updateIcons();
     }
 
     @Override
@@ -162,10 +122,10 @@ public class GuiTabSkills extends GuiTabSoulbound {
     }
 
     protected void drawSkills(final int mouseX, final int mouseY) {
-        final ISkill[] skills = this.skills.keySet().toArray(new ISkill[0]);
+        final Skill[] skills = this.skills.keySet().toArray(new Skill[0]);
 
         for (int i = 0, skillsLength = skills.length; i < skillsLength; i++) {
-            final ISkill skill = skills[i];
+            final Skill skill = skills[i];
 
             if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
                 this.selectedSkill = skill;
@@ -179,7 +139,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
         }
     }
 
-    protected void drawSkill(final ISkill skill, final int mouseX, final int mouseY) {
+    protected void drawSkill(final Skill skill, final int mouseX, final int mouseY) {
         final List<Integer> positions = this.skills.get(skill);
 
         if (positions != null) {
@@ -187,7 +147,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
         }
     }
 
-    protected void drawSkill(final ISkill skill, final int mouseX, final int mouseY, int posX, int posY) {
+    protected void drawSkill(final Skill skill, final int mouseX, final int mouseY, int x, int y) {
         final Entry<ResourceLocation, BufferedImage> textures = this.textures.get(skill);
         final ResourceLocation texture = textures.getKey();
         final BufferedImage image = textures.getValue();
@@ -197,25 +157,12 @@ public class GuiTabSkills extends GuiTabSoulbound {
             final int imageHeight = image.getHeight();
             final int width = 16;
             final int height = 16;
-            final boolean learned = skill.isLearned();
-            final int offsetV = learned ? 26 : 0;
-            posX -= width / 2;
-            posY -= height / 2;
+            final int offsetV = skill.isLearned() ? 26 : 0;
+            x -= width / 2;
+            y -= height / 2;
 
             if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
-                final String name = skill.getName();
-                List<String> tooltip = skill.getTooltip();
-                int barWidth = 36 + FONT_RENDERER.getStringWidth(name);
-
-                barWidth = drawTooltip(skill, posX, posY, learned, tooltip, barWidth);
-
-                this.setChroma(1);
-
-                TEXTURE_MANAGER.bindTexture(WIDGETS);
-                GuiExtended.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 29 - offsetV, 2, 198, 200, barWidth, 20);
-                TEXTURE_MANAGER.deleteTexture(WIDGETS);
-
-                FONT_RENDERER.drawString(name, posX + 24, posY + 4, 0xFFFFFF);
+                this.drawTooltip(skill, x, y, offsetV);
             }
 
             if (skill == this.selectedSkill) {
@@ -225,50 +172,55 @@ public class GuiTabSkills extends GuiTabSoulbound {
             }
 
             TEXTURE_MANAGER.bindTexture(WIDGETS);
-            this.drawTexturedModalRect(posX - 4, posY - 4, 1, 155 - offsetV, 24, 24);
+            this.drawTexturedModalRect(x - 4, y - 4, 1, 155 - offsetV, 24, 24);
             TEXTURE_MANAGER.deleteTexture(WIDGETS);
 
             TEXTURE_MANAGER.bindTexture(texture);
-            drawScaledCustomSizeModalRect(posX, posY, 0, 0, imageWidth, imageHeight, width, height, imageWidth, imageHeight);
+            drawScaledCustomSizeModalRect(x, y, 0, 0, imageWidth, imageHeight, width, height, imageWidth, imageHeight);
             TEXTURE_MANAGER.deleteTexture(texture);
         }
     }
 
-    protected int drawTooltip(final ISkill skill, final int posX, final int posY, final boolean learned,
-                              List<String> tooltip, int barWidth) {
+    protected int drawTooltip(final Skill skill, final int posX, final int posY, final int offsetV) {
+        final String name = skill.getName();
+        List<String> tooltip = skill.getTooltip();
+        int barWidth = 36 + FONT_RENDERER.getStringWidth(name);
+
         if (tooltip != null) {
             int size = tooltip.size();
 
             if (size > 0) {
+                final boolean learned = skill.isLearned();
                 final boolean aboveCenter = posY > this.centerY;
                 final int direction = aboveCenter ? -1 : 1;
                 final int y = posY + (aboveCenter ? -16 : 14);
                 final int textY = y + (aboveCenter ? -5 : 7);
-                String costString = "";
-
-                this.setChroma(1);
+                String string = "";
 
                 if (!learned) {
                     final int cost = skill.getCost();
                     final String plural = cost > 1 ? Mappings.MENU_POINTS : Mappings.MENU_POINT;
-                    costString = String.format(Mappings.MENU_SKILL_LEARN_COST, cost, plural);
-                    barWidth = Math.max(barWidth, 8 + FONT_RENDERER.getStringWidth(costString));
+                    string = String.format(Mappings.MENU_SKILL_LEARN_COST, cost, plural);
+                } else if (skill instanceof  SkillLevelable) {
+                    string = String.format("%s %d", Mappings.MENU_LEVEL, ((SkillLevelable) skill).getLevel());
                 }
 
-                tooltip = GuiExtended.wrap(12 + barWidth, tooltip.toArray(new String[0]));
+                tooltip = GuiExtended.wrap(12 + Math.max(barWidth, 8 + FONT_RENDERER.getStringWidth(string)), tooltip.toArray(new String[0]));
                 size = tooltip.size();
                 barWidth = Math.max(barWidth, 8 + FONT_RENDERER.getStringWidth(tooltip.stream().max(Comparator.comparingInt(String::length)).get()));
                 final int tooltipHeight = 1 + (1 + size) * FONT_RENDERER.FONT_HEIGHT;
 
-                if (!learned) {
+                if (!learned || skill instanceof SkillLevelable) {
+                    this.setChroma(1);
+
                     TEXTURE_MANAGER.bindTexture(WIDGETS);
                     GuiExtended.drawHorizontalInterpolatedTexturedRect(posX - 8, y + tooltipHeight, 0, 55, 2, 198, 200, barWidth, 20);
                     TEXTURE_MANAGER.deleteTexture(WIDGETS);
 
-                    FONT_RENDERER.drawString(costString, posX - 3, textY + direction * (size + 1) * FONT_RENDERER.FONT_HEIGHT, 0x999999);
-
-                    this.setChroma(1);
+                    FONT_RENDERER.drawString(string, posX - 3, textY + direction * (size + 1) * FONT_RENDERER.FONT_HEIGHT, 0x999999);
                 }
+
+                this.setChroma(1);
 
                 TEXTURE_MANAGER.bindTexture(WIDGETS);
                 GuiExtended.drawInterpolatedTexturedRect(posX - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, tooltipHeight);
@@ -278,6 +230,14 @@ public class GuiTabSkills extends GuiTabSoulbound {
                     FONT_RENDERER.drawString(tooltip.get(i), posX - 3, textY + direction * i * FONT_RENDERER.FONT_HEIGHT, 0x999999);
                 }
             }
+
+            this.setChroma(1);
+
+            TEXTURE_MANAGER.bindTexture(WIDGETS);
+            GuiExtended.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 29 - offsetV, 2, 198, 200, barWidth, 20);
+            TEXTURE_MANAGER.deleteTexture(WIDGETS);
+
+            FONT_RENDERER.drawString(name, posX + 24, posY + 4, 0xFFFFFF);
         }
 
         return barWidth;
@@ -287,8 +247,8 @@ public class GuiTabSkills extends GuiTabSoulbound {
         return this.getSelectedSkill(mouseX, mouseY) != null;
     }
 
-    protected ISkill getSelectedSkill(final int mouseX, final int mouseY) {
-        for (final ISkill skill : this.skills.keySet()) {
+    protected Skill getSelectedSkill(final int mouseX, final int mouseY) {
+        for (final Skill skill : this.skills.keySet()) {
             if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
                 return skill;
             }
@@ -297,7 +257,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
         return null;
     }
 
-    protected boolean isMouseOverSkill(final ISkill skill, final int mouseX, final int mouseY) {
+    protected boolean isMouseOverSkill(final Skill skill, final int mouseX, final int mouseY) {
         final List<Integer> positions = this.skills.get(skill);
 
         return Math.abs(positions.get(0) - mouseX) <= 12 && Math.abs(positions.get(1) - mouseY) <= 12;
@@ -311,7 +271,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
     public void mouseClicked(final int mouseX, final int mouseY, final int mouseButton) {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
-        final ISkill skill = this.getSelectedSkill(mouseX, mouseY);
+        final Skill skill = this.getSelectedSkill(mouseX, mouseY);
 
         if (skill != null) {
             this.capability.upgradeSkill(this.item, skill);
@@ -327,8 +287,64 @@ public class GuiTabSkills extends GuiTabSoulbound {
         this.chroma = chroma;
     }
 
-    @Override
-    public void actionPerformed(@NotNull final GuiButton button) {
-        super.actionPerformed(button);
+    protected void updateIcons() {
+        this.skills.clear();
+
+        final Map<Integer, List<Integer>> tierOrders = new HashMap<>();
+        final List<Skill> skills = this.capability.getSkills(this.item);
+
+        for (final Skill skill : skills) {
+            final int tier = skill.getTier();
+            final List<Integer> data = tierOrders.getOrDefault(tier, new ArrayList<>(Collections.nCopies(3, 0)));
+
+            if (!tierOrders.containsValue(data)) {
+                tierOrders.put(tier, data);
+            }
+
+            data.set(1, data.get(1) + 1);
+        }
+
+        int width = 2;
+
+        for (final int tier : tierOrders.keySet()) {
+            final int tiers = tierOrders.get(tier).get(1);
+
+            if (tier != 0 && tiers != 0) {
+                width += tiers - 1;
+            }
+        }
+
+        for (final Skill skill : skills) {
+            final ResourceLocation texture = skill.getTexture();
+            final int tier = skill.getTier();
+            final List<Integer> data = tierOrders.getOrDefault(tier, new ArrayList<>(Collections.nCopies(3, 0)));
+            data.set(0, data.get(0) + 1);
+
+            if (!tierOrders.containsValue(data)) {
+                tierOrders.put(tier, data);
+            }
+
+            int unscaledOffset = 1 - data.get(1);
+            final int spacing = !skill.hasDependencies() ? width * 24 : 48;
+            final int offset = unscaledOffset * spacing / 2;
+            int x = offset + (data.get(0) - 1) * spacing;
+
+            final List<Skill> dependencies = skill.getDependencies();
+
+            if (skill.hasDependencies()) {
+                int total = 0;
+
+                for (final Skill other : dependencies) {
+                    total += this.skills.get(other).get(0);
+                }
+
+                x += total / dependencies.size();
+            } else {
+                x += this.centerX;
+            }
+
+            this.skills.put(skill, Arrays.asList(x, this.insideY + 24 + 32 * tier));
+            this.textures.put(skill, new SimpleImmutableEntry<>(texture, GuiExtended.readTexture(texture)));
+        }
     }
 }

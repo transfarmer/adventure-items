@@ -1,6 +1,6 @@
 package transfarmer.soulboundarmory.statistics;
 
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,5 +21,5 @@ public interface ISkillType {
     @Override
     String toString();
 
-    ISkill getSkill();
+    Skill getSkill();
 }

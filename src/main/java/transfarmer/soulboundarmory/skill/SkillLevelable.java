@@ -1,6 +1,6 @@
 package transfarmer.soulboundarmory.skill;
 
-public interface ISkillLevelable extends ISkill, Comparable<ISkillLevelable> {
+public interface SkillLevelable extends Skill, Comparable<SkillLevelable> {
     int getLevel();
 
     void setLevel(int level);

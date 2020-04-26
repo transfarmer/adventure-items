@@ -1,6 +1,6 @@
 package transfarmer.soulboundarmory.skill.impl;
 
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBase;
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ public class SkillAmbidexterity extends SkillBase {
     }
 
     @Override
-    public List<ISkill> getDependencies() {
+    public List<Skill> getDependencies() {
         return new ArrayList<>();
     }
 

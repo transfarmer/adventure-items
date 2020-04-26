@@ -1,6 +1,6 @@
 package transfarmer.soulboundarmory.skill.impl;
 
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
@@ -18,10 +18,10 @@ public class SkillReturn extends SkillBaseLevelable {
     }
 
     @Override
-    public List<ISkill> getDependencies() {
+    public List<Skill> getDependencies() {
         return this.storage == null
                 ? CollectionUtil.arrayList(new SkillThrowing())
-                : CollectionUtil.arrayList(this.storage.get(this.item, THROWING.getRegistryName()));
+                : CollectionUtil.arrayList(this.storage.get(this.item, THROWING));
     }
 
     @Override

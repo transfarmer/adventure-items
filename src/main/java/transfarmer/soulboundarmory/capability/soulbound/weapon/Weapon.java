@@ -22,9 +22,10 @@ import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.impl.SkillFreezing;
 import transfarmer.soulboundarmory.skill.impl.SkillLeaping;
+import transfarmer.soulboundarmory.skill.impl.SkillLeeching;
 import transfarmer.soulboundarmory.skill.impl.SkillReturn;
 import transfarmer.soulboundarmory.skill.impl.SkillShadowClone;
 import transfarmer.soulboundarmory.skill.impl.SkillSneakReturn;
@@ -111,9 +112,9 @@ public class Weapon extends Base implements IWeapon {
                     && !name.contains("soulbound") && !name.contains("holding") && !name.contains("mending");
         });
         this.skills = new Skills(this.itemTypes,
-                new ISkill[]{new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn()},
-                new ISkill[]{new SkillSummonLightning()},
-                new ISkill[]{new SkillLeaping(), new SkillFreezing()}
+                new Skill[]{new SkillLeeching(), new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn()},
+                new Skill[]{new SkillLeeching(), new SkillSummonLightning()},
+                new Skill[]{new SkillLeeching(), new SkillLeaping(), new SkillFreezing()}
         );
     }
 

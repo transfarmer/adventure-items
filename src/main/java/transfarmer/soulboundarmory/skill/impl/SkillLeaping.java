@@ -1,7 +1,7 @@
 package transfarmer.soulboundarmory.skill.impl;
 
 import net.minecraft.util.ResourceLocation;
-import transfarmer.soulboundarmory.skill.ISkill;
+import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class SkillLeaping extends SkillBaseLevelable {
     }
 
     @Override
-    public List<ISkill> getDependencies() {
+    public List<Skill> getDependencies() {
         return new ArrayList<>();
     }
 
@@ -29,10 +29,5 @@ public class SkillLeaping extends SkillBaseLevelable {
     @Override
     public ResourceLocation getTexture() {
         return new ResourceLocation("textures/items/rabbit_foot.png");
-    }
-
-    @Override
-    public boolean canBeUpgraded(final int points) {
-        return this.canBeUpgraded();
     }
 }
