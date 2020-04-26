@@ -165,12 +165,12 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     @Override
     public void handleMouseInput() {
-        super.handleMouseInput();
-
         final int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
         final int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
         final int dWheel = Mouse.getDWheel() / 120;
         final int row = this.sliderMousedOver(mouseX, mouseY);
+
+        super.handleMouseInput();
 
         if (row >= 0 && row <= 3) {
             final GuiSlider slider;

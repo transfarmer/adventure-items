@@ -68,7 +68,7 @@ public class GuiXPBar extends Gui implements GuiExtended {
 
         TEXTURE_MANAGER.bindTexture(XP_BAR);
         GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 0, 4, 177, 182, length, 5);
-        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 5, (int) Math.min(4, effectiveLength), effectiveLength >= 4 ? (int) (ratio * 177) : 4, (int) (ratio * 182), this.capability.canLevelUp(this.item)
+        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 5, (int) Math.min(4, effectiveLength), effectiveLength >= 4 ? (int) (ratio * 177) : 0, (int) (ratio * 182), this.capability.canLevelUp(this.item)
                 ? Math.min(length, (int) (ratio * length))
                 : length, 5
         );

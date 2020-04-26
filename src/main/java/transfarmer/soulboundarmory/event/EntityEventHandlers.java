@@ -22,6 +22,7 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
+import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -31,8 +32,8 @@ import transfarmer.soulboundarmory.capability.config.IPlayerConfig;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
@@ -43,6 +44,7 @@ import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.item.ItemSoulboundDagger;
 import transfarmer.soulboundarmory.network.server.C2SConfig;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
+import transfarmer.soulboundarmory.util.EntityUtil;
 import transfarmer.soulboundarmory.util.ItemUtil;
 
 import java.util.List;
@@ -287,6 +289,35 @@ public class EntityEventHandlers {
                 }
 
                 capability.setLeapDuration(4);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onGetCollsionBoxes(final GetCollisionBoxesEvent event) {
+        final Entity entity = event.getEntity();
+
+        if (!event.getWorld().isRemote && entity instanceof EntityPlayer) {
+            final EntityPlayer player = (EntityPlayer) entity;
+            final IWeapon capability = WeaponProvider.get(player);
+            final double leapForce = capability.getLeapForce();
+
+            if (leapForce > 0) {
+                if (capability.hasSkill(GREATSWORD, FREEZING)) {
+                    final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, event.getAabb());
+
+                    for (final Entity nearbyEntity : nearbyEntities) {
+                        capability.freeze(nearbyEntity, (int) (20 * leapForce), (float) EntityUtil.getVelocity(player) * (float) leapForce);
+                    }
+                }
+
+                if (capability.getLeapDuration() <= 0 && player.onGround && (player.motionY <= 0.01 || player.isCreative())) {
+                    capability.setLeapDuration(7);
+                }
+
+                if (player.isInLava()) {
+                    capability.resetLeapForce();
+                }
             }
         }
     }
