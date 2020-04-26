@@ -6,7 +6,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended;
@@ -77,17 +76,12 @@ public class GuiXPBar extends Gui implements GuiExtended {
 
         GlStateManager.color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
 
-        // debug
-        final long time = System.nanoTime();
         TEXTURE_MANAGER.bindTexture(XP_BAR);
-        Main.LOGGER.warn((System.nanoTime() - time) / 1000000F); // 4 ms
-
         GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 0, 4, 177, 182, length, 5);
         GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 5, middleU, effectiveLength >= 4 ? (int) (ratio * 177) : middleU, (int) (ratio * 182), this.capability.canLevelUp(this.item)
                 ? Math.min(length, (int) (ratio * length))
                 : length, 5
         );
-        TEXTURE_MANAGER.deleteTexture(XP_BAR);
 
         final int level = this.capability.getDatum(this.item, LEVEL);
         final String levelString = String.format("%d", level);
