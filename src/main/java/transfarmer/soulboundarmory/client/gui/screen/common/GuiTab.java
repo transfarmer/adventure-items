@@ -70,6 +70,15 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
     }
 
     @Override
+    public void mouseClicked(final int mouseX, final int mouseY, final int button) {
+        try {
+            super.mouseClicked(mouseX, mouseY, button);
+        } catch (final IOException exception) {
+            Main.LOGGER.error(exception);
+        }
+    }
+
+    @Override
     public void handleMouseInput() {
         try {
             super.handleMouseInput();

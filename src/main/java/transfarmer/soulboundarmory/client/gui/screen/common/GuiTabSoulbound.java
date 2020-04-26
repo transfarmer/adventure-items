@@ -12,14 +12,13 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.config.ColorConfig;
+import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 import transfarmer.soulboundarmory.network.server.C2SBindSlot;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.ItemUtil;
 
-import java.io.IOException;
 import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -55,11 +54,11 @@ public abstract class GuiTabSoulbound extends GuiTab {
         this.item = capability.getItemType();
         this.slot = this.mc.player.inventory.getSlotFor(capability.getEquippedItemStack());
 
-        if (ColorConfig.getDisplaySliders() && this.displayXPBar()) {
-            this.addButton(this.sliderRed = this.guiFactory.colorSlider(100, 0, ColorConfig.getRed(), Mappings.RED + ": "));
-            this.addButton(this.sliderGreen = this.guiFactory.colorSlider(101, 1, ColorConfig.getGreen(), Mappings.GREEN + ": "));
-            this.addButton(this.sliderBlue = this.guiFactory.colorSlider(102, 2, ColorConfig.getBlue(), Mappings.BLUE + ": "));
-            this.addButton(this.sliderAlpha = this.guiFactory.colorSlider(103, 3, ColorConfig.getAlpha(), Mappings.ALPHA + ": "));
+        if (ClientConfig.getDisplaySliders() && this.displayXPBar()) {
+            this.addButton(this.sliderRed = this.guiFactory.colorSlider(100, 0, ClientConfig.getRed(), Mappings.RED + ": "));
+            this.addButton(this.sliderGreen = this.guiFactory.colorSlider(101, 1, ClientConfig.getGreen(), Mappings.GREEN + ": "));
+            this.addButton(this.sliderBlue = this.guiFactory.colorSlider(102, 2, ClientConfig.getBlue(), Mappings.BLUE + ": "));
+            this.addButton(this.sliderAlpha = this.guiFactory.colorSlider(103, 3, ClientConfig.getAlpha(), Mappings.ALPHA + ": "));
         }
 
         if (ItemUtil.getEquippedItemStack(this.mc.player, ISoulboundItem.class) != null) {
@@ -83,7 +82,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
     }
 
     protected void drawXPBar(final int mouseX, final int mouseY) {
-        if (ColorConfig.getAlpha() >= 26F / 255) {
+        if (ClientConfig.getAlpha() >= 26F / 255) {
             final int xp = capability.getDatum(this.item, XP);
 
             this.xpBar.drawXPBar(this.getXPBarX(), this.getXPBarY(), 182);
@@ -142,34 +141,32 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     @Override
     public void mouseClicked(final int mouseX, final int mouseY, final int button) {
+        super.mouseClicked(mouseX, mouseY, button);
+
         if (this.isMouseOverXPBar(mouseX, mouseY)) {
             if (!this.buttonList.contains(this.sliderAlpha)) {
                 this.buttonList.add(this.sliderRed);
                 this.buttonList.add(this.sliderGreen);
                 this.buttonList.add(this.sliderBlue);
                 this.buttonList.add(this.sliderAlpha);
-                ColorConfig.instance().setDisplaySliders(true);
+                ClientConfig.setDisplaySliders(true);
             } else {
                 this.buttonList.remove(this.sliderRed);
                 this.buttonList.remove(this.sliderGreen);
                 this.buttonList.remove(this.sliderBlue);
                 this.buttonList.remove(this.sliderAlpha);
-                ColorConfig.instance().setDisplaySliders(false);
+                ClientConfig.setDisplaySliders(false);
             }
 
-            ColorConfig.instance().save();
+            ClientConfig.instance().save();
             this.refresh();
-        } else {
-            try {
-                super.mouseClicked(mouseX, mouseY, button);
-            } catch (final IOException exception) {
-                Main.LOGGER.error(exception);
-            }
         }
     }
 
     @Override
     public void handleMouseInput() {
+        super.handleMouseInput();
+
         final int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
         final int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
         final int dWheel = Mouse.getDWheel() / 120;
@@ -180,16 +177,16 @@ public abstract class GuiTabSoulbound extends GuiTab {
             final float value;
 
             if (row == 0) {
-                ColorConfig.instance().setRed(value = MathHelper.clamp(ColorConfig.getRed() + dWheel / 255F, 0, 1));
+                ClientConfig.setRed(value = MathHelper.clamp(ClientConfig.getRed() + dWheel / 255F, 0, 1));
                 slider = this.sliderRed;
             } else if (row == 1) {
-                ColorConfig.instance().setGreen(value = MathHelper.clamp(ColorConfig.getGreen() + dWheel / 255F, 0, 1));
+                ClientConfig.setGreen(value = MathHelper.clamp(ClientConfig.getGreen() + dWheel / 255F, 0, 1));
                 slider = this.sliderGreen;
             } else if (row == 2) {
-                ColorConfig.instance().setBlue(value = MathHelper.clamp(ColorConfig.getBlue() + dWheel / 255F, 0, 1));
+                ClientConfig.setBlue(value = MathHelper.clamp(ClientConfig.getBlue() + dWheel / 255F, 0, 1));
                 slider = this.sliderBlue;
             } else {
-                ColorConfig.instance().setAlpha(value = MathHelper.clamp(ColorConfig.getAlpha() + dWheel / 255F, 0, 1));
+                ClientConfig.setAlpha(value = MathHelper.clamp(ClientConfig.getAlpha() + dWheel / 255F, 0, 1));
                 slider = this.sliderAlpha;
             }
 
@@ -198,13 +195,14 @@ public abstract class GuiTabSoulbound extends GuiTab {
                 slider.updateSlider();
             }
         } else {
-            super.handleMouseInput();
             super.handleMouseWheel(dWheel * 120);
         }
     }
 
     @Override
     protected void mouseClickMove(final int mouseX, final int mouseY, final int clickedMouseButton, final long timeSinceLastClick) {
+        super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+
         if (this.sliderRed != null && (this.sliderRed.dragging || this.sliderGreen.dragging || this.sliderBlue.dragging || this.sliderAlpha.dragging)) {
             this.updateSettings();
         }
@@ -213,7 +211,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
-        ColorConfig.instance().save();
+        ClientConfig.instance().save();
     }
 
     @Override
@@ -239,10 +237,10 @@ public abstract class GuiTabSoulbound extends GuiTab {
     }
 
     private void updateSettings() {
-        ColorConfig.instance().setRed(this.sliderRed.getValueInt() / 255F);
-        ColorConfig.instance().setGreen(this.sliderGreen.getValueInt() / 255F);
-        ColorConfig.instance().setBlue(this.sliderBlue.getValueInt() / 255F);
-        ColorConfig.instance().setAlpha(this.sliderAlpha.getValueInt() / 255F);
+        ClientConfig.setRed(this.sliderRed.getValueInt() / 255F);
+        ClientConfig.setGreen(this.sliderGreen.getValueInt() / 255F);
+        ClientConfig.setBlue(this.sliderBlue.getValueInt() / 255F);
+        ClientConfig.setAlpha(this.sliderAlpha.getValueInt() / 255F);
     }
 
     @Override

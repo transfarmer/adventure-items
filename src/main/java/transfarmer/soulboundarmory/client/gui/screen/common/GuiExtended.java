@@ -33,13 +33,14 @@ public interface GuiExtended {
     static void drawTexturedModalRect(final int x, final int y, final int v, final int u, final int width,
                                       final int height, final int zLevel) {
         float f = 1F / 256F;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(x, y + height, zLevel).tex((float)(v) * f, (float)(u + height) * f).endVertex();
-        bufferbuilder.pos(x + width, y + height, zLevel).tex((float)(v + width) * f, (float)(u + height) * f).endVertex();
-        bufferbuilder.pos(x + width, y, zLevel).tex((v + width) * f, (float)(u) * f).endVertex();
-        bufferbuilder.pos(x, y, zLevel).tex((float)(v) * f, (float)(u) * f).endVertex();
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder builder = tessellator.getBuffer();
+
+        builder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        builder.pos(x, y + height, zLevel).tex((float)(v) * f, (float)(u + height) * f).endVertex();
+        builder.pos(x + width, y + height, zLevel).tex((float)(v + width) * f, (float)(u + height) * f).endVertex();
+        builder.pos(x + width, y, zLevel).tex((v + width) * f, (float)(u) * f).endVertex();
+        builder.pos(x, y, zLevel).tex((float)(v) * f, (float)(u) * f).endVertex();
         tessellator.draw();
     }
 

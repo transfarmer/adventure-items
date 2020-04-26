@@ -1,9 +1,11 @@
 package transfarmer.soulboundarmory.event;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -13,16 +15,19 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar;
+import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
+import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.EXPERIENCE;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
+import static transfarmer.soulboundarmory.client.KeyBindings.TOGGLE_XP_BAR_KEY;
 import static transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended.FONT_RENDERER;
 
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
@@ -30,15 +35,27 @@ public class ClientEventHandlers {
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {
         if (event.phase == END) {
-            final Minecraft minecraft = Minecraft.getMinecraft();
-
             if (MENU_KEY.isPressed()) {
-                final EntityPlayer player = minecraft.player;
+                final EntityPlayer player = Minecraft.getMinecraft().player;
                 final SoulboundCapability capability = SoulItemHelper.getFirstHeldCapability(player);
 
                 if (capability != null) {
                     capability.refresh();
                 }
+            } else if (TOGGLE_XP_BAR_KEY.isPressed()) {
+                ClientConfig.setOverlayXPBar(!ClientConfig.getOverlayXPBar());
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRenderGameOverlay(final RenderGameOverlayEvent.Pre event) {
+        if (ClientConfig.getOverlayXPBar() && event.getType() == EXPERIENCE) {
+            final ScaledResolution resolution = event.getResolution();
+
+            GuiXPBar.update(Minecraft.getMinecraft().player.getHeldItemMainhand());
+            if (GuiXPBar.drawXPBar((resolution.getScaledWidth() - 182) / 2, resolution.getScaledHeight() - 29)) {
+                event.setCanceled(true);
             }
         }
     }
@@ -66,7 +83,7 @@ public class ClientEventHandlers {
 
                 final int row = insertion.lastIndexOf("") + prior.size();
 
-                GuiXPBar.setRow(row, FONT_RENDERER.getStringWidth(tooltip.get(row - 2)) - 4);
+                GuiXPBar.setData(row, FONT_RENDERER.getStringWidth(tooltip.get(row - 2)) - 4);
             }
         }
     }

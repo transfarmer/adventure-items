@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 import transfarmer.soulboundarmory.client.render.RenderReachModifier;
 import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
 import transfarmer.soulboundarmory.command.CommandSoulboundArmory;
-import transfarmer.soulboundarmory.config.ColorConfig;
+import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
@@ -36,6 +36,7 @@ import transfarmer.soulboundarmory.network.server.C2SUpgradeSkill;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
+import static transfarmer.soulboundarmory.client.KeyBindings.TOGGLE_XP_BAR_KEY;
 
 @Mod(modid = Main.MOD_ID, name = Main.NAME, version = Main.VERSION, guiFactory = "transfarmer.soulboundarmory.config.ConfigGuiFactory")
 public class Main {
@@ -66,12 +67,14 @@ public class Main {
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(MENU_KEY);
+            ClientRegistry.registerKeyBinding(TOGGLE_XP_BAR_KEY);
+
             RenderingRegistry.registerEntityRenderingHandler(EntitySoulDagger.class, new RenderSoulDagger.RenderFactory());
             RenderingRegistry.registerEntityRenderingHandler(EntityReachModifier.class, new RenderReachModifier.RenderFactory());
         }
 
         MainConfig.instance().load();
-        ColorConfig.instance().load();
+        ClientConfig.instance().load();
     }
 
     @EventHandler

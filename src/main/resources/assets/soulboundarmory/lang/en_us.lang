@@ -13,7 +13,8 @@ item.soulboundarmory.soulboundPick=soulbound pick
 
 # key bindings
 key.categories.soulboundarmory=soulbound armory
-key.soulboundarmory.menu=soulbound armory menu
+key.soulboundarmory.menu=open menu
+key.soulboundarmory.bar=toggle XP bar
 
 # soulbound armory menu
 menu.soulboundarmory.selection=weapon selection
