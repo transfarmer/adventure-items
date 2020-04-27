@@ -15,7 +15,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent.Register;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
@@ -28,7 +27,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.config.IPlayerConfig;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
@@ -53,6 +51,9 @@ import java.util.List;
 import java.util.Random;
 
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
+import static transfarmer.soulboundarmory.capability.frozen.FrozenProvider.FROZEN;
+import static transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider.TOOLS;
+import static transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider.WEAPONS;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
 import static transfarmer.soulboundarmory.skill.Skills.FREEZING;
 import static transfarmer.soulboundarmory.skill.Skills.LEECHING;
@@ -67,31 +68,6 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class EntityEventHandlers {
-    @SubscribeEvent
-    public static void onEntityJoinWorld(final EntityJoinWorldEvent event) {
-        final Entity entity = event.getEntity();
-        final IFrozen frozenCapability = FrozenProvider.get(entity);
-        final IPlayerConfig config = PlayerConfigProvider.get(entity);
-        final SoulboundCapability toolCapability = ToolProvider.get(entity);
-        final SoulboundCapability weaponCapability = WeaponProvider.get(entity);
-
-        if (frozenCapability != null && frozenCapability.getEntity() == null) {
-            frozenCapability.setEntity(entity);
-        }
-
-        if (toolCapability != null && toolCapability.getPlayer() == null) {
-            toolCapability.initPlayer((EntityPlayer) entity);
-        }
-
-        if (weaponCapability != null && weaponCapability.getPlayer() == null) {
-            weaponCapability.initPlayer((EntityPlayer) entity);
-        }
-
-        if (config != null && event.getWorld().isRemote) {
-            Main.CHANNEL.sendToServer(new C2SConfig());
-        }
-    }
-
     @SubscribeEvent
     public static void onLivingAttack(final LivingAttackEvent event) {
         final Entity entity = event.getEntity();
@@ -374,15 +350,27 @@ public class EntityEventHandlers {
         final Entity entity = event.getObject();
 
         if (entity instanceof EntityPlayer) {
-            event.addCapability(new ResourceLocation(Main.MOD_ID, "soulboundtool"), new ToolProvider());
-            event.addCapability(new ResourceLocation(Main.MOD_ID, "soulboundweapon"), new WeaponProvider());
+            final ToolProvider tools = new ToolProvider();
+            final WeaponProvider weapons = new WeaponProvider();
+
+            event.addCapability(new ResourceLocation(Main.MOD_ID, "soulboundtool"), tools);
+            event.addCapability(new ResourceLocation(Main.MOD_ID, "soulboundweapon"), weapons);
             event.addCapability(new ResourceLocation(Main.MOD_ID, "playerconfig"), new PlayerConfigProvider());
+            tools.getCapability(TOOLS, null).initPlayer((EntityPlayer) entity);
+            weapons.getCapability(WEAPONS, null).initPlayer((EntityPlayer) entity);
+
+            if (entity.world.isRemote) {
+                Main.CHANNEL.sendToServer(new C2SConfig());
+            }
         }
 
         if ((entity instanceof EntityLivingBase || entity instanceof IProjectile)
                 && !(entity instanceof EntityReachModifier) && !(entity instanceof EntitySoulDagger)
                 && entity.world instanceof WorldServer) {
-            event.addCapability(new ResourceLocation(Main.MOD_ID, "frozen"), new FrozenProvider());
+            final FrozenProvider frozen = new FrozenProvider();
+
+            event.addCapability(new ResourceLocation(Main.MOD_ID, "frozen"), frozen);
+            frozen.getCapability(FROZEN, null).setEntity(entity);
         }
     }
 }

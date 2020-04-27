@@ -1,6 +1,5 @@
 package transfarmer.soulboundarmory.network.server;
 
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
@@ -27,9 +26,7 @@ public class C2SConfig implements IExtendedMessage {
     public static final class Handler implements IExtendedMessageHandler<C2SConfig> {
         @Override
         public IExtendedMessage onMessage(final C2SConfig message, final MessageContext context) {
-            final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-
-            server.addScheduledTask(new Runnable() {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(new Runnable() {
                 @Override
                 public void run() {
                     PlayerConfigProvider.get(context.getServerHandler().player).setAddToOffhand(message.addToOffhand);
