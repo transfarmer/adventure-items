@@ -320,9 +320,8 @@ public class GuiTabSkills extends GuiTabSoulbound {
                 tierOrders.put(tier, data);
             }
 
-            int unscaledOffset = 1 - data.get(1);
             final int spacing = !skill.hasDependencies() ? width * 24 : 48;
-            final int offset = unscaledOffset * spacing / 2;
+            final int offset = (1 - data.get(1)) * spacing / 2;
             int x = offset + (data.get(0) - 1) * spacing;
 
             final List<Skill> dependencies = skill.getDependencies();

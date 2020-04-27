@@ -15,7 +15,7 @@ import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public abstract class SkillBase implements Skill {
+public abstract class SkillBase implements Skill, Cloneable {
     protected final String name;
     protected Skills storage;
     protected IItem item;
@@ -23,20 +23,6 @@ public abstract class SkillBase implements Skill {
 
     public SkillBase(final String name) {
         this.name = name;
-
-        boolean registered = false;
-
-        for (final Skill skill : SKILLS) {
-            if (skill.getRegistryName().equals(this.getRegistryName())) {
-                registered = true;
-
-                break;
-            }
-        }
-
-        if (!registered) {
-            SKILLS.add(this);
-        }
     }
 
     @Override
@@ -132,5 +118,16 @@ public abstract class SkillBase implements Skill {
     @Override
     public void deserializeNBT(final NBTTagCompound tag) {
         this.learned = tag.getBoolean("learned");
+    }
+
+    @Override
+    public Skill clone() {
+        try {
+            return (Skill) super.clone();
+        } catch (CloneNotSupportedException exception) {
+            exception.printStackTrace();
+        }
+
+        return null;
     }
 }

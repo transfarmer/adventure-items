@@ -9,6 +9,7 @@ import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class Skills implements Iterable<IItem>, INBTSerializable<NBTTagCompound>
         this.skills = new HashMap<>();
 
         for (int i = 0; i < items.size(); i++) {
-            final Map<String, Skill> skillMap = new HashMap<>();
+            final Map<String, Skill> skillMap = new LinkedHashMap<>();
             final IItem item = items.get(i);
 
             this.skills.put(item, skillMap);
@@ -47,8 +48,10 @@ public class Skills implements Iterable<IItem>, INBTSerializable<NBTTagCompound>
         this.get().get(item).put(skill.getRegistryName(), skill);
     }
 
-    public boolean contains(final IItem item, final String skill) {
-        return this.contains(item, Skill.get(skill));
+    public boolean contains(final IItem item, final String name) {
+        final Skill skill = this.skills.get(item).get(name);
+
+        return skill != null && skill.isLearned();
     }
 
     public boolean contains(final IItem item, final Skill skill) {
@@ -122,11 +125,9 @@ public class Skills implements Iterable<IItem>, INBTSerializable<NBTTagCompound>
 
     public void deserializeNBT(final NBTTagCompound tag, final IItem item) {
         for (final String skillName : tag.getKeySet()) {
-            final Skill skill = Skill.get(skillName);
+            final Skill skill = this.get(item, skillName);
 
             if (skill != null) {
-                this.put(item, skill);
-
                 skill.deserializeNBT(tag.getCompoundTag(skillName));
             }
         }

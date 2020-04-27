@@ -429,7 +429,7 @@ public class Weapon extends Base implements IWeapon {
         tag.setInteger("leapDuration", this.getLeapDuration());
         tag.setDouble("leapForce", this.getLeapForce());
         tag.setInteger("lightningCooldown", this.getLightningCooldown());
-        tag.setTag("cannotFreeze.set", cannotFreeze);
+        tag.setTag("cannotFreeze", cannotFreeze);
 
         return tag;
     }
@@ -438,7 +438,7 @@ public class Weapon extends Base implements IWeapon {
     public void deserializeNBT(final NBTTagCompound tag) {
         super.deserializeNBT(tag);
 
-        NBTUtil.ifHasKeyTag(tag, "cannotFreeze.set", (final NBTTagCompound cannotFreeze) -> {
+        NBTUtil.ifHasKeyTag(tag, "cannotFreeze", (final NBTTagCompound cannotFreeze) -> {
             for (final String key : cannotFreeze.getKeySet()) {
                 this.cannotFreeze.add(cannotFreeze.getUniqueId(key));
             }

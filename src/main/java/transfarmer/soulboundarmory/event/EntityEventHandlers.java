@@ -345,6 +345,7 @@ public class EntityEventHandlers {
         );
     }
 
+    @SuppressWarnings("ConstantConditions")
     @SubscribeEvent
     public static void onAttachCapabilities(final AttachCapabilitiesEvent<Entity> event) {
         final Entity entity = event.getObject();
