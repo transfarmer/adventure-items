@@ -103,12 +103,12 @@ public class EntitySoulDagger extends EntityArrow {
     }
 
     @Override
-    protected ItemStack getArrowStack() {
+    protected @NotNull ItemStack getArrowStack() {
         return this.itemStack != null
                 ? this.itemStack
                 : this.shootingEntity instanceof EntityPlayer
                 ? WeaponProvider.get(this.shootingEntity).getItemStack(DAGGER)
-                : null;
+                : ItemStack.EMPTY;
     }
 
     protected Entity getShooter() {
@@ -155,12 +155,14 @@ public class EntitySoulDagger extends EntityArrow {
             if (capability.hasSkill(DAGGER, SNEAK_RETURN) && this.shootingEntity.isSneaking() && this.ticksExisted >= 60 / attackSpeed
                     || capability.hasSkill(DAGGER, RETURN)
                     && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed
-                    || this.shootingEntity.getDistance(this) >= 256 || this.posY <= 0)) {
+                    || this.shootingEntity.getDistance(this)
+                    >= 16 * (FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getViewDistance() - 1)
+                    || this.posY <= 0)) {
                 final AxisAlignedBB boundingBox = this.shootingEntity.getEntityBoundingBox();
+                final double dX = (boundingBox.maxX + boundingBox.minX) / 2 - this.posX;
+                final double dY = (boundingBox.maxY + boundingBox.minY) / 2 - this.posY;
+                final double dZ = (boundingBox.maxZ + boundingBox.minZ) / 2 - this.posZ;
                 double multiplier = 1.8 / attackSpeed;
-                final double dX = boundingBox.minX + (boundingBox.maxX - boundingBox.minX) / 2 - this.posX;
-                final double dY = boundingBox.minY + (boundingBox.maxY - boundingBox.minY) / 2 - this.posY;
-                final double dZ = boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ) / 2 - this.posZ;
 
                 if (this.ticksToSeek == -1 && !this.inGround) {
                     this.ticksToSeek = (int) Math.round(Math.log(0.05) / Math.log(multiplier));
