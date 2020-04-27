@@ -1,6 +1,7 @@
 package transfarmer.soulboundarmory.client.gui;
 
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -9,6 +10,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
+import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.item.ISoulboundItem;
@@ -32,11 +35,6 @@ public class GuiXPBar extends Gui implements GuiExtended {
     protected int length;
 
     public GuiXPBar() {
-        final EntityPlayer player = MINECRAFT.player;
-
-        if (player != null) {
-            this.update(player.getHeldItemMainhand());
-        }
     }
 
     public GuiXPBar(final ItemStack itemStack) {
@@ -49,7 +47,7 @@ public class GuiXPBar extends Gui implements GuiExtended {
 
     public void setData(final int row, final int length) {
         this.row = row;
-        this.row = length;
+        this.length = length;
     }
 
     public void drawTooltip(final int tooltipX, final int tooltipY, final ItemStack itemStack) {
@@ -73,7 +71,7 @@ public class GuiXPBar extends Gui implements GuiExtended {
         TEXTURE_MANAGER.bindTexture(XP_BAR);
 
         GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 0, 4, 177, 182, length, 5);
-        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 5, middleU, effectiveLength >= 4 ? (int) (ratio * 177) : middleU, (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
+        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 5, middleU, effectiveLength < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
                 ? Math.min(length, (int) (ratio * length))
                 : length, 5
         );
@@ -95,18 +93,32 @@ public class GuiXPBar extends Gui implements GuiExtended {
         GlStateManager.disableLighting();
     }
 
-    public boolean drawXPBar(final int x, final int y) {
-        if (this.capability != null) {
-            this.drawXPBar(x, y, 182);
+    public boolean drawXPBar(final ScaledResolution resolution) {
+        final EntityPlayer player = MINECRAFT.player;
 
-            return true;
+        if (this.update(SoulItemHelper.getFirstCapability(player, player.getHeldItemMainhand()))) {
+            if (this.itemType == null) {
+                final int slot = player.inventory.currentItem;
+                SoulboundCapability capability;
+
+                if ((capability = WeaponProvider.get(player)).getBoundSlot() == slot || (capability = ToolProvider.get(player)).getBoundSlot() == slot) {
+                    this.capability = capability;
+                    this.itemType = capability.getItemType();
+                }
+            }
+
+            if (this.capability != null && this.itemType != null) {
+                this.drawXPBar((resolution.getScaledWidth() - 182) / 2, resolution.getScaledHeight() - 29, 182);
+
+                return true;
+            }
         }
 
         return false;
     }
 
     public boolean update(final ItemStack itemStack) {
-        if (this.update(SoulItemHelper.getFirstCapability(MINECRAFT.player, itemStack.getItem()))) {
+        if (this.update(SoulItemHelper.getFirstCapability(MINECRAFT.player, itemStack))) {
             final Item item = itemStack.getItem();
 
             if (this.itemStack != itemStack && item instanceof ISoulboundItem) {
@@ -129,6 +141,8 @@ public class GuiXPBar extends Gui implements GuiExtended {
         if (capability != null) {
             this.capability = capability;
             this.itemType = capability.getItemType();
+        } else {
+            this.itemType = null;
         }
 
         return this.capability != null;

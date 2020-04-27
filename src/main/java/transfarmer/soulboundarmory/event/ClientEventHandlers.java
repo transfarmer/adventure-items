@@ -11,6 +11,7 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
@@ -33,8 +34,8 @@ import static transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended.F
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
 public class ClientEventHandlers {
     public static final Minecraft MINECRAFT = Minecraft.getMinecraft();
-    public static final GuiXPBar OVERLAY_XP_BAR = new GuiXPBar();
-    public static final GuiXPBar TOOLTIP_XP_BAR = new GuiXPBar();
+    public static GuiXPBar OVERLAY_XP_BAR;
+    public static GuiXPBar TOOLTIP_XP_BAR;
 
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {
@@ -57,9 +58,8 @@ public class ClientEventHandlers {
     public static void onRenderGameOverlay(final RenderGameOverlayEvent.Pre event) {
         if (event.getType() == EXPERIENCE && ClientConfig.getOverlayXPBar()) {
             final ScaledResolution resolution = event.getResolution();
-            final ItemStack itemStack = MINECRAFT.player.getHeldItemMainhand();
 
-            if (OVERLAY_XP_BAR.update(itemStack) && OVERLAY_XP_BAR.drawXPBar((resolution.getScaledWidth() - 182) / 2, resolution.getScaledHeight() - 29)) {
+            if (OVERLAY_XP_BAR.drawXPBar(resolution)) {
                 event.setCanceled(true);
             }
         }
@@ -98,5 +98,11 @@ public class ClientEventHandlers {
         if (event.getStack().getItem() instanceof ISoulboundItem) {
             TOOLTIP_XP_BAR.drawTooltip(event.getX(), event.getY(), event.getStack());
         }
+    }
+
+    @SubscribeEvent
+    public static void onClientConnectedToServer(final ClientConnectedToServerEvent event) {
+        OVERLAY_XP_BAR = new GuiXPBar();
+        TOOLTIP_XP_BAR = new GuiXPBar();
     }
 }
