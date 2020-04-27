@@ -49,6 +49,8 @@ public class EntitySoulDagger extends EntityArrowExtended {
     private UUID shooterUUID;
     private boolean spawnClone;
     private boolean isClone;
+    private boolean passedX;
+    private boolean passedZ;
     private float attackDamageRatio;
     private int ticksToSeek;
     private int ticksSeeking;
@@ -58,6 +60,7 @@ public class EntitySoulDagger extends EntityArrowExtended {
     private int zTile;
     private int inData;
     private Block inTile;
+    private IWeapon capability;
 
     public EntitySoulDagger(final World world) {
         super(world);
@@ -80,6 +83,7 @@ public class EntitySoulDagger extends EntityArrowExtended {
         this.itemStack = itemStack;
         this.shooterUUID = shooter.getUniqueID();
         this.spawnClone = spawnClone;
+        this.capability = WeaponProvider.get(shooter);
     }
 
     public EntitySoulDagger(final World world, final UUID id, final ItemStack itemStack, final boolean spawnClone) {
@@ -132,11 +136,15 @@ public class EntitySoulDagger extends EntityArrowExtended {
             this.shootingEntity = this.world.getPlayerEntityByUUID(this.shooterUUID);
         }
 
+        if (this.capability == null && this.shootingEntity != null) {
+            this.capability = WeaponProvider.get(this.shootingEntity);
+        }
+
         if (this.prevRotationPitch == 0F && this.prevRotationYaw == 0F) {
-            final float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+            final float speed = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
 
             this.rotationYaw = (float) (MathHelper.atan2(this.motionX, this.motionZ) * 180 / Math.PI);
-            this.rotationPitch = (float) (MathHelper.atan2(this.motionY, f) * 180 / Math.PI);
+            this.rotationPitch = (float) (MathHelper.atan2(this.motionY, speed) * 180 / Math.PI);
             this.prevRotationYaw = this.rotationYaw;
             this.prevRotationPitch = this.rotationPitch;
         }
@@ -150,12 +158,11 @@ public class EntitySoulDagger extends EntityArrowExtended {
         }
 
         if (this.shootingEntity instanceof EntityPlayer) {
-            final IWeapon capability = WeaponProvider.get(this.shootingEntity);
-            final double attackSpeed = capability.getAttribute(DAGGER, ATTACK_SPEED);
+            final double attackSpeed = this.capability.getAttribute(DAGGER, ATTACK_SPEED);
 
-            if (capability.hasSkill(DAGGER, SNEAK_RETURN) && this.shootingEntity.isSneaking()
+            if (this.capability.hasSkill(DAGGER, SNEAK_RETURN) && this.shootingEntity.isSneaking()
                     && this.ticksExisted >= 60 / attackSpeed
-                    || capability.hasSkill(DAGGER, RETURN)
+                    || this.capability.hasSkill(DAGGER, RETURN)
                     && (this.ticksExisted >= 300 || this.ticksInGround > 20 / attackSpeed
                     || this.shootingEntity.getDistance(this)
                     >= 16 * (FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getViewDistance() - 1)
@@ -305,15 +312,21 @@ public class EntitySoulDagger extends EntityArrowExtended {
         if (this.shootingEntity != null) {
             if (!this.shootingEntity.isEntityAlive()) {
                 this.setDead();
-//            } else {
-//                final double currentX = Math.signum(this.shootingEntity.posX - this.posX);
-//                final double currentZ = Math.signum(this.shootingEntity.posZ - this.posZ);
-//                final double previousX = Math.signum(this.shootingEntity.prevPosX - this.prevPosX);
-//                final double previousZ = Math.signum(this.shootingEntity.prevPosZ - this.prevPosZ);
-//
-//                if ((currentX != previousX && previousX != 0D) ^ (currentZ != previousZ && previousZ != 0D)) {
-//                    this.onCollideWithPlayer((EntityPlayer) this.shootingEntity);
-//                }
+            } else {
+                final double currentX = Math.signum(this.shootingEntity.posX - this.posX);
+                final double currentZ = Math.signum(this.shootingEntity.posZ - this.posZ);
+                final double previousX = Math.signum(this.shootingEntity.prevPosX - this.prevPosX);
+                final double previousZ = Math.signum(this.shootingEntity.prevPosZ - this.prevPosZ);
+
+                if (currentX != previousX && previousX != 0D) {
+                    this.passedX = true;
+                } if (currentZ != previousZ && previousZ != 0D) {
+                    this.passedZ = true;
+                }
+
+                if (this.passedX && this.passedZ) {
+                    this.onCollideWithPlayer((EntityPlayer) this.shootingEntity);
+                }
             }
         }
     }
@@ -337,17 +350,14 @@ public class EntitySoulDagger extends EntityArrowExtended {
 
             if (this.shootingEntity instanceof EntityPlayer) {
                 final EntityPlayer player = (EntityPlayer) this.shootingEntity;
-                final IWeapon capability = WeaponProvider.get(player);
-                final DamageSource damageSource = this.shootingEntity == null
-                        ? SoulboundDamageSource.causeThrownDamage(this, this)
-                        : SoulboundDamageSource.causeThrownDamage(this, this.shootingEntity);
+                final DamageSource damageSource = SoulboundDamageSource.causeThrownDamage(this, this.shootingEntity);
 
                 ((ISoulboundDamageSource) damageSource).setItemStack(this.getArrowStack());
 
                 final float attackDamageModifier = entity instanceof EntityLivingBase
                         ? EnchantmentHelper.getModifierForCreature(this.itemStack, ((EntityLivingBase) entity).getCreatureAttribute())
                         : EnchantmentHelper.getModifierForCreature(this.itemStack, EnumCreatureAttribute.UNDEFINED);
-                final double attackDamage = (capability.getAttribute(DAGGER, ATTACK_DAMAGE) + attackDamageModifier) * this.attackDamageRatio;
+                final double attackDamage = (this.capability.getAttribute(DAGGER, ATTACK_DAMAGE) + attackDamageModifier) * this.attackDamageRatio;
                 int burnTime = 0;
 
                 if (attackDamage > 0) {
@@ -363,8 +373,8 @@ public class EntitySoulDagger extends EntityArrowExtended {
                             burnTime += 5;
                         }
 
-                        if (capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
-                            burnTime += capability.getEnchantment(DAGGER, FIRE_ASPECT) * 4;
+                        if (this.capability.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(entity instanceof EntityEnderman)) {
+                            burnTime += this.capability.getEnchantment(DAGGER, FIRE_ASPECT) * 4;
                         }
 
                         if (burnTime > 0 && !entity.isBurning()) {
@@ -459,8 +469,9 @@ public class EntitySoulDagger extends EntityArrowExtended {
 
     @Override
     public void onCollideWithPlayer(@Nonnull final EntityPlayer player) {
-        if (!this.world.isRemote && this.ticksExisted >= 2
-                && this.arrowShake <= 0 && player.getUniqueID().equals(this.shooterUUID) && (this.pickupStatus == PickupStatus.ALLOWED
+        if (!this.world.isRemote && player.getUniqueID().equals(this.shooterUUID)
+                && this.ticksExisted >= Math.max(1, 20 / this.capability.getAttribute(DAGGER, ATTACK_SPEED))
+                && this.arrowShake <= 0 && (this.pickupStatus == PickupStatus.ALLOWED
                 || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
             if (this.isClone) {
                 player.onItemPickup(this, 1);
