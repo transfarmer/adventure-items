@@ -33,6 +33,9 @@ import static transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended.F
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
 public class ClientEventHandlers {
     public static final Minecraft MINECRAFT = Minecraft.getMinecraft();
+    public static final GuiXPBar OVERLAY_XP_BAR = new GuiXPBar();
+    public static final GuiXPBar TOOLTIP_XP_BAR = new GuiXPBar();
+
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {
         if (event.phase == END) {
@@ -56,7 +59,7 @@ public class ClientEventHandlers {
             final ScaledResolution resolution = event.getResolution();
             final ItemStack itemStack = MINECRAFT.player.getHeldItemMainhand();
 
-            if (GuiXPBar.update(itemStack) && GuiXPBar.drawXPBar((resolution.getScaledWidth() - 182) / 2, resolution.getScaledHeight() - 29)) {
+            if (OVERLAY_XP_BAR.update(itemStack) && OVERLAY_XP_BAR.drawXPBar((resolution.getScaledWidth() - 182) / 2, resolution.getScaledHeight() - 29)) {
                 event.setCanceled(true);
             }
         }
@@ -85,7 +88,7 @@ public class ClientEventHandlers {
 
                 final int row = insertion.lastIndexOf("") + prior.size();
 
-                GuiXPBar.setData(row, FONT_RENDERER.getStringWidth(tooltip.get(row - 2)) - 4);
+                TOOLTIP_XP_BAR.setData(row, FONT_RENDERER.getStringWidth(tooltip.get(row - 2)) - 4);
             }
         }
     }
@@ -93,7 +96,7 @@ public class ClientEventHandlers {
     @SubscribeEvent
     public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
         if (event.getStack().getItem() instanceof ISoulboundItem) {
-            GuiXPBar.drawTooltip(event.getX(), event.getY(), event.getStack());
+            TOOLTIP_XP_BAR.drawTooltip(event.getX(), event.getY(), event.getStack());
         }
     }
 }
