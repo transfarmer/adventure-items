@@ -80,15 +80,18 @@ public class GuiXPBar extends Gui implements GuiExtended {
         );
 
         final int level = this.capability.getDatum(this.item, LEVEL);
-        final String levelString = String.format("%d", level);
-        final int levelX = x + (length - FONT_RENDERER.getStringWidth(levelString)) / 2;
-        final int levelY = y - 6;
 
-        FONT_RENDERER.drawString(levelString, levelX + 1, levelY, 0);
-        FONT_RENDERER.drawString(levelString, levelX - 1, levelY, 0);
-        FONT_RENDERER.drawString(levelString, levelX, levelY + 1, 0);
-        FONT_RENDERER.drawString(levelString, levelX, levelY - 1, 0);
-        FONT_RENDERER.drawString(levelString, levelX, levelY, color.getRGB());
+        if (level > 0) {
+            final String levelString = String.format("%d", level);
+            final int levelX = x + (length - FONT_RENDERER.getStringWidth(levelString)) / 2;
+            final int levelY = y - 6;
+
+            FONT_RENDERER.drawString(levelString, levelX + 1, levelY, 0);
+            FONT_RENDERER.drawString(levelString, levelX - 1, levelY, 0);
+            FONT_RENDERER.drawString(levelString, levelX, levelY + 1, 0);
+            FONT_RENDERER.drawString(levelString, levelX, levelY - 1, 0);
+            FONT_RENDERER.drawString(levelString, levelX, levelY, color.getRGB());
+        }
 
         GlStateManager.disableLighting();
     }
