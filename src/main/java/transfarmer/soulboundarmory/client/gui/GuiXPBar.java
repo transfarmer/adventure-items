@@ -48,10 +48,6 @@ public class GuiXPBar extends Gui implements GuiExtended {
         }
     }
 
-    public GuiXPBar() {
-
-    }
-
     public static void setData(final int row, final int length) {
         data[0] = row;
         data[1] = length;
@@ -75,8 +71,8 @@ public class GuiXPBar extends Gui implements GuiExtended {
         final Color color = new Color(ClientConfig.getRed(), ClientConfig.getGreen(), ClientConfig.getBlue(), ClientConfig.getAlpha());
 
         GlStateManager.color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
-
         TEXTURE_MANAGER.bindTexture(XP_BAR);
+
         GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 0, 4, 177, 182, length, 5);
         GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 5, middleU, effectiveLength >= 4 ? (int) (ratio * 177) : middleU, (int) (ratio * 182), this.capability.canLevelUp(this.item)
                 ? Math.min(length, (int) (ratio * length))

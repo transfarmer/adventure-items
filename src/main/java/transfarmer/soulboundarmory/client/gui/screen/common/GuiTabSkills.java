@@ -83,11 +83,11 @@ public class GuiTabSkills extends GuiTabSoulbound {
     public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        this.drawWindow(mouseX, mouseY);
+        this.drawWindow(mouseX, mouseY, partialTicks);
         this.drawSkills(mouseX, mouseY);
     }
 
-    public void drawWindow(final int mouseX, final int mouseY) {
+    public void drawWindow(final int mouseX, final int mouseY, final float partialTicks) {
         final int x = this.centerX - this.windowWidth / 2;
         final int y = this.centerY - this.windowHeight / 2;
         final int rightX = this.centerX + this.insideWidth / 2;
@@ -116,9 +116,11 @@ public class GuiTabSkills extends GuiTabSoulbound {
             FONT_RENDERER.drawString(text, rightX - FONT_RENDERER.getStringWidth(text), y + 6, color);
         }
 
+        final float delta = 20F * partialTicks;
+
         this.chroma = (this.isSkillSelected(mouseX, mouseY)
-                ? Math.max(this.chroma - 24F / 255F, 175F / 255F)
-                : Math.min(this.chroma + 24F / 255F, 1F)
+                ? Math.max(this.chroma - delta / 255F, 175F / 255F)
+                : Math.min(this.chroma + delta / 255F, 1F)
         );
     }
 
@@ -184,7 +186,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
         }
     }
 
-    protected int drawTooltip(final Skill skill, final int posX, final int posY, final int offsetV) {
+    protected void drawTooltip(final Skill skill, final int posX, final int posY, final int offsetV) {
         final String name = skill.getName();
         List<String> tooltip = skill.getTooltip();
         int barWidth = 36 + FONT_RENDERER.getStringWidth(name);
@@ -242,8 +244,6 @@ public class GuiTabSkills extends GuiTabSoulbound {
 
             FONT_RENDERER.drawString(name, posX + 24, posY + 4, 0xFFFFFF);
         }
-
-        return barWidth;
     }
 
     protected boolean isSkillSelected(final int mouseX, final int mouseY) {
