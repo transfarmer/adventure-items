@@ -27,7 +27,7 @@ public class GuiXPBar extends Gui implements GuiExtended {
 
     protected ItemStack itemStack;
     protected SoulboundCapability capability;
-    protected IItem item;
+    protected IItem itemType;
     protected int row;
     protected int length;
 
@@ -64,7 +64,7 @@ public class GuiXPBar extends Gui implements GuiExtended {
     }
 
     public void drawXPBar(final int x, final int y, final int length) {
-        final float ratio = (float) this.capability.getDatum(this.item, XP) / this.capability.getNextLevelXP(this.item);
+        final float ratio = (float) this.capability.getDatum(this.itemType, XP) / this.capability.getNextLevelXP(this.itemType);
         final float effectiveLength = ratio * length;
         final int middleU = (int) Math.min(4, effectiveLength);
         final Color color = new Color(ClientConfig.getRed(), ClientConfig.getGreen(), ClientConfig.getBlue(), ClientConfig.getAlpha());
@@ -73,12 +73,12 @@ public class GuiXPBar extends Gui implements GuiExtended {
         TEXTURE_MANAGER.bindTexture(XP_BAR);
 
         GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 0, 4, 177, 182, length, 5);
-        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 5, middleU, effectiveLength >= 4 ? (int) (ratio * 177) : middleU, (int) (ratio * 182), this.capability.canLevelUp(this.item)
+        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 5, middleU, effectiveLength >= 4 ? (int) (ratio * 177) : middleU, (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
                 ? Math.min(length, (int) (ratio * length))
                 : length, 5
         );
 
-        final int level = this.capability.getDatum(this.item, LEVEL);
+        final int level = this.capability.getDatum(this.itemType, LEVEL);
 
         if (level > 0) {
             final String levelString = String.format("%d", level);
@@ -106,29 +106,30 @@ public class GuiXPBar extends Gui implements GuiExtended {
     }
 
     public boolean update(final ItemStack itemStack) {
-        this.update(SoulItemHelper.getFirstCapability(MINECRAFT.player, itemStack.getItem()));
+        if (this.update(SoulItemHelper.getFirstCapability(MINECRAFT.player, itemStack.getItem()))) {
+            final Item item = itemStack.getItem();
 
-        final Item item = itemStack.getItem();
+            if (this.itemStack != itemStack && item instanceof ISoulboundItem) {
+                this.itemStack = itemStack;
 
-        if (!(item instanceof ISoulboundItem)) {
-            return false;
+                if (this.capability != null) {
+                    this.itemType = this.capability.getItemType(itemStack);
+                }
+            } else return MINECRAFT.player.inventory.currentItem == this.capability.getBoundSlot();
+
+
+            return true;
         }
 
-        if (this.itemStack != itemStack) {
-            this.itemStack = itemStack;
-
-            if (this.capability != null) {
-                this.item = this.capability.getItemType(itemStack);
-            }
-        }
-
-        return true;
+        return false;
     }
 
-    public void update(final SoulboundCapability capability) {
+    public boolean update(final SoulboundCapability capability) {
         if (capability != null) {
             this.capability = capability;
-            this.item = capability.getItemType();
+            this.itemType = capability.getItemType();
         }
+
+        return this.capability != null;
     }
 }
