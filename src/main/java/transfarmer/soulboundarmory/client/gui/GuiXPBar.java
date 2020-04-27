@@ -115,10 +115,11 @@ public class GuiXPBar extends Gui implements GuiExtended {
                 if (this.capability != null) {
                     this.itemType = this.capability.getItemType(itemStack);
                 }
-            } else return MINECRAFT.player.inventory.currentItem == this.capability.getBoundSlot();
 
+                return true;
+            }
 
-            return true;
+            return MINECRAFT.player.inventory.currentItem == this.capability.getBoundSlot();
         }
 
         return false;
