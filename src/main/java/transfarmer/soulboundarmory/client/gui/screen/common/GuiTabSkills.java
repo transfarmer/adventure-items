@@ -116,11 +116,11 @@ public class GuiTabSkills extends GuiTabSoulbound {
             FONT_RENDERER.drawString(text, rightX - FONT_RENDERER.getStringWidth(text), y + 6, color);
         }
 
-        final float delta = 20F * partialTicks;
+        final float delta = 20F * partialTicks / 255F;
 
         this.chroma = (this.isSkillSelected(mouseX, mouseY)
-                ? Math.max(this.chroma - delta / 255F, 175F / 255F)
-                : Math.min(this.chroma + delta / 255F, 1F)
+                ? Math.max(this.chroma - delta, 175F / 255F)
+                : Math.min(this.chroma + delta, 1F)
         );
     }
 
