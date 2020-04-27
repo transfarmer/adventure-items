@@ -6,7 +6,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.skill.Skill;
@@ -177,12 +176,8 @@ public class GuiTabSkills extends GuiTabSoulbound {
             TEXTURE_MANAGER.bindTexture(WIDGETS);
             this.drawTexturedModalRect(x - 4, y - 4, 1, 155 - offsetV, 24, 24);
 
-
-            final long time = System.nanoTime();
             TEXTURE_MANAGER.bindTexture(texture);
-            Main.LOGGER.warn((System.nanoTime() - time) / 1000000F);
             drawScaledCustomSizeModalRect(x, y, 0, 0, imageWidth, imageHeight, width, height, imageWidth, imageHeight);
-
         }
     }
 
@@ -210,7 +205,8 @@ public class GuiTabSkills extends GuiTabSoulbound {
                     string = String.format("%s %d", Mappings.MENU_LEVEL, ((SkillLevelable) skill).getLevel());
                 }
 
-                tooltip = GuiExtended.wrap(12 + Math.max(barWidth, 8 + FONT_RENDERER.getStringWidth(string)), tooltip.toArray(new String[0]));
+                barWidth = 12 + Math.max(barWidth, 8 + FONT_RENDERER.getStringWidth(string));
+                tooltip = GuiExtended.wrap(barWidth, tooltip.toArray(new String[0]));
                 size = tooltip.size();
                 barWidth = Math.max(barWidth, 8 + FONT_RENDERER.getStringWidth(tooltip.stream().max(Comparator.comparingInt(String::length)).get()));
                 final int tooltipHeight = 1 + (1 + size) * FONT_RENDERER.FONT_HEIGHT;
@@ -221,7 +217,6 @@ public class GuiTabSkills extends GuiTabSoulbound {
                     TEXTURE_MANAGER.bindTexture(WIDGETS);
                     GuiExtended.drawHorizontalInterpolatedTexturedRect(posX - 8, y + tooltipHeight, 0, 55, 2, 198, 200, barWidth, 20);
 
-
                     FONT_RENDERER.drawString(string, posX - 3, textY + direction * (size + 1) * FONT_RENDERER.FONT_HEIGHT, 0x999999);
                 }
 
@@ -229,7 +224,6 @@ public class GuiTabSkills extends GuiTabSoulbound {
 
                 TEXTURE_MANAGER.bindTexture(WIDGETS);
                 GuiExtended.drawInterpolatedTexturedRect(posX - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, tooltipHeight);
-
 
                 for (int i = 0; i < size; i++) {
                     FONT_RENDERER.drawString(tooltip.get(i), posX - 3, textY + direction * i * FONT_RENDERER.FONT_HEIGHT, 0x999999);
@@ -240,7 +234,6 @@ public class GuiTabSkills extends GuiTabSoulbound {
 
             TEXTURE_MANAGER.bindTexture(WIDGETS);
             GuiExtended.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 29 - offsetV, 2, 198, 200, barWidth, 20);
-
 
             FONT_RENDERER.drawString(name, posX + 24, posY + 4, 0xFFFFFF);
         }
