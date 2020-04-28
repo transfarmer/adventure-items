@@ -11,7 +11,6 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
@@ -33,16 +32,14 @@ import static transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended.F
 
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
 public class ClientEventHandlers {
-    public static final Minecraft MINECRAFT = Minecraft.getMinecraft();
-    public static GuiXPBar OVERLAY_XP_BAR;
-    public static GuiXPBar TOOLTIP_XP_BAR;
+    public static final GuiXPBar OVERLAY_XP_BAR = new GuiXPBar();
+    public static final GuiXPBar TOOLTIP_XP_BAR = new GuiXPBar();
 
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {
         if (event.phase == END) {
             if (MENU_KEY.isPressed()) {
-                final EntityPlayer player = Minecraft.getMinecraft().player;
-                final SoulboundCapability capability = SoulItemHelper.getFirstHeldCapability(player);
+                final SoulboundCapability capability = SoulItemHelper.getFirstHeldCapability(Minecraft.getMinecraft().player);
 
                 if (capability != null) {
                     capability.refresh();
@@ -98,11 +95,5 @@ public class ClientEventHandlers {
         if (event.getStack().getItem() instanceof ISoulboundItem) {
             TOOLTIP_XP_BAR.drawTooltip(event.getX(), event.getY(), event.getStack());
         }
-    }
-
-    @SubscribeEvent
-    public static void onClientConnectedToServer(final ClientConnectedToServerEvent event) {
-        OVERLAY_XP_BAR = new GuiXPBar();
-        TOOLTIP_XP_BAR = new GuiXPBar();
     }
 }
