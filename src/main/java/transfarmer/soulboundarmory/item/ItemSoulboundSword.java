@@ -8,7 +8,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.world.ModWorld;
@@ -18,9 +18,9 @@ import javax.annotation.Nonnull;
 import static transfarmer.soulboundarmory.skill.Skills.SUMMON_LIGHTNING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
 
-public class ItemSoulboundSword extends ItemSoulboundWeapon {
+public class ItemSoulboundSword extends ItemSoulboundMeleeWeapon {
     public ItemSoulboundSword(final String name) {
-        super(2, -2.4F, 1.5F, name);
+        super(1, -2.4F, 1.5F, name);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ItemSoulboundSword extends ItemSoulboundWeapon {
     @Override
     @Nonnull
     public ActionResult<ItemStack> onItemRightClick(final World world, @Nonnull final EntityPlayer player, @Nonnull final EnumHand hand) {
-        final IWeapon capability = WeaponProvider.get(player);
+        final WeaponCapability capability = WeaponProvider.get(player);
 
         if (!world.isRemote && capability.hasSkill(SWORD, SUMMON_LIGHTNING) && capability.getLightningCooldown() <= 0) {
             final RayTraceResult result = ModWorld.rayTraceAll(world, player);

@@ -33,7 +33,7 @@ import transfarmer.soulboundarmory.capability.frozen.IFrozen;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
@@ -142,7 +142,7 @@ public class EntityEventHandlers {
         }
 
         if (event.getEntity() instanceof EntityPlayer) {
-            final IWeapon capability = WeaponProvider.get(event.getEntity());
+            final WeaponCapability capability = WeaponProvider.get(event.getEntity());
 
             if (capability.getLeapForce() > 0) {
                 event.setCanceled(true);
@@ -166,7 +166,7 @@ public class EntityEventHandlers {
                 final IAttributeInstance armor = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR);
                 final Entity immediateSource = event.getSource().getImmediateSource();
                 final EntityPlayer player = ((EntityPlayer) attacker);
-                final IWeapon capability = WeaponProvider.get(attacker);
+                final WeaponCapability capability = WeaponProvider.get(attacker);
                 final IItem item;
                 final String displayName;
 
@@ -213,7 +213,7 @@ public class EntityEventHandlers {
     public static void onLivingFall(final LivingFallEvent event) {
         if (event.getEntity() instanceof EntityPlayer) {
             final EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-            final IWeapon capability = WeaponProvider.get(player);
+            final WeaponCapability capability = WeaponProvider.get(player);
             final double leapForce = capability.getLeapForce();
 
             if (leapForce > 0) {
@@ -282,7 +282,7 @@ public class EntityEventHandlers {
 
         if (!event.getWorld().isRemote && entity instanceof EntityPlayer) {
             final EntityPlayer player = (EntityPlayer) entity;
-            final IWeapon capability = WeaponProvider.get(player);
+            final WeaponCapability capability = WeaponProvider.get(player);
             final double leapForce = capability.getLeapForce();
 
             if (leapForce > 0) {
@@ -309,7 +309,7 @@ public class EntityEventHandlers {
     public static void onRightClickItem(final LivingEntityUseItemEvent.Tick event) {
         if (event.getEntity() instanceof EntityPlayer) {
             final EntityPlayer player = (EntityPlayer) event.getEntity();
-            final IWeapon capability = WeaponProvider.get(player);
+            final WeaponCapability capability = WeaponProvider.get(player);
 
             if (event.getItem().getItem() instanceof ItemSoulboundDagger) {
                 final ItemSoulboundDagger item = (ItemSoulboundDagger) event.getItem().getItem();

@@ -29,7 +29,7 @@ import static net.minecraftforge.common.util.Constants.AttributeModifierOperatio
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
-public class ItemSoulboundPick extends ItemPickaxe implements IItemSoulboundTool {
+public class ItemSoulboundPick extends ItemPickaxe implements SoulboundTool {
     private static final String toolClass = "pickaxe";
 
     public ItemSoulboundPick(final String name) {

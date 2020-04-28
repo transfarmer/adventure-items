@@ -1,7 +1,7 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiExtendedButton;
+import transfarmer.soulboundarmory.client.gui.GuiExtendedButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.config.GuiSlider;

@@ -4,7 +4,6 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -14,7 +13,7 @@ import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended;
 import transfarmer.soulboundarmory.config.ClientConfig;
-import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.item.ItemSoulbound;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
 import java.awt.*;
@@ -43,6 +42,8 @@ public class GuiXPBar extends Gui implements GuiExtended {
 
     public GuiXPBar(final SoulboundCapability capability) {
         this.update(capability);
+
+        this.itemType = this.capability.getItemType();
     }
 
     public void setData(final int row, final int length) {
@@ -50,15 +51,64 @@ public class GuiXPBar extends Gui implements GuiExtended {
         this.length = length;
     }
 
-    public void drawTooltip(final int tooltipX, final int tooltipY, final ItemStack itemStack) {
-        if (this.itemStack != itemStack) {
-            this.update(itemStack);
+    public boolean drawXPBar(final ScaledResolution resolution) {
+        final EntityPlayer player = MINECRAFT.player;
+        final ItemStack itemStack = player.getHeldItemMainhand();
+
+        if (this.update(SoulItemHelper.getFirstCapability(player, itemStack))) {
+            this.itemType = this.capability.getItemType(itemStack);
+
+            if (this.itemType == null) {
+                final int slot = player.inventory.currentItem;
+                SoulboundCapability capability;
+
+                if ((capability = WeaponProvider.get(player)).getBoundSlot() == slot
+                        || (capability = ToolProvider.get(player)).getBoundSlot() == slot) {
+                    this.capability = capability;
+                    this.itemType = capability.getItemType();
+                }
+            }
+
+            if (this.itemType != null) {
+                this.drawXPBar((resolution.getScaledWidth() - 182) / 2, resolution.getScaledHeight() - 29, 182);
+
+                return true;
+            }
         }
 
-        final int x = tooltipX + 4;
-        final int y = tooltipY + this.row * 10;
+        return false;
+    }
 
-        this.drawXPBar(x, y, this.length);
+    public void drawTooltip(final int tooltipX, final int tooltipY, final ItemStack itemStack) {
+        if (this.update(itemStack)) {
+            final int x = tooltipX + 4;
+            final int y = tooltipY + this.row * 10;
+
+            this.drawXPBar(x, y, this.length);
+        }
+    }
+
+    public boolean update(final ItemStack itemStack) {
+        if (this.update(SoulItemHelper.getFirstCapability(MINECRAFT.player, itemStack))) {
+            if (this.itemStack != itemStack && itemStack.getItem() instanceof ItemSoulbound) {
+                this.itemStack = itemStack;
+                this.itemType = this.capability.getItemType(itemStack);
+            }
+
+            return this.itemType != null;
+        }
+
+        return false;
+    }
+
+    public boolean update(final SoulboundCapability capability) {
+        if (capability != null) {
+            this.capability = capability;
+        } else {
+            this.itemType = null;
+        }
+
+        return this.capability != null;
     }
 
     public void drawXPBar(final int x, final int y, final int length) {
@@ -91,60 +141,5 @@ public class GuiXPBar extends Gui implements GuiExtended {
         }
 
         GlStateManager.disableLighting();
-    }
-
-    public boolean drawXPBar(final ScaledResolution resolution) {
-        final EntityPlayer player = MINECRAFT.player;
-
-        if (this.update(SoulItemHelper.getFirstCapability(player, player.getHeldItemMainhand()))) {
-            if (this.itemType == null) {
-                final int slot = player.inventory.currentItem;
-                SoulboundCapability capability;
-
-                if ((capability = WeaponProvider.get(player)).getBoundSlot() == slot || (capability = ToolProvider.get(player)).getBoundSlot() == slot) {
-                    this.capability = capability;
-                    this.itemType = capability.getItemType();
-                }
-            }
-
-            if (this.capability != null && this.itemType != null) {
-                this.drawXPBar((resolution.getScaledWidth() - 182) / 2, resolution.getScaledHeight() - 29, 182);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean update(final ItemStack itemStack) {
-        if (this.update(SoulItemHelper.getFirstCapability(MINECRAFT.player, itemStack))) {
-            final Item item = itemStack.getItem();
-
-            if (this.itemStack != itemStack && item instanceof ISoulboundItem) {
-                this.itemStack = itemStack;
-
-                if (this.capability != null) {
-                    this.itemType = this.capability.getItemType(itemStack);
-                }
-
-                return true;
-            }
-
-            return MINECRAFT.player.inventory.currentItem == this.capability.getBoundSlot();
-        }
-
-        return false;
-    }
-
-    public boolean update(final SoulboundCapability capability) {
-        if (capability != null) {
-            this.capability = capability;
-            this.itemType = capability.getItemType();
-        } else {
-            this.itemType = null;
-        }
-
-        return this.capability != null;
     }
 }

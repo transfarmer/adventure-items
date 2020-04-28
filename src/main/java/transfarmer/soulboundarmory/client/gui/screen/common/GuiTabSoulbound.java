@@ -14,7 +14,7 @@ import transfarmer.soulboundarmory.client.gui.GuiXPBar;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.item.ItemSoulbound;
 import transfarmer.soulboundarmory.network.server.C2SBindSlot;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.ItemUtil;
@@ -61,7 +61,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
             this.addButton(this.sliderAlpha = this.guiFactory.colorSlider(103, 3, ClientConfig.getAlpha(), Mappings.ALPHA + ": "));
         }
 
-        if (ItemUtil.getEquippedItemStack(this.mc.player, ISoulboundItem.class) != null) {
+        if (ItemUtil.getEquippedItemStack(this.mc.player, ItemSoulbound.class) != null) {
             final int width = Math.max(112, Math.round(this.width / 7.5F));
 
             this.addButton(new GuiButton(22, Math.min(this.getXPBarX() - width, this.width / 24), height - height / 16 - 20, width, 20, this.slot != capability.getBoundSlot()

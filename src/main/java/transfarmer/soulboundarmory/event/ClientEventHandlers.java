@@ -16,7 +16,7 @@ import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar;
 import transfarmer.soulboundarmory.config.ClientConfig;
-import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.item.ItemSoulbound;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,7 @@ public class ClientEventHandlers {
         if (player != null) {
             final ItemStack itemStack = event.getItemStack();
 
-            if (itemStack.getItem() instanceof ISoulboundItem) {
+            if (itemStack.getItem() instanceof ItemSoulbound) {
                 final SoulboundCapability capability = SoulItemHelper.getFirstCapability(player, itemStack.getItem());
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
@@ -92,7 +92,7 @@ public class ClientEventHandlers {
 
     @SubscribeEvent
     public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
-        if (event.getStack().getItem() instanceof ISoulboundItem) {
+        if (event.getStack().getItem() instanceof ItemSoulbound) {
             TOOLTIP_XP_BAR.drawTooltip(event.getX(), event.getY(), event.getStack());
         }
     }

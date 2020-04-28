@@ -8,6 +8,7 @@ public enum Item implements IItem {
     DAGGER,
     GREATSWORD,
     SWORD,
+    STAFF,
 
     PICK;
 
@@ -16,6 +17,7 @@ public enum Item implements IItem {
                 DAGGER,
                 GREATSWORD,
                 SWORD,
+                STAFF,
 
                 PICK
         );

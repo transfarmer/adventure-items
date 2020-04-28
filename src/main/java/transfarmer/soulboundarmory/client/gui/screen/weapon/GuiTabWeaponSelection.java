@@ -29,16 +29,17 @@ public class GuiTabWeaponSelection extends GuiTabSoulbound {
     public void initGui() {
         super.initGui();
 
-        final int buttonWidth = 128;
-        final int buttonHeight = 20;
-        final int xCenter = (width - buttonWidth) / 2;
-        final int yCenter = (height - buttonHeight) / 2;
+        final int width = 128;
+        final int height = 20;
+        final int xCenter = (this.width - width) / 2;
+        final int yCenter = (this.height - height) / 2;
         final int ySep = 32;
 
         final GuiButton[] weaponButtons = {
-                this.addButton(new GuiButton(0, xCenter, yCenter + ySep, buttonWidth, buttonHeight, Mappings.SOUL_DAGGER_NAME)),
-                this.addButton(new GuiButton(1, xCenter, yCenter, buttonWidth, buttonHeight, Mappings.SOUL_SWORD_NAME)),
-                this.addButton(new GuiButton(2, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_GREATSWORD_NAME))
+                this.addButton(new GuiButton(0, xCenter, yCenter + (int) (1.5 * ySep), width, height, Mappings.SOUL_DAGGER_NAME)),
+                this.addButton(new GuiButton(1, xCenter, yCenter + (int) (0.5 * ySep), width, height, Mappings.SOUL_SWORD_NAME)),
+                this.addButton(new GuiButton(2, xCenter, yCenter - (int) (0.5 * ySep), width, height, Mappings.SOUL_GREATSWORD_NAME)),
+                this.addButton(new GuiButton(3, xCenter, yCenter - (int) (1.5 * ySep), width, height, Mappings.SOUL_STAFF_NAME)),
         };
 
         if (SoulItemHelper.hasSoulWeapon(this.mc.player)) {
@@ -69,6 +70,7 @@ public class GuiTabWeaponSelection extends GuiTabSoulbound {
             case 0:
             case 1:
             case 2:
+            case 3:
                 Main.CHANNEL.sendToServer(new C2SItemType(this.capability.getType(), this.capability.getItemType(button.id)));
                 break;
         }

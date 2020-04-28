@@ -5,7 +5,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.common.Base;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundBase;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabEnchantments;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSkills;
@@ -13,8 +13,8 @@ import transfarmer.soulboundarmory.client.gui.screen.tool.GuiTabToolAttributes;
 import transfarmer.soulboundarmory.client.gui.screen.tool.GuiTabToolConfirmation;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.IItemSoulboundTool;
-import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.item.SoulboundTool;
+import transfarmer.soulboundarmory.item.ItemSoulbound;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.impl.SkillAmbidexterity;
 import transfarmer.soulboundarmory.skill.impl.SkillTeleportation;
@@ -53,7 +53,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
-public class Tool extends Base implements ITool {
+public class Tool extends SoulboundBase implements ITool {
     public Tool() {
         super(TOOL, new IItem[]{PICK}, new Item[]{SOULBOUND_PICK});
 
@@ -64,7 +64,7 @@ public class Tool extends Base implements ITool {
                         {EFFICIENCY_ATTRIBUTE, REACH_DISTANCE, HARVEST_LEVEL}
                 }, new double[][][]{{{0, 0, 0, 0, 0, 0, 0}, {0.5, 2, 0}}}
         );
-        this.enchantments = new SoulboundEnchantments(this.itemTypes, this.items, (final Enchantment enchantment) -> {
+        this.enchantments = new SoulboundEnchantments(this.itemTypes, this.items, (final Enchantment enchantment, final IItem item) -> {
             final String name = enchantment.getName().toLowerCase();
 
             return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
@@ -162,7 +162,7 @@ public class Tool extends Base implements ITool {
         final ItemStack itemStack = this.getEquippedItemStack();
 
         if (itemStack != null) {
-            if (itemStack.getItem() instanceof IItemSoulboundTool) {
+            if (itemStack.getItem() instanceof SoulboundTool) {
                 this.openGUI(this.currentTab);
             } else {
                 this.openGUI(0);
@@ -179,7 +179,7 @@ public class Tool extends Base implements ITool {
     }
 
     @Override
-    public Class<? extends ISoulboundItem> getBaseItemClass() {
-        return IItemSoulboundTool.class;
+    public Class<? extends ItemSoulbound> getBaseItemClass() {
+        return SoulboundTool.class;
     }
 }

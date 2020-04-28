@@ -15,7 +15,7 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSoulbound;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.item.ItemSoulbound;
 import transfarmer.soulboundarmory.network.client.S2COpenGUI;
 import transfarmer.soulboundarmory.network.client.S2CSync;
 import transfarmer.soulboundarmory.network.server.C2STab;
@@ -53,7 +53,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
-public abstract class Base implements SoulboundCapability {
+public abstract class SoulboundBase implements SoulboundCapability {
     protected final ICapabilityType type;
     protected Statistics statistics;
     protected SoulboundEnchantments enchantments;
@@ -66,13 +66,12 @@ public abstract class Base implements SoulboundCapability {
     protected int boundSlot;
     protected int currentTab;
 
-    protected Base(final ICapabilityType type, final IItem[] itemTypes, final Item[] items) {
+    protected SoulboundBase(final ICapabilityType type, final IItem[] itemTypes, final Item[] items) {
         this.type = type;
         this.itemTypes = Arrays.asList(itemTypes);
         this.items = Arrays.asList(items);
         this.boundSlot = -1;
         this.currentTab = 0;
-
     }
 
     @Override
@@ -89,9 +88,8 @@ public abstract class Base implements SoulboundCapability {
     public void initPlayer(final EntityPlayer player) {
         if (this.getPlayer() == null) {
             this.player = player;
+            this.isRemote = player.world.isRemote;
         }
-
-        this.isRemote = player.world.isRemote;
     }
 
     @Override
@@ -400,7 +398,7 @@ public abstract class Base implements SoulboundCapability {
 
     @Override
     public int getEnchantment(final IItem item, final Enchantment enchantment) {
-        return this.getEnchantments(item).get(enchantment);
+        return this.getEnchantments(item).getOrDefault(enchantment, 0);
     }
 
     @Override
@@ -486,7 +484,7 @@ public abstract class Base implements SoulboundCapability {
 
     @Override
     public boolean hasSoulItem() {
-        final Class<? extends ISoulboundItem> baseItemClass = this.getBaseItemClass();
+        final Class<? extends ItemSoulbound> baseItemClass = this.getBaseItemClass();
 
         for (final ItemStack itemStack : this.getPlayer().inventory.mainInventory) {
             if (baseItemClass.isInstance(itemStack.getItem())) {
@@ -499,7 +497,7 @@ public abstract class Base implements SoulboundCapability {
 
     @Override
     public ItemStack getEquippedItemStack() {
-        final Class<? extends ISoulboundItem> baseItemClass = this.getBaseItemClass();
+        final Class<? extends ItemSoulbound> baseItemClass = this.getBaseItemClass();
         final ItemStack mainhandStack = this.getPlayer().getHeldItemMainhand();
         final ItemStack offhandStack = this.getPlayer().getHeldItemOffhand();
 
@@ -527,7 +525,7 @@ public abstract class Base implements SoulboundCapability {
     @Override
     public void onTick() {
         if (this.hasSoulItem()) {
-            final Class<? extends ISoulboundItem> baseItemClass = this.getBaseItemClass();
+            final Class<? extends ItemSoulbound> baseItemClass = this.getBaseItemClass();
             final InventoryPlayer inventory = this.getPlayer().inventory;
             final List<ItemStack> mainInventory = new ArrayList<>(this.getPlayer().inventory.mainInventory);
             final ItemStack equippedItemStack = this.getEquippedItemStack();

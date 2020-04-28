@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
-import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.item.ItemSoulbound;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillLevelable;
 import transfarmer.soulboundarmory.statistics.Statistic;
@@ -152,7 +152,7 @@ public interface SoulboundCapability extends INBTSerializable<NBTTagCompound> {
 
     void upgradeSkill(IItem item, Skill skill);
 
-    Class<? extends ISoulboundItem> getBaseItemClass();
+    Class<? extends ItemSoulbound> getBaseItemClass();
 
     boolean hasSoulItem();
 

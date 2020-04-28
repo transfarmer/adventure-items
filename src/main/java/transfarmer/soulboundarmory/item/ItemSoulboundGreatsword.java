@@ -18,9 +18,9 @@ import javax.annotation.Nonnull;
 import static transfarmer.soulboundarmory.skill.Skills.LEAPING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
 
-public class ItemSoulboundGreatsword extends ItemSoulboundWeapon {
+public class ItemSoulboundGreatsword extends ItemSoulboundMeleeWeapon {
     public ItemSoulboundGreatsword(final String name) {
-        super(3, -3.2F, 3, name);
+        super(2, -3.2F, 3, name);
     }
 
     @Override

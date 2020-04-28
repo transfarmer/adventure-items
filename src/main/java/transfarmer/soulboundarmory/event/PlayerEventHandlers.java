@@ -22,15 +22,15 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensio
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.IItemSoulboundTool;
-import transfarmer.soulboundarmory.item.ISoulboundItem;
+import transfarmer.soulboundarmory.item.ItemSoulbound;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
-import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
+import transfarmer.soulboundarmory.item.SoulboundTool;
+import transfarmer.soulboundarmory.item.SoulboundWeapon;
 import transfarmer.soulboundarmory.network.client.S2CConfig;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
@@ -72,14 +72,14 @@ public class PlayerEventHandlers {
             IItem type = weapons.getItemType();
 
             if (type != null && weapons.getDatum(type, LEVEL) >= MainConfig.instance().getPreservationLevel()) {
-                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof ItemSoulboundWeapon && SoulItemHelper.addItemStack(item.getItem(), player));
+                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof SoulboundWeapon && SoulItemHelper.addItemStack(item.getItem(), player));
             }
 
             weapons = ToolProvider.get(player);
             type = weapons.getItemType();
 
             if (type != null && weapons.getDatum(type, LEVEL) >= MainConfig.instance().getPreservationLevel()) {
-                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof IItemSoulboundTool && SoulItemHelper.addItemStack(item.getItem(), player));
+                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof SoulboundTool && SoulItemHelper.addItemStack(item.getItem(), player));
             }
         }
     }
@@ -126,20 +126,20 @@ public class PlayerEventHandlers {
         final EntityPlayer player = event.getEntityPlayer();
         final ItemStack stackMainhand = player.getHeldItemMainhand();
 
-        if (stackMainhand.getItem() instanceof ItemSoulboundWeapon && stackMainhand != event.getItemStack()) {
+        if (stackMainhand.getItem() instanceof SoulboundWeapon && stackMainhand != event.getItemStack()) {
             event.setUseItem(DENY);
         }
     }
 
     @SubscribeEvent
     public static void onBreakSpeed(final BreakSpeed event) {
-        if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ISoulboundItem) {
-            final ISoulboundItem item = (ISoulboundItem) event.getEntityPlayer().getHeldItemMainhand().getItem();
+        if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemSoulbound) {
+            final ItemSoulbound item = (ItemSoulbound) event.getEntityPlayer().getHeldItemMainhand().getItem();
             final SoulboundCapability capability = SoulItemHelper.getFirstCapability(event.getEntityPlayer(), (Item) item);
             final IItem type = capability.getItemType();
 
-            if (item instanceof IItemSoulboundTool) {
-                if (((IItemSoulboundTool) item).isEffectiveAgainst(event.getState())) {
+            if (item instanceof SoulboundTool) {
+                if (((SoulboundTool) item).isEffectiveAgainst(event.getState())) {
                     float newSpeed = (float) (event.getOriginalSpeed() + capability.getAttribute(type, EFFICIENCY_ATTRIBUTE));
                     final int efficiency = capability.getEnchantment(type, EFFICIENCY);
                     @SuppressWarnings("ConstantConditions") final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
@@ -152,7 +152,7 @@ public class PlayerEventHandlers {
                         newSpeed *= haste.getAmplifier() * 0.1;
                     }
 
-                    if (((IItemSoulboundTool) item).canHarvestBlock(event.getState(), event.getEntityPlayer())) {
+                    if (((SoulboundTool) item).canHarvestBlock(event.getState(), event.getEntityPlayer())) {
                         event.setNewSpeed(newSpeed);
                     } else {
                         event.setNewSpeed(newSpeed / 4F);
@@ -160,7 +160,7 @@ public class PlayerEventHandlers {
                 } else {
                     event.setNewSpeed((float) ((event.getOriginalSpeed() - 1 + capability.getAttribute(type, EFFICIENCY_ATTRIBUTE)) / 8));
                 }
-            } else if (item instanceof ItemSoulboundWeapon) {
+            } else if (item instanceof SoulboundWeapon) {
                 final float newSpeed = (float) capability.getAttribute(capability.getItemType(), EFFICIENCY_ATTRIBUTE);
 
                 event.setNewSpeed(event.getState().getMaterial() == Material.WEB

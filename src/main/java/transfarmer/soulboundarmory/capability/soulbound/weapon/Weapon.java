@@ -11,8 +11,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
 import transfarmer.soulboundarmory.capability.frozen.IFrozen;
-import transfarmer.soulboundarmory.capability.soulbound.common.Base;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundBase;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabEnchantments;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSkills;
@@ -20,8 +20,8 @@ import transfarmer.soulboundarmory.client.gui.screen.weapon.GuiTabWeaponAttribut
 import transfarmer.soulboundarmory.client.gui.screen.weapon.GuiTabWeaponSelection;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.ISoulboundItem;
-import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
+import transfarmer.soulboundarmory.item.ItemSoulbound;
+import transfarmer.soulboundarmory.item.SoulboundWeapon;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.impl.SkillFreezing;
 import transfarmer.soulboundarmory.skill.impl.SkillLeaping;
@@ -60,12 +60,14 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider.WEAPONS;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_DAGGER;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_GREATSWORD;
+import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_STAFF;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.CapabilityType.WEAPON;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.DATUM;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.STAFF;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
@@ -81,7 +83,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
-public class Weapon extends Base implements IWeapon {
+public class Weapon extends SoulboundBase implements WeaponCapability {
     private final Set<UUID> cannotFreeze;
     private double leapForce;
     private int attackCooldown;
@@ -89,7 +91,7 @@ public class Weapon extends Base implements IWeapon {
     private int lightningCooldown;
 
     public Weapon() {
-        super(WEAPON, new IItem[]{DAGGER, SWORD, GREATSWORD}, new Item[]{SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD});
+        super(WEAPON, new IItem[]{DAGGER, SWORD, GREATSWORD, STAFF}, new Item[]{SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD, SOULBOUND_STAFF});
 
         this.attackCooldown = 0;
         this.lightningCooldown = 60;
@@ -103,9 +105,10 @@ public class Weapon extends Base implements IWeapon {
                 }, new double[][][]{
                 {{0, 0, 0, 0, 0, 0, 0}, {2, 1, 0, 0, 0, 2}},
                 {{0, 0, 0, 0, 0, 0, 0}, {1.6, 2, 0, 0, 0, 3}},
-                {{0, 0, 0, 0, 0, 0, 0}, {0.8, 3, 0, 0, 0, 6}}
+                {{0, 0, 0, 0, 0, 0, 0}, {0.8, 3, 0, 0, 0, 6}},
+                {{0, 0, 0, 0, 0, 0, 0}, {1.2, 2, 0, 0, 0, 3}}
         });
-        this.enchantments = new SoulboundEnchantments(this.itemTypes, this.items, (final Enchantment enchantment) -> {
+        this.enchantments = new SoulboundEnchantments(this.itemTypes, this.items, (final Enchantment enchantment, final IItem item) -> {
             final String name = enchantment.getName().toLowerCase();
 
             return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
@@ -114,7 +117,8 @@ public class Weapon extends Base implements IWeapon {
         this.skills = new Skills(this.itemTypes,
                 new Skill[]{new SkillLeeching(), new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn()},
                 new Skill[]{new SkillLeeching(), new SkillSummonLightning()},
-                new Skill[]{new SkillLeeching(), new SkillLeaping(), new SkillFreezing()}
+                new Skill[]{new SkillLeeching(), new SkillLeaping(), new SkillFreezing()},
+                new Skill[]{}
         );
     }
 
@@ -222,6 +226,20 @@ public class Weapon extends Base implements IWeapon {
                     : 0;
         }
 
+        if (item == STAFF) {
+            return statistic == ATTACK_SPEED
+                    ? 0.05
+                    : statistic == ATTACK_DAMAGE
+                    ? 0.1
+                    : statistic == CRITICAL
+                    ? 0.025
+                    : statistic == KNOCKBACK_ATTRIBUTE
+                    ? 0.1
+                    : statistic == EFFICIENCY_ATTRIBUTE
+                    ? 0.1
+                    : 0;
+        }
+
         return 0;
     }
 
@@ -272,7 +290,7 @@ public class Weapon extends Base implements IWeapon {
         final ItemStack itemStack = this.getEquippedItemStack();
 
         if (itemStack != null) {
-            if (itemStack.getItem() instanceof ItemSoulboundWeapon) {
+            if (itemStack.getItem() instanceof SoulboundWeapon) {
                 this.openGUI(this.currentTab);
             } else {
                 this.openGUI(0);
@@ -389,8 +407,8 @@ public class Weapon extends Base implements IWeapon {
     }
 
     @Override
-    public Class<? extends ISoulboundItem> getBaseItemClass() {
-        return ItemSoulboundWeapon.class;
+    public Class<? extends ItemSoulbound> getBaseItemClass() {
+        return SoulboundWeapon.class;
     }
 
     @Override

@@ -12,9 +12,9 @@ import net.minecraft.util.NonNullList;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
-import transfarmer.soulboundarmory.item.IItemSoulboundTool;
-import transfarmer.soulboundarmory.item.ISoulboundItem;
-import transfarmer.soulboundarmory.item.ItemSoulboundWeapon;
+import transfarmer.soulboundarmory.item.ItemSoulbound;
+import transfarmer.soulboundarmory.item.SoulboundTool;
+import transfarmer.soulboundarmory.item.SoulboundWeapon;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import javax.annotation.Nonnull;
@@ -31,17 +31,17 @@ public class SoulItemHelper {
     private static boolean datumEquality;
 
     public static SoulboundCapability getFirstCapability(final EntityPlayer player, @Nullable Item item) {
+        final boolean passedNull = item == null;
         SoulboundCapability capability = null;
-        boolean passedNull = item == null;
 
         if (passedNull) {
             item = player.getHeldItemMainhand().getItem();
         }
 
-        if (item instanceof ISoulboundItem) {
-            if (item instanceof ItemSoulboundWeapon) {
+        if (item instanceof ItemSoulbound) {
+            if (item instanceof SoulboundWeapon) {
                 capability = WeaponProvider.get(player);
-            } else if (item instanceof IItemSoulboundTool) {
+            } else if (item instanceof SoulboundTool) {
                 capability = ToolProvider.get(player);
             }
         }
@@ -61,7 +61,7 @@ public class SoulItemHelper {
         return capability;
     }
 
-    public static SoulboundCapability getFirstCapability(final EntityPlayer player, @Nonnull ItemStack itemStack) {
+    public static SoulboundCapability getFirstCapability(final EntityPlayer player, @Nonnull final ItemStack itemStack) {
         return getFirstCapability(player, itemStack.getItem());
     }
 
@@ -76,14 +76,14 @@ public class SoulItemHelper {
     }
 
     public static boolean isSoulWeaponEquipped(final EntityPlayer player) {
-        return player.getHeldItemMainhand().getItem() instanceof ItemSoulboundWeapon
-                || player.getHeldItemOffhand().getItem() instanceof ItemSoulboundWeapon;
+        return player.getHeldItemMainhand().getItem() instanceof SoulboundWeapon
+                || player.getHeldItemOffhand().getItem() instanceof SoulboundWeapon;
     }
 
     public static boolean addItemStack(final ItemStack itemStack, final EntityPlayer player, boolean hasReservedSlot) {
         final InventoryPlayer inventory = player.inventory;
 
-        if (!(itemStack.getItem() instanceof ISoulboundItem)) {
+        if (!(itemStack.getItem() instanceof ItemSoulbound)) {
             hasReservedSlot = false;
         }
 
@@ -185,7 +185,7 @@ public class SoulItemHelper {
         inventory[player.inventory.getSizeInventory()] = player.getHeldItemOffhand();
 
         for (final ItemStack itemStack : inventory) {
-            if (itemStack != null && itemStack.getItem() instanceof ItemSoulboundWeapon) {
+            if (itemStack != null && itemStack.getItem() instanceof SoulboundWeapon) {
                 return true;
             }
         }
@@ -195,7 +195,7 @@ public class SoulItemHelper {
 
     public static void removeSoulWeapons(final EntityPlayer player) {
         for (final ItemStack itemStack : player.inventory.mainInventory) {
-            if (itemStack.getItem() instanceof ItemSoulboundWeapon) {
+            if (itemStack.getItem() instanceof SoulboundWeapon) {
                 player.inventory.deleteStack(itemStack);
             }
         }

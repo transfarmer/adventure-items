@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.item.ItemSoulboundDagger;
 import transfarmer.soulboundarmory.item.ItemSoulboundGreatsword;
+import transfarmer.soulboundarmory.item.ItemSoulboundStaff;
 import transfarmer.soulboundarmory.item.ItemSoulboundSword;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
 
@@ -20,19 +21,21 @@ public class ModItems {
     public static final ItemSoulboundDagger SOULBOUND_DAGGER = new ItemSoulboundDagger("soulbound_dagger");
     public static final ItemSoulboundSword SOULBOUND_SWORD = new ItemSoulboundSword("soulbound_sword");
     public static final ItemSoulboundGreatsword SOULBOUND_GREATSWORD = new ItemSoulboundGreatsword("soulbound_greatsword");
+    public static final ItemSoulboundStaff SOULBOUND_STAFF = new ItemSoulboundStaff("soulbound_staff");
     public static final ItemSoulboundPick SOULBOUND_PICK = new ItemSoulboundPick("soulbound_pick");
 
     @EventBusSubscriber(modid = MOD_ID)
     public static class RegistrationHandler {
         @SubscribeEvent
         public static void onRegisterItems(final Register<Item> event) {
-            event.getRegistry().registerAll(SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD, SOULBOUND_PICK);
+            event.getRegistry().registerAll(SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD, SOULBOUND_PICK, SOULBOUND_STAFF);
         }
 
+        @SuppressWarnings("ConstantConditions")
         @SideOnly(CLIENT)
         @SubscribeEvent
         public static void registerModels(final ModelRegistryEvent event) {
-            for (final Item item : new Item[]{SOULBOUND_GREATSWORD, SOULBOUND_SWORD, SOULBOUND_DAGGER, SOULBOUND_PICK}) {
+            for (final Item item : new Item[]{SOULBOUND_GREATSWORD, SOULBOUND_SWORD, SOULBOUND_DAGGER, SOULBOUND_PICK, SOULBOUND_STAFF}) {
                 ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
             }
         }

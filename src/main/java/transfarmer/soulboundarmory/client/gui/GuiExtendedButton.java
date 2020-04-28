@@ -1,4 +1,6 @@
-package net.minecraft.client.gui;
+package transfarmer.soulboundarmory.client.gui;
+
+import net.minecraft.client.gui.GuiButton;
 
 public class GuiExtendedButton extends GuiButton {
     public int endX;

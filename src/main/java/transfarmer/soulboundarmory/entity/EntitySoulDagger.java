@@ -28,7 +28,7 @@ import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.entity.damage.ISoulboundDamageSource;
 import transfarmer.soulboundarmory.entity.damage.SoulboundDamageSource;
@@ -60,7 +60,7 @@ public class EntitySoulDagger extends EntityArrowExtended {
     private int zTile;
     private int inData;
     private Block inTile;
-    private IWeapon capability;
+    private WeaponCapability capability;
 
     public EntitySoulDagger(final World world) {
         super(world);

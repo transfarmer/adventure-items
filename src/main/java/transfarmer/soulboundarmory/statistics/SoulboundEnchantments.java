@@ -14,23 +14,24 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 
 public class SoulboundEnchantments implements Iterable<IItem>, INBTSerializable<NBTTagCompound> {
     private final Map<IItem, IndexedMap<Enchantment, Integer>> enchantments;
 
-    public SoulboundEnchantments(final List<IItem> types, final List<Item> items, final Predicate<Enchantment> condition) {
+    public SoulboundEnchantments(final List<IItem> types, final List<Item> items, final BiPredicate<Enchantment, IItem> condition) {
         this.enchantments = new HashMap<>();
 
         for (int i = 0; i < items.size(); i++) {
             final IndexedMap<Enchantment, Integer> entry = new IndexedLinkedHashMap<>();
+            final IItem item = types.get(i);
 
-            this.enchantments.put(types.get(i), entry);
+            this.enchantments.put(item, entry);
 
             for (final Enchantment enchantment : Enchantment.REGISTRY) {
                 final EnumEnchantmentType type = enchantment.type;
 
-                if (type != null && type.canEnchantItem(items.get(i)) && condition.test(enchantment)) {
+                if (type != null && type.canEnchantItem(items.get(i)) && condition.test(enchantment, item)) {
                     entry.put(enchantment, 0);
                 }
             }

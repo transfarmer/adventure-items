@@ -9,7 +9,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeapon;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 
@@ -20,9 +20,9 @@ import static transfarmer.soulboundarmory.skill.Skills.THROWING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
 
-public class ItemSoulboundDagger extends ItemSoulboundWeapon {
+public class ItemSoulboundDagger extends ItemSoulboundMeleeWeapon {
     public ItemSoulboundDagger(final String name) {
-        super(1, -2, 0, name);
+        super(0, -2, 0, name);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ItemSoulboundDagger extends ItemSoulboundWeapon {
     @Override
     @Nonnull
     public ActionResult<ItemStack> onItemRightClick(final World world, @Nonnull final EntityPlayer player, @Nonnull final EnumHand hand) {
-        final IWeapon capability = WeaponProvider.get(player);
+        final WeaponCapability capability = WeaponProvider.get(player);
 
         if (!world.isRemote && capability.hasSkill(DAGGER, THROWING)) {
             player.setActiveHand(hand);
@@ -61,7 +61,7 @@ public class ItemSoulboundDagger extends ItemSoulboundWeapon {
     @Override
     public void onPlayerStoppedUsing(@Nonnull final ItemStack itemStack, final World world, @Nonnull final EntityLivingBase entity, final int timeLeft) {
         final EntityPlayer player = (EntityPlayer) entity;
-        final IWeapon capability = WeaponProvider.get(player);
+        final WeaponCapability capability = WeaponProvider.get(player);
 
         if (!world.isRemote) {
             final EntitySoulDagger dagger = new EntitySoulDagger(world, entity, itemStack, capability.hasSkill(DAGGER, SHADOW_CLONE));
