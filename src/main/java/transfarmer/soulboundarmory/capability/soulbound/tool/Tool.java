@@ -13,8 +13,8 @@ import transfarmer.soulboundarmory.client.gui.screen.tool.GuiTabToolAttributes;
 import transfarmer.soulboundarmory.client.gui.screen.tool.GuiTabToolConfirmation;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.SoulboundTool;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
+import transfarmer.soulboundarmory.item.SoulboundTool;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.pick.SkillAmbidexterity;
 import transfarmer.soulboundarmory.skill.pick.SkillTeleportation;
@@ -30,7 +30,6 @@ import transfarmer.soulboundarmory.util.CollectionUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static net.minecraft.init.Enchantments.UNBREAKING;
@@ -57,21 +56,38 @@ public class Tool extends SoulboundBase implements ITool {
     public Tool() {
         super(TOOL, new IItem[]{PICK}, new Item[]{SOULBOUND_PICK});
 
-        this.statistics = new Statistics(this.itemTypes,
+        final List<IItem> itemTypes = this.itemTypes.keyList();
+
+        this.statistics = new Statistics(itemTypes,
                 new ICategory[]{DATUM, ATTRIBUTE},
                 new IStatistic[][]{
                         {XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
                         {EFFICIENCY_ATTRIBUTE, REACH_DISTANCE, HARVEST_LEVEL}
                 }, new double[][][]{{{0, 0, 0, 0, 0, 0, 0}, {0.5, 2, 0}}}
         );
-        this.enchantments = new SoulboundEnchantments(this.itemTypes, this.items, (final Enchantment enchantment, final IItem item) -> {
+        this.enchantments = new SoulboundEnchantments(itemTypes, this.items, (final Enchantment enchantment, final IItem item) -> {
             final String name = enchantment.getName().toLowerCase();
 
             return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
                     && !name.contains("soulbound") && !name.contains("holding") && !name.contains("smelt")
                     && !name.contains("mending");
         });
-        this.skills = new Skills(this.itemTypes, new Skill[]{new SkillTeleportation(), new SkillAmbidexterity()});
+        this.skills = new Skills(itemTypes, new Skill[]{new SkillTeleportation(), new SkillAmbidexterity()});
+    }
+
+    @Override
+    public boolean isUnlocked(final IItem item) {
+        return this.itemTypes.getOrDefault(item, false);
+    }
+
+    @Override
+    public boolean isUnlocked(final int index) {
+        return this.isUnlocked(this.getItemType(index));
+    }
+
+    @Override
+    public void setUnlocked(final IItem item, final boolean unlocked) {
+        this.itemTypes.put(item, unlocked);
     }
 
     @Override
@@ -138,13 +154,13 @@ public class Tool extends SoulboundBase implements ITool {
 
     @Override
     @SideOnly(CLIENT)
-    public List<String> getTooltip(final IItem type) {
+    public List<String> getTooltip(final IItem item) {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
         final List<String> tooltip = new ArrayList<>(5);
 
-        tooltip.add(String.format(" %s%s %s", Mappings.REACH_DISTANCE_FORMAT, FORMAT.format(this.getAttribute(type, REACH_DISTANCE)), Mappings.REACH_DISTANCE_NAME));
-        tooltip.add(String.format(" %s%s %s", Mappings.TOOL_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(type, EFFICIENCY_ATTRIBUTE)), Mappings.EFFICIENCY_NAME));
-        tooltip.add(String.format(" %s%s %s", Mappings.HARVEST_LEVEL_FORMAT, FORMAT.format(this.getAttribute(type, HARVEST_LEVEL)), Mappings.HARVEST_LEVEL_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.REACH_DISTANCE_FORMAT, FORMAT.format(this.getAttribute(item, REACH_DISTANCE)), Mappings.REACH_DISTANCE_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.TOOL_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(item, EFFICIENCY_ATTRIBUTE)), Mappings.EFFICIENCY_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.HARVEST_LEVEL_FORMAT, FORMAT.format(this.getAttribute(item, HARVEST_LEVEL)), Mappings.HARVEST_LEVEL_NAME));
 
         tooltip.add("");
         tooltip.add("");
@@ -153,8 +169,8 @@ public class Tool extends SoulboundBase implements ITool {
     }
 
     @Override
-    public List<net.minecraft.item.Item> getConsumableItems() {
-        return Collections.singletonList(Items.WOODEN_PICKAXE);
+    public Item getConsumableItem(final IItem item) {
+        return item == PICK ? Items.WOODEN_PICKAXE : null;
     }
 
     @Override

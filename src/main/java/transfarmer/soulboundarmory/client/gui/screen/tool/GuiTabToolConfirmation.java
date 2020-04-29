@@ -32,7 +32,7 @@ public class GuiTabToolConfirmation extends GuiTabSoulbound {
         final int ySep = 32;
         final GuiButton choiceButton = this.addButton(new GuiButton(0, xCenter, yCenter - ySep, buttonWidth, buttonHeight, Mappings.SOUL_PICK_NAME));
 
-        if (this.capability.hasSoulItem() || !ItemUtil.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
+        if (this.capability.hasSoulboundItem() || !ItemUtil.hasItem(Items.WOODEN_PICKAXE, this.mc.player)) {
             choiceButton.enabled = false;
         }
     }

@@ -46,7 +46,7 @@ public class C2SItemType implements IExtendedMessage {
                 capability.setItemType(item);
                 player.inventory.deleteStack(capability.getEquippedItemStack());
 
-                if (!capability.hasSoulItem()) {
+                if (!capability.hasSoulboundItem()) {
                     capability.setCurrentTab(0);
                 }
 

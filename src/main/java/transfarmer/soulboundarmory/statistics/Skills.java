@@ -55,7 +55,7 @@ public class Skills implements Iterable<IItem>, INBTSerializable<NBTTagCompound>
     }
 
     public boolean contains(final IItem item, final Skill skill) {
-        if (skill == null) {
+        if (item == null || skill == null) {
             return false;
         }
 

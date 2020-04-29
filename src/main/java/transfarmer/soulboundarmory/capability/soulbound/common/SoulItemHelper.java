@@ -30,6 +30,20 @@ public class SoulItemHelper {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
     private static boolean datumEquality;
 
+    public static SoulboundCapability getFirstHeldCapability(final EntityPlayer player) {
+        final SoulboundCapability capability = getFirstCapability(player, player.getHeldItemMainhand());
+
+        if (capability == null) {
+            return getFirstCapability(player, player.getHeldItemOffhand());
+        }
+
+        return capability;
+    }
+
+    public static SoulboundCapability getFirstCapability(final EntityPlayer player, @Nonnull final ItemStack itemStack) {
+        return getFirstCapability(player, itemStack.getItem());
+    }
+
     public static SoulboundCapability getFirstCapability(final EntityPlayer player, @Nullable Item item) {
         final boolean passedNull = item == null;
         SoulboundCapability capability = null;
@@ -46,7 +60,7 @@ public class SoulItemHelper {
             }
         }
 
-        if (passedNull && capability == null) {
+        if (capability == null) {
             if (item == Items.WOODEN_SWORD) {
                 capability = WeaponProvider.get(player);
             } else if (item == Items.WOODEN_PICKAXE) {
@@ -56,20 +70,6 @@ public class SoulItemHelper {
 
         if (passedNull && capability == null) {
             capability = getFirstCapability(player, player.getHeldItemOffhand());
-        }
-
-        return capability;
-    }
-
-    public static SoulboundCapability getFirstCapability(final EntityPlayer player, @Nonnull final ItemStack itemStack) {
-        return getFirstCapability(player, itemStack.getItem());
-    }
-
-    public static SoulboundCapability getFirstHeldCapability(final EntityPlayer player) {
-        final SoulboundCapability capability = getFirstCapability(player, player.getHeldItemMainhand());
-
-        if (capability == null) {
-            return getFirstCapability(player, player.getHeldItemOffhand());
         }
 
         return capability;

@@ -1,9 +1,11 @@
 package transfarmer.soulboundarmory.util;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 
 import java.util.Arrays;
 import java.util.List;
@@ -63,5 +65,20 @@ public class ItemUtil {
         }
 
         return null;
+    }
+
+    public static boolean hasItem(final EntityPlayer player, final Item item, final int min, final int max) {
+        final InventoryPlayer inventory = player.inventory;
+        final NonNullList<ItemStack> merged = CollectionUtil.merge(inventory.mainInventory, inventory.offHandInventory);
+
+        for (int i = min; i < max; i++) {
+            final ItemStack itemStack = merged.get(i);
+
+            if (itemStack.getItem() == item) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -42,17 +42,13 @@ import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.CollectionUtil;
-import transfarmer.soulboundarmory.util.EntityUtil;
 import transfarmer.soulboundarmory.util.NBTUtil;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static net.minecraft.init.Enchantments.SHARPNESS;
@@ -61,6 +57,7 @@ import static net.minecraft.init.Enchantments.VANISHING_CURSE;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider.WEAPONS;
+import static transfarmer.soulboundarmory.enchantment.Enchantments.IMPACT;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_DAGGER;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_GREATSWORD;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_STAFF;
@@ -87,7 +84,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
 public class Weapon extends SoulboundBase implements IWeaponCapability {
-    private final Set<UUID> cannotFreeze;
+    private NBTTagCompound cannotFreeze;
     private double leapForce;
     private int attackCooldown;
     private int fireballCooldown;
@@ -98,8 +95,10 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
     public Weapon() {
         super(WEAPON, new IItem[]{DAGGER, SWORD, GREATSWORD, STAFF}, new Item[]{SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD, SOULBOUND_STAFF});
 
-        this.cannotFreeze = new HashSet<>();
-        this.statistics = new Statistics(this.itemTypes,
+        final List<IItem> itemTypes = this.itemTypes.keyList();
+
+        this.cannotFreeze = new NBTTagCompound();
+        this.statistics = new Statistics(itemTypes,
                 new ICategory[]{DATUM, ATTRIBUTE},
                 new IStatistic[][]{
                         {XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
@@ -108,20 +107,36 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
                 {{0, 0, 0, 0, 0, 0, 0}, {2, 1, 0, 0, 0, 2}},
                 {{0, 0, 0, 0, 0, 0, 0}, {1.6, 2, 0, 0, 0, 3}},
                 {{0, 0, 0, 0, 0, 0, 0}, {0.8, 3, 0, 0, 0, 6}},
-                {{0, 0, 0, 0, 0, 0, 0}, {1.2, 2, 0, 0, 0, 3}}
+                {{0, 0, 0, 0, 0, 0, 0}, {0.48, 6, 0, 0, 0, 3}}
         });
-        this.enchantments = new SoulboundEnchantments(this.itemTypes, this.items, (final Enchantment enchantment, final IItem item) -> {
+        this.enchantments = new SoulboundEnchantments(itemTypes, this.items, (final Enchantment enchantment, final IItem item) -> {
             final String name = enchantment.getName().toLowerCase();
 
-            return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
-                    && !name.contains("soulbound") && !name.contains("holding") && !name.contains("mending");
+            return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment) &&
+                    (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
+                    && !name.contains("mending");
         });
-        this.skills = new Skills(this.itemTypes,
+        this.skills = new Skills(itemTypes,
                 new Skill[]{new SkillLeeching(), new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn()},
                 new Skill[]{new SkillLeeching(), new SkillSummonLightning()},
                 new Skill[]{new SkillLeeching(), new SkillLeaping(), new SkillFreezing()},
                 new Skill[]{new SkillPenetration(), new SkillVulnerability(), new SkillEndermanacle()}
         );
+    }
+
+    @Override
+    public boolean isUnlocked(final IItem item) {
+        return this.itemTypes.getOrDefault(item, false);
+    }
+
+    @Override
+    public boolean isUnlocked(final int index) {
+        return this.isUnlocked(this.getItemType(index));
+    }
+
+    @Override
+    public void setUnlocked(final IItem item, final boolean unlocked) {
+        this.itemTypes.put(item, unlocked);
     }
 
     @Override
@@ -145,7 +160,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
     public double getAttributeTotal(final IItem item, final IStatistic statistic) {
         if (statistic == ATTACK_DAMAGE) {
             final double attackDamage = this.getAttribute(item, ATTACK_DAMAGE);
-            final int level = this.getEnchantment(item, SHARPNESS);
+            final int level = item == STAFF ? this.getEnchantment(item, IMPACT) : this.getEnchantment(item, SHARPNESS);
 
             return level > 0
                     ? attackDamage + 1 + (level - 1) / 2F
@@ -230,7 +245,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
 
         if (item == STAFF) {
             return statistic == ATTACK_SPEED
-                    ? 0.05
+                    ? 0.04
                     : statistic == ATTACK_DAMAGE
                     ? 0.1
                     : statistic == CRITICAL
@@ -259,32 +274,32 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
 
     @Override
     @SideOnly(CLIENT)
-    public List<String> getTooltip(final IItem type) {
+    public List<String> getTooltip(final IItem item) {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
         final List<String> tooltip = new ArrayList<>(7);
 
-        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_SPEED_FORMAT, FORMAT.format(this.getAttribute(type, ATTACK_SPEED)), Mappings.ATTACK_SPEED_NAME));
-        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_DAMAGE_FORMAT, FORMAT.format(this.getAttributeTotal(type, ATTACK_DAMAGE)), Mappings.ATTACK_DAMAGE_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_SPEED_FORMAT, FORMAT.format(this.getAttribute(item, ATTACK_SPEED)), Mappings.ATTACK_SPEED_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_DAMAGE_FORMAT, FORMAT.format(this.getAttributeTotal(item, ATTACK_DAMAGE)), Mappings.ATTACK_DAMAGE_NAME));
 
         tooltip.add("");
         tooltip.add("");
 
-        if (this.getAttribute(type, CRITICAL) > 0) {
-            tooltip.add(String.format(" %s%s%% %s", Mappings.CRITICAL_FORMAT, FORMAT.format(this.getAttribute(type, CRITICAL) * 100), Mappings.CRITICAL_NAME));
+        if (this.getAttribute(item, CRITICAL) > 0) {
+            tooltip.add(String.format(" %s%s%% %s", Mappings.CRITICAL_FORMAT, FORMAT.format(this.getAttribute(item, CRITICAL) * 100), Mappings.CRITICAL_NAME));
         }
-        if (this.getAttribute(type, KNOCKBACK_ATTRIBUTE) > 0) {
-            tooltip.add(String.format(" %s%s %s", Mappings.KNOCKBACK_ATTRIBUTE_FORMAT, FORMAT.format(this.getAttribute(type, KNOCKBACK_ATTRIBUTE)), Mappings.KNOCKBACK_ATTRIBUTE_NAME));
+        if (this.getAttribute(item, KNOCKBACK_ATTRIBUTE) > 0) {
+            tooltip.add(String.format(" %s%s %s", Mappings.KNOCKBACK_ATTRIBUTE_FORMAT, FORMAT.format(this.getAttribute(item, KNOCKBACK_ATTRIBUTE)), Mappings.KNOCKBACK_ATTRIBUTE_NAME));
         }
-        if (this.getAttribute(type, EFFICIENCY_ATTRIBUTE) > 0) {
-            tooltip.add(String.format(" %s%s %s", Mappings.WEAPON_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(type, EFFICIENCY_ATTRIBUTE)), Mappings.EFFICIENCY_NAME));
+        if (this.getAttribute(item, EFFICIENCY_ATTRIBUTE) > 0) {
+            tooltip.add(String.format(" %s%s %s", Mappings.WEAPON_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(item, EFFICIENCY_ATTRIBUTE)), Mappings.EFFICIENCY_NAME));
         }
 
         return tooltip;
     }
 
     @Override
-    public List<Item> getConsumableItems() {
-        return Collections.singletonList(Items.WOODEN_SWORD);
+    public Item getConsumableItem(final IItem item) {
+        return item == STAFF ? null : Items.WOODEN_SWORD;
     }
 
     @Override
@@ -342,7 +357,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
 
     @Override
     public int getLightningCooldown() {
-        return lightningCooldown;
+        return this.lightningCooldown;
     }
 
     @Override
@@ -373,7 +388,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
         this.leapForce = 0;
         this.leapDuration = 0;
 
-        this.cannotFreeze.clear();
+        NBTUtil.clear(this.cannotFreeze);
     }
 
     @Override
@@ -388,7 +403,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
 
     @Override
     public int getFireballCooldown() {
-        return fireballCooldown;
+        return this.fireballCooldown;
     }
 
     @Override
@@ -398,7 +413,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
 
     @Override
     public void resetFireballCooldown() {
-        this.fireballCooldown = (int) Math.round(60 / this.getAttribute(STAFF, ATTACK_SPEED));
+        this.fireballCooldown = (int) Math.round(20 / this.getAttribute(STAFF, ATTACK_SPEED));
     }
 
     @Override
@@ -422,11 +437,12 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
     public void freeze(final Entity entity, final int ticks, final double damage) {
         final IEntityData capability = EntityDatumProvider.get(entity);
         final UUID id = entity.getUniqueID();
+        final String key = id.toString();
 
-        if (!this.cannotFreeze.contains(id) && !entity.isDead && capability != null) {
+        if (!this.cannotFreeze.hasKey(key) && !entity.isDead && capability != null) {
             capability.freeze(this.getPlayer(), ticks, (float) damage);
 
-            this.cannotFreeze.add(id);
+            this.cannotFreeze.setUniqueId(key, id);
         }
     }
 
@@ -463,22 +479,13 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
     @Override
     public NBTTagCompound serializeNBT() {
         final NBTTagCompound tag = super.serializeNBT();
-        final NBTTagCompound cannotFreeze = new NBTTagCompound();
-
-        for (final UUID id : this.cannotFreeze) {
-            final Entity entity = EntityUtil.getEntity(id);
-
-            if (entity != null && !entity.isDead) {
-                cannotFreeze.setUniqueId(id.toString(), id);
-            }
-        }
 
         tag.setInteger("attackCooldown", this.getAttackCooldown());
         tag.setInteger("leapDuration", this.getLeapDuration());
         tag.setDouble("leapForce", this.getLeapForce());
         tag.setInteger("lightningCooldown", this.getLightningCooldown());
         tag.setInteger("spell", this.spell);
-        tag.setTag("cannotFreeze", cannotFreeze);
+        tag.setTag("cannotFreeze", this.cannotFreeze);
 
         return tag;
     }
@@ -487,17 +494,12 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
     public void deserializeNBT(final NBTTagCompound tag) {
         super.deserializeNBT(tag);
 
-        NBTUtil.ifHasKeyTag(tag, "cannotFreeze", (final NBTTagCompound cannotFreeze) -> {
-            for (final String key : cannotFreeze.getKeySet()) {
-                this.cannotFreeze.add(cannotFreeze.getUniqueId(key));
-            }
-        });
-
         this.setAttackCooldown(tag.getInteger("attackCooldown"));
         this.setLeapDuration(tag.getInteger("leapDuration"));
         this.setLeapForce(tag.getDouble("leapForce"));
         this.setLightningCooldown(tag.getInteger("lightningCooldown"));
         this.setSpell(tag.getInteger("spell"));
+        this.cannotFreeze = tag.getCompoundTag("cannotFreeze");
     }
 
     @Override

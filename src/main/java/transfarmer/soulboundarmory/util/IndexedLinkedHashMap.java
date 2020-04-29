@@ -38,6 +38,11 @@ public class IndexedLinkedHashMap<K, V> extends LinkedHashMap<K, V> implements I
     }
 
     @Override
+    public int indexOfKey(final K key) {
+        return this.keyList().indexOf(key);
+    }
+
+    @Override
     @Nonnull
     public Iterator<K> iterator() {
         return this.keyList().iterator();

@@ -215,8 +215,10 @@ public class EntityEventHandlers {
 
     @SubscribeEvent(priority = HIGH)
     public static void onLivingFall(final LivingFallEvent event) {
-        if (event.getEntity() instanceof EntityPlayer) {
-            final EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+        final Entity fallen = event.getEntity();
+
+        if (!fallen.world.isRemote && fallen instanceof EntityPlayer) {
+            final EntityPlayer player = (EntityPlayer) fallen;
             final IWeaponCapability capability = WeaponProvider.get(player);
             final double leapForce = capability.getLeapForce();
 
@@ -242,7 +244,7 @@ public class EntityEventHandlers {
                     }
 
                     if (froze) {
-                        if (!nearbyEntities.isEmpty() && player.world instanceof WorldServer) {
+                        if (!nearbyEntities.isEmpty()) {
                             final WorldServer world = (WorldServer) player.world;
 
                             for (double i = 0; i <= 2 * horizontalRadius; i += horizontalRadius / 48D) {
@@ -283,7 +285,6 @@ public class EntityEventHandlers {
     @SubscribeEvent
     public static void onLivingUpdate(final LivingUpdateEvent event) {
         final IEntityData entityData = EntityDatumProvider.get(event.getEntity());
-
 
         if (entityData != null) {
             entityData.onUpdate();

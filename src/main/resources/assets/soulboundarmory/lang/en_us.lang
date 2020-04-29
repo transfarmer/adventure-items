@@ -68,7 +68,7 @@ skill.soulboundarmory.throwing=throwing
 skill.soulboundarmory.vulnerability=vulnerability
 
 # skill descriptions
-skill.soulboundarmory.ambidexterity.desc=allows its user to mine with their left hand (incomplete).
+skill.soulboundarmory.ambidexterity.desc=allows its user to mine with their left hand. (Not yet implemented.)
 skill.soulboundarmory.freezing.desc=freezes enemies if passed while leaping and nearby enemies when landing from a leap.
 skill.soulboundarmory.endermanacle.desc=prevents hit entities from teleporting.
 skill.soulboundarmory.leaping.desc=enables its user to leap by using the greatsword.
@@ -80,7 +80,10 @@ skill.soulboundarmory.summonLightning.desc=summons a ligthning bolt when the swo
 skill.soulboundarmory.return.desc=causes the dagger to return when on ground, too far or airborne for too long.
 skill.soulboundarmory.teleportation.desc=teleports mined items to their miner's inventory.
 skill.soulboundarmory.throwing.desc=makes the dagger throwable.
-skill.soulboundarmory.vulnerability.desc=deals damage to entities that do not take fireball damage.
+skill.soulboundarmory.vulnerability.desc=deals damage to entities that are immune to fireballs.
+
+# enchantments
+enchantment.soulboundarmory.impact=Impact
 
 # messages
 message.soulboundarmory.levelup=Your %s leveled up to level %d.

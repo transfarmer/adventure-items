@@ -14,4 +14,6 @@ public interface IndexedMap<K, V> extends Map<K, V>, Iterable<K> {
     K getKey(int index);
 
     V getValue(int index);
+
+    int indexOfKey(K key);
 }

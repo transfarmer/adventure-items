@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.client.gui.screen.weapon;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.init.Items;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
@@ -9,9 +8,10 @@ import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSoulbound;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.network.C2S.C2SItemType;
-import transfarmer.soulboundarmory.util.ItemUtil;
+import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import java.util.List;
+import java.util.Map;
 
 import static transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider.WEAPONS;
 
@@ -32,22 +32,23 @@ public class GuiTabWeaponSelection extends GuiTabSoulbound {
         final int width = 128;
         final int height = 20;
         final int xCenter = (this.width - width) / 2;
-        final int yCenter = (this.height - height) / 2;
         final int ySep = 32;
 
-        final GuiButton[] weaponButtons = {
-                this.addButton(new GuiButton(0, xCenter, yCenter + (int) (1.5 * ySep), width, height, Mappings.SOUL_DAGGER_NAME)),
-                this.addButton(new GuiButton(1, xCenter, yCenter + (int) (0.5 * ySep), width, height, Mappings.SOUL_SWORD_NAME)),
-                this.addButton(new GuiButton(2, xCenter, yCenter - (int) (0.5 * ySep), width, height, Mappings.SOUL_GREATSWORD_NAME)),
-                this.addButton(new GuiButton(3, xCenter, yCenter - (int) (1.5 * ySep), width, height, Mappings.SOUL_STAFF_NAME)),
-        };
+        final Map<Integer, String> labels = CollectionUtil.hashMap(new Integer[]{0, 1, 2, 3}, Mappings.SOUL_DAGGER_NAME, Mappings.SOUL_SWORD_NAME, Mappings.SOUL_GREATSWORD_NAME, Mappings.SOUL_STAFF_NAME);
 
-        if (SoulItemHelper.hasSoulWeapon(this.mc.player)) {
-            weaponButtons[this.capability.getIndex()].enabled = false;
-        } else if (this.capability.getItemType() != null && !ItemUtil.hasItem(Items.WOODEN_SWORD, this.mc.player)) {
-            for (final GuiButton button : weaponButtons) {
-                button.enabled = false;
+        for (int id = 0, size = labels.size(); id < size; id++) {
+            if (!this.capability.isUnlocked(id) && !this.capability.canUnlock(id)) {
+                labels.remove(id);
             }
+        }
+
+        final int top = (this.height - height + ySep * (labels.size() - 1)) / 2;
+        int row = 0;
+
+        for (final int id : labels.keySet()) {
+            final GuiButton button = this.addButton(new GuiButton(id, xCenter, top + (row++ * ySep), width, height, labels.get(id)));
+
+            button.enabled = id != this.capability.getIndex();
         }
     }
 

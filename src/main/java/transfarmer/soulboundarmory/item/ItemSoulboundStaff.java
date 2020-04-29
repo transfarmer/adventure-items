@@ -6,7 +6,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumHand;
@@ -21,7 +20,7 @@ import transfarmer.soulboundarmory.entity.EntitySoulboundSmallFireball;
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 
-public class ItemSoulboundStaff extends Item implements SoulboundWeapon {
+public class ItemSoulboundStaff extends ItemStaff implements SoulboundWeapon {
     public ItemSoulboundStaff(final String name) {
         super();
 
@@ -44,7 +43,9 @@ public class ItemSoulboundStaff extends Item implements SoulboundWeapon {
             if (capability.getFireballCooldown() <= 0) {
                 world.spawnEntity(new EntitySoulboundSmallFireball(world, player, capability.getSpell()));
 
-                capability.resetFireballCooldown();
+                if (!player.isCreative()) {
+                    capability.resetFireballCooldown();
+                }
             }
         }
 

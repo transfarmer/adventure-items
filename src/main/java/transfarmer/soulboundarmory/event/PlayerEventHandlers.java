@@ -29,6 +29,7 @@ import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
+import transfarmer.soulboundarmory.item.ItemSoulboundMeleeWeapon;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
 import transfarmer.soulboundarmory.item.SoulboundTool;
 import transfarmer.soulboundarmory.item.SoulboundWeapon;
@@ -40,6 +41,7 @@ import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
 import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static transfarmer.soulboundarmory.skill.Skills.TELEPORTATION;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.PICK;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.EFFICIENCY_ATTRIBUTE;
@@ -143,7 +145,8 @@ public class PlayerEventHandlers {
                 if (((SoulboundTool) item).isEffectiveAgainst(event.getState())) {
                     float newSpeed = (float) (event.getOriginalSpeed() + capability.getAttribute(type, EFFICIENCY_ATTRIBUTE));
                     final int efficiency = capability.getEnchantment(type, EFFICIENCY);
-                    @SuppressWarnings("ConstantConditions") final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
+                    //noinspection ConstantConditions
+                    final PotionEffect haste = event.getEntityPlayer().getActivePotionEffect(Potion.getPotionFromResourceLocation("haste"));
 
                     if (efficiency > 0) {
                         newSpeed += 1 + efficiency * efficiency;
@@ -161,7 +164,7 @@ public class PlayerEventHandlers {
                 } else {
                     event.setNewSpeed((float) ((event.getOriginalSpeed() - 1 + capability.getAttribute(type, EFFICIENCY_ATTRIBUTE)) / 8));
                 }
-            } else if (item instanceof SoulboundWeapon) {
+            } else if (item instanceof ItemSoulboundMeleeWeapon) {
                 final float newSpeed = (float) capability.getAttribute(capability.getItemType(), EFFICIENCY_ATTRIBUTE);
 
                 event.setNewSpeed(event.getState().getMaterial() == Material.WEB
@@ -198,10 +201,12 @@ public class PlayerEventHandlers {
 
     @SubscribeEvent
     public static void onPlayerTick(final PlayerTickEvent event) {
-        final EntityPlayer player = event.player;
+        if (event.phase == END) {
+            final EntityPlayer player = event.player;
 
-        ToolProvider.get(player).onTick();
-        WeaponProvider.get(player).onTick();
+            ToolProvider.get(player).onTick();
+            WeaponProvider.get(player).onTick();
+        }
     }
 
 //    @SideOnly(CLIENT)

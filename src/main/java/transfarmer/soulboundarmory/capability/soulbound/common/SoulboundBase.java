@@ -16,10 +16,10 @@ import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSoulbound;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
-import transfarmer.soulboundarmory.network.S2C.S2COpenGUI;
-import transfarmer.soulboundarmory.network.S2C.S2CSync;
 import transfarmer.soulboundarmory.network.C2S.C2SSync;
 import transfarmer.soulboundarmory.network.C2S.C2SUpgradeSkill;
+import transfarmer.soulboundarmory.network.S2C.S2COpenGUI;
+import transfarmer.soulboundarmory.network.S2C.S2CSync;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillLevelable;
 import transfarmer.soulboundarmory.statistics.Skills;
@@ -31,6 +31,7 @@ import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.CollectionUtil;
+import transfarmer.soulboundarmory.util.IndexedLinkedHashMap;
 import transfarmer.soulboundarmory.util.IndexedMap;
 
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
     protected Statistics statistics;
     protected SoulboundEnchantments enchantments;
     protected Skills skills;
-    protected List<IItem> itemTypes;
+    protected IndexedMap<IItem, Boolean> itemTypes;
     protected List<Item> items;
     protected IItem item;
     protected EntityPlayer player;
@@ -68,7 +69,12 @@ public abstract class SoulboundBase implements SoulboundCapability {
 
     protected SoulboundBase(final ICapabilityType type, final IItem[] itemTypes, final Item[] items) {
         this.type = type;
-        this.itemTypes = Arrays.asList(itemTypes);
+        this.itemTypes = new IndexedLinkedHashMap<>(itemTypes.length);
+
+        for (final IItem item : itemTypes) {
+            this.itemTypes.put(item, false);
+        }
+
         this.items = Arrays.asList(items);
         this.boundSlot = -1;
         this.currentTab = 0;
@@ -145,7 +151,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
 
     @Override
     public IItem getItemType(final int index) {
-        return index == -1 ? null : this.itemTypes.get(index);
+        return index == -1 ? null : this.itemTypes.getKey(index);
     }
 
     @Override
@@ -154,18 +160,31 @@ public abstract class SoulboundBase implements SoulboundCapability {
     }
 
     @Override
-    public void setItemType(final IItem type) {
-        this.item = type;
-    }
-
-    @Override
     public void setItemType(final int index) {
-        this.item = this.getItemType(index);
+        this.setItemType(this.getItemType(index));
     }
 
     @Override
-    public int getIndex(final IItem type) {
-        return this.itemTypes.indexOf(type);
+    public void setItemType(final IItem item) {
+        if (item != null) {
+            if (!this.isUnlocked(item)) {
+                final ItemStack itemStack = this.getEquippedItemStack();
+
+                if (itemStack != null && itemStack.getItem() == this.getConsumableItem(item)) {
+                    this.player.inventory.deleteStack(itemStack);
+                    this.setUnlocked(item, true);
+                }
+            }
+
+            if (this.item != item) {
+                this.item = item;
+            }
+        }
+    }
+
+    @Override
+    public int getIndex(final IItem item) {
+        return this.itemTypes.indexOfKey(item);
     }
 
     @Override
@@ -175,7 +194,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
 
     @Override
     public Item getItem(final IItem item) {
-        return this.items.get(this.itemTypes.indexOf(item));
+        return this.items.get(this.itemTypes.indexOfKey(item));
     }
 
     @Override
@@ -441,6 +460,37 @@ public abstract class SoulboundBase implements SoulboundCapability {
     }
 
     @Override
+    public List<Item> getConsumableItems() {
+        final List<Item> items = new ArrayList<>();
+
+        for (final IItem item : this.itemTypes) {
+            items.add(this.getConsumableItem(item));
+        }
+
+        return items;
+    }
+
+    @Override
+    public boolean canConsume(final Item item, final IItem type) {
+        return this.getConsumableItem(type) == item;
+    }
+
+    @Override
+    public boolean canConsume(final Item item, final int index) {
+        return this.canConsume(item, this.getItemType(index));
+    }
+
+    @Override
+    public boolean canUnlock(final IItem item) {
+        return this.canConsume(this.getEquippedItemStack().getItem(), item);
+    }
+
+    @Override
+    public boolean canUnlock(final int index) {
+        return this.canUnlock(this.getItemType(index));
+    }
+
+    @Override
     public ItemStack getItemStack(final IItem type) {
         final ItemStack itemStack = new ItemStack(this.getItem(type));
         final Map<String, AttributeModifier> attributeModifiers = this.getAttributeModifiers(type);
@@ -488,7 +538,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
     }
 
     @Override
-    public boolean hasSoulItem() {
+    public boolean hasSoulboundItem() {
         final Class<? extends ItemSoulbound> baseItemClass = this.getBaseItemClass();
 
         for (final ItemStack itemStack : this.getPlayer().inventory.mainInventory) {
@@ -505,22 +555,24 @@ public abstract class SoulboundBase implements SoulboundCapability {
         final Class<? extends ItemSoulbound> baseItemClass = this.getBaseItemClass();
         final ItemStack mainhandStack = this.getPlayer().getHeldItemMainhand();
         final ItemStack offhandStack = this.getPlayer().getHeldItemOffhand();
+        final Item mainhandItem = mainhandStack.getItem();
+        final Item offhandItem = offhandStack.getItem();
 
-        if (baseItemClass.isInstance(mainhandStack.getItem())) {
+        if (baseItemClass.isInstance(mainhandItem)) {
             return mainhandStack;
         }
 
-        if (baseItemClass.isInstance(offhandStack.getItem())) {
+        if (baseItemClass.isInstance(offhandItem)) {
             return offhandStack;
         }
 
         final List<Item> consumableItems = this.getConsumableItems();
 
-        if (consumableItems.contains(mainhandStack.getItem())) {
+        if (consumableItems.contains(mainhandItem)) {
             return mainhandStack;
         }
 
-        if (consumableItems.contains(offhandStack.getItem())) {
+        if (consumableItems.contains(offhandItem)) {
             return offhandStack;
         }
 
@@ -529,22 +581,27 @@ public abstract class SoulboundBase implements SoulboundCapability {
 
     @Override
     public void onTick() {
-        if (this.hasSoulItem()) {
+        if (this.hasSoulboundItem()) {
             final Class<? extends ItemSoulbound> baseItemClass = this.getBaseItemClass();
             final InventoryPlayer inventory = this.getPlayer().inventory;
-            final List<ItemStack> mainInventory = new ArrayList<>(this.getPlayer().inventory.mainInventory);
+            final List<ItemStack> mainInventory = CollectionUtil.arrayList(inventory.mainInventory, inventory.offHandInventory);
             final ItemStack equippedItemStack = this.getEquippedItemStack();
-            mainInventory.add(this.getPlayer().getHeldItemOffhand());
 
             if (equippedItemStack != null && baseItemClass.isInstance(equippedItemStack.getItem())) {
-                final IItem type = this.getItemType(equippedItemStack);
+                final IItem item = this.getItemType(equippedItemStack);
 
-                if (type != this.getItemType()) {
-                    this.setItemType(type);
+                if (item != null && item != this.getItemType()) {
+                    this.item = item;
                 }
             }
 
-            if (this.getItemType() != null) {
+            final IItem currentItem = this.getItemType();
+
+            if (currentItem != null) {
+                if (!this.isUnlocked(currentItem)) {
+                    this.setUnlocked(currentItem, true);
+                }
+
                 int firstSlot = -1;
 
                 for (final ItemStack itemStack : mainInventory) {
@@ -552,7 +609,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
                         final ItemStack newItemStack = this.getItemStack(itemStack);
                         final int index = mainInventory.indexOf(itemStack);
 
-                        if (itemStack.getItem() == this.getItem(this.getItemType()) && (firstSlot == -1 || index == 36)) {
+                        if (itemStack.getItem() == this.getItem(currentItem) && (firstSlot == -1 || index == 36)) {
                             firstSlot = index == 36 ? 40 : index;
 
                             if (this.getBoundSlot() != -1) {
@@ -566,7 +623,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
 
                                 inventory.setInventorySlotContents(firstSlot, newItemStack);
                             }
-                        } else if (!this.getPlayer().isCreative() && index != firstSlot) {
+                        } else if (!this.getPlayer().isCreative() && index != firstSlot && firstSlot != -1) {
                             inventory.deleteStack(itemStack);
                         }
                     }
@@ -578,6 +635,11 @@ public abstract class SoulboundBase implements SoulboundCapability {
     @Override
     public NBTTagCompound serializeNBT() {
         final NBTTagCompound tag = new NBTTagCompound();
+        final NBTTagCompound types = new NBTTagCompound();
+
+        for (final IItem item : this.itemTypes) {
+            types.setBoolean(item.toString(), this.itemTypes.get(item));
+        }
 
         tag.setInteger("index", this.getIndex());
         tag.setInteger("tab", this.getCurrentTab());
@@ -585,6 +647,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
         tag.setTag("statistics", this.statistics.serializeNBT());
         tag.setTag("enchantments", this.enchantments.serializeNBT());
         tag.setTag("skills", this.skills.serializeNBT());
+        tag.setTag("types", types);
 
         return tag;
     }
@@ -597,6 +660,16 @@ public abstract class SoulboundBase implements SoulboundCapability {
         this.statistics.deserializeNBT(tag.getCompoundTag("statistics"));
         this.enchantments.deserializeNBT(tag.getCompoundTag("enchantments"));
         this.skills.deserializeNBT(tag.getCompoundTag("skills"));
+
+        final NBTTagCompound types = tag.getCompoundTag("types");
+
+        for (final String key : types.getKeySet()) {
+            final IItem item = IItem.get(key);
+
+            if (item != null) {
+                this.itemTypes.put(item, types.getBoolean(key));
+            }
+        }
     }
 
     @Override
@@ -610,7 +683,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
 
     @Override
     public void sync() {
-        if (!this.player.world.isRemote) {
+        if (!this.isRemote) {
             Main.CHANNEL.sendTo(new S2CSync(this.type, this.serializeNBT()), (EntityPlayerMP) this.getPlayer());
         } else {
             Main.CHANNEL.sendToServer(new C2SSync(this.type, this.serializeNBTClient()));

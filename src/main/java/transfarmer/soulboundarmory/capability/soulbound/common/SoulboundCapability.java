@@ -54,11 +54,17 @@ public interface SoulboundCapability extends INBTSerializable<NBTTagCompound> {
 
     Item getItem();
 
-    Item getItem(IItem currentType);
+    Item getItem(IItem item);
 
-    int getIndex(IItem type);
+    int getIndex(IItem item);
 
     int getIndex();
+
+    boolean isUnlocked(IItem item);
+
+    boolean isUnlocked(int index);
+
+    void setUnlocked(IItem item, boolean unlocked);
 
     int size(ICategory category);
 
@@ -114,9 +120,19 @@ public interface SoulboundCapability extends INBTSerializable<NBTTagCompound> {
 
     ItemStack getItemStack(ItemStack itemStack);
 
-    List<String> getTooltip(IItem type);
+    List<String> getTooltip(IItem item);
+
+    Item getConsumableItem(IItem item);
 
     List<Item> getConsumableItems();
+
+    boolean canConsume(Item item, IItem type);
+
+    boolean canConsume(Item item, int index);
+
+    boolean canUnlock(IItem item);
+
+    boolean canUnlock(int index);
 
     void refresh();
 
@@ -156,7 +172,7 @@ public interface SoulboundCapability extends INBTSerializable<NBTTagCompound> {
 
     Class<? extends ItemSoulbound> getBaseItemClass();
 
-    boolean hasSoulItem();
+    boolean hasSoulboundItem();
 
     ItemStack getEquippedItemStack();
 

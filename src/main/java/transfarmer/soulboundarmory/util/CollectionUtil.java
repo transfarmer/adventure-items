@@ -54,6 +54,17 @@ public class CollectionUtil {
     }
 
     @SafeVarargs
+    public static <T> List<T> arrayList(final Collection<T>... from) {
+        final List<T> to = new ArrayList<>();
+
+        for (final Collection<T> collection : from) {
+            to.addAll(collection);
+        }
+
+        return to;
+    }
+
+    @SafeVarargs
     public static <T> Set<T> hashSet(final T... from) {
         final Set<T> to = new HashSet<T>(from.length);
 
