@@ -8,11 +8,13 @@ import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.statistics.Skills;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public interface Skill extends INBTSerializable<NBTTagCompound> {
+    @Nonnull
     List<Skill> getDependencies();
 
     boolean hasDependencies();

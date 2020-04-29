@@ -15,9 +15,11 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent.Register;
+import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
@@ -26,23 +28,25 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
+import net.minecraftforge.registries.IForgeRegistry;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
-import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
-import transfarmer.soulboundarmory.capability.frozen.IFrozen;
+import transfarmer.soulboundarmory.capability.entity.EntityDatumProvider;
+import transfarmer.soulboundarmory.capability.entity.IEntityData;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponCapability;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
-import transfarmer.soulboundarmory.entity.EntitySoulDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
+import transfarmer.soulboundarmory.entity.EntitySoulboundDagger;
+import transfarmer.soulboundarmory.entity.EntitySoulboundSmallFireball;
 import transfarmer.soulboundarmory.item.ItemSoulboundDagger;
-import transfarmer.soulboundarmory.network.server.C2SConfig;
+import transfarmer.soulboundarmory.network.C2S.C2SConfig;
 import transfarmer.soulboundarmory.skill.SkillLevelable;
-import transfarmer.soulboundarmory.skill.impl.SkillLeeching;
+import transfarmer.soulboundarmory.skill.common.SkillLeeching;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.EntityUtil;
 import transfarmer.soulboundarmory.util.ItemUtil;
@@ -51,7 +55,7 @@ import java.util.List;
 import java.util.Random;
 
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
-import static transfarmer.soulboundarmory.capability.frozen.FrozenProvider.FROZEN;
+import static transfarmer.soulboundarmory.capability.entity.EntityDatumProvider.FROZEN;
 import static transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider.TOOLS;
 import static transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider.WEAPONS;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
@@ -92,7 +96,7 @@ public class EntityEventHandlers {
             if (trueSource instanceof EntityPlayer) {
                 final SoulboundCapability instance = WeaponProvider.get(trueSource);
 
-                if (source instanceof EntitySoulDagger) {
+                if (source instanceof EntitySoulboundDagger) {
                     item = DAGGER;
                 } else if (source instanceof EntityPlayer) {
                     item = instance.getItemType();
@@ -127,8 +131,8 @@ public class EntityEventHandlers {
             IItem weaponType = null;
             final SoulboundCapability instance = WeaponProvider.get(attacker);
 
-            if (attacker instanceof EntitySoulDagger) {
-                attacker = ((EntitySoulDagger) attacker).shootingEntity;
+            if (attacker instanceof EntitySoulboundDagger) {
+                attacker = ((EntitySoulboundDagger) attacker).shootingEntity;
                 weaponType = DAGGER;
             } else if (attacker instanceof EntityPlayer) {
                 weaponType = instance.getItemType();
@@ -142,7 +146,7 @@ public class EntityEventHandlers {
         }
 
         if (event.getEntity() instanceof EntityPlayer) {
-            final WeaponCapability capability = WeaponProvider.get(event.getEntity());
+            final IWeaponCapability capability = WeaponProvider.get(event.getEntity());
 
             if (capability.getLeapForce() > 0) {
                 event.setCanceled(true);
@@ -155,57 +159,57 @@ public class EntityEventHandlers {
     public static void onLivingDeath(final LivingDeathEvent event) {
         final EntityLivingBase entity = event.getEntityLiving();
 
-            Entity attacker = event.getSource().getTrueSource();
+        Entity attacker = event.getSource().getTrueSource();
 
-            if (attacker == null) {
-                attacker = entity.getCombatTracker().getBestAttacker();
+        if (attacker == null) {
+            attacker = entity.getCombatTracker().getBestAttacker();
+        }
+
+        if ((attacker instanceof EntityPlayer) && !attacker.world.isRemote) {
+            final IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
+            final IAttributeInstance armor = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR);
+            final Entity immediateSource = event.getSource().getImmediateSource();
+            final EntityPlayer player = ((EntityPlayer) attacker);
+            final IWeaponCapability capability = WeaponProvider.get(attacker);
+            final IItem item;
+            final String displayName;
+
+            if (immediateSource instanceof EntitySoulboundDagger) {
+                item = DAGGER;
+                displayName = ((EntitySoulboundDagger) immediateSource).itemStack.getDisplayName();
+            } else if (immediateSource instanceof EntitySoulLightningBolt) {
+                item = SWORD;
+                displayName = ItemUtil.getEquippedItemStack(player, SOULBOUND_SWORD).getDisplayName();
+            } else {
+                item = capability.getItemType((player.getHeldItemMainhand()));
+                displayName = player.getHeldItemMainhand().getDisplayName();
             }
 
-            if ((attacker instanceof EntityPlayer) && !attacker.world.isRemote) {
-                final IAttributeInstance attackDamage = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
-                final IAttributeInstance armor = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR);
-                final Entity immediateSource = event.getSource().getImmediateSource();
-                final EntityPlayer player = ((EntityPlayer) attacker);
-                final WeaponCapability capability = WeaponProvider.get(attacker);
-                final IItem item;
-                final String displayName;
+            if (item != null) {
+                double xp = entity.getMaxHealth()
+                        * attacker.world.getDifficulty().getId() * MainConfig.instance().getDifficultyMultiplier()
+                        * (1 + armor.getAttributeValue() * MainConfig.instance().getArmorMultiplier());
 
-                if (immediateSource instanceof EntitySoulDagger) {
-                    item = DAGGER;
-                    displayName = ((EntitySoulDagger) immediateSource).itemStack.getDisplayName();
-                } else if (immediateSource instanceof EntitySoulLightningBolt) {
-                    item = SWORD;
-                    displayName = ItemUtil.getEquippedItemStack(player, SOULBOUND_SWORD).getDisplayName();
-                } else {
-                    item = capability.getItemType((player.getHeldItemMainhand()));
-                    displayName = player.getHeldItemMainhand().getDisplayName();
+                xp *= attackDamage != null ? 1 + attackDamage.getAttributeValue() * MainConfig.instance().getAttackDamageMultiplier() : MainConfig.instance().getPassiveMultiplier();
+
+                if (!entity.isNonBoss()) {
+                    xp *= MainConfig.instance().getBossMultiplier();
                 }
 
-                if (item != null) {
-                    double xp = entity.getMaxHealth()
-                            * attacker.world.getDifficulty().getId() * MainConfig.instance().getDifficultyMultiplier()
-                            * (1 + armor.getAttributeValue() * MainConfig.instance().getArmorMultiplier());
-
-                    xp *= attackDamage != null ? 1 + attackDamage.getAttributeValue() * MainConfig.instance().getAttackDamageMultiplier() : MainConfig.instance().getPassiveMultiplier();
-
-                    if (!entity.isNonBoss()) {
-                        xp *= MainConfig.instance().getBossMultiplier();
-                    }
-
-                    if (attacker.world.getWorldInfo().isHardcoreModeEnabled()) {
-                        xp *= MainConfig.instance().getHardcoreMultiplier();
-                    }
-
-                    if (attackDamage != null && entity.isChild()) {
-                        xp *= MainConfig.instance().getBabyMultiplier();
-                    }
-
-                    if (capability.addDatum(item, XP, (int) Math.round(xp)) && MainConfig.instance().getLevelupNotifications()) {
-                        attacker.sendMessage(new TextComponentTranslation("message.soulboundarmory.levelup", displayName, capability.getDatum(item, LEVEL)));
-                    }
-
-                    capability.sync();
+                if (attacker.world.getWorldInfo().isHardcoreModeEnabled()) {
+                    xp *= MainConfig.instance().getHardcoreMultiplier();
                 }
+
+                if (attackDamage != null && entity.isChild()) {
+                    xp *= MainConfig.instance().getBabyMultiplier();
+                }
+
+                if (capability.addDatum(item, XP, (int) Math.round(xp)) && MainConfig.instance().getLevelupNotifications()) {
+                    attacker.sendMessage(new TextComponentTranslation("message.soulboundarmory.levelup", displayName, capability.getDatum(item, LEVEL)));
+                }
+
+                capability.sync();
+            }
         }
     }
 
@@ -213,7 +217,7 @@ public class EntityEventHandlers {
     public static void onLivingFall(final LivingFallEvent event) {
         if (event.getEntity() instanceof EntityPlayer) {
             final EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-            final WeaponCapability capability = WeaponProvider.get(player);
+            final IWeaponCapability capability = WeaponProvider.get(player);
             final double leapForce = capability.getLeapForce();
 
             if (leapForce > 0) {
@@ -228,7 +232,7 @@ public class EntityEventHandlers {
                     boolean froze = false;
 
                     for (final Entity entity : nearbyEntities) {
-                        final IFrozen frozenCapability = FrozenProvider.get(entity);
+                        final IEntityData frozenCapability = EntityDatumProvider.get(entity);
 
                         if (frozenCapability != null && entity.getDistanceSq(entity) <= horizontalRadius * horizontalRadius) {
                             capability.freeze(entity, (int) Math.min(60, 12 * event.getDistance()), 0.4F * event.getDistance());
@@ -277,12 +281,26 @@ public class EntityEventHandlers {
     }
 
     @SubscribeEvent
+    public static void onLivingUpdate(final LivingUpdateEvent event) {
+        final IEntityData entityData = EntityDatumProvider.get(event.getEntity());
+
+
+        if (entityData != null) {
+            entityData.onUpdate();
+
+            if (entityData.isFrozen()) {
+                event.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void onGetCollsionBoxes(final GetCollisionBoxesEvent event) {
         final Entity entity = event.getEntity();
 
         if (!event.getWorld().isRemote && entity instanceof EntityPlayer) {
             final EntityPlayer player = (EntityPlayer) entity;
-            final WeaponCapability capability = WeaponProvider.get(player);
+            final IWeaponCapability capability = WeaponProvider.get(player);
             final double leapForce = capability.getLeapForce();
 
             if (leapForce > 0) {
@@ -309,7 +327,7 @@ public class EntityEventHandlers {
     public static void onRightClickItem(final LivingEntityUseItemEvent.Tick event) {
         if (event.getEntity() instanceof EntityPlayer) {
             final EntityPlayer player = (EntityPlayer) event.getEntity();
-            final WeaponCapability capability = WeaponProvider.get(player);
+            final IWeaponCapability capability = WeaponProvider.get(player);
 
             if (event.getItem().getItem() instanceof ItemSoulboundDagger) {
                 final ItemSoulboundDagger item = (ItemSoulboundDagger) event.getItem().getItem();
@@ -328,19 +346,37 @@ public class EntityEventHandlers {
     }
 
     @SubscribeEvent
-    public static void onRegisterEntityEntry(final Register<EntityEntry> entry) {
-        entry.getRegistry().register(EntityEntryBuilder.create()
-                .entity(EntitySoulDagger.class)
+    public static void onEnderTeleport(final EnderTeleportEvent event) {
+        final IEntityData capability = EntityDatumProvider.get(event.getEntity());
+
+        if (capability != null && capability.cannotTeleport()) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRegisterEntityEntry(final Register<EntityEntry> event) {
+        final IForgeRegistry<EntityEntry> registry = event.getRegistry();
+
+        registry.register(EntityEntryBuilder.create()
+                .entity(EntitySoulboundDagger.class)
                 .id(new ResourceLocation(Main.MOD_ID, "entity_soul_dagger"), 0)
                 .name("soul dagger")
                 .tracker(512, 1, true)
                 .build()
         );
-        entry.getRegistry().register(EntityEntryBuilder.create()
+        registry.register(EntityEntryBuilder.create()
                 .entity(EntityReachModifier.class)
                 .id(new ResourceLocation(Main.MOD_ID, "entity_reach_extender"), 1)
                 .name("reach extender")
                 .tracker(16, 1, true)
+                .build()
+        );
+        registry.register(EntityEntryBuilder.create()
+                .entity(EntitySoulboundSmallFireball.class)
+                .id(new ResourceLocation(Main.MOD_ID, "entity_soulbound_small_fireball"), 2)
+                .name("small fireball")
+                .tracker(512, 1, true)
                 .build()
         );
     }
@@ -366,12 +402,11 @@ public class EntityEventHandlers {
         }
 
         if ((entity instanceof EntityLivingBase || entity instanceof IProjectile)
-                && !(entity instanceof EntityReachModifier) && !(entity instanceof EntitySoulDagger)
-                && entity.world instanceof WorldServer) {
-            final FrozenProvider frozen = new FrozenProvider();
+                && !(entity instanceof EntityReachModifier) && !(entity instanceof EntitySoulboundDagger)) {
+            final EntityDatumProvider data = new EntityDatumProvider();
 
-            event.addCapability(new ResourceLocation(Main.MOD_ID, "frozen"), frozen);
-            frozen.getCapability(FROZEN, null).setEntity(entity);
+            event.addCapability(new ResourceLocation(Main.MOD_ID, "entitydata"), data);
+            data.getCapability(FROZEN, null).setEntity(entity);
         }
     }
 }

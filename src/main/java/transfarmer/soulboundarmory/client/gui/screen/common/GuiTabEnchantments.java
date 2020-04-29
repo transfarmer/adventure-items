@@ -8,8 +8,8 @@ import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.network.server.C2SEnchant;
-import transfarmer.soulboundarmory.network.server.C2SReset;
+import transfarmer.soulboundarmory.network.C2S.C2SEnchant;
+import transfarmer.soulboundarmory.network.C2S.C2SReset;
 import transfarmer.soulboundarmory.util.IndexedMap;
 
 import java.util.List;

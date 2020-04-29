@@ -16,10 +16,10 @@ import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSoulbound;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
-import transfarmer.soulboundarmory.network.client.S2COpenGUI;
-import transfarmer.soulboundarmory.network.client.S2CSync;
-import transfarmer.soulboundarmory.network.server.C2STab;
-import transfarmer.soulboundarmory.network.server.C2SUpgradeSkill;
+import transfarmer.soulboundarmory.network.S2C.S2COpenGUI;
+import transfarmer.soulboundarmory.network.S2C.S2CSync;
+import transfarmer.soulboundarmory.network.C2S.C2SSync;
+import transfarmer.soulboundarmory.network.C2S.C2SUpgradeSkill;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillLevelable;
 import transfarmer.soulboundarmory.statistics.Skills;
@@ -291,6 +291,11 @@ public abstract class SoulboundBase implements SoulboundCapability {
     }
 
     @Override
+    public SkillLevelable getSkillLevelable(final IItem item, final String skill) {
+        return (SkillLevelable) this.getSkill(item, skill);
+    }
+
+    @Override
     public Skill getSkill(final String skill) {
         return this.getSkill(this.item, skill);
     }
@@ -365,7 +370,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
         this.currentTab = tab;
 
         if (this.isRemote) {
-            Main.CHANNEL.sendToServer(new C2STab(this.type, tab));
+            Main.CHANNEL.sendToServer(new C2SSync(this.type, this.serializeNBTClient()));
         }
     }
 
@@ -595,11 +600,20 @@ public abstract class SoulboundBase implements SoulboundCapability {
     }
 
     @Override
+    public NBTTagCompound serializeNBTClient() {
+        final NBTTagCompound tag = new NBTTagCompound();
+
+        tag.setInteger("tab", this.currentTab);
+
+        return tag;
+    }
+
+    @Override
     public void sync() {
         if (!this.player.world.isRemote) {
             Main.CHANNEL.sendTo(new S2CSync(this.type, this.serializeNBT()), (EntityPlayerMP) this.getPlayer());
         } else {
-            Main.CHANNEL.sendToServer(new C2STab(this.type, this.currentTab));
+            Main.CHANNEL.sendToServer(new C2SSync(this.type, this.serializeNBTClient()));
 
             if (Minecraft.getMinecraft().currentScreen instanceof GuiTabSoulbound) {
                 this.refresh();

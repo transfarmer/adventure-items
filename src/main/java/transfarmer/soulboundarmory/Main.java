@@ -15,23 +15,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import transfarmer.soulboundarmory.client.render.RenderReachModifier;
 import transfarmer.soulboundarmory.client.render.RenderSoulDagger;
+import transfarmer.soulboundarmory.client.render.RenderSoulboundFireball;
 import transfarmer.soulboundarmory.command.CommandSoulboundArmory;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
-import transfarmer.soulboundarmory.entity.EntitySoulDagger;
-import transfarmer.soulboundarmory.network.client.S2CConfig;
-import transfarmer.soulboundarmory.network.client.S2CEnchant;
-import transfarmer.soulboundarmory.network.client.S2COpenGUI;
-import transfarmer.soulboundarmory.network.client.S2CSync;
-import transfarmer.soulboundarmory.network.server.C2SAttribute;
-import transfarmer.soulboundarmory.network.server.C2SBindSlot;
-import transfarmer.soulboundarmory.network.server.C2SConfig;
-import transfarmer.soulboundarmory.network.server.C2SEnchant;
-import transfarmer.soulboundarmory.network.server.C2SItemType;
-import transfarmer.soulboundarmory.network.server.C2SReset;
-import transfarmer.soulboundarmory.network.server.C2STab;
-import transfarmer.soulboundarmory.network.server.C2SUpgradeSkill;
+import transfarmer.soulboundarmory.entity.EntitySoulboundDagger;
+import transfarmer.soulboundarmory.entity.EntitySoulboundSmallFireball;
+import transfarmer.soulboundarmory.network.C2S.C2SAttribute;
+import transfarmer.soulboundarmory.network.C2S.C2SBindSlot;
+import transfarmer.soulboundarmory.network.C2S.C2SConfig;
+import transfarmer.soulboundarmory.network.C2S.C2SEnchant;
+import transfarmer.soulboundarmory.network.C2S.C2SItemType;
+import transfarmer.soulboundarmory.network.C2S.C2SReset;
+import transfarmer.soulboundarmory.network.C2S.C2SSync;
+import transfarmer.soulboundarmory.network.C2S.C2SUpgradeSkill;
+import transfarmer.soulboundarmory.network.S2C.S2CConfig;
+import transfarmer.soulboundarmory.network.S2C.S2CEnchant;
+import transfarmer.soulboundarmory.network.S2C.S2COpenGUI;
+import transfarmer.soulboundarmory.network.S2C.S2CSync;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
@@ -62,15 +64,16 @@ public class Main {
         CHANNEL.registerMessage(C2SEnchant.Handler.class, C2SEnchant.class, id++, SERVER);
         CHANNEL.registerMessage(C2SItemType.Handler.class, C2SItemType.class, id++, SERVER);
         CHANNEL.registerMessage(C2SReset.Handler.class, C2SReset.class, id++, SERVER);
-        CHANNEL.registerMessage(C2STab.Handler.class, C2STab.class, id++, SERVER);
+        CHANNEL.registerMessage(C2SSync.Handler.class, C2SSync.class, id++, SERVER);
         CHANNEL.registerMessage(C2SUpgradeSkill.Handler.class, C2SUpgradeSkill.class, id++, SERVER);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(MENU_KEY);
             ClientRegistry.registerKeyBinding(TOGGLE_XP_BAR_KEY);
 
-            RenderingRegistry.registerEntityRenderingHandler(EntitySoulDagger.class, new RenderSoulDagger.RenderFactory());
+            RenderingRegistry.registerEntityRenderingHandler(EntitySoulboundDagger.class, new RenderSoulDagger.RenderFactory());
             RenderingRegistry.registerEntityRenderingHandler(EntityReachModifier.class, new RenderReachModifier.RenderFactory());
+            RenderingRegistry.registerEntityRenderingHandler(EntitySoulboundSmallFireball.class, new RenderSoulboundFireball.RenderFactory());
         }
 
         MainConfig.instance().load();

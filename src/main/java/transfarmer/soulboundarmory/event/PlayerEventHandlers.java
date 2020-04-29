@@ -21,6 +21,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
@@ -31,7 +32,7 @@ import transfarmer.soulboundarmory.item.ItemSoulbound;
 import transfarmer.soulboundarmory.item.ItemSoulboundPick;
 import transfarmer.soulboundarmory.item.SoulboundTool;
 import transfarmer.soulboundarmory.item.SoulboundWeapon;
-import transfarmer.soulboundarmory.network.client.S2CConfig;
+import transfarmer.soulboundarmory.network.S2C.S2CConfig;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
 import static net.minecraft.init.Enchantments.EFFICIENCY;
@@ -193,6 +194,14 @@ public class PlayerEventHandlers {
         event.setResult(ALLOW);
 
         SoulItemHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTick(final PlayerTickEvent event) {
+        final EntityPlayer player = event.player;
+
+        ToolProvider.get(player).onTick();
+        WeaponProvider.get(player).onTick();
     }
 
 //    @SideOnly(CLIENT)

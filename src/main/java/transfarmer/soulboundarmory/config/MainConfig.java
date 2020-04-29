@@ -6,8 +6,8 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.network.client.S2CConfig;
-import transfarmer.soulboundarmory.network.server.C2SConfig;
+import transfarmer.soulboundarmory.network.S2C.S2CConfig;
+import transfarmer.soulboundarmory.network.C2S.C2SConfig;
 
 import java.io.File;
 

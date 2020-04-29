@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
@@ -29,6 +30,7 @@ public class SoulboundEntityDamageSourceIndirect extends EntityDamageSourceIndir
     }
 
     @Override
+    @NotNull
     public DamageSource setProjectile() {
         super.setProjectile();
 

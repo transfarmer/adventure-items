@@ -8,7 +8,7 @@ import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSoulbound;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.network.server.C2SItemType;
+import transfarmer.soulboundarmory.network.C2S.C2SItemType;
 import transfarmer.soulboundarmory.util.ItemUtil;
 
 import java.util.List;

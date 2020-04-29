@@ -5,15 +5,20 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
@@ -29,11 +34,30 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.client.KeyBindings.TOGGLE_XP_BAR_KEY;
 import static transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended.FONT_RENDERER;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.STAFF;
 
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
 public class ClientEventHandlers {
     public static final GuiXPBar OVERLAY_XP_BAR = new GuiXPBar();
     public static final GuiXPBar TOOLTIP_XP_BAR = new GuiXPBar();
+
+    @SubscribeEvent
+    public static void onMouseInput(final MouseEvent event) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
+            final Minecraft minecraft = Minecraft.getMinecraft();
+            final IWeaponCapability capability = WeaponProvider.get(minecraft.player);
+
+            if (capability.getItemType() == STAFF) {
+                final int dWheel = event.getDwheel();
+
+                if (dWheel != 0) {
+                    capability.cycleSpells(-dWheel / 120);
+                    minecraft.ingameGUI.setOverlayMessage(new TextComponentTranslation("§4§l%s", capability.getSpell()), false);
+                    event.setCanceled(true);
+                }
+            }
+        }
+    }
 
     @SubscribeEvent
     public static void onClientTick(final ClientTickEvent event) {

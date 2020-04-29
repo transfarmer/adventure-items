@@ -1,10 +1,10 @@
 package transfarmer.soulboundarmory.item;
 
 import com.google.common.collect.Multimap;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntitySmallFireball;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,6 +14,8 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulboundSmallFireball;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
@@ -28,13 +30,22 @@ public class ItemSoulboundStaff extends Item implements SoulboundWeapon {
     }
 
     @Override
+    public boolean onLeftClickEntity(@NotNull final ItemStack stack, @NotNull final EntityPlayer player, @NotNull final Entity entity) {
+        return true;
+    }
+
+    @Override
     @NotNull
     public ActionResult<ItemStack> onItemRightClick(@NotNull final World world, @NotNull final EntityPlayer player,
                                                     @NotNull final EnumHand hand) {
         if (!world.isRemote) {
-            final EntitySmallFireball fireball = new EntitySoulboundSmallFireball(world, player);
+            final IWeaponCapability capability = WeaponProvider.get(player);
 
-            world.spawnEntity(fireball);
+            if (capability.getFireballCooldown() <= 0) {
+                world.spawnEntity(new EntitySoulboundSmallFireball(world, player, capability.getSpell()));
+
+                capability.resetFireballCooldown();
+            }
         }
 
         return super.onItemRightClick(world, player, hand);

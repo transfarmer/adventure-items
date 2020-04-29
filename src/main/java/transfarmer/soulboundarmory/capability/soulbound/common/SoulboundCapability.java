@@ -144,6 +144,8 @@ public interface SoulboundCapability extends INBTSerializable<NBTTagCompound> {
 
     Skill getSkill(IItem item, Skill skill);
 
+    SkillLevelable getSkillLevelable(IItem item, String skill);
+
     boolean hasSkill(IItem item, String skill);
 
     boolean hasSkill(IItem item, Skill skill);
@@ -159,6 +161,8 @@ public interface SoulboundCapability extends INBTSerializable<NBTTagCompound> {
     ItemStack getEquippedItemStack();
 
     void onTick();
+
+    NBTTagCompound serializeNBTClient();
 
     void sync();
 }

@@ -9,8 +9,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.frozen.FrozenProvider;
-import transfarmer.soulboundarmory.capability.frozen.IFrozen;
+import transfarmer.soulboundarmory.capability.entity.EntityDatumProvider;
+import transfarmer.soulboundarmory.capability.entity.IEntityData;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundBase;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
@@ -23,14 +23,17 @@ import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
 import transfarmer.soulboundarmory.item.SoulboundWeapon;
 import transfarmer.soulboundarmory.skill.Skill;
-import transfarmer.soulboundarmory.skill.impl.SkillFreezing;
-import transfarmer.soulboundarmory.skill.impl.SkillLeaping;
-import transfarmer.soulboundarmory.skill.impl.SkillLeeching;
-import transfarmer.soulboundarmory.skill.impl.SkillReturn;
-import transfarmer.soulboundarmory.skill.impl.SkillShadowClone;
-import transfarmer.soulboundarmory.skill.impl.SkillSneakReturn;
-import transfarmer.soulboundarmory.skill.impl.SkillSummonLightning;
-import transfarmer.soulboundarmory.skill.impl.SkillThrowing;
+import transfarmer.soulboundarmory.skill.common.SkillLeeching;
+import transfarmer.soulboundarmory.skill.dagger.SkillReturn;
+import transfarmer.soulboundarmory.skill.dagger.SkillShadowClone;
+import transfarmer.soulboundarmory.skill.dagger.SkillSneakReturn;
+import transfarmer.soulboundarmory.skill.dagger.SkillThrowing;
+import transfarmer.soulboundarmory.skill.greatsword.SkillFreezing;
+import transfarmer.soulboundarmory.skill.greatsword.SkillLeaping;
+import transfarmer.soulboundarmory.skill.staff.SkillEndermanacle;
+import transfarmer.soulboundarmory.skill.staff.SkillPenetration;
+import transfarmer.soulboundarmory.skill.staff.SkillVulnerability;
+import transfarmer.soulboundarmory.skill.sword.SkillSummonLightning;
 import transfarmer.soulboundarmory.statistics.Skills;
 import transfarmer.soulboundarmory.statistics.SoulboundEnchantments;
 import transfarmer.soulboundarmory.statistics.Statistic;
@@ -83,20 +86,19 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
-public class Weapon extends SoulboundBase implements WeaponCapability {
+public class Weapon extends SoulboundBase implements IWeaponCapability {
     private final Set<UUID> cannotFreeze;
     private double leapForce;
     private int attackCooldown;
+    private int fireballCooldown;
     private int leapDuration;
     private int lightningCooldown;
+    private int spell;
 
     public Weapon() {
         super(WEAPON, new IItem[]{DAGGER, SWORD, GREATSWORD, STAFF}, new Item[]{SOULBOUND_DAGGER, SOULBOUND_SWORD, SOULBOUND_GREATSWORD, SOULBOUND_STAFF});
 
-        this.attackCooldown = 0;
-        this.lightningCooldown = 60;
         this.cannotFreeze = new HashSet<>();
-
         this.statistics = new Statistics(this.itemTypes,
                 new ICategory[]{DATUM, ATTRIBUTE},
                 new IStatistic[][]{
@@ -118,7 +120,7 @@ public class Weapon extends SoulboundBase implements WeaponCapability {
                 new Skill[]{new SkillLeeching(), new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn()},
                 new Skill[]{new SkillLeeching(), new SkillSummonLightning()},
                 new Skill[]{new SkillLeeching(), new SkillLeaping(), new SkillFreezing()},
-                new Skill[]{}
+                new Skill[]{new SkillPenetration(), new SkillVulnerability(), new SkillEndermanacle()}
         );
     }
 
@@ -320,27 +322,22 @@ public class Weapon extends SoulboundBase implements WeaponCapability {
 
     @Override
     public void resetCooldown(final IItem type) {
-        this.attackCooldown = this.getCooldown(type);
+        this.attackCooldown = this.getAttackCooldown(type);
     }
 
     @Override
-    public void decrementCooldown() {
-        this.attackCooldown--;
-    }
-
-    @Override
-    public int getCooldown() {
+    public int getAttackCooldown() {
         return this.attackCooldown;
     }
 
     @Override
-    public int getCooldown(final IItem type) {
+    public int getAttackCooldown(final IItem type) {
         return (int) Math.round(20 / this.getAttribute(type, ATTACK_SPEED));
     }
 
     @Override
     public double getAttackRatio(final IItem type) {
-        return 1 - (double) this.getCooldown() / this.getCooldown(type);
+        return 1 - (double) this.getAttackCooldown() / this.getAttackCooldown(type);
     }
 
     @Override
@@ -358,11 +355,6 @@ public class Weapon extends SoulboundBase implements WeaponCapability {
         if (!this.getPlayer().isCreative()) {
             this.lightningCooldown = (int) Math.round(96 / this.getAttribute(this.item, ATTACK_SPEED));
         }
-    }
-
-    @Override
-    public void decrementLightningCooldown() {
-        this.lightningCooldown--;
     }
 
     @Override
@@ -395,8 +387,40 @@ public class Weapon extends SoulboundBase implements WeaponCapability {
     }
 
     @Override
+    public int getFireballCooldown() {
+        return fireballCooldown;
+    }
+
+    @Override
+    public void setFireballCooldown(final int ticks) {
+        this.fireballCooldown = ticks;
+    }
+
+    @Override
+    public void resetFireballCooldown() {
+        this.fireballCooldown = (int) Math.round(60 / this.getAttribute(STAFF, ATTACK_SPEED));
+    }
+
+    @Override
+    public int getSpell() {
+        return this.spell;
+    }
+
+    @Override
+    public void setSpell(final int spell) {
+        this.spell = spell;
+    }
+
+    @Override
+    public void cycleSpells(final int spells) {
+        this.spell = Math.abs((this.spell + spells) % 2);
+
+        this.sync();
+    }
+
+    @Override
     public void freeze(final Entity entity, final int ticks, final double damage) {
-        final IFrozen capability = FrozenProvider.get(entity);
+        final IEntityData capability = EntityDatumProvider.get(entity);
         final UUID id = entity.getUniqueID();
 
         if (!this.cannotFreeze.contains(id) && !entity.isDead && capability != null) {
@@ -415,17 +439,23 @@ public class Weapon extends SoulboundBase implements WeaponCapability {
     public void onTick() {
         super.onTick();
 
-        if (this.getCooldown() > 0) {
-            this.decrementCooldown();
-        }
+        if (!this.isRemote) {
+            if (this.getAttackCooldown() > 0) {
+                this.attackCooldown--;
+            }
 
-        if (this.getItemType() != null && this.getLightningCooldown() > 0) {
-            this.decrementLightningCooldown();
-        }
+            if (this.fireballCooldown > 0) {
+                this.fireballCooldown--;
+            }
 
-        if (this.getLeapDuration() > 0) {
-            if (--this.leapDuration == 0) {
-                this.resetLeapForce();
+            if (this.getItemType() != null && this.getLightningCooldown() > 0) {
+                this.lightningCooldown--;
+            }
+
+            if (this.getLeapDuration() > 0) {
+                if (--this.leapDuration == 0) {
+                    this.resetLeapForce();
+                }
             }
         }
     }
@@ -443,10 +473,11 @@ public class Weapon extends SoulboundBase implements WeaponCapability {
             }
         }
 
-        tag.setInteger("attackCooldown", this.getCooldown());
+        tag.setInteger("attackCooldown", this.getAttackCooldown());
         tag.setInteger("leapDuration", this.getLeapDuration());
         tag.setDouble("leapForce", this.getLeapForce());
         tag.setInteger("lightningCooldown", this.getLightningCooldown());
+        tag.setInteger("spell", this.spell);
         tag.setTag("cannotFreeze", cannotFreeze);
 
         return tag;
@@ -466,5 +497,15 @@ public class Weapon extends SoulboundBase implements WeaponCapability {
         this.setLeapDuration(tag.getInteger("leapDuration"));
         this.setLeapForce(tag.getDouble("leapForce"));
         this.setLightningCooldown(tag.getInteger("lightningCooldown"));
+        this.setSpell(tag.getInteger("spell"));
+    }
+
+    @Override
+    public NBTTagCompound serializeNBTClient() {
+        final NBTTagCompound tag = super.serializeNBTClient();
+
+        tag.setInteger("spell", this.spell);
+
+        return tag;
     }
 }

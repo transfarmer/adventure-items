@@ -22,7 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponCapability;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.entity.damage.SoulboundDamageSource;
 
@@ -121,7 +121,7 @@ public class EntitySoulLightningBolt extends EntityLightningBolt {
                         if (caster instanceof EntityPlayer) {
                             final EntityLivingBase target = (EntityLivingBase) entity;
                             final ItemStack itemStack = caster.getHeldItemMainhand();
-                            final WeaponCapability capability = WeaponProvider.get(caster);
+                            final IWeaponCapability capability = WeaponProvider.get(caster);
                             final DamageSource damageSource = SoulboundDamageSource.causeIndirectDamage(this, caster);
                             final float attackDamageModifier = EnchantmentHelper.getModifierForCreature(itemStack, target.getCreatureAttribute());
                             int burnTime = 0;

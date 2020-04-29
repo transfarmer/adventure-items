@@ -7,8 +7,8 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSoulbound;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.network.server.C2SAttribute;
-import transfarmer.soulboundarmory.network.server.C2SReset;
+import transfarmer.soulboundarmory.network.C2S.C2SAttribute;
+import transfarmer.soulboundarmory.network.C2S.C2SReset;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 

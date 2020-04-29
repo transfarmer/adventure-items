@@ -12,9 +12,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class WeaponProvider implements ICapabilitySerializable<NBTTagCompound> {
-    public static final Capability<WeaponCapability> WEAPONS = ReflectUtil.createCapability(WeaponCapability.class, new Storage<>(), Weapon::new);
+    public static final Capability<IWeaponCapability> WEAPONS = ReflectUtil.createCapability(IWeaponCapability.class, new Storage<>(), Weapon::new);
 
-    private final WeaponCapability instance = WEAPONS.getDefaultInstance();
+    private final IWeaponCapability instance = WEAPONS.getDefaultInstance();
 
     @Override
     public boolean hasCapability(@Nonnull final Capability<?> capability, @Nullable final EnumFacing facing) {
@@ -37,7 +37,7 @@ public class WeaponProvider implements ICapabilitySerializable<NBTTagCompound> {
         WEAPONS.getStorage().readNBT(WEAPONS, instance, null, nbt);
     }
 
-    public static WeaponCapability get(final Entity entity) {
+    public static IWeaponCapability get(final Entity entity) {
         return entity.getCapability(WEAPONS, null);
     }
 }

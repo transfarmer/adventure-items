@@ -8,7 +8,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponCapability;
+import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
 import transfarmer.soulboundarmory.world.ModWorld;
@@ -32,7 +32,7 @@ public class ItemSoulboundSword extends ItemSoulboundMeleeWeapon {
     @Override
     @Nonnull
     public ActionResult<ItemStack> onItemRightClick(final World world, @Nonnull final EntityPlayer player, @Nonnull final EnumHand hand) {
-        final WeaponCapability capability = WeaponProvider.get(player);
+        final IWeaponCapability capability = WeaponProvider.get(player);
 
         if (!world.isRemote && capability.hasSkill(SWORD, SUMMON_LIGHTNING) && capability.getLightningCooldown() <= 0) {
             final RayTraceResult result = ModWorld.rayTraceAll(world, player);
