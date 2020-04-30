@@ -109,7 +109,7 @@ public class Statistics implements INBTSerializable<NBTTagCompound> {
     public Statistic add(final IItem itemType, final IStatistic statisticType, final Number value) {
         final Statistic statistic = this.get(itemType, statisticType);
 
-        statistic.addInPlace(value);
+        statistic.add(value);
 
         return statistic;
     }

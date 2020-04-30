@@ -16,9 +16,10 @@ import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSoulbound;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
-import transfarmer.soulboundarmory.network.C2S.C2SSync;
 import transfarmer.soulboundarmory.network.C2S.C2SSkill;
+import transfarmer.soulboundarmory.network.C2S.C2SSync;
 import transfarmer.soulboundarmory.network.S2C.S2COpenGUI;
+import transfarmer.soulboundarmory.network.S2C.S2CRefresh;
 import transfarmer.soulboundarmory.network.S2C.S2CSync;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillLevelable;
@@ -527,16 +528,20 @@ public abstract class SoulboundBase implements SoulboundCapability {
 
     @Override
     public void refresh() {
-        if (Minecraft.getMinecraft().currentScreen instanceof GuiTabSoulbound) {
-            final ItemStack itemStack = this.getEquippedItemStack();
+        if (this.isRemote) {
+            if (Minecraft.getMinecraft().currentScreen instanceof GuiTabSoulbound) {
+                final ItemStack itemStack = this.getEquippedItemStack();
 
-            if (itemStack != null) {
-                if (itemStack.getItem() instanceof ItemSoulbound) {
-                    this.openGUI();
-                } else {
-                    this.openGUI(0);
+                if (itemStack != null) {
+                    if (itemStack.getItem() instanceof ItemSoulbound) {
+                        this.openGUI();
+                    } else {
+                        this.openGUI(0);
+                    }
                 }
             }
+        } else {
+            Main.CHANNEL.sendTo(new S2CRefresh(this, this.item), (EntityPlayerMP) this.player);
         }
     }
 

@@ -148,39 +148,32 @@ public class GuiTabSkills extends GuiTabSoulbound {
     }
 
     protected void drawSkill(final Skill skill, final int mouseX, final int mouseY, int x, int y) {
-        final Entry<ResourceLocation, BufferedImage> textures = this.textures.get(skill);
-        final BufferedImage image = textures.getValue();
+        final int width = 16;
+        final int height = 16;
+        final int offsetV = skill.isLearned() ? 26 : 0;
+        x -= width / 2;
+        y -= height / 2;
 
-        if (image != null) {
-            final int imageWidth = image.getWidth();
-            final int imageHeight = image.getHeight();
-            final int width = 16;
-            final int height = 16;
-            final int offsetV = skill.isLearned() ? 26 : 0;
-            x -= width / 2;
-            y -= height / 2;
+        if (skill == this.selectedSkill) {
+            this.setChroma(1);
 
-            if (skill == this.selectedSkill) {
-                this.setChroma(1);
-
-                if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
-                    this.drawTooltip(skill, x, y, offsetV);
-                }
-            } else {
-                this.setChroma(this.chroma);
-
-                this.zLevel -= 50;
+            if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
+                this.drawTooltip(skill, x, y, offsetV);
             }
+        } else {
+            this.setChroma(this.chroma);
 
-            TEXTURE_MANAGER.bindTexture(WIDGETS);
-            this.drawTexturedModalRect(x - 4, y - 4, 1, 155 - offsetV, 24, 24);
-
-            final GuiSkill gui = skill.getGUI();
-
-            gui.render(x, y, this.zLevel - 100);
-
-            this.zLevel = 0;
+            this.zLevel -= 50;
         }
+
+        TEXTURE_MANAGER.bindTexture(WIDGETS);
+        this.drawTexturedModalRect(x - 4, y - 4, 1, 155 - offsetV, 24, 24);
+
+        final GuiSkill gui = skill.getGUI();
+
+        gui.render(x, y, this.zLevel - 100);
+
+        this.zLevel = 0;
     }
 
     protected void drawTooltip(final Skill skill, final int posX, final int posY, final int offsetV) {
@@ -203,7 +196,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
                     final int cost = skill.getCost();
                     final String plural = cost > 1 ? Mappings.MENU_POINTS : Mappings.MENU_POINT;
                     string = String.format(Mappings.MENU_SKILL_LEARN_COST, cost, plural);
-                } else if (skill instanceof  SkillLevelable) {
+                } else if (skill instanceof SkillLevelable) {
                     string = String.format("%s %d", Mappings.MENU_LEVEL, ((SkillLevelable) skill).getLevel());
                 }
 

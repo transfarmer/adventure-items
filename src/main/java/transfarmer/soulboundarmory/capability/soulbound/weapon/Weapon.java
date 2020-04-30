@@ -158,30 +158,32 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
 
 
     @Override
-    public void addAttribute(final IItem item, final IStatistic attribute, final int amount) {
+    public void addAttribute(final IItem item, final IStatistic attribute, int amount) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
-            this.addDatum(item, ATTRIBUTE_POINTS, -sign);
-            this.addDatum(item, SPENT_ATTRIBUTE_POINTS, sign);
+            if (this.getDatum(item, ATTRIBUTE_POINTS) > 0) {
+                this.addDatum(item, ATTRIBUTE_POINTS, -sign);
+                this.addDatum(item, SPENT_ATTRIBUTE_POINTS, sign);
 
-            final double change = sign * this.getIncrease(item, attribute);
+                final double change = sign * this.getIncrease(item, attribute);
 
-            if ((attribute.equals(CRITICAL) && this.getAttribute(item, CRITICAL) + change >= 1)) {
-                this.setAttribute(item, attribute, 1);
+                if ((attribute.equals(CRITICAL) && this.getAttribute(item, CRITICAL) + change >= 1)) {
+                    this.setAttribute(item, attribute, 1);
 
-                return;
+                    return;
+                }
+
+                final Statistic statistic = this.statistics.get(item, attribute);
+
+                if (this.getAttribute(item, attribute) + change <= statistic.min()) {
+                    this.setAttribute(item, attribute, statistic.min());
+
+                    return;
+                }
+
+                this.statistics.add(item, attribute, change);
             }
-
-            final Statistic statistic = this.statistics.get(item, attribute);
-
-            if (this.getAttribute(item, attribute) + change <= statistic.min()) {
-                this.setAttribute(item, attribute, statistic.min());
-
-                return;
-            }
-
-            this.statistics.add(item, attribute, change);
         }
     }
 

@@ -6,7 +6,6 @@ import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class Statistic extends BigDecimal implements INBTSerializable<NBTTagCompound> {
     private final ICategory category;
@@ -124,44 +123,8 @@ public class Statistic extends BigDecimal implements INBTSerializable<NBTTagComp
         return this.lessThan(number) || this.doubleValue() == number.doubleValue();
     }
 
-    public Statistic add(final Number number) {
-        return this.clone(this.value.add(BigDecimal.valueOf(number.doubleValue())));
-    }
-
-    public void addInPlace(final Number number) {
-        this.value = this.value.add(BigDecimal.valueOf(number.doubleValue()));
-    }
-
-    public Statistic subtract(final Number number) {
-        return this.clone(this.value.subtract(BigDecimal.valueOf(number.doubleValue())));
-    }
-
-    public Statistic multiply(final Number number) {
-        return this.clone(this.value.multiply(BigDecimal.valueOf(number.doubleValue())));
-    }
-
-    public Statistic divide(final Number number) {
-        return this.clone(this.value.divide(BigDecimal.valueOf(number.doubleValue()), RoundingMode.HALF_UP));
-    }
-
-    public Statistic add(final BigDecimal number) {
-        return this.clone(this.value.add(number));
-    }
-
-    public void addInPlace(final BigDecimal number) {
-        this.value = this.value.add(number);
-    }
-
-    public Statistic subtract(final BigDecimal number) {
-        return this.clone(this.value.subtract(number));
-    }
-
-    public Statistic multiply(final BigDecimal number) {
-        return this.clone(this.value.multiply(number));
-    }
-
-    public Statistic divide(final BigDecimal number) {
-        return this.clone(this.value.divide(number, RoundingMode.HALF_UP));
+    public void add(final Number number) {
+        this.value = this.value.add(number instanceof BigDecimal ? (BigDecimal) number : BigDecimal.valueOf(number.doubleValue()));
     }
 
     @Override

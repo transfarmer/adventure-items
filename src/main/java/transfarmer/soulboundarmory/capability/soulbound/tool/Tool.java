@@ -93,24 +93,26 @@ public class Tool extends SoulboundBase implements ITool {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
-            this.addDatum(item, ATTRIBUTE_POINTS, -sign);
-            this.addDatum(item, SPENT_ATTRIBUTE_POINTS, sign);
+            if (this.getDatum(item, ATTRIBUTE_POINTS) > 0) {
+                this.addDatum(item, ATTRIBUTE_POINTS, -sign);
+                this.addDatum(item, SPENT_ATTRIBUTE_POINTS, sign);
 
-            if (attribute.equals(HARVEST_LEVEL) && this.getAttribute(item, HARVEST_LEVEL) + sign * this.getIncrease(item, HARVEST_LEVEL) >= 2.9999) {
-                this.setAttribute(item, attribute, 3);
+                if (attribute.equals(HARVEST_LEVEL) && this.getAttribute(item, HARVEST_LEVEL) + sign * this.getIncrease(item, HARVEST_LEVEL) >= 2.9999) {
+                    this.setAttribute(item, attribute, 3);
 
-                return;
+                    return;
+                }
+
+                final Statistic statistic = this.getStatistic(item, attribute);
+
+                if (statistic.doubleValue() + sign * this.getIncrease(item, attribute) <= statistic.min()) {
+                    statistic.setValue(statistic.min());
+
+                    return;
+                }
+
+                statistic.add(sign * this.getIncrease(item, attribute));
             }
-
-            final Statistic statistic = this.getStatistic(item, attribute);
-
-            if (statistic.doubleValue() + sign * this.getIncrease(item, attribute) <= statistic.min()) {
-                statistic.setValue(statistic.min());
-
-                return;
-            }
-
-            statistic.addInPlace(sign * this.getIncrease(item, attribute));
         }
     }
 

@@ -28,12 +28,13 @@ import transfarmer.soulboundarmory.network.C2S.C2SConfig;
 import transfarmer.soulboundarmory.network.C2S.C2SEnchant;
 import transfarmer.soulboundarmory.network.C2S.C2SItemType;
 import transfarmer.soulboundarmory.network.C2S.C2SReset;
-import transfarmer.soulboundarmory.network.C2S.C2SSync;
 import transfarmer.soulboundarmory.network.C2S.C2SSkill;
+import transfarmer.soulboundarmory.network.C2S.C2SSync;
 import transfarmer.soulboundarmory.network.S2C.S2CConfig;
 import transfarmer.soulboundarmory.network.S2C.S2CEnchant;
 import transfarmer.soulboundarmory.network.S2C.S2CItemType;
 import transfarmer.soulboundarmory.network.S2C.S2COpenGUI;
+import transfarmer.soulboundarmory.network.S2C.S2CRefresh;
 import transfarmer.soulboundarmory.network.S2C.S2CSync;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -59,6 +60,7 @@ public class Main {
         CHANNEL.registerMessage(S2COpenGUI.Handler.class, S2COpenGUI.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CSync.Handler.class, S2CSync.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CItemType.Handler.class, S2CItemType.class, id++, CLIENT);
+        CHANNEL.registerMessage(S2CRefresh.Handler.class, S2CRefresh.class, id++, CLIENT);
 
         CHANNEL.registerMessage(C2SAttribute.Handler.class, C2SAttribute.class, id++, SERVER);
         CHANNEL.registerMessage(C2SBindSlot.Handler.class, C2SBindSlot.class, id++, SERVER);
