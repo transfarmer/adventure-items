@@ -13,7 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ITool;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
@@ -99,7 +99,7 @@ public class ItemSoulboundPick extends ItemPickaxe implements SoulboundTool {
     @Override
     @Nonnull
     public Multimap<String, AttributeModifier> getAttributeModifiers(@Nonnull final EntityEquipmentSlot equipmentSlot, final ItemStack itemStack) {
-        itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulItemHelper.REACH_DISTANCE_UUID, "generic.reachDistance", -1, ADD), MAINHAND);
+        itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulboundItemUtil.REACH_DISTANCE_UUID, "generic.reachDistance", -1, ADD), MAINHAND);
 
         return itemStack.getAttributeModifiers(MAINHAND);
     }

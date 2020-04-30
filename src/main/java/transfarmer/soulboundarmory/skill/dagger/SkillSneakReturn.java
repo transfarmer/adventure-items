@@ -1,6 +1,7 @@
 package transfarmer.soulboundarmory.skill.dagger;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBase;
@@ -12,7 +13,7 @@ import static transfarmer.soulboundarmory.skill.Skills.RETURN;
 
 public class SkillSneakReturn extends SkillBase {
     public SkillSneakReturn() {
-        super("sneak_return");
+        super("sneak_return", new ItemStack(Items.LEAD));
     }
 
     @Override
@@ -25,10 +26,5 @@ public class SkillSneakReturn extends SkillBase {
     @Override
     public int getCost() {
         return 1;
-    }
-
-    @Override
-    public ResourceLocation getTexture() {
-        return new ResourceLocation("textures/items/lead.png");
     }
 }

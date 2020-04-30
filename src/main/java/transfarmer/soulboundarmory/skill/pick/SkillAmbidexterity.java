@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SkillAmbidexterity extends SkillBase {
     public SkillAmbidexterity() {
-        super("ambidexterity");
+        super("ambidexterity", null);
     }
 
     @Override
@@ -19,6 +19,6 @@ public class SkillAmbidexterity extends SkillBase {
 
     @Override
     public int getCost() {
-        return 3;
+        return 5;
     }
 }

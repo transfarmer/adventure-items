@@ -33,7 +33,7 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.entity.EntityDatumProvider;
 import transfarmer.soulboundarmory.capability.entity.IEntityData;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
@@ -63,6 +63,7 @@ import static transfarmer.soulboundarmory.skill.Skills.FREEZING;
 import static transfarmer.soulboundarmory.skill.Skills.LEECHING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
+import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.STAFF;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.CRITICAL;
@@ -90,11 +91,11 @@ public class EntityEventHandlers {
     public static void onLivingHurt(final LivingHurtEvent event) {
         if (event.getSource().getTrueSource() != null && !event.getSource().getTrueSource().world.isRemote) {
             final Entity trueSource = event.getSource().getTrueSource();
-            final Entity source = event.getSource().getImmediateSource();
-            final IItem item;
 
             if (trueSource instanceof EntityPlayer) {
+                final Entity source = event.getSource().getImmediateSource();
                 final SoulboundCapability instance = WeaponProvider.get(trueSource);
+                final IItem item;
 
                 if (source instanceof EntitySoulboundDagger) {
                     item = DAGGER;
@@ -102,6 +103,8 @@ public class EntityEventHandlers {
                     item = instance.getItemType();
                 } else if (source instanceof EntitySoulLightningBolt) {
                     item = SWORD;
+                } else if (source instanceof EntitySoulboundSmallFireball) {
+                    item = STAFF;
                 } else {
                     return;
                 }
@@ -139,7 +142,7 @@ public class EntityEventHandlers {
             }
 
             if (attacker instanceof EntityPlayer && weaponType != null) {
-                if (SoulItemHelper.isSoulWeaponEquipped((EntityPlayer) attacker)) {
+                if (SoulboundItemUtil.isSoulWeaponEquipped((EntityPlayer) attacker)) {
                     event.setStrength((event.getStrength() * (float) (1 + instance.getAttribute(weaponType, KNOCKBACK_ATTRIBUTE) / 6)));
                 }
             }

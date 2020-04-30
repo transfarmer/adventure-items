@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import net.minecraft.client.gui.GuiButton;
-import transfarmer.soulboundarmory.client.gui.GuiExtendedButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.config.GuiSlider;
@@ -9,6 +8,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.KeyBindings;
+import transfarmer.soulboundarmory.client.gui.GuiExtendedButton;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 
 import java.io.IOException;
@@ -27,6 +27,7 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
     protected final List<GuiTab> tabs;
     protected final List<GuiExtendedButton> tabButtons;
     protected final int index;
+    protected boolean displayTabs;
     protected GuiExtendedButton button;
 
     public GuiTab(final List<GuiTab> tabs) {
@@ -40,6 +41,7 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
         }
 
         this.index = tabs.indexOf(this);
+        this.displayTabs = true;
     }
 
     @SafeVarargs
@@ -59,12 +61,14 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
 
         this.buttonList.clear();
 
-        for (int row = 0; row < this.tabs.size(); row++) {
-            final GuiExtendedButton button = this.addButton(new GuiExtendedButton(16 + row, width / 24, height / 16 + row * Math.max(height / 16, 30), Math.max(96, Math.round(width / 7.5F)), 20, this.tabs.get(row).getLabel()));
+        if (this.displayTabs) {
+            for (int row = 0; row < this.tabs.size(); row++) {
+                final GuiExtendedButton button = this.addButton(new GuiExtendedButton(16 + row, width / 24, height / 16 + row * Math.max(height / 16, 30), Math.max(96, Math.round(width / 7.5F)), 20, this.tabs.get(row).getLabel()));
 
-            if (row == this.index) {
-                this.button = button;
-                button.enabled = false;
+                if (row == this.index) {
+                    this.button = button;
+                    button.enabled = false;
+                }
             }
         }
     }

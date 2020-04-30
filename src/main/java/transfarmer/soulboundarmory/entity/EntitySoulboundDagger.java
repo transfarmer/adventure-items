@@ -27,7 +27,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.jetbrains.annotations.NotNull;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.entity.damage.ISoulboundDamageSource;
@@ -472,10 +472,10 @@ public class EntitySoulboundDagger extends EntityArrowExtended {
             if (this.isClone) {
                 player.onItemPickup(this, 1);
                 this.setDead();
-            } else if (player.isCreative() && SoulItemHelper.hasSoulWeapon(player)) {
+            } else if (player.isCreative() && SoulboundItemUtil.hasSoulWeapon(player)) {
                 player.onItemPickup(this, 1);
                 this.setDead();
-            } else if (SoulItemHelper.addItemStack(this.getArrowStack(), player, true)) {
+            } else if (SoulboundItemUtil.addItemStack(this.getArrowStack(), player, true)) {
                 player.onItemPickup(this, 1);
                 this.setDead();
             }

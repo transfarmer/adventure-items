@@ -61,9 +61,9 @@ public class EntitySoulboundSmallFireball extends EntitySmallFireball {
 
         final Vec3d look = shooter.getLookVec();
 
-        this.accelerationX = 0.15 * look.x;
-        this.accelerationY = 0.15 * look.y;
-        this.accelerationZ = 0.15 * look.z;
+        this.accelerationX = 0.3 * look.x;
+        this.accelerationY = 0.3 * look.y;
+        this.accelerationZ = 0.3 * look.z;
         this.dataManager.set(SPELL, spell);
     }
 

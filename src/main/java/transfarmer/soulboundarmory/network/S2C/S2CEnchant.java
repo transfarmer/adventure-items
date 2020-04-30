@@ -53,7 +53,7 @@ public class S2CEnchant implements IExtendedMessage {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final Enchantment enchantment = Enchantment.getEnchantmentByLocation(message.enchantment.toString());
             final IItem item = IItem.get(message.item);
-            final SoulboundCapability capability = (SoulboundCapability) minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
+            final SoulboundCapability capability = minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
 
             minecraft.addScheduledTask(() -> {
                 capability.addEnchantment(item, enchantment, message.amount);

@@ -13,7 +13,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 
@@ -62,7 +62,7 @@ public class CommandSoulboundArmory extends CommandBase {
                         : (EntityPlayerMP) sender;
 
                 if (player != null) {
-                    final SoulboundCapability capability = SoulItemHelper.getFirstCapability(player, (Item) null);
+                    final SoulboundCapability capability = SoulboundItemUtil.getFirstCapability(player, (Item) null);
 
                     if (capability == null) {
                         this.sendUsage(sender, true);

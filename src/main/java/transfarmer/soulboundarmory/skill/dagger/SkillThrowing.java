@@ -1,5 +1,7 @@
 package transfarmer.soulboundarmory.skill.dagger;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.skill.Skill;
@@ -10,7 +12,7 @@ import java.util.List;
 
 public class SkillThrowing extends SkillBase {
     public SkillThrowing() {
-        super("throwing");
+        super("throwing", new ItemStack(Items.ARROW));
     }
 
     @Override
@@ -21,10 +23,5 @@ public class SkillThrowing extends SkillBase {
     @Override
     public int getCost() {
         return 2;
-    }
-
-    @Override
-    public ResourceLocation getTexture() {
-        return new ResourceLocation("textures/items/arrow.png");
     }
 }

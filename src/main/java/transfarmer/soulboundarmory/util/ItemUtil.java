@@ -38,23 +38,18 @@ public class ItemUtil {
         return null;
     }
 
-    public static ItemStack getEquippedItemStack(final EntityPlayer player, final Class<?> cls) {
-        final ItemStack mainhandStack = player.getHeldItemMainhand();
-
-        if (cls.isInstance(mainhandStack.getItem())) {
-            return mainhandStack;
-        }
-
-        final ItemStack offhandStack = player.getHeldItemOffhand();
-
-        if (cls.isInstance(offhandStack.getItem())) {
-            return offhandStack;
+    public static ItemStack getEquippedItemStack(final InventoryPlayer inventory, final Class<?> cls) {
+        for (final ItemStack itemStack : Arrays.asList(inventory.getCurrentItem(), inventory.offHandInventory.get(0))) {
+            if (cls.isInstance(itemStack.getItem())) {
+                return itemStack;
+            }
         }
 
         return null;
     }
 
-    public static ItemStack getRequiredItemStack(final EntityPlayer player, final EntityEquipmentSlot slot, final Class<?>... classes) {
+    public static ItemStack getRequiredItemStack(final EntityPlayer player, final EntityEquipmentSlot slot,
+                                                 final Class<?>... classes) {
         final ItemStack itemStack = player.getHeldItemMainhand();
         final Item item = itemStack.getItem();
 
@@ -80,5 +75,19 @@ public class ItemUtil {
         }
 
         return false;
+    }
+
+    public static int getSlotFor(final InventoryPlayer inventory, ItemStack itemStack) {
+        for (int i = 0; i < inventory.mainInventory.size(); ++i) {
+            final ItemStack other = inventory.mainInventory.get(i);
+
+            if (!other.isEmpty() && itemStack.getItem() == other.getItem()
+                    && (!itemStack.getHasSubtypes() || itemStack.getMetadata() == other.getMetadata())
+                    && ItemStack.areItemStackTagsEqual(itemStack, other)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

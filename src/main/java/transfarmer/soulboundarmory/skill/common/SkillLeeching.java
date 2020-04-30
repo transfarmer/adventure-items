@@ -1,6 +1,7 @@
 package transfarmer.soulboundarmory.skill.common;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
@@ -14,7 +15,7 @@ public class SkillLeeching extends SkillBaseLevelable {
     }
 
     public SkillLeeching(final int level) {
-        super("leeching", level, -1);
+        super("leeching", new ItemStack(Items.ROTTEN_FLESH),  level, -1);
     }
 
     @Override
@@ -25,10 +26,5 @@ public class SkillLeeching extends SkillBaseLevelable {
     @Override
     public int getCost() {
         return !this.learned ? 3 : this.level + 1;
-    }
-
-    @Override
-    public ResourceLocation getTexture() {
-        return new ResourceLocation("textures/items/rotten_flesh.png");
     }
 }

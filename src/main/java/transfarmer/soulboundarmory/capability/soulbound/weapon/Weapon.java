@@ -6,13 +6,12 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.entity.EntityDatumProvider;
 import transfarmer.soulboundarmory.capability.entity.IEntityData;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundBase;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabEnchantments;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSkills;
@@ -31,6 +30,8 @@ import transfarmer.soulboundarmory.skill.dagger.SkillThrowing;
 import transfarmer.soulboundarmory.skill.greatsword.SkillFreezing;
 import transfarmer.soulboundarmory.skill.greatsword.SkillLeaping;
 import transfarmer.soulboundarmory.skill.staff.SkillEndermanacle;
+import transfarmer.soulboundarmory.skill.staff.SkillFireball;
+import transfarmer.soulboundarmory.skill.staff.SkillHealing;
 import transfarmer.soulboundarmory.skill.staff.SkillPenetration;
 import transfarmer.soulboundarmory.skill.staff.SkillVulnerability;
 import transfarmer.soulboundarmory.skill.sword.SkillSummonLightning;
@@ -120,23 +121,8 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
                 new Skill[]{new SkillLeeching(), new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn()},
                 new Skill[]{new SkillLeeching(), new SkillSummonLightning()},
                 new Skill[]{new SkillLeeching(), new SkillLeaping(), new SkillFreezing()},
-                new Skill[]{new SkillPenetration(), new SkillVulnerability(), new SkillEndermanacle()}
+                new Skill[]{new SkillHealing(), new SkillFireball(), new SkillVulnerability(), new SkillPenetration(), new SkillEndermanacle()}
         );
-    }
-
-    @Override
-    public boolean isUnlocked(final IItem item) {
-        return this.itemTypes.getOrDefault(item, false);
-    }
-
-    @Override
-    public boolean isUnlocked(final int index) {
-        return this.isUnlocked(this.getItemType(index));
-    }
-
-    @Override
-    public void setUnlocked(final IItem item, final boolean unlocked) {
-        this.itemTypes.put(item, unlocked);
     }
 
     @Override
@@ -247,7 +233,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
             return statistic == ATTACK_SPEED
                     ? 0.04
                     : statistic == ATTACK_DAMAGE
-                    ? 0.1
+                    ? 0.15
                     : statistic == CRITICAL
                     ? 0.025
                     : statistic == KNOCKBACK_ATTRIBUTE
@@ -267,8 +253,8 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
                         SharedMonsterAttributes.ATTACK_SPEED.getName(),
                         SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
                 },
-                new AttributeModifier(SoulItemHelper.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttributeRelative(type, ATTACK_SPEED), ADD),
-                new AttributeModifier(SoulItemHelper.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttributeRelative(type, ATTACK_DAMAGE), ADD)
+                new AttributeModifier(SoulboundItemUtil.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttributeRelative(type, ATTACK_SPEED), ADD),
+                new AttributeModifier(SoulboundItemUtil.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttributeRelative(type, ATTACK_DAMAGE), ADD)
         );
     }
 
@@ -300,19 +286,6 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
     @Override
     public Item getConsumableItem(final IItem item) {
         return item == STAFF ? null : Items.WOODEN_SWORD;
-    }
-
-    @Override
-    public void refresh() {
-        final ItemStack itemStack = this.getEquippedItemStack();
-
-        if (itemStack != null) {
-            if (itemStack.getItem() instanceof SoulboundWeapon) {
-                this.openGUI(this.currentTab);
-            } else {
-                this.openGUI(0);
-            }
-        }
     }
 
     @Override

@@ -1,15 +1,19 @@
 package transfarmer.soulboundarmory.skill;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.client.gui.screen.common.skill.GuiSkill;
 import transfarmer.soulboundarmory.statistics.Skills;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.StringUtil;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,12 +21,15 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public abstract class SkillBase implements Skill, Cloneable {
     protected final String name;
+    protected final GuiSkill gui;
     protected Skills storage;
     protected IItem item;
     protected boolean learned;
 
-    public SkillBase(final String name) {
+    public SkillBase(final String name, @Nullable final ItemStack icon) {
         this.name = name;
+
+        this.gui = FMLCommonHandler.instance().getSide() == CLIENT ? new GuiSkill(this, icon) : null;
     }
 
     @Override
@@ -34,7 +41,7 @@ public abstract class SkillBase implements Skill, Cloneable {
     @Override
     @SideOnly(CLIENT)
     public String getName() {
-        final String name = I18n.format(String.format("skill.soulboundarmory.%s", StringUtil.macroCaseToCamelCase(this.name)));
+        final String name = I18n.format(String.format("skill.%s.%s", this.getModID(), StringUtil.macroCaseToCamelCase(this.name)));
 
         return name.replaceFirst("[A-Za-z]", String.valueOf(name.charAt(0)).toUpperCase());
     }
@@ -42,7 +49,7 @@ public abstract class SkillBase implements Skill, Cloneable {
     @Override
     @SideOnly(CLIENT)
     public List<String> getTooltip() {
-        return Arrays.asList(I18n.format(String.format("skill.soulboundarmory.%s.desc", StringUtil.macroCaseToCamelCase(this.name))).split("\\\\n"));
+        return Arrays.asList(I18n.format(String.format("skill.%s.%s.desc", this.getModID(), StringUtil.macroCaseToCamelCase(this.name))).split("\\\\n"));
     }
 
     @Override
@@ -51,7 +58,7 @@ public abstract class SkillBase implements Skill, Cloneable {
     }
 
     @Override
-    public int getTier() {
+    public final int getTier() {
         int tier = this.hasDependencies() ? 1 : 0;
 
         for (final Skill dependency : this.getDependencies()) {
@@ -93,6 +100,11 @@ public abstract class SkillBase implements Skill, Cloneable {
 
     public ResourceLocation getTexture() {
         return new ResourceLocation(this.getModID(), String.format("textures/skill/%s.png", this.getRegistryName()));
+    }
+
+    @Override
+    public GuiSkill getGUI() {
+        return this.gui;
     }
 
     @Override

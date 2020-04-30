@@ -5,13 +5,22 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.ItemModelMesher;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.ForgeHooksClient;
 import transfarmer.soulboundarmory.Main;
 
 import javax.imageio.ImageIO;
@@ -25,58 +34,59 @@ public interface GuiExtended {
     ItemModelMesher ITEM_MODEL_MESHER = MINECRAFT.getRenderItem().getItemModelMesher();
     TextureManager TEXTURE_MANAGER = MINECRAFT.getTextureManager();
     FontRenderer FONT_RENDERER = MINECRAFT.fontRenderer;
+    RenderItem RENDER_ITEM = Minecraft.getMinecraft().getRenderItem();
 
-    static void drawTexturedModalRect(final int x, final int y, final int v, final int u, final int width, final int height) {
-         drawTexturedModalRect(x, y, v, u, width, height, 0);
-    }
-
-    static void drawTexturedModalRect(final int x, final int y, final int v, final int u, final int width,
-                                      final int height, final int zLevel) {
-        float f = 1F / 256F;
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder builder = tessellator.getBuffer();
-
-        builder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        builder.pos(x, y + height, zLevel).tex((float)(v) * f, (float)(u + height) * f).endVertex();
-        builder.pos(x + width, y + height, zLevel).tex((float)(v + width) * f, (float)(u + height) * f).endVertex();
-        builder.pos(x + width, y, zLevel).tex((v + width) * f, (float)(u) * f).endVertex();
-        builder.pos(x, y, zLevel).tex((float)(v) * f, (float)(u) * f).endVertex();
-        tessellator.draw();
+    static void drawInterpolatedTexturedRect(int x, int y, final int startU, final int startV, final int middleU,
+                                             final int middleV, final int endU, final int endV, final int finalU,
+                                             final int finalV, int width, int height) {
+        drawInterpolatedTexturedRect(x, y, startU, startV, middleU, middleV, endU, endV, finalU, finalV, width, height, 0);
     }
 
     static void drawInterpolatedTexturedRect(int x, int y, final int startU, final int startV, final int middleU,
-                                                final int middleV, final int endU, final int endV, final int finalU,
-                                                final int finalV, int width, int height) {
+                                             final int middleV, final int endU, final int endV, final int finalU,
+                                             final int finalV, int width, int height, final float zLevel) {
         final int leftWidth = middleU - startU;
         final int topHeight = middleV - startV;
 
-        drawHorizontalInterpolatedTexturedRect(x, y, startU, startV, middleU, endU, finalU, width, topHeight);
-        drawHorizontalInterpolatedTexturedRect(x, y + height - topHeight, startU, endV, middleU, endU, finalU, width, topHeight);
-        drawVerticalInterpolatedTexturedRect(x, y, startU, startV, middleV, endV, finalV, leftWidth, height);
-        drawVerticalInterpolatedTexturedRect(x + width - leftWidth, y, endU, startV, middleV, endV, finalV, leftWidth, height);
-        drawVerticalInterpolatedTexturedRect(x + leftWidth, y + topHeight, middleU, middleV, endV, width - 2 * leftWidth, height - 2 * topHeight);
+        drawHorizontalInterpolatedTexturedRect(x, y, startU, startV, middleU, endU, finalU, width, topHeight, zLevel);
+        drawHorizontalInterpolatedTexturedRect(x, y + height - topHeight, startU, endV, middleU, endU, finalU, width, topHeight, zLevel);
+        drawVerticalInterpolatedTexturedRect(x, y, startU, startV, middleV, endV, finalV, leftWidth, height, zLevel);
+        drawVerticalInterpolatedTexturedRect(x + width - leftWidth, y, endU, startV, middleV, endV, finalV, leftWidth, height, zLevel);
+        drawVerticalInterpolatedTexturedRect(x + leftWidth, y + topHeight, middleU, middleV, endV, width - 2 * leftWidth, height - 2 * topHeight, zLevel);
+    }
+
+    static void drawHorizontalInterpolatedTexturedRect(int x, int y, final int startU, final int startV,
+                                                       final int middleU, final int endU, final int finalU, int width,
+                                                       final int height) {
+        drawHorizontalInterpolatedTexturedRect(x, y, startU, startV, middleU, endU, finalU, width, height, 0);
     }
 
     static void drawHorizontalInterpolatedTexturedRect(int x, final int y, final int startU, final int startV,
                                                        final int middleU, final int endU, final int finalU,
-                                                       int width, final int height) {
+                                                       int width, final int height, final float zLevel) {
         final int startWidth = middleU - startU;
         final int finalWidth = finalU - endU;
 
-        drawTexturedModalRect(x, y, startU, startV, startWidth, height);
+        drawTexturedModalRect(x, y, startU, startV, startWidth, height, zLevel);
+
         width -= startWidth + finalWidth;
         x += startWidth;
-        x = drawHorizontalInterpolatedTexturedRect(x, y, startV, middleU, endU, width, height);
+        x = drawHorizontalInterpolatedTexturedRect(x, y, startV, middleU, endU, width, height, zLevel);
 
-        drawTexturedModalRect(x, y, endU, startV, finalWidth, height);
+        drawTexturedModalRect(x, y, endU, startV, finalWidth, height, zLevel);
+    }
+
+    static int drawHorizontalInterpolatedTexturedRect(int x, int y, int startV, int middleU, int endU, int width,
+                                                      int height) {
+        return drawHorizontalInterpolatedTexturedRect(x, y, startV, middleU, endU, width, height, 0);
     }
 
     static int drawHorizontalInterpolatedTexturedRect(int x, final int y, final int startV, final int middleU,
-                                                         final int endU, int width, final int height) {
+                                                      final int endU, int width, final int height, final float zLevel) {
         while (width > 0) {
             final int middleWidth = Math.min(width, endU - middleU);
 
-            drawTexturedModalRect(x, y, middleU, startV, middleWidth, height);
+            drawTexturedModalRect(x, y, middleU, startV, middleWidth, height, zLevel);
             x += middleWidth;
             width -= middleWidth;
         }
@@ -85,29 +95,115 @@ public interface GuiExtended {
     }
 
     static void drawVerticalInterpolatedTexturedRect(final int x, int y, final int startU, final int startV,
-                                                        final int middleV, final int endV, final int finalV,
-                                                        final int width, int height) {
+                                                     final int middleV, final int endV, final int finalV,
+                                                     final int width, int height) {
+        drawVerticalInterpolatedTexturedRect(x, y, startU, startV, middleV, endV, finalV, width, height, 0);
+    }
+
+    static void drawVerticalInterpolatedTexturedRect(final int x, int y, final int startU, final int startV,
+                                                     final int middleV, final int endV, final int finalV,
+                                                     final int width, int height, final float zLevel) {
         final int startHeight = middleV - startV;
         final int finalHeight = finalV - endV;
 
-        drawTexturedModalRect(x, y, startU, startV, width, startHeight);
+        drawTexturedModalRect(x, y, startU, startV, width, startHeight, zLevel);
         height -= startHeight + finalHeight;
         y += startHeight;
-        y = drawVerticalInterpolatedTexturedRect(x, y, startU, middleV, endV, width, height);
+        y = drawVerticalInterpolatedTexturedRect(x, y, startU, middleV, endV, width, height, zLevel);
 
-        drawTexturedModalRect(x, y, startU, endV, width, finalHeight);
+        drawTexturedModalRect(x, y, startU, endV, width, finalHeight, zLevel);
     }
 
     static int drawVerticalInterpolatedTexturedRect(final int x, int y, final int startU, final int middleV,
-                                                       final int endV, final int width, int height) {
+                                                    final int endV, final int width, int height) {
+        return drawVerticalInterpolatedTexturedRect(x, y, startU, middleV, endV, width, height, 0);
+    }
+
+    static int drawVerticalInterpolatedTexturedRect(final int x, int y, final int startU, final int middleV,
+                                                    final int endV, final int width, int height, final float zLevel) {
         while (height > 0) {
             final int middleHeight = Math.min(height, endV - middleV);
 
-            drawTexturedModalRect(x, y, startU, middleV, width, middleHeight);
+            drawTexturedModalRect(x, y, startU, middleV, width, middleHeight, zLevel);
             y += middleHeight;
             height -= middleHeight;
         }
         return y;
+    }
+
+    static void drawTexturedModalRect(final int x, final int y, final int v, final int u, final int width,
+                                      final int height) {
+        drawTexturedModalRect(x, y, v, u, width, height, 0);
+    }
+
+    static void drawTexturedModalRect(final int x, final int y, final int v, final int u, final int width,
+                                      final int height, final float zLevel) {
+        float f = 1F / 256F;
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder builder = tessellator.getBuffer();
+
+        builder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        builder.pos(x, y + height, zLevel).tex((float) (v) * f, (float) (u + height) * f).endVertex();
+        builder.pos(x + width, y + height, zLevel).tex((float) (v + width) * f, (float) (u + height) * f).endVertex();
+        builder.pos(x + width, y, zLevel).tex((v + width) * f, (float) (u) * f).endVertex();
+        builder.pos(x, y, zLevel).tex((float) (v) * f, (float) (u) * f).endVertex();
+        tessellator.draw();
+    }
+
+    static void drawModalRectWithCustomSizedTexture(final int x, final int y, final float u, final float v,
+                                                final int width, final int height, final float textureWidth,
+                                                final float textureHeight) {
+        drawModalRectWithCustomSizedTexture(x, y, u, v, width, height, textureWidth, textureHeight, 0);
+    }
+
+    static void drawModalRectWithCustomSizedTexture(final int x, final int y, final float u, final float v,
+                                                    final int width, final int height, final float textureWidth,
+                                                    final float textureHeight, final float zLevel) {
+        float f = 1F / textureWidth;
+        float f1 = 1F / textureHeight;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.pos(x, y + height, zLevel).tex(u * f, (v + (float) height) * f1).endVertex();
+        bufferbuilder.pos(x + width, y + height, zLevel).tex((u + (float) width) * f, (v + (float) height) * f1).endVertex();
+        bufferbuilder.pos(x + width, y, zLevel).tex((u + (float) width) * f, v * f1).endVertex();
+        bufferbuilder.pos(x, y, zLevel).tex(u * f, v * f1).endVertex();
+        tessellator.draw();
+    }
+
+    static void renderItemModelIntoGUI(final ItemStack stack, final int x, final int y, IBakedModel model,
+                                       final float zLevel) {
+        GlStateManager.pushMatrix();
+        TEXTURE_MANAGER.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        TEXTURE_MANAGER.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.enableAlpha();
+        GlStateManager.alphaFunc(516, 0.1F);
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        setupGuiTransform(x, y, model.isGui3d(), zLevel);
+        model = ForgeHooksClient.handleCameraTransforms(model, TransformType.GUI, false);
+        RENDER_ITEM.renderItem(stack, model);
+        GlStateManager.disableAlpha();
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.disableLighting();
+        GlStateManager.popMatrix();
+        TEXTURE_MANAGER.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        TEXTURE_MANAGER.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+    }
+
+    static void setupGuiTransform(final int x, final int y, final boolean isGUI3D, final float zLevel) {
+        GlStateManager.translate((float) x, (float) y, 100.0F + zLevel);
+        GlStateManager.translate(8.0F, 8.0F, 0.0F);
+        GlStateManager.scale(1.0F, -1.0F, 1.0F);
+        GlStateManager.scale(16.0F, 16.0F, 16.0F);
+
+        if (isGUI3D) {
+            GlStateManager.enableLighting();
+        } else {
+            GlStateManager.disableLighting();
+        }
     }
 
     static BufferedImage readTexture(final ResourceLocation texture) {

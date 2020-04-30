@@ -45,6 +45,7 @@ public class C2SBindSlot implements IExtendedMessage {
                 }
 
                 capability.sync();
+                capability.refresh();
             });
 
             return null;

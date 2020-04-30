@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
@@ -32,15 +32,21 @@ public class GuiXPBar extends Gui implements GuiExtended {
     protected IItem itemType;
     protected int row;
     protected int length;
+    protected Type type;
 
     public GuiXPBar() {
+        this.type = Type.XP_BAR;
     }
 
     public GuiXPBar(final ItemStack itemStack) {
+        this();
+
         this.update(itemStack);
     }
 
     public GuiXPBar(final SoulboundCapability capability) {
+        this();
+
         this.update(capability);
 
         this.itemType = this.capability.getItemType();
@@ -55,7 +61,7 @@ public class GuiXPBar extends Gui implements GuiExtended {
         final EntityPlayer player = MINECRAFT.player;
         final ItemStack itemStack = player.getHeldItemMainhand();
 
-        if (this.update(SoulItemHelper.getFirstCapability(player, itemStack))) {
+        if (this.update(SoulboundItemUtil.getFirstCapability(player, itemStack))) {
             this.itemType = this.capability.getItemType(itemStack);
 
             if (this.itemType == null) {
@@ -89,8 +95,8 @@ public class GuiXPBar extends Gui implements GuiExtended {
     }
 
     public boolean update(final ItemStack itemStack) {
-        if (this.update(SoulItemHelper.getFirstCapability(MINECRAFT.player, itemStack))) {
-            if (this.itemStack != itemStack && itemStack.getItem() instanceof ItemSoulbound) {
+        if (this.update(SoulboundItemUtil.getFirstCapability(MINECRAFT.player, itemStack))) {
+            if (itemStack.getItem() instanceof ItemSoulbound && this.itemStack != itemStack) {
                 this.itemStack = itemStack;
                 this.itemType = this.capability.getItemType(itemStack);
             }
@@ -115,13 +121,14 @@ public class GuiXPBar extends Gui implements GuiExtended {
         final float ratio = (float) this.capability.getDatum(this.itemType, XP) / this.capability.getNextLevelXP(this.itemType);
         final float effectiveLength = ratio * length;
         final int middleU = (int) Math.min(4, effectiveLength);
+        final int startV = this.type == Type.XP_BAR ? 10 : 0;
         final Color color = new Color(ClientConfig.getRed(), ClientConfig.getGreen(), ClientConfig.getBlue(), ClientConfig.getAlpha());
 
         GlStateManager.color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
         TEXTURE_MANAGER.bindTexture(XP_BAR);
 
-        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 0, 4, 177, 182, length, 5);
-        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, 5, middleU, effectiveLength < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
+        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, startV, 4, 177, 182, length, 5);
+        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, startV + 5, middleU, effectiveLength < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
                 ? Math.min(length, (int) (ratio * length))
                 : length, 5
         );
@@ -141,5 +148,14 @@ public class GuiXPBar extends Gui implements GuiExtended {
         }
 
         GlStateManager.disableLighting();
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public enum Type {
+        XP_BAR,
+        BOSS_BAR
     }
 }

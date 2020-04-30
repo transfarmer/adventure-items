@@ -3,7 +3,6 @@ package transfarmer.soulboundarmory.capability.soulbound.tool;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundBase;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
@@ -73,21 +72,6 @@ public class Tool extends SoulboundBase implements ITool {
                     && !name.contains("mending");
         });
         this.skills = new Skills(itemTypes, new Skill[]{new SkillTeleportation(), new SkillAmbidexterity()});
-    }
-
-    @Override
-    public boolean isUnlocked(final IItem item) {
-        return this.itemTypes.getOrDefault(item, false);
-    }
-
-    @Override
-    public boolean isUnlocked(final int index) {
-        return this.isUnlocked(this.getItemType(index));
-    }
-
-    @Override
-    public void setUnlocked(final IItem item, final boolean unlocked) {
-        this.itemTypes.put(item, unlocked);
     }
 
     @Override
@@ -171,19 +155,6 @@ public class Tool extends SoulboundBase implements ITool {
     @Override
     public Item getConsumableItem(final IItem item) {
         return item == PICK ? Items.WOODEN_PICKAXE : null;
-    }
-
-    @Override
-    public void refresh() {
-        final ItemStack itemStack = this.getEquippedItemStack();
-
-        if (itemStack != null) {
-            if (itemStack.getItem() instanceof SoulboundTool) {
-                this.openGUI(this.currentTab);
-            } else {
-                this.openGUI(0);
-            }
-        }
     }
 
     @Override

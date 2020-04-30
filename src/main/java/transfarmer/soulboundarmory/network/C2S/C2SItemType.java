@@ -1,10 +1,10 @@
 package transfarmer.soulboundarmory.network.C2S;
 
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
+import transfarmer.soulboundarmory.network.S2C.S2CItemType;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.network.common.IExtendedMessage;
 import transfarmer.soulboundarmory.network.common.IExtendedMessageHandler;
@@ -37,24 +37,26 @@ public class C2SItemType implements IExtendedMessage {
     public static final class Handler implements IExtendedMessageHandler<C2SItemType> {
         @Override
         public IExtendedMessage onMessage(final C2SItemType message, final MessageContext context) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-                final IItem item = IItem.get(message.item);
-                final EntityPlayerMP player = context.getServerHandler().player;
-                final ICapabilityType type = ICapabilityType.get(message.capability);
-                final SoulboundCapability capability = player.getCapability(type.getCapability(), null);
+            final IItem item = IItem.get(message.item);
+            final EntityPlayerMP player = context.getServerHandler().player;
+            final ICapabilityType type = ICapabilityType.get(message.capability);
+            final SoulboundCapability capability = player.getCapability(type.getCapability(), null);
 
-                capability.setItemType(item);
+            context.getServerHandler().player.server.addScheduledTask(() -> {
                 player.inventory.deleteStack(capability.getEquippedItemStack());
+                capability.setItemType(item);
 
-                if (!capability.hasSoulboundItem()) {
+                if (capability.hasSoulboundItem()) {
+                    SoulboundItemUtil.removeSoulboundItems(player, capability.getBaseItemClass());
+                } else {
                     capability.setCurrentTab(0);
                 }
 
-                SoulItemHelper.addItemStack(capability.getItemStack(item), player);
+                SoulboundItemUtil.addItemStack(capability.getItemStack(item), player);
                 capability.sync();
             });
 
-            return null;
+            return new S2CItemType(capability, item);
         }
     }
 }

@@ -16,7 +16,9 @@ public interface ICapabilityType {
     @Override
     String toString();
 
-    static ICapabilityType get(final String string) {
+    @SuppressWarnings("ConstantConditions")
+    @Nonnull()
+    static ICapabilityType get(@Nonnull final String string) {
         for (final ICapabilityType capability : CAPABILITIES) {
             if (capability.toString().equals(string)) {
                 return capability;

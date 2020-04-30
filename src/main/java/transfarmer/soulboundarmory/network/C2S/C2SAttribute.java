@@ -51,6 +51,7 @@ public class C2SAttribute implements IExtendedMessage {
 
                 capability.addAttribute(type, statistic, message.amount);
                 capability.sync();
+                capability.refresh();
             });
 
             return null;

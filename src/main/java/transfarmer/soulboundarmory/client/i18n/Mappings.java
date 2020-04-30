@@ -7,10 +7,10 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 @SideOnly(CLIENT)
 public class Mappings {
-    public static final String SOUL_GREATSWORD_NAME = I18n.format("item.soulboundarmory.soulboundGreatsword");
-    public static final String SOUL_SWORD_NAME = I18n.format("item.soulboundarmory.soulboundSword");
-    public static final String SOUL_DAGGER_NAME = I18n.format("item.soulboundarmory.soulboundDagger");
-    public static final String SOUL_STAFF_NAME = I18n.format("item.soulboundarmory.soulboundStaff");
+    public static final String SOULBOUND_GREATSWORD_NAME = I18n.format("item.soulboundarmory.soulboundGreatsword");
+    public static final String SOULBOUND_SWORD_NAME = I18n.format("item.soulboundarmory.soulboundSword");
+    public static final String SOULBOUND_DAGGER_NAME = I18n.format("item.soulboundarmory.soulboundDagger");
+    public static final String SOULBOUND_STAFF_NAME = I18n.format("item.soulboundarmory.soulboundStaff");
     public static final String SOUL_PICK_NAME = I18n.format("item.soulboundarmory.soulboundPick");
 
     public static final String KEY_CATEGORY = I18n.format("key.categories.soulboundarmory");

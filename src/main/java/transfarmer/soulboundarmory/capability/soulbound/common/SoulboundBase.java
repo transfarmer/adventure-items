@@ -17,7 +17,7 @@ import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSoulbound;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
 import transfarmer.soulboundarmory.network.C2S.C2SSync;
-import transfarmer.soulboundarmory.network.C2S.C2SUpgradeSkill;
+import transfarmer.soulboundarmory.network.C2S.C2SSkill;
 import transfarmer.soulboundarmory.network.S2C.S2COpenGUI;
 import transfarmer.soulboundarmory.network.S2C.S2CSync;
 import transfarmer.soulboundarmory.skill.Skill;
@@ -43,7 +43,7 @@ import java.util.Map.Entry;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
-import static transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper.REACH_DISTANCE_UUID;
+import static transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil.REACH_DISTANCE_UUID;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTRIBUTE_POINTS;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ENCHANTMENT_POINTS;
@@ -166,19 +166,10 @@ public abstract class SoulboundBase implements SoulboundCapability {
 
     @Override
     public void setItemType(final IItem item) {
+        this.item = item;
+
         if (item != null) {
-            if (!this.isUnlocked(item)) {
-                final ItemStack itemStack = this.getEquippedItemStack();
-
-                if (itemStack != null && itemStack.getItem() == this.getConsumableItem(item)) {
-                    this.player.inventory.deleteStack(itemStack);
-                    this.setUnlocked(item, true);
-                }
-            }
-
-            if (this.item != item) {
-                this.item = item;
-            }
+            this.setUnlocked(item, true);
         }
     }
 
@@ -200,6 +191,21 @@ public abstract class SoulboundBase implements SoulboundCapability {
     @Override
     public Item getItem() {
         return this.getItem(this.item);
+    }
+
+    @Override
+    public boolean isUnlocked(final int index) {
+        return this.isUnlocked(this.getItemType(index));
+    }
+
+    @Override
+    public boolean isUnlocked(final IItem item) {
+        return this.itemTypes.getOrDefault(item, false);
+    }
+
+    @Override
+    public void setUnlocked(final IItem item, final boolean unlocked) {
+        this.itemTypes.put(item, unlocked);
     }
 
     @Override
@@ -342,7 +348,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
     @Override
     public void upgradeSkill(final IItem item, final Skill skill) {
         if (this.isRemote) {
-            Main.CHANNEL.sendToServer(new C2SUpgradeSkill(this.type, item, skill));
+            Main.CHANNEL.sendToServer(new C2SSkill(this.type, item, skill));
         } else {
             final int points = this.getDatum(SKILL_POINTS);
             final int cost = skill.getCost();
@@ -471,13 +477,8 @@ public abstract class SoulboundBase implements SoulboundCapability {
     }
 
     @Override
-    public boolean canConsume(final Item item, final IItem type) {
-        return this.getConsumableItem(type) == item;
-    }
-
-    @Override
-    public boolean canConsume(final Item item, final int index) {
-        return this.canConsume(item, this.getItemType(index));
+    public boolean canUnlock(final int index) {
+        return this.canUnlock(this.getItemType(index));
     }
 
     @Override
@@ -486,8 +487,13 @@ public abstract class SoulboundBase implements SoulboundCapability {
     }
 
     @Override
-    public boolean canUnlock(final int index) {
-        return this.canUnlock(this.getItemType(index));
+    public boolean canConsume(final Item item, final int index) {
+        return this.canConsume(item, this.getItemType(index));
+    }
+
+    @Override
+    public boolean canConsume(final Item item, final IItem type) {
+        return this.getConsumableItem(type) == item;
     }
 
     @Override
@@ -520,12 +526,32 @@ public abstract class SoulboundBase implements SoulboundCapability {
     }
 
     @Override
+    public void refresh() {
+        if (Minecraft.getMinecraft().currentScreen instanceof GuiTabSoulbound) {
+            final ItemStack itemStack = this.getEquippedItemStack();
+
+            if (itemStack != null) {
+                if (itemStack.getItem() instanceof ItemSoulbound) {
+                    this.openGUI();
+                } else {
+                    this.openGUI(0);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void openGUI() {
+        this.openGUI(this.currentTab);
+    }
+
+    @Override
     public void openGUI(final int tab) {
         if (this.isRemote) {
             final Minecraft minecraft = Minecraft.getMinecraft();
             final GuiScreen currentScreen = minecraft.currentScreen;
 
-            if (currentScreen instanceof GuiTabSoulbound && this.currentTab == tab) {
+            if (this.item != null && currentScreen instanceof GuiTabSoulbound && this.currentTab == tab) {
                 ((GuiTabSoulbound) currentScreen).refresh();
             } else {
                 final List<GuiTab> tabs = this.getTabs();
@@ -588,20 +614,12 @@ public abstract class SoulboundBase implements SoulboundCapability {
             final ItemStack equippedItemStack = this.getEquippedItemStack();
 
             if (equippedItemStack != null && baseItemClass.isInstance(equippedItemStack.getItem())) {
-                final IItem item = this.getItemType(equippedItemStack);
-
-                if (item != null && item != this.getItemType()) {
-                    this.item = item;
-                }
+                this.setItemType(this.getItemType(equippedItemStack));
             }
 
             final IItem currentItem = this.getItemType();
 
             if (currentItem != null) {
-                if (!this.isUnlocked(currentItem)) {
-                    this.setUnlocked(currentItem, true);
-                }
-
                 int firstSlot = -1;
 
                 for (final ItemStack itemStack : mainInventory) {
@@ -616,14 +634,14 @@ public abstract class SoulboundBase implements SoulboundCapability {
                                 this.bindSlot(firstSlot);
                             }
 
-                            if (!SoulItemHelper.areDataEqual(itemStack, newItemStack)) {
+                            if (!SoulboundItemUtil.areDataEqual(itemStack, newItemStack)) {
                                 if (itemStack.hasDisplayName()) {
                                     newItemStack.setStackDisplayName(itemStack.getDisplayName());
                                 }
 
                                 inventory.setInventorySlotContents(firstSlot, newItemStack);
                             }
-                        } else if (!this.getPlayer().isCreative() && index != firstSlot && firstSlot != -1) {
+                        } else if (!this.getPlayer().isCreative() && (index != firstSlot || firstSlot != -1)) {
                             inventory.deleteStack(itemStack);
                         }
                     }
@@ -687,10 +705,6 @@ public abstract class SoulboundBase implements SoulboundCapability {
             Main.CHANNEL.sendTo(new S2CSync(this.type, this.serializeNBT()), (EntityPlayerMP) this.getPlayer());
         } else {
             Main.CHANNEL.sendToServer(new C2SSync(this.type, this.serializeNBTClient()));
-
-            if (Minecraft.getMinecraft().currentScreen instanceof GuiTabSoulbound) {
-                this.refresh();
-            }
         }
     }
 }

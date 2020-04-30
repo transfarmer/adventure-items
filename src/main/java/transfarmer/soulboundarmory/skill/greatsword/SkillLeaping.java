@@ -1,6 +1,7 @@
 package transfarmer.soulboundarmory.skill.greatsword;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
@@ -14,7 +15,7 @@ public class SkillLeaping extends SkillBaseLevelable {
     }
 
     public SkillLeaping(final int level) {
-        super("leaping", level, -1);
+        super("leaping", new ItemStack(Items.RABBIT_FOOT), level, -1);
     }
 
     @Override
@@ -25,10 +26,5 @@ public class SkillLeaping extends SkillBaseLevelable {
     @Override
     public int getCost() {
         return 1;
-    }
-
-    @Override
-    public ResourceLocation getTexture() {
-        return new ResourceLocation("textures/items/rabbit_foot.png");
     }
 }

@@ -10,14 +10,14 @@ import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
-public class C2SUpgradeSkill implements IExtendedMessage {
+public class C2SSkill implements IExtendedMessage {
     private String capability;
     private String item;
     private String skill;
 
-    public C2SUpgradeSkill() {}
+    public C2SSkill() {}
 
-    public C2SUpgradeSkill(final ICapabilityType capability, final IItem item, final Skill skill) {
+    public C2SSkill(final ICapabilityType capability, final IItem item, final Skill skill) {
         this.capability = capability.toString();
         this.item = item.toString();
         this.skill = skill.getRegistryName();
@@ -37,9 +37,9 @@ public class C2SUpgradeSkill implements IExtendedMessage {
         buffer.writeString(this.skill);
     }
 
-    public static final class Handler implements IExtendedMessageHandler<C2SUpgradeSkill> {
+    public static final class Handler implements IExtendedMessageHandler<C2SSkill> {
         @Override
-        public IExtendedMessage onMessage(final C2SUpgradeSkill message, final MessageContext context) {
+        public IExtendedMessage onMessage(final C2SSkill message, final MessageContext context) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                 final SoulboundCapability capability = context.getServerHandler().player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
                 final IItem item = IItem.get(message.item);

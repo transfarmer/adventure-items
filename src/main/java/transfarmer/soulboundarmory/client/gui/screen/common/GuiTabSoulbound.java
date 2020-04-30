@@ -46,6 +46,9 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     @Override
     public void initGui() {
+        final boolean equipped = ItemUtil.getEquippedItemStack(this.mc.player.inventory, ItemSoulbound.class) != null;
+
+        this.displayTabs = equipped;
         super.initGui();
 
         this.capability = this.mc.player.getCapability(this.key, null);
@@ -61,7 +64,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
             this.addButton(this.sliderAlpha = this.guiFactory.colorSlider(103, 3, ClientConfig.getAlpha(), Mappings.ALPHA + ": "));
         }
 
-        if (ItemUtil.getEquippedItemStack(this.mc.player, ItemSoulbound.class) != null) {
+        if (equipped) {
             final int width = Math.max(112, Math.round(this.width / 7.5F));
 
             this.addButton(new GuiButton(22, Math.min(this.getXPBarX() - width, this.width / 24), height - height / 16 - 20, width, 20, this.slot != capability.getBoundSlot()
@@ -73,7 +76,10 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     @Override
     public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
+        this.zLevel -= 500;
         this.drawDefaultBackground();
+        this.zLevel += 500;
+
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         if (this.displayXPBar()) {
@@ -100,7 +106,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
     }
 
     protected boolean displayXPBar() {
-        return this.capability.getItemType() != null;
+        return this.item != null;
     }
 
     protected boolean isMouseOverXPBar(final int mouseX, final int mouseY) {
@@ -245,6 +251,6 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     @Override
     public boolean doesGuiPauseGame() {
-        return true;
+        return false;
     }
 }

@@ -12,7 +12,7 @@ public class SkillPenetration extends SkillBaseLevelable {
         this(0);
     }
     public SkillPenetration(final int level) {
-        super("penetration", level);
+        super("penetration", null, level);
     }
 
     @Override

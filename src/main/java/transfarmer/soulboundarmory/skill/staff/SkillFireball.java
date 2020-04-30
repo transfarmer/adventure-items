@@ -1,27 +1,27 @@
 package transfarmer.soulboundarmory.skill.staff;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBase;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-import static transfarmer.soulboundarmory.skill.Skills.FIREBALL;
-
-public class SkillVulnerability extends SkillBase {
-    public SkillVulnerability() {
-        super("vulnerability", null);
+public class SkillFireball extends SkillBase {
+    public SkillFireball() {
+        super("fireball", new ItemStack(Items.FIRE_CHARGE));
     }
 
     @Nonnull
     @Override
     public List<Skill> getDependencies() {
-        return Collections.singletonList(this.storage.get(this.item, FIREBALL));
+        return new ArrayList<>();
     }
 
     @Override
     public int getCost() {
-        return 2;
+        return 1;
     }
 }

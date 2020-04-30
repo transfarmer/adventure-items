@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.skill;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
@@ -7,12 +8,12 @@ public abstract class SkillBaseLevelable extends SkillBase implements SkillLevel
     protected int maxLevel;
     protected int level;
 
-    public SkillBaseLevelable(final String name, final int level) {
-        this(name, level, -1);
+    public SkillBaseLevelable(final String name, final ItemStack icon, final int level) {
+        this(name, icon, level, -1);
     }
 
-    public SkillBaseLevelable(final String name, final int level, final int maxLevel) {
-        super(name);
+    public SkillBaseLevelable(final String name, final ItemStack icon, final int level, final int maxLevel) {
+        super(name, icon);
 
         this.level = level;
         this.maxLevel = maxLevel;

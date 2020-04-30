@@ -11,7 +11,7 @@ import static transfarmer.soulboundarmory.skill.Skills.THROWING;
 
 public class SkillShadowClone extends SkillBase {
     public SkillShadowClone() {
-        super("shadow_clone");
+        super("shadow_clone", null);
     }
 
     @Override

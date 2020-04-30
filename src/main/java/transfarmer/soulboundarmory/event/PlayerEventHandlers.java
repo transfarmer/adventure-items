@@ -23,7 +23,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
@@ -75,14 +75,14 @@ public class PlayerEventHandlers {
             IItem type = weapons.getItemType();
 
             if (type != null && weapons.getDatum(type, LEVEL) >= MainConfig.instance().getPreservationLevel()) {
-                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof SoulboundWeapon && SoulItemHelper.addItemStack(item.getItem(), player));
+                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof SoulboundWeapon && SoulboundItemUtil.addItemStack(item.getItem(), player));
             }
 
             weapons = ToolProvider.get(player);
             type = weapons.getItemType();
 
             if (type != null && weapons.getDatum(type, LEVEL) >= MainConfig.instance().getPreservationLevel()) {
-                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof SoulboundTool && SoulItemHelper.addItemStack(item.getItem(), player));
+                event.getDrops().removeIf((final EntityItem item) -> item.getItem().getItem() instanceof SoulboundTool && SoulboundItemUtil.addItemStack(item.getItem(), player));
             }
         }
     }
@@ -138,7 +138,7 @@ public class PlayerEventHandlers {
     public static void onBreakSpeed(final BreakSpeed event) {
         if (event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemSoulbound) {
             final ItemSoulbound item = (ItemSoulbound) event.getEntityPlayer().getHeldItemMainhand().getItem();
-            final SoulboundCapability capability = SoulItemHelper.getFirstCapability(event.getEntityPlayer(), (Item) item);
+            final SoulboundCapability capability = SoulboundItemUtil.getFirstCapability(event.getEntityPlayer(), (Item) item);
             final IItem type = capability.getItemType();
 
             if (item instanceof SoulboundTool) {
@@ -196,7 +196,7 @@ public class PlayerEventHandlers {
     public static void onEntityItemPickup(final EntityItemPickupEvent event) {
         event.setResult(ALLOW);
 
-        SoulItemHelper.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
+        SoulboundItemUtil.addItemStack(event.getItem().getItem(), event.getEntityPlayer());
     }
 
     @SubscribeEvent

@@ -15,7 +15,7 @@ public class SkillReturn extends SkillBaseLevelable {
     }
 
     public SkillReturn(final int level) {
-        super("return", level);
+        super("return", null, level);
     }
 
     @Override

@@ -29,9 +29,10 @@ import transfarmer.soulboundarmory.network.C2S.C2SEnchant;
 import transfarmer.soulboundarmory.network.C2S.C2SItemType;
 import transfarmer.soulboundarmory.network.C2S.C2SReset;
 import transfarmer.soulboundarmory.network.C2S.C2SSync;
-import transfarmer.soulboundarmory.network.C2S.C2SUpgradeSkill;
+import transfarmer.soulboundarmory.network.C2S.C2SSkill;
 import transfarmer.soulboundarmory.network.S2C.S2CConfig;
 import transfarmer.soulboundarmory.network.S2C.S2CEnchant;
+import transfarmer.soulboundarmory.network.S2C.S2CItemType;
 import transfarmer.soulboundarmory.network.S2C.S2COpenGUI;
 import transfarmer.soulboundarmory.network.S2C.S2CSync;
 
@@ -57,6 +58,7 @@ public class Main {
         CHANNEL.registerMessage(S2CEnchant.Handler.class, S2CEnchant.class, id++, CLIENT);
         CHANNEL.registerMessage(S2COpenGUI.Handler.class, S2COpenGUI.class, id++, CLIENT);
         CHANNEL.registerMessage(S2CSync.Handler.class, S2CSync.class, id++, CLIENT);
+        CHANNEL.registerMessage(S2CItemType.Handler.class, S2CItemType.class, id++, CLIENT);
 
         CHANNEL.registerMessage(C2SAttribute.Handler.class, C2SAttribute.class, id++, SERVER);
         CHANNEL.registerMessage(C2SBindSlot.Handler.class, C2SBindSlot.class, id++, SERVER);
@@ -65,7 +67,7 @@ public class Main {
         CHANNEL.registerMessage(C2SItemType.Handler.class, C2SItemType.class, id++, SERVER);
         CHANNEL.registerMessage(C2SReset.Handler.class, C2SReset.class, id++, SERVER);
         CHANNEL.registerMessage(C2SSync.Handler.class, C2SSync.class, id++, SERVER);
-        CHANNEL.registerMessage(C2SUpgradeSkill.Handler.class, C2SUpgradeSkill.class, id++, SERVER);
+        CHANNEL.registerMessage(C2SSkill.Handler.class, C2SSkill.class, id++, SERVER);
 
         if (FMLCommonHandler.instance().getSide() == CLIENT) {
             ClientRegistry.registerKeyBinding(MENU_KEY);

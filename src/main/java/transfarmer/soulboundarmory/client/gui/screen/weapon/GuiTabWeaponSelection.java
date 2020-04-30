@@ -3,7 +3,7 @@ package transfarmer.soulboundarmory.client.gui.screen.weapon;
 import net.minecraft.client.gui.GuiButton;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSoulbound;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
@@ -34,7 +34,7 @@ public class GuiTabWeaponSelection extends GuiTabSoulbound {
         final int xCenter = (this.width - width) / 2;
         final int ySep = 32;
 
-        final Map<Integer, String> labels = CollectionUtil.hashMap(new Integer[]{0, 1, 2, 3}, Mappings.SOUL_DAGGER_NAME, Mappings.SOUL_SWORD_NAME, Mappings.SOUL_GREATSWORD_NAME, Mappings.SOUL_STAFF_NAME);
+        final Map<Integer, String> labels = CollectionUtil.hashMap(new Integer[]{0, 1, 2, 3}, Mappings.SOULBOUND_DAGGER_NAME, Mappings.SOULBOUND_SWORD_NAME, Mappings.SOULBOUND_GREATSWORD_NAME, Mappings.SOULBOUND_STAFF_NAME);
 
         for (int id = 0, size = labels.size(); id < size; id++) {
             if (!this.capability.isUnlocked(id) && !this.capability.canUnlock(id)) {
@@ -42,13 +42,15 @@ public class GuiTabWeaponSelection extends GuiTabSoulbound {
             }
         }
 
-        final int top = (this.height - height + ySep * (labels.size() - 1)) / 2;
+        final int top = (this.height - height - ySep * (labels.size() - 1)) / 2;
         int row = 0;
 
         for (final int id : labels.keySet()) {
             final GuiButton button = this.addButton(new GuiButton(id, xCenter, top + (row++ * ySep), width, height, labels.get(id)));
 
-            button.enabled = id != this.capability.getIndex();
+            if (this.capability.hasSoulboundItem()) {
+                button.enabled = id != this.capability.getIndex();
+            }
         }
     }
 
@@ -57,9 +59,8 @@ public class GuiTabWeaponSelection extends GuiTabSoulbound {
     public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        if (!SoulItemHelper.hasSoulWeapon(this.mc.player)) {
-            this.drawCenteredString(this.fontRenderer, Mappings.MENU_SELECTION,
-                    Math.round(width / 2F), 40, 0xFFFFFF);
+        if (!SoulboundItemUtil.hasSoulWeapon(this.mc.player)) {
+            this.drawCenteredString(this.fontRenderer, Mappings.MENU_SELECTION, this.width / 2, 40, 0xFFFFFF);
         }
     }
 

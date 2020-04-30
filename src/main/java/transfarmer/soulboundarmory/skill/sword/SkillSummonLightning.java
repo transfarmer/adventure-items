@@ -13,7 +13,7 @@ public class SkillSummonLightning extends SkillBaseLevelable {
     }
 
     public SkillSummonLightning(final int level) {
-        super("summon_lightning", level);
+        super("summon_lightning", null, level);
     }
 
     @Override

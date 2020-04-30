@@ -5,6 +5,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
+import transfarmer.soulboundarmory.client.gui.screen.common.skill.GuiSkill;
 import transfarmer.soulboundarmory.statistics.Skills;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
@@ -32,6 +33,8 @@ public interface Skill extends INBTSerializable<NBTTagCompound> {
     void learn();
 
     ResourceLocation getTexture();
+
+    GuiSkill getGUI();
 
     @NotNull
     String getModID();

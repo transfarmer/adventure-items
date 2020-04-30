@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulItemHelper;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
@@ -63,10 +63,10 @@ public class ClientEventHandlers {
     public static void onClientTick(final ClientTickEvent event) {
         if (event.phase == END) {
             if (MENU_KEY.isPressed()) {
-                final SoulboundCapability capability = SoulItemHelper.getFirstHeldCapability(Minecraft.getMinecraft().player);
+                final SoulboundCapability capability = SoulboundItemUtil.getFirstHeldCapability(Minecraft.getMinecraft().player);
 
                 if (capability != null) {
-                    capability.refresh();
+                    capability.openGUI();
                 }
             } else if (TOGGLE_XP_BAR_KEY.isPressed()) {
                 ClientConfig.setOverlayXPBar(!ClientConfig.getOverlayXPBar());
@@ -94,7 +94,7 @@ public class ClientEventHandlers {
             final ItemStack itemStack = event.getItemStack();
 
             if (itemStack.getItem() instanceof ItemSoulbound) {
-                final SoulboundCapability capability = SoulItemHelper.getFirstCapability(player, itemStack.getItem());
+                final SoulboundCapability capability = SoulboundItemUtil.getFirstCapability(player, itemStack.getItem());
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
 

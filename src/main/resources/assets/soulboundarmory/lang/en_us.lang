@@ -54,8 +54,10 @@ attribute.soulboundarmory.reachDistance=reach distance
 
 # skill names
 skill.soulboundarmory.ambidexterity=ambidexterity
-skill.soulboundarmory.freezing=freezing
 skill.soulboundarmory.endermanacle=endermanacle
+skill.soulboundarmory.fireball=fireball
+skill.soulboundarmory.freezing=freezing
+skill.soulboundarmory.healing=healing
 skill.soulboundarmory.leaping=leaping
 skill.soulboundarmory.leeching=leeching
 skill.soulboundarmory.penetration=penetration
@@ -69,8 +71,10 @@ skill.soulboundarmory.vulnerability=vulnerability
 
 # skill descriptions
 skill.soulboundarmory.ambidexterity.desc=allows its user to mine with their left hand. (Not yet implemented.)
-skill.soulboundarmory.freezing.desc=freezes enemies if passed while leaping and nearby enemies when landing from a leap.
 skill.soulboundarmory.endermanacle.desc=prevents hit entities from teleporting.
+skill.soulboundarmory.fireball.desc=adds a fireball to your arsenal.
+skill.soulboundarmory.freezing.desc=freezes enemies if passed while leaping and nearby enemies when landing from a leap.
+skill.soulboundarmory.healing.desc=allows you to heal yourself.
 skill.soulboundarmory.leaping.desc=enables its user to leap by using the greatsword.
 skill.soulboundarmory.leeching.desc=randomly nourishes you and regenerates saturation when you hit an deal damage.
 skill.soulboundarmory.penetration.desc=allows fireballs to penetrate entities hit.

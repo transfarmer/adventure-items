@@ -136,6 +136,8 @@ public interface SoulboundCapability extends INBTSerializable<NBTTagCompound> {
 
     void refresh();
 
+    void openGUI();
+
     void openGUI(int tab);
 
     List<GuiTab> getTabs();

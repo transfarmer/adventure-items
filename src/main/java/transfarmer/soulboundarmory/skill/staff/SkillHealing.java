@@ -1,5 +1,9 @@
 package transfarmer.soulboundarmory.skill.staff;
 
+import net.minecraft.init.Items;
+import net.minecraft.init.PotionTypes;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionUtils;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
@@ -7,13 +11,13 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SkillEndermanacle extends SkillBaseLevelable {
-    public SkillEndermanacle() {
+public class SkillHealing extends SkillBaseLevelable {
+    public SkillHealing() {
         this(0);
     }
 
-    public SkillEndermanacle(final int level) {
-        super("endermanacle", null, level);
+    public SkillHealing(final int level) {
+        super("healing", PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionTypes.HEALING), level);
     }
 
     @Nonnull
@@ -24,6 +28,6 @@ public class SkillEndermanacle extends SkillBaseLevelable {
 
     @Override
     public int getCost() {
-        return this.learned ? this.level + 1 : 3;
+        return 2;
     }
 }

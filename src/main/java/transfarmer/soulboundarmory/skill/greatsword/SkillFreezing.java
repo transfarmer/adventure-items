@@ -1,6 +1,7 @@
 package transfarmer.soulboundarmory.skill.greatsword;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
@@ -16,7 +17,7 @@ public class SkillFreezing extends SkillBaseLevelable {
     }
 
     public SkillFreezing(final int level) {
-        super("freezing", level);
+        super("freezing", new ItemStack(Items.SNOWBALL), level);
     }
 
     @Override
@@ -29,10 +30,5 @@ public class SkillFreezing extends SkillBaseLevelable {
     @Override
     public int getCost() {
         return 2;
-    }
-
-    @Override
-    public ResourceLocation getTexture() {
-        return new ResourceLocation("textures/items/snowball.png");
     }
 }
