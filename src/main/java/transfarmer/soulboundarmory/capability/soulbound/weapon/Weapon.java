@@ -158,11 +158,11 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
 
 
     @Override
-    public void addAttribute(final IItem item, final IStatistic attribute, int amount) {
+    public void addAttribute(final IItem item, final IStatistic attribute, final int amount) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
-            if (this.getDatum(item, ATTRIBUTE_POINTS) > 0) {
+            if (sign > 0 && this.getDatum(item, ATTRIBUTE_POINTS) > 0 || sign < 0 && this.getDatum(item, SPENT_ATTRIBUTE_POINTS) > 0) {
                 this.addDatum(item, ATTRIBUTE_POINTS, -sign);
                 this.addDatum(item, SPENT_ATTRIBUTE_POINTS, sign);
 

@@ -7,13 +7,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
-import transfarmer.soulboundarmory.client.gui.screen.common.skill.GuiSkill;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillLevelable;
 
-import java.awt.image.BufferedImage;
-import java.util.AbstractMap.SimpleImmutableEntry;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +20,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
@@ -33,8 +30,8 @@ public class GuiTabSkills extends GuiTabSoulbound {
     protected static final ResourceLocation BACKGROUND_TEXTURE = GuiExtended.getTexture(BACKGROUND);
     protected static final ResourceLocation WINDOW = new ResourceLocation("textures/gui/advancements/window.png");
     protected static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/advancements/widgets.png");
+
     protected final Map<Skill, List<Integer>> skills;
-    protected final Map<Skill, Entry<ResourceLocation, BufferedImage>> textures;
     protected Skill selectedSkill;
     protected float chroma;
     protected int windowWidth;
@@ -52,7 +49,6 @@ public class GuiTabSkills extends GuiTabSoulbound {
         super(key, tabs);
 
         this.skills = new LinkedHashMap<>();
-        this.textures = new LinkedHashMap<>();
     }
 
     @Override
@@ -103,7 +99,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
         GuiExtended.drawVerticalInterpolatedTexturedRect(x, y, 0, 0, 22, 126, 140, this.windowWidth, this.windowHeight, -200);
 
         final int color = 0x404040;
-        final int points = this.capability.getDatum(SKILL_POINTS);
+        final int points = this.capability.getDatum(this.item, SKILL_POINTS);
 
         FONT_RENDERER.drawString(Mappings.MENU_BUTTON_SKILLS, x + 8, y + 6, color);
 
@@ -151,6 +147,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
         final int width = 16;
         final int height = 16;
         final int offsetV = skill.isLearned() ? 26 : 0;
+        final int color;
         x -= width / 2;
         y -= height / 2;
 
@@ -160,18 +157,19 @@ public class GuiTabSkills extends GuiTabSoulbound {
             if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
                 this.drawTooltip(skill, x, y, offsetV);
             }
+
+            color = 0xFFFFFFFF;
         } else {
             this.setChroma(this.chroma);
-
             this.zLevel -= 50;
+
+            color = new Color(this.chroma, this.chroma, this.chroma).getRGB();
         }
 
         TEXTURE_MANAGER.bindTexture(WIDGETS);
         this.drawTexturedModalRect(x - 4, y - 4, 1, 155 - offsetV, 24, 24);
 
-        final GuiSkill gui = skill.getGUI();
-
-        gui.render(x, y, this.zLevel - 100);
+        skill.getGUI().render(x, y, color, this.zLevel);
 
         this.zLevel = 0;
     }
@@ -306,7 +304,6 @@ public class GuiTabSkills extends GuiTabSoulbound {
         }
 
         for (final Skill skill : skills) {
-            final ResourceLocation texture = skill.getTexture();
             final int tier = skill.getTier();
             final List<Integer> data = tierOrders.getOrDefault(tier, new ArrayList<>(Collections.nCopies(3, 0)));
             data.set(0, data.get(0) + 1);
@@ -334,7 +331,6 @@ public class GuiTabSkills extends GuiTabSoulbound {
             }
 
             this.skills.put(skill, Arrays.asList(x, this.insideY + 24 + 32 * tier));
-            this.textures.put(skill, new SimpleImmutableEntry<>(texture, GuiExtended.readTexture(texture)));
         }
     }
 }

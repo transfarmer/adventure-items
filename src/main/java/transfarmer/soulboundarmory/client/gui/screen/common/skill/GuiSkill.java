@@ -16,15 +16,15 @@ public class GuiSkill extends Gui implements GuiExtended {
         this.itemStack = itemStack;
     }
 
-    public void render(final int x, final int y) {
-        this.render(x, y, 0);
+    public void render(final int x, final int y, final int color) {
+        this.render(x, y, color, 0);
     }
 
-    public void render(final int x, final int y, final float zLevel) {
+    public void render(final int x, final int y, final int color, final float zLevel) {
         if (this.itemStack == null) {
             this.renderCustom(x, y, zLevel);
         } else {
-            this.renderItem(x, y, zLevel);
+            this.renderItem(x, y, color, zLevel);
         }
     }
 
@@ -33,8 +33,8 @@ public class GuiSkill extends Gui implements GuiExtended {
         drawModalRectWithCustomSizedTexture(x, y, 0, 0, 16, 16, 16, 16);
     }
 
-    public void renderItem(final int x, final int y, final float zLevel) {
-        GuiExtended.renderItemModelIntoGUI(this.itemStack, x, y, RENDER_ITEM.getItemModelWithOverrides(this.itemStack, null, null), zLevel);
+    public void renderItem(final int x, final int y, final int color, final float zLevel) {
+        GuiExtended.renderItemModelIntoGUI(this.itemStack, x, y, RENDER_ITEM.getItemModelWithOverrides(this.itemStack, null, null), color, zLevel);
     }
 
     public ItemStack getItemStack() {

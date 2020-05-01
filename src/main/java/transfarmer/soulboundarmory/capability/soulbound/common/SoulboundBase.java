@@ -34,6 +34,7 @@ import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 import transfarmer.soulboundarmory.util.CollectionUtil;
 import transfarmer.soulboundarmory.util.IndexedLinkedHashMap;
 import transfarmer.soulboundarmory.util.IndexedMap;
+import transfarmer.soulboundarmory.util.ItemUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -547,7 +548,7 @@ public abstract class SoulboundBase implements SoulboundCapability {
 
     @Override
     public void openGUI() {
-        this.openGUI(this.currentTab);
+        this.openGUI(ItemUtil.getEquippedItemStack(this.player.inventory, ItemSoulbound.class) == null ? 0 : this.currentTab);
     }
 
     @Override

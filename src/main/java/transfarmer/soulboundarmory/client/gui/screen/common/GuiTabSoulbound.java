@@ -251,6 +251,6 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     @Override
     public boolean doesGuiPauseGame() {
-        return false;
+        return true;
     }
 }

@@ -19,8 +19,10 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.common.ForgeModContainer;
 import transfarmer.soulboundarmory.Main;
 
 import javax.imageio.ImageIO;
@@ -35,6 +37,7 @@ public interface GuiExtended {
     TextureManager TEXTURE_MANAGER = MINECRAFT.getTextureManager();
     FontRenderer FONT_RENDERER = MINECRAFT.fontRenderer;
     RenderItem RENDER_ITEM = Minecraft.getMinecraft().getRenderItem();
+    ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
 
     static void drawInterpolatedTexturedRect(int x, int y, final int startU, final int startV, final int middleU,
                                              final int middleV, final int endU, final int endV, final int finalU,
@@ -151,18 +154,19 @@ public interface GuiExtended {
     }
 
     static void drawModalRectWithCustomSizedTexture(final int x, final int y, final float u, final float v,
-                                                final int width, final int height, final float textureWidth,
-                                                final float textureHeight) {
+                                                    final int width, final int height, final float textureWidth,
+                                                    final float textureHeight) {
         drawModalRectWithCustomSizedTexture(x, y, u, v, width, height, textureWidth, textureHeight, 0);
     }
 
     static void drawModalRectWithCustomSizedTexture(final int x, final int y, final float u, final float v,
                                                     final int width, final int height, final float textureWidth,
                                                     final float textureHeight, final float zLevel) {
-        float f = 1F / textureWidth;
-        float f1 = 1F / textureHeight;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        final float f = 1F / textureWidth;
+        final float f1 = 1F / textureHeight;
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder bufferbuilder = tessellator.getBuffer();
+
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
         bufferbuilder.pos(x, y + height, zLevel).tex(u * f, (v + (float) height) * f1).endVertex();
         bufferbuilder.pos(x + width, y + height, zLevel).tex((u + (float) width) * f, (v + (float) height) * f1).endVertex();
@@ -171,33 +175,116 @@ public interface GuiExtended {
         tessellator.draw();
     }
 
-    static void renderItemModelIntoGUI(final ItemStack stack, final int x, final int y, IBakedModel model,
-                                       final float zLevel) {
+    static void renderItemModelIntoGUI(final ItemStack stack, final int x, final int y, final IBakedModel model,
+                                       final int color, final float zLevel) {
         GlStateManager.pushMatrix();
+
         TEXTURE_MANAGER.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         TEXTURE_MANAGER.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+
         GlStateManager.enableRescaleNormal();
         GlStateManager.enableAlpha();
         GlStateManager.alphaFunc(516, 0.1F);
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
         setupGuiTransform(x, y, model.isGui3d(), zLevel);
-        model = ForgeHooksClient.handleCameraTransforms(model, TransformType.GUI, false);
-        RENDER_ITEM.renderItem(stack, model);
+        renderItem(stack, color, ForgeHooksClient.handleCameraTransforms(model, TransformType.GUI, false));
+
         GlStateManager.disableAlpha();
         GlStateManager.disableRescaleNormal();
         GlStateManager.disableLighting();
         GlStateManager.popMatrix();
+
         TEXTURE_MANAGER.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         TEXTURE_MANAGER.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
     }
 
+    static void renderItem(final ItemStack stack, final int color, final IBakedModel model) {
+        if (!stack.isEmpty()) {
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+
+            if (model.isBuiltInRenderer()) {
+                GlStateManager.enableRescaleNormal();
+                stack.getItem().getTileEntityItemStackRenderer().renderByItem(stack);
+            } else {
+                renderModel(model, color, stack);
+
+                if (stack.hasEffect()) {
+                    renderEffect(model);
+                }
+            }
+
+            GlStateManager.popMatrix();
+        }
+    }
+
+    static void renderModel(final IBakedModel model, final int color) {
+        renderModel(model, color, ItemStack.EMPTY);
+    }
+
+    static void renderModel(final IBakedModel model, final int color, final ItemStack stack) {
+        if (ForgeModContainer.allowEmissiveItems) {
+            ForgeHooksClient.renderLitItem(RENDER_ITEM, model, color, stack);
+
+            return;
+        }
+
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder bufferbuilder = tessellator.getBuffer();
+
+        bufferbuilder.begin(7, DefaultVertexFormats.ITEM);
+
+        for (EnumFacing enumfacing : EnumFacing.values()) {
+            RENDER_ITEM.renderQuads(bufferbuilder, model.getQuads(null, enumfacing, 0), color, stack);
+        }
+
+        RENDER_ITEM.renderQuads(bufferbuilder, model.getQuads(null, null, 0), color, stack);
+        tessellator.draw();
+    }
+
+    static void renderEffect(final IBakedModel model) {
+        GlStateManager.depthMask(false);
+        GlStateManager.depthFunc(514);
+        GlStateManager.disableLighting();
+        GlStateManager.blendFunc(SourceFactor.SRC_COLOR, DestFactor.ONE);
+
+        TEXTURE_MANAGER.bindTexture(RES_ITEM_GLINT);
+
+        GlStateManager.matrixMode(5890);
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(8F, 8F, 8F);
+
+        final float f = (float) (Minecraft.getSystemTime() % 3000) / 3000F / 8F;
+
+        GlStateManager.translate(f, 0.0F, 0.0F);
+        GlStateManager.rotate(-50F, 0F, 0F, 1F);
+        renderModel(model, -8372020);
+        GlStateManager.popMatrix();
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(8.0F, 8.0F, 8.0F);
+
+        final float f1 = (float) (Minecraft.getSystemTime() % 4873) / 4873F / 8F;
+
+        GlStateManager.translate(-f1, 0F, 0F);
+        GlStateManager.rotate(10F, 0F, 0F, 1F);
+        renderModel(model, -8372020);
+        GlStateManager.popMatrix();
+        GlStateManager.matrixMode(5888);
+        GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+        GlStateManager.enableLighting();
+        GlStateManager.depthFunc(515);
+        GlStateManager.depthMask(true);
+
+        TEXTURE_MANAGER.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+    }
+
     static void setupGuiTransform(final int x, final int y, final boolean isGUI3D, final float zLevel) {
-        GlStateManager.translate((float) x, (float) y, 100.0F + zLevel);
-        GlStateManager.translate(8.0F, 8.0F, 0.0F);
-        GlStateManager.scale(1.0F, -1.0F, 1.0F);
-        GlStateManager.scale(16.0F, 16.0F, 16.0F);
+        GlStateManager.translate((float) x, (float) y, zLevel);
+        GlStateManager.translate(8F, 8F, 0F);
+        GlStateManager.scale(1F, -1F, 1F);
+        GlStateManager.scale(16F, 16F, 16F);
 
         if (isGUI3D) {
             GlStateManager.enableLighting();
