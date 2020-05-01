@@ -2,7 +2,7 @@
     "modid": "soulboundarmory",
     "name": "soulbound armory",
     "description": "RPG-style armory",
-    "version": "2.9.1",
+    "version": "2.10.0",
     "mcversion": "1.12.2",
     "logoFile": "assets/soulboundarmory/textures/item/soulbound_sword.png",
     "authorList": ["transfarmer"],

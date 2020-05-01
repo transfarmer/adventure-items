@@ -237,7 +237,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
                     : statistic == ATTACK_DAMAGE
                     ? 0.2
                     : statistic == CRITICAL
-                    ? 0.025
+                    ? 0.04
                     : statistic == KNOCKBACK_ATTRIBUTE
                     ? 0.1
                     : statistic == EFFICIENCY_ATTRIBUTE
