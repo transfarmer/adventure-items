@@ -34,17 +34,17 @@ public class GuiTabEnchantments extends GuiTabSoulbound {
 
         final IndexedMap<Enchantment, Integer> enchantments = this.capability.getEnchantments(this.capability.getItemType());
         final int size = enchantments.size();
-        final GuiButton resetButton = this.addButton(guiFactory.resetButton(21));
+        final GuiButton resetButton = this.addButton(this.resetButton(21));
         final GuiButton[] removePointButtons = new GuiButton[size];
 
         for (int row = 0; row < size; row++) {
-            removePointButtons[row] = this.addButton(guiFactory.squareButton(2000 + Enchantment.getEnchantmentID(enchantments.getKey(row)), (width + 162) / 2 - 20, (row + 1) * height / 16 + 4, "-"));
+            removePointButtons[row] = this.addButton(this.squareButton(2000 + Enchantment.getEnchantmentID(enchantments.getKey(row)), (width + 162) / 2 - 20, this.getHeight(size, row), "-"));
         }
 
         resetButton.enabled = this.capability.getDatum(this.capability.getItemType(), SPENT_ENCHANTMENT_POINTS) > 0;
 
         for (int row = 0; row < size; row++) {
-            final GuiButton button = this.addButton(this.guiFactory.squareButton(1000 + Enchantment.getEnchantmentID(enchantments.getKey(row)), (width + 162) / 2, (row + 1) * height / 16 + 4, "+"));
+            final GuiButton button = this.addButton(this.squareButton(1000 + Enchantment.getEnchantmentID(enchantments.getKey(row)), (width + 162) / 2, this.getHeight(size, row), "+"));
             button.enabled = this.capability.getDatum(this.capability.getItemType(), ENCHANTMENT_POINTS) > 0;
         }
 
@@ -65,8 +65,8 @@ public class GuiTabEnchantments extends GuiTabSoulbound {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        for (int i = 0; i < enchantments.size(); i++) {
-            this.renderer.drawMiddleEnchantment(enchantments.getKey(i).getTranslatedName(enchantments.getValue(i)), i);
+        for (int i = 0, size = enchantments.size(); i < size; i++) {
+            FONT_RENDERER.drawString(enchantments.getKey(i).getTranslatedName(enchantments.getValue(i)), (this.width - 182) / 2, this.getHeight(size, i) - FONT_RENDERER.FONT_HEIGHT / 2, 0xFFFFFF);
         }
     }
 

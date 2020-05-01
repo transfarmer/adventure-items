@@ -36,9 +36,9 @@ public class GuiTabToolAttributes extends GuiTabSoulbound {
     public void initGui() {
         super.initGui();
 
-        final GuiButton resetButton = this.addButton(this.guiFactory.resetButton(20));
-        final GuiButton[] removePointButtons = this.addButtons(guiFactory.removePointButtons(23, this.capability.size(ATTRIBUTE)));
-        final GuiButton[] addPointButtons = this.addButtons(this.guiFactory.addPointButtons(4, this.capability.size(ATTRIBUTE), this.capability.getDatum(this.item, ATTRIBUTE_POINTS)));
+        final GuiButton resetButton = this.addButton(this.resetButton(20));
+        final GuiButton[] removePointButtons = this.addButtons(this.removePointButtons(23, this.capability.size(ATTRIBUTE)));
+        final GuiButton[] addPointButtons = this.addButtons(this.addPointButtons(4, this.capability.size(ATTRIBUTE), this.capability.getDatum(this.item, ATTRIBUTE_POINTS)));
         resetButton.enabled = this.capability.getDatum(this.item, SPENT_ATTRIBUTE_POINTS) > 0;
 
         for (int index = 0; index < this.capability.size(ATTRIBUTE); index++) {
@@ -65,9 +65,9 @@ public class GuiTabToolAttributes extends GuiTabSoulbound {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(this.item, EFFICIENCY_ATTRIBUTE), 0);
-        this.renderer.drawMiddleAttribute(reachDistance, capability.getAttribute(this.item, REACH_DISTANCE), 1);
-        this.renderer.drawMiddleAttribute(harvestLevel, capability.getAttribute(this.item, HARVEST_LEVEL), 2);
+        this.drawMiddleAttribute(efficiency, capability.getAttribute(this.item, EFFICIENCY_ATTRIBUTE), 0, 3);
+        this.drawMiddleAttribute(reachDistance, capability.getAttribute(this.item, REACH_DISTANCE), 1, 3);
+        this.drawMiddleAttribute(harvestLevel, capability.getAttribute(this.item, HARVEST_LEVEL), 2, 3);
     }
 
     public void actionPerformed(final @NotNull GuiButton button) {

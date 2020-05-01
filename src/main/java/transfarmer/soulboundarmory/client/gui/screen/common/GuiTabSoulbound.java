@@ -19,6 +19,9 @@ import transfarmer.soulboundarmory.network.C2S.C2SBindSlot;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 import transfarmer.soulboundarmory.util.ItemUtil;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -27,11 +30,13 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 
 @SideOnly(CLIENT)
 public abstract class GuiTabSoulbound extends GuiTab {
+    protected static final NumberFormat FORMAT = DecimalFormat.getInstance();
     @NotNull
     protected final Capability<? extends SoulboundCapability> key;
     protected SoulboundCapability capability;
     protected IItem item;
     protected GuiXPBar xpBar;
+    protected List<GuiSlider> sliders;
     protected GuiSlider sliderRed;
     protected GuiSlider sliderGreen;
     protected GuiSlider sliderBlue;
@@ -42,6 +47,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
         super(tabs);
 
         this.key = key;
+        this.sliders = new ArrayList<>(4);
     }
 
     @Override
@@ -57,12 +63,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
         this.item = capability.getItemType();
         this.slot = this.mc.player.inventory.getSlotFor(capability.getEquippedItemStack());
 
-        if (ClientConfig.getDisplaySliders() && this.displayXPBar()) {
-            this.addButton(this.sliderRed = this.guiFactory.colorSlider(100, 0, ClientConfig.getRed(), Mappings.RED + ": "));
-            this.addButton(this.sliderGreen = this.guiFactory.colorSlider(101, 1, ClientConfig.getGreen(), Mappings.GREEN + ": "));
-            this.addButton(this.sliderBlue = this.guiFactory.colorSlider(102, 2, ClientConfig.getBlue(), Mappings.BLUE + ": "));
-            this.addButton(this.sliderAlpha = this.guiFactory.colorSlider(103, 3, ClientConfig.getAlpha(), Mappings.ALPHA + ": "));
-        }
+        this.addSliders();
 
         if (equipped) {
             final int width = Math.max(112, Math.round(this.width / 7.5F));
@@ -71,6 +72,15 @@ public abstract class GuiTabSoulbound extends GuiTab {
                     ? Mappings.MENU_BUTTON_BIND
                     : Mappings.MENU_BUTTON_UNBIND)
             );
+        }
+    }
+
+    protected void addSliders() {
+        if (ClientConfig.getDisplaySliders() && this.displayXPBar()) {
+            this.sliders.add(this.addButton(this.sliderRed = this.colorSlider(100, 0, ClientConfig.getRed(), Mappings.RED + ": ")));
+            this.sliders.add(this.addButton(this.sliderGreen = this.colorSlider(101, 1, ClientConfig.getGreen(), Mappings.GREEN + ": ")));
+            this.sliders.add(this.addButton(this.sliderBlue = this.colorSlider(102, 2, ClientConfig.getBlue(), Mappings.BLUE + ": ")));
+            this.sliders.add(this.addButton(this.sliderAlpha = this.colorSlider(103, 3, ClientConfig.getAlpha(), Mappings.ALPHA + ": ")));
         }
     }
 
@@ -136,8 +146,8 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     protected int sliderMousedOver(final int mouseX, final int mouseY) {
         for (int slider = 0; slider < 4; slider++) {
-            if (mouseX >= this.guiFactory.getColorSliderX() && mouseX <= this.guiFactory.getColorSliderX() + 100
-                    && mouseY >= this.guiFactory.getColorSliderY(slider) && mouseY <= this.guiFactory.getColorSliderY(slider) + 20) {
+            if (mouseX >= this.getColorSliderX() && mouseX <= this.getColorSliderX() + 100
+                    && mouseY >= this.getColorSliderY(slider) && mouseY <= this.getColorSliderY(slider) + 20) {
                 return slider;
             }
         }
@@ -252,5 +262,56 @@ public abstract class GuiTabSoulbound extends GuiTab {
     @Override
     public boolean doesGuiPauseGame() {
         return true;
+    }
+
+    public GuiButton centeredButton(final int id, final int y, final int buttonWidth, final String text) {
+        return new GuiButton(id, (this.width - buttonWidth) / 2, y, buttonWidth, 20, text);
+    }
+
+    public GuiButton squareButton(final int id, final int x, final int y, final String text) {
+        return new GuiButton(id, x - 10, y - 10, 20, 20, text);
+    }
+
+    public GuiButton resetButton(final int id) {
+        return new GuiButton(id, this.width - this.width / 24 - 112, this.height - this.height / 16 - 20, 112, 20, Mappings.MENU_BUTTON_RESET);
+    }
+
+    public GuiSlider colorSlider(final int id, final int row, final double currentValue, final String text) {
+        return new GuiSlider(id, this.getColorSliderX(), this.getColorSliderY(row), 100, 20, text, "", 0, 255, currentValue * 255, false, true);
+    }
+
+    public GuiButton[] addPointButtons(final int id, final int rows, final int points) {
+        final GuiButton[] buttons = new GuiButton[rows];
+        final int start = (this.height - (rows - 1) * this.height / 16) / 2;
+
+        for (int row = 0; row < rows; row++) {
+            buttons[row] = squareButton(id + row, (this.width + 162) / 2, start + row * this.height / 16 + 4, "+");
+            buttons[row].enabled = points > 0;
+        }
+
+        return buttons;
+    }
+
+    public GuiButton[] removePointButtons(final int id, final int rows) {
+        final GuiButton[] buttons = new GuiButton[rows];
+        final int start = (this.height - (rows - 1) * this.height / 16) / 2;
+
+        for (int row = 0; row < rows; row++) {
+            buttons[row] = squareButton(id + row, (this.width + 162) / 2 - 20, start + row * this.height / 16 + 4, "-");
+        }
+
+        return buttons;
+    }
+
+    public int getColorSliderX() {
+        return Math.round(this.width * (1 - 1 / 24F)) - 100;
+    }
+
+    public int getColorSliderY(final int row) {
+        return this.height / 16 + Math.max(this.height / 16 * row, 30 * row);
+    }
+
+    public void drawMiddleAttribute(final String format, final double value, final int row, final int rows) {
+        FONT_RENDERER.drawString(String.format(format, FORMAT.format(value)), (this.width - 182) / 2, this.getHeight(rows, row), 0xFFFFFF);
     }
 }

@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.client.config.GuiSlider;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
@@ -73,6 +74,17 @@ public class GuiTabSkills extends GuiTabSoulbound {
         this.y = this.centerY - this.windowWidth / 2;
 
         this.updateIcons();
+    }
+
+    @Override
+    protected void addSliders() {
+        super.addSliders();
+
+        if (this.sliderAlpha.x < this.x + this.windowWidth) {
+            for (final GuiSlider slider : this.sliders) {
+                this.buttonList.remove(slider);
+            }
+        }
     }
 
     @Override

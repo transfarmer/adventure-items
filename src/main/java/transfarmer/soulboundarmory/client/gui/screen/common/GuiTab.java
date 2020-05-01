@@ -3,17 +3,14 @@ package transfarmer.soulboundarmory.client.gui.screen.common;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.client.config.GuiSlider;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.KeyBindings;
 import transfarmer.soulboundarmory.client.gui.GuiExtendedButton;
-import transfarmer.soulboundarmory.client.i18n.Mappings;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +18,6 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 @SideOnly(CLIENT)
 public abstract class GuiTab extends GuiScreen implements GuiExtended {
-    protected final GUIFactory guiFactory;
-    protected final Renderer renderer;
-
     protected final List<GuiTab> tabs;
     protected final List<GuiExtendedButton> tabButtons;
     protected final int index;
@@ -31,8 +25,6 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
     protected GuiExtendedButton button;
 
     public GuiTab(final List<GuiTab> tabs) {
-        this.guiFactory = new GUIFactory(this);
-        this.renderer = new Renderer(this);
         this.tabs = tabs;
         this.tabButtons = new ArrayList<>();
 
@@ -62,7 +54,7 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
         this.buttonList.clear();
 
         if (this.displayTabs) {
-            for (int row = 0; row < this.tabs.size(); row++) {
+            for (int row = 0, size = this.tabs.size(); row < size; row++) {
                 final GuiExtendedButton button = this.addButton(new GuiExtendedButton(16 + row, width / 24, height / 16 + row * Math.max(height / 16, 30), Math.max(96, Math.round(width / 7.5F)), 20, this.tabs.get(row).getLabel()));
 
                 if (row == this.index) {
@@ -129,7 +121,7 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
     }
 
     @Override
-    public void actionPerformed(final GuiButton button) {
+    public void actionPerformed(@NotNull final GuiButton button) {
         try {
             super.actionPerformed(button);
         } catch (final IOException exception) {
@@ -137,74 +129,19 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
         }
     }
 
-    protected static class GUIFactory {
-        private final GuiScreen screen;
-
-        public GUIFactory(final GuiScreen screen) {
-            this.screen = screen;
-        }
-
-        public GuiButton centeredButton(final int id, final int y, final int buttonWidth, final String text) {
-            return new GuiButton(id, (screen.width - buttonWidth) / 2, y, buttonWidth, 20, text);
-        }
-
-        public GuiButton squareButton(final int id, final int x, final int y, final String text) {
-            return new GuiButton(id, x - 10, y - 10, 20, 20, text);
-        }
-
-        public GuiButton resetButton(final int id) {
-            return new GuiButton(id, screen.width - screen.width / 24 - 112, screen.height - screen.height / 16 - 20, 112, 20, Mappings.MENU_BUTTON_RESET);
-        }
-
-        public GuiSlider colorSlider(final int id, final int row, final double currentValue, final String text) {
-            return new GuiSlider(id, this.getColorSliderX(), this.getColorSliderY(row), 100, 20, text, "", 0, 255, currentValue * 255, false, true);
-        }
-
-        public GuiButton[] addPointButtons(final int id, final int rows, final int points) {
-            final GuiButton[] buttons = new GuiButton[rows];
-
-            for (int row = 0; row < rows; row++) {
-                buttons[row] = squareButton(id + row, (screen.width + 162) / 2, (row + 1) * screen.height / 16 + 4, "+");
-                buttons[row].enabled = points > 0;
-            }
-
-            return buttons;
-        }
-
-        public int getColorSliderX() {
-            return Math.round(screen.width * (1 - 1 / 24F)) - 100;
-        }
-
-        public int getColorSliderY(final int row) {
-            return screen.height / 16 + Math.max(screen.height / 16 * row, 30 * row);
-        }
-
-        public GuiButton[] removePointButtons(final int id, final int rows) {
-            final GuiButton[] buttons = new GuiButton[rows];
-
-            for (int row = 0; row < rows; row++) {
-                buttons[row] = squareButton(id + row, (screen.width + 162) / 2 - 20, (row + 1) * screen.height / 16 + 4, "-");
-            }
-
-            return buttons;
-        }
+    public int getTop(final int rows) {
+        return this.getTop(this.height / 16, rows);
     }
 
-    public static class Renderer {
-        private final GuiScreen screen;
-        private final NumberFormat format;
+    public int getTop(final int sep, final int rows) {
+        return (this.height - (rows - 1) * sep) / 2;
+    }
 
-        public Renderer(final GuiScreen screen) {
-            this.screen = screen;
-            this.format = DecimalFormat.getInstance();
-        }
+    public int getHeight(final int rows, final int row) {
+        return this.getTop(rows) + row * this.height / 16;
+    }
 
-        public void drawMiddleAttribute(String format, double value, int row) {
-            screen.drawString(screen.mc.fontRenderer, String.format(format, this.format.format(value)), (screen.width - 182) / 2, (row + 1) * screen.height / 16, 0xFFFFFF);
-        }
-
-        public void drawMiddleEnchantment(String entry, int row) {
-            screen.drawString(screen.mc.fontRenderer, entry, (screen.width - 182) / 2, (row + 1) * screen.height / 16, 0xFFFFFF);
-        }
+    public int getHeight(final int sep, final int rows, final int row) {
+        return this.getTop(rows, sep) + row * sep;
     }
 }

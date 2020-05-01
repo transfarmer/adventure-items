@@ -39,9 +39,9 @@ public class GuiTabWeaponAttributes extends GuiTabSoulbound {
         super.initGui();
 
         final int size = this.capability.size(ATTRIBUTE) - 1;
-        final GuiButton resetButton = this.addButton(guiFactory.resetButton(20));
-        final GuiButton[] addPointButtons = this.addButtons(this.guiFactory.addPointButtons(4, size, this.capability.getDatum(this.item, ATTRIBUTE_POINTS)));
-        final GuiButton[] removePointButtons = this.addButtons(guiFactory.removePointButtons(23, size));
+        final GuiButton resetButton = this.addButton(this.resetButton(20));
+        final GuiButton[] addPointButtons = this.addButtons(this.addPointButtons(4, size, this.capability.getDatum(this.item, ATTRIBUTE_POINTS)));
+        final GuiButton[] removePointButtons = this.addButtons(this.removePointButtons(23, size));
         resetButton.enabled = this.capability.getDatum(this.item, SPENT_ATTRIBUTE_POINTS) > 0;
 
         addPointButtons[2].enabled &= this.capability.getAttribute(this.item, CRITICAL) < 1;
@@ -69,11 +69,11 @@ public class GuiTabWeaponAttributes extends GuiTabSoulbound {
                     Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.renderer.drawMiddleAttribute(attackSpeed, capability.getAttribute(this.item, ATTACK_SPEED), 0);
-        this.renderer.drawMiddleAttribute(attackDamage, capability.getAttributeTotal(this.item, ATTACK_DAMAGE), 1);
-        this.renderer.drawMiddleAttribute(critical, capability.getAttribute(this.item, CRITICAL) * 100, 2);
-        this.renderer.drawMiddleAttribute(knockback, capability.getAttribute(this.item, KNOCKBACK_ATTRIBUTE), 3);
-        this.renderer.drawMiddleAttribute(efficiency, capability.getAttribute(this.item, EFFICIENCY_ATTRIBUTE), 4);
+        this.drawMiddleAttribute(attackSpeed, capability.getAttribute(this.item, ATTACK_SPEED), 0, 5);
+        this.drawMiddleAttribute(attackDamage, capability.getAttributeTotal(this.item, ATTACK_DAMAGE), 1, 5);
+        this.drawMiddleAttribute(critical, capability.getAttribute(this.item, CRITICAL) * 100, 2, 5);
+        this.drawMiddleAttribute(knockback, capability.getAttribute(this.item, KNOCKBACK_ATTRIBUTE), 3, 5);
+        this.drawMiddleAttribute(efficiency, capability.getAttribute(this.item, EFFICIENCY_ATTRIBUTE), 4, 5);
     }
 
     @Override
@@ -86,11 +86,9 @@ public class GuiTabWeaponAttributes extends GuiTabSoulbound {
             case 6:
             case 7:
             case 8:
-                int amount = 1;
-
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(this.item, ATTRIBUTE_POINTS);
-                }
+                int amount = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)
+                        ? this.capability.getDatum(this.item, ATTRIBUTE_POINTS)
+                        : 1;
 
                 Main.CHANNEL.sendToServer(new C2SAttribute(this.capability.getType(), this.item, this.getAttribute(button.id - 4), amount));
                 break;
@@ -102,11 +100,9 @@ public class GuiTabWeaponAttributes extends GuiTabSoulbound {
             case 25:
             case 26:
             case 27:
-                amount = 1;
-
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.capability.getDatum(this.item, SPENT_ATTRIBUTE_POINTS);
-                }
+                amount = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)
+                        ? this.capability.getDatum(this.item, SPENT_ATTRIBUTE_POINTS)
+                        : 1;
 
                 Main.CHANNEL.sendToServer(new C2SAttribute(this.capability.getType(), this.item, this.getAttribute(button.id - 23), -amount));
                 break;
