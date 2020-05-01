@@ -80,7 +80,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
     protected void addSliders() {
         super.addSliders();
 
-        if (this.sliderAlpha.x < this.x + this.windowWidth) {
+        if (this.sliderAlpha != null && this.sliderAlpha.x < this.x + this.windowWidth) {
             for (final GuiSlider slider : this.sliders) {
                 this.buttonList.remove(slider);
             }
