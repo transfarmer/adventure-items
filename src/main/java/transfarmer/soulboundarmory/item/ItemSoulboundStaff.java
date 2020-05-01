@@ -2,6 +2,7 @@ package transfarmer.soulboundarmory.item;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -27,6 +28,7 @@ public class ItemSoulboundStaff extends ItemStaff implements SoulboundWeapon {
 
         this.setRegistryName(Main.MOD_ID, name);
         this.setTranslationKey(String.format("%s.%s", Main.MOD_ID, name));
+        this.setCreativeTab(CreativeTabs.COMBAT);
     }
 
     @Override
