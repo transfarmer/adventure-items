@@ -105,10 +105,10 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
                         {XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
                         {ATTACK_SPEED, ATTACK_DAMAGE, CRITICAL, KNOCKBACK_ATTRIBUTE, EFFICIENCY_ATTRIBUTE, REACH_DISTANCE}
                 }, new double[][][]{
-                {{0, 0, 0, 0, 0, 0, 0}, {2, 1, 0, 0, 0, 2}},
-                {{0, 0, 0, 0, 0, 0, 0}, {1.6, 2, 0, 0, 0, 3}},
-                {{0, 0, 0, 0, 0, 0, 0}, {0.8, 3, 0, 0, 0, 6}},
-                {{0, 0, 0, 0, 0, 0, 0}, {0.48, 6, 0, 0, 0, 3}}
+                {{0, 0, 0, 0, 0, 0, 0}, {2, 2, 0, 0, 0, 2}},
+                {{0, 0, 0, 0, 0, 0, 0}, {1.6, 4, 0, 0, 0, 3}},
+                {{0, 0, 0, 0, 0, 0, 0}, {0.8, 6, 0, 0, 0, 6}},
+                {{0, 0, 0, 0, 0, 0, 0}, {0.48, 8, 0, 0, 0, 3}}
         });
         this.enchantments = new SoulboundEnchantments(itemTypes, this.items, (final Enchantment enchantment, final IItem item) -> {
             final String name = enchantment.getName().toLowerCase();
@@ -193,7 +193,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
             return statistic == ATTACK_SPEED
                     ? 0.04
                     : statistic == ATTACK_DAMAGE
-                    ? 0.075
+                    ? 0.05
                     : statistic == CRITICAL
                     ? 0.02
                     : statistic == KNOCKBACK_ATTRIBUTE
@@ -207,7 +207,7 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
             return statistic == ATTACK_SPEED
                     ? 0.03
                     : statistic == ATTACK_DAMAGE
-                    ? 0.125
+                    ? 0.075
                     : statistic == CRITICAL
                     ? 0.015
                     : statistic == KNOCKBACK_ATTRIBUTE
@@ -219,9 +219,9 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
 
         if (item == GREATSWORD) {
             return statistic == ATTACK_SPEED
-                    ? 0.01
+                    ? 0.02
                     : statistic == ATTACK_DAMAGE
-                    ? 0.15
+                    ? 0.1
                     : statistic == CRITICAL
                     ? 0.01
                     : statistic == KNOCKBACK_ATTRIBUTE

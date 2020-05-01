@@ -281,11 +281,11 @@ public class MainConfig {
         }
 
         public Property getLevelsPerEnchantment() {
-            return this.get(CATEGORY_GENERAL, "levelsPerEnchantment", 5, "the number of levels per enchantment point");
+            return this.get(CATEGORY_GENERAL, "levelsPerEnchantment", 10, "the number of levels per enchantment point");
         }
 
         public Property getLevelsPerSkill() {
-            return this.get(CATEGORY_GENERAL, "levelsPerSkill", 5, "the number of levels required in order to gain a skill");
+            return this.get(CATEGORY_GENERAL, "levelsPerSkillPoint", 5, "the number of levels required in order to gain a skill point");
         }
 
         public Property getMaxLevel() {
@@ -301,7 +301,7 @@ public class MainConfig {
         }
 
         public Property getLevelupNotifications() {
-            return this.get(CATEGORY_GENERAL, "levelupNotifications", true, "whether levelup notifications should be sent to players or not");
+            return this.get(CATEGORY_GENERAL, "levelupNotifications", false, "whether levelup notifications should be sent to players or not");
         }
 
         public Property getArmorMultiplier() {
