@@ -93,7 +93,7 @@ public class Tool extends SoulboundBase implements ITool {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
-            if (this.getDatum(item, ATTRIBUTE_POINTS) > 0) {
+            if (sign > 0 && this.getDatum(item, ATTRIBUTE_POINTS) > 0 || sign < 0 && this.getDatum(item, SPENT_ATTRIBUTE_POINTS) > 0) {
                 this.addDatum(item, ATTRIBUTE_POINTS, -sign);
                 this.addDatum(item, SPENT_ATTRIBUTE_POINTS, sign);
 
