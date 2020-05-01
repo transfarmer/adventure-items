@@ -48,7 +48,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
-public class PlayerEventHandlers {
+public class PlayerEventListeners {
     @SubscribeEvent
     public static void onPlayerLoggedIn(final PlayerLoggedInEvent event) {
         updatePlayer(event.player);

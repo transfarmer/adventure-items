@@ -113,8 +113,8 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
         this.enchantments = new SoulboundEnchantments(itemTypes, this.items, (final Enchantment enchantment, final IItem item) -> {
             final String name = enchantment.getName().toLowerCase();
 
-            return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment) &&
-                    (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
+            return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
+                    && (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
                     && !name.contains("mending");
         });
         this.skills = new Skills(itemTypes,

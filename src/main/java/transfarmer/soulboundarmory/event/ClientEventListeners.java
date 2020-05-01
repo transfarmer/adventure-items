@@ -38,7 +38,7 @@ import static transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended.F
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.STAFF;
 
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
-public class ClientEventHandlers {
+public class ClientEventListeners {
     public static final GuiXPBar OVERLAY_XP_BAR = new GuiXPBar();
     public static final GuiXPBar TOOLTIP_XP_BAR = new GuiXPBar();
 

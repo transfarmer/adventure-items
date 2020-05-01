@@ -72,7 +72,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
-public class EntityEventHandlers {
+public class EntityEventListeners {
     @SubscribeEvent
     public static void onLivingAttack(final LivingAttackEvent event) {
         final Entity entity = event.getEntity();
