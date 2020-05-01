@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.item;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -12,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ITool;
@@ -44,7 +46,8 @@ public class ItemSoulboundPick extends ItemPickaxe implements SoulboundTool {
     }
 
     @Override
-    public boolean hitEntity(@Nonnull final ItemStack itemStack, @Nonnull final EntityLivingBase target, @Nonnull final EntityLivingBase attacker) {
+    public boolean hitEntity(@Nonnull final ItemStack itemStack, @Nonnull final EntityLivingBase target,
+                             @Nonnull final EntityLivingBase attacker) {
         return false;
     }
 
@@ -56,7 +59,8 @@ public class ItemSoulboundPick extends ItemPickaxe implements SoulboundTool {
     }
 
     @Override
-    public int getHarvestLevel(@Nullable final ItemStack stack, @Nonnull final String toolClass, @Nullable final EntityPlayer player, @Nullable final IBlockState blockState) {
+    public int getHarvestLevel(@Nullable final ItemStack stack, @Nonnull final String toolClass,
+                               @Nullable final EntityPlayer player, @Nullable final IBlockState blockState) {
         if (player != null) {
             return (int) ToolProvider.get(player).getAttribute(Item.PICK, StatisticType.HARVEST_LEVEL);
         }
@@ -70,7 +74,9 @@ public class ItemSoulboundPick extends ItemPickaxe implements SoulboundTool {
     }
 
     @Override
-    public boolean onBlockDestroyed(@Nonnull final ItemStack itemStack, @Nonnull final World world, @Nonnull final IBlockState blockState, @Nonnull final BlockPos blockPos, @Nonnull final EntityLivingBase entity) {
+    public boolean onBlockDestroyed(@Nonnull final ItemStack itemStack, @Nonnull final World world,
+                                    @Nonnull final IBlockState blockState, @Nonnull final BlockPos blockPos,
+                                    @Nonnull final EntityLivingBase entity) {
         if (entity instanceof EntityPlayer && this.canHarvestBlock(blockState, (EntityPlayer) entity)) {
             final ITool capability = ToolProvider.get(entity);
             final IItem type = capability.getItemType(itemStack);
@@ -87,20 +93,14 @@ public class ItemSoulboundPick extends ItemPickaxe implements SoulboundTool {
     }
 
     @Override
-    public int getItemEnchantability() {
-        return 0;
-    }
-
-    @Override
-    public boolean getIsRepairable(@Nonnull final ItemStack itemStackToRepair, @Nonnull final ItemStack material) {
-        return false;
-    }
-
-    @Override
     @Nonnull
-    public Multimap<String, AttributeModifier> getAttributeModifiers(@Nonnull final EntityEquipmentSlot equipmentSlot, final ItemStack itemStack) {
-        itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulboundItemUtil.REACH_DISTANCE_UUID, "generic.reachDistance", -1, ADD), MAINHAND);
+    public Multimap<String, AttributeModifier> getAttributeModifiers(@Nonnull final EntityEquipmentSlot slot,
+                                                                     @NotNull final ItemStack itemStack) {
+        final Multimap<String, AttributeModifier> modifiers = HashMultimap.create();
 
-        return itemStack.getAttributeModifiers(MAINHAND);
+        if (slot == MAINHAND)
+            modifiers.put(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulboundItemUtil.REACH_DISTANCE_UUID, "generic.reachDistance", -1, ADD));
+
+        return modifiers;
     }
 }

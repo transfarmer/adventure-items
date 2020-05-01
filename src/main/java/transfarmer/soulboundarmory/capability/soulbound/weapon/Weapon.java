@@ -263,23 +263,23 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
     @Override
     @SideOnly(CLIENT)
     public List<String> getTooltip(final IItem item) {
-        final NumberFormat FORMAT = DecimalFormat.getInstance();
-        final List<String> tooltip = new ArrayList<>(7);
+        final NumberFormat format = DecimalFormat.getInstance();
+        final List<String> tooltip = new ArrayList<>();
 
-        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_SPEED_FORMAT, FORMAT.format(this.getAttribute(item, ATTACK_SPEED)), Mappings.ATTACK_SPEED_NAME));
-        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_DAMAGE_FORMAT, FORMAT.format(this.getAttributeTotal(item, ATTACK_DAMAGE)), Mappings.ATTACK_DAMAGE_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_SPEED_FORMAT, format.format(this.getAttribute(item, ATTACK_SPEED)), Mappings.ATTACK_SPEED_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.ATTACK_DAMAGE_FORMAT, format.format(this.getAttributeTotal(item, ATTACK_DAMAGE)), Mappings.ATTACK_DAMAGE_NAME));
 
         tooltip.add("");
         tooltip.add("");
 
         if (this.getAttribute(item, CRITICAL) > 0) {
-            tooltip.add(String.format(" %s%s%% %s", Mappings.CRITICAL_FORMAT, FORMAT.format(this.getAttribute(item, CRITICAL) * 100), Mappings.CRITICAL_NAME));
+            tooltip.add(String.format(" %s%s%% %s", Mappings.CRITICAL_FORMAT, format.format(this.getAttribute(item, CRITICAL) * 100), Mappings.CRITICAL_NAME));
         }
         if (this.getAttribute(item, KNOCKBACK_ATTRIBUTE) > 0) {
-            tooltip.add(String.format(" %s%s %s", Mappings.KNOCKBACK_ATTRIBUTE_FORMAT, FORMAT.format(this.getAttribute(item, KNOCKBACK_ATTRIBUTE)), Mappings.KNOCKBACK_ATTRIBUTE_NAME));
+            tooltip.add(String.format(" %s%s %s", Mappings.KNOCKBACK_ATTRIBUTE_FORMAT, format.format(this.getAttribute(item, KNOCKBACK_ATTRIBUTE)), Mappings.KNOCKBACK_ATTRIBUTE_NAME));
         }
         if (this.getAttribute(item, EFFICIENCY_ATTRIBUTE) > 0) {
-            tooltip.add(String.format(" %s%s %s", Mappings.WEAPON_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(item, EFFICIENCY_ATTRIBUTE)), Mappings.EFFICIENCY_NAME));
+            tooltip.add(String.format(" %s%s %s", Mappings.WEAPON_EFFICIENCY_FORMAT, format.format(this.getAttribute(item, EFFICIENCY_ATTRIBUTE)), Mappings.EFFICIENCY_NAME));
         }
 
         return tooltip;

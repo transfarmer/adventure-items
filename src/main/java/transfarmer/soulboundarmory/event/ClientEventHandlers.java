@@ -14,9 +14,10 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Keyboard;
+import scala.actors.threadpool.Arrays;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar;
@@ -91,16 +92,24 @@ public class ClientEventHandlers {
         final EntityPlayer player = event.getEntityPlayer();
 
         if (player != null) {
-            final ItemStack itemStack = event.getItemStack();
+            ItemStack itemStack = event.getItemStack();
 
             if (itemStack.getItem() instanceof ItemSoulbound) {
                 final SoulboundCapability capability = SoulboundItemUtil.getFirstCapability(player, itemStack.getItem());
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
+                final int toIndex = tooltip.size();
+                final int fromIndex = Math.min(toIndex - 1, startIndex + itemStack.getAttributeModifiers(MAINHAND).size());
+
+                Main.LOGGER.warn("fromIndex: " + fromIndex);
+                Main.LOGGER.warn("toIndex: " + toIndex);
+                Main.LOGGER.warn("startIndex: " + startIndex);
+                Main.LOGGER.warn("size: " + tooltip.size());
+                Main.LOGGER.warn(Arrays.toString(tooltip.toArray()));
 
                 final List<String> prior = new ArrayList<>(tooltip).subList(0, startIndex);
                 final List<String> insertion = capability.getTooltip(capability.getItemType(itemStack));
-                final List<String> posterior = new ArrayList<>(tooltip).subList(startIndex + itemStack.getAttributeModifiers(MAINHAND).size(), tooltip.size());
+                final List<String> posterior = new ArrayList<>(tooltip).subList(fromIndex, toIndex);
 
                 tooltip.clear();
                 tooltip.addAll(prior);

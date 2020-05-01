@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.item;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -56,9 +57,13 @@ public class ItemSoulboundStaff extends ItemStaff implements SoulboundWeapon {
     @NotNull
     public Multimap<String, AttributeModifier> getAttributeModifiers(@NotNull final EntityEquipmentSlot slot,
                                                                      @NotNull final ItemStack itemStack) {
-        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(SoulboundItemUtil.ATTACK_SPEED_UUID, "generic.attackSpeed", 0, ADD), MAINHAND);
-        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(SoulboundItemUtil.ATTACK_DAMAGE_UUID, "generic.attackDamage", 0, ADD), MAINHAND);
+        final Multimap<String, AttributeModifier> modifiers = HashMultimap.create();
 
-        return itemStack.getAttributeModifiers(slot);
+        if (slot == MAINHAND) {
+            modifiers.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(SoulboundItemUtil.ATTACK_SPEED_UUID, "generic.attackSpeed", 0, ADD));
+            modifiers.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(SoulboundItemUtil.ATTACK_DAMAGE_UUID, "generic.attackDamage", 0, ADD));
+        }
+
+        return modifiers;
     }
 }

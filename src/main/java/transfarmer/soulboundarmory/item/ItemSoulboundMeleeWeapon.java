@@ -1,11 +1,13 @@
 package transfarmer.soulboundarmory.item;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.math.Vec3d;
@@ -24,7 +26,8 @@ public abstract class ItemSoulboundMeleeWeapon extends ItemSword implements Soul
     private final float attackSpeed;
     private final float reachDistance;
 
-    public ItemSoulboundMeleeWeapon(final int attackDamage, final float attackSpeed, final float reachDistance, final String name) {
+    public ItemSoulboundMeleeWeapon(final int attackDamage, final float attackSpeed, final float reachDistance,
+                                    final String name) {
         super(ToolMaterials.SOULBOUND);
 
         this.setRegistryName(Main.MOD_ID, name);
@@ -39,11 +42,11 @@ public abstract class ItemSoulboundMeleeWeapon extends ItemSword implements Soul
     @Override
     public boolean onEntitySwing(final EntityLivingBase entity, @Nonnull final ItemStack itemStack) {
         if (!entity.world.isRemote && entity instanceof EntityPlayer) {
+            final EntityReachModifier reachModifier = new EntityReachModifier(entity.world, entity, 4 + this.reachDistance);
             final Vec3d look = entity.getLookVec();
-            final EntityReachModifier entityReachModifier = new EntityReachModifier(entity.world, entity, 4 + this.reachDistance);
 
-            entityReachModifier.shoot(look.x, look.y, look.z);
-            entity.world.spawnEntity(entityReachModifier);
+            reachModifier.shoot(look.x, look.y, look.z);
+            entity.world.spawnEntity(reachModifier);
         }
 
         return false;
@@ -51,11 +54,16 @@ public abstract class ItemSoulboundMeleeWeapon extends ItemSword implements Soul
 
     @Override
     @NotNull
-    public Multimap<String, AttributeModifier> getAttributeModifiers(@NotNull final EntityEquipmentSlot slot, final ItemStack itemStack) {
-        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(SoulboundItemUtil.ATTACK_SPEED_UUID, "generic.attackSpeed", this.attackSpeed, ADD), MAINHAND);
-        itemStack.addAttributeModifier(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(SoulboundItemUtil.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.attackDamage, ADD), MAINHAND);
-        itemStack.addAttributeModifier(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulboundItemUtil.REACH_DISTANCE_UUID, "generic.reachDistance", this.reachDistance, ADD), MAINHAND);
+    public Multimap<String, AttributeModifier> getAttributeModifiers(@NotNull final EntityEquipmentSlot slot,
+                                                                     @NotNull final ItemStack itemStack) {
+        final Multimap<String, AttributeModifier> modifiers = HashMultimap.create();
 
-        return itemStack.getAttributeModifiers(MAINHAND);
+        if (slot == MAINHAND) {
+            modifiers.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(Item.ATTACK_SPEED_MODIFIER, "generic.attackSpeed", this.attackSpeed, ADD));
+            modifiers.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(Item.ATTACK_DAMAGE_MODIFIER, "generic.attackDamage", this.attackDamage, ADD));
+            modifiers.put(EntityPlayer.REACH_DISTANCE.getName(), new AttributeModifier(SoulboundItemUtil.REACH_DISTANCE_UUID, "generic.reachDistance", this.reachDistance, ADD));
+        }
+
+        return modifiers;
     }
 }
