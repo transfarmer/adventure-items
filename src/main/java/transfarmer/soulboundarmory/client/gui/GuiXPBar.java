@@ -35,7 +35,7 @@ public class GuiXPBar extends Gui implements GuiExtended {
     protected Type type;
 
     public GuiXPBar() {
-        this.type = Type.XP_BAR;
+        this.type = Type.BOSS_BAR;
     }
 
     public GuiXPBar(final ItemStack itemStack) {
@@ -121,14 +121,13 @@ public class GuiXPBar extends Gui implements GuiExtended {
         final float ratio = (float) this.capability.getDatum(this.itemType, XP) / this.capability.getNextLevelXP(this.itemType);
         final float effectiveLength = ratio * length;
         final int middleU = (int) Math.min(4, effectiveLength);
-        final int startV = this.type == Type.XP_BAR ? 10 : 0;
         final Color color = new Color(ClientConfig.getRed(), ClientConfig.getGreen(), ClientConfig.getBlue(), ClientConfig.getAlpha());
 
         GlStateManager.color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
         TEXTURE_MANAGER.bindTexture(XP_BAR);
 
-        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, startV, 4, 177, 182, length, 5);
-        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, startV + 5, middleU, effectiveLength < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
+        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, this.type.startV, 4, 177, 182, length, 5);
+        GuiExtended.drawHorizontalInterpolatedTexturedRect(x, y, 0, this.type.startV + 5, middleU, effectiveLength < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
                 ? Math.min(length, (int) (ratio * length))
                 : length, 5
         );
@@ -155,7 +154,13 @@ public class GuiXPBar extends Gui implements GuiExtended {
     }
 
     public enum Type {
-        XP_BAR,
-        BOSS_BAR
+        BOSS_BAR(0),
+        XP_BAR(10);
+
+        final int startV;
+
+        Type(final int startV) {
+            this.startV = startV;
+        }
     }
 }
