@@ -458,8 +458,8 @@ public abstract class SoulboundBase implements SoulboundCapability {
     public void resetEnchantments(final IItem item) {
         this.enchantments.reset(item);
 
-        this.statistics.add(item, ENCHANTMENT_POINTS, this.statistics.get(item, SPENT_ENCHANTMENT_POINTS));
-        this.statistics.set(item, SPENT_ENCHANTMENT_POINTS, 0);
+        this.addDatum(item, ENCHANTMENT_POINTS, this.getDatum(item, SPENT_ENCHANTMENT_POINTS));
+        this.setDatum(item, SPENT_ENCHANTMENT_POINTS, 0);
     }
 
     @Override
