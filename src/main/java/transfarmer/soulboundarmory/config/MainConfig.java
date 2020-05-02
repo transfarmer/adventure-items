@@ -97,6 +97,18 @@ public class MainConfig extends Config {
         this.load();
     }
 
+    public void update() {
+        if (!this.configFile.getLoadedConfigVersion().equals(this.configFile.getDefinedConfigVersion())) {
+            if (this.configFile.getConfigFile().delete()) {
+                this.load();
+
+                Main.LOGGER.warn("Deleted old configuration file.");
+            }
+        } else {
+            this.cleanUp();
+        }
+    }
+
     public NBTTagCompound writeToNBT() {
         final NBTTagCompound tag = new NBTTagCompound();
 
@@ -269,7 +281,7 @@ public class MainConfig extends Config {
 
     public static class MainConfiguration extends ExtendedConfiguration {
         public MainConfiguration(final File file) {
-            super(file);
+            super(file, "2.10.5");
         }
 
         public List<Property> getProperties() {

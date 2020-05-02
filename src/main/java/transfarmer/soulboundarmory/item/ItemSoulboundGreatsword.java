@@ -15,7 +15,7 @@ import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 
 import javax.annotation.Nonnull;
 
-import static transfarmer.soulboundarmory.skill.Skills.LEAPING;
+import static transfarmer.soulboundarmory.init.Skills.LEAPING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
 
 public class ItemSoulboundGreatsword extends ItemSoulboundMeleeWeapon {

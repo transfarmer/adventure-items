@@ -9,7 +9,7 @@ import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import java.util.List;
 
-import static transfarmer.soulboundarmory.skill.Skills.RETURN;
+import static transfarmer.soulboundarmory.init.Skills.RETURN;
 
 public class SkillSneakReturn extends SkillBase {
     public SkillSneakReturn() {

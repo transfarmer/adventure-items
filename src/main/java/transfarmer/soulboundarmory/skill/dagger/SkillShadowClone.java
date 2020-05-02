@@ -7,7 +7,7 @@ import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import java.util.List;
 
-import static transfarmer.soulboundarmory.skill.Skills.THROWING;
+import static transfarmer.soulboundarmory.init.Skills.THROWING;
 
 public class SkillShadowClone extends SkillBase {
     public SkillShadowClone() {

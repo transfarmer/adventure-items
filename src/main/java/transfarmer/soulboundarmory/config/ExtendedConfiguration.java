@@ -11,5 +11,9 @@ public abstract class ExtendedConfiguration extends Configuration {
         super(file);
     }
 
+    public ExtendedConfiguration(final File file, final String version) {
+        super(file, version);
+    }
+
     abstract List<Property> getProperties();
 }

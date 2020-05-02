@@ -15,7 +15,7 @@ import transfarmer.soulboundarmory.world.ModWorld;
 
 import javax.annotation.Nonnull;
 
-import static transfarmer.soulboundarmory.skill.Skills.SUMMON_LIGHTNING;
+import static transfarmer.soulboundarmory.init.Skills.SUMMON_LIGHTNING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
 
 public class ItemSoulboundSword extends ItemSoulboundMeleeWeapon {

@@ -15,8 +15,8 @@ import transfarmer.soulboundarmory.entity.EntitySoulboundDagger;
 
 import javax.annotation.Nonnull;
 
-import static transfarmer.soulboundarmory.skill.Skills.SHADOW_CLONE;
-import static transfarmer.soulboundarmory.skill.Skills.THROWING;
+import static transfarmer.soulboundarmory.init.Skills.SHADOW_CLONE;
+import static transfarmer.soulboundarmory.init.Skills.THROWING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;
 

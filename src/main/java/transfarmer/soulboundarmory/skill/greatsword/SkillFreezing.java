@@ -9,7 +9,7 @@ import transfarmer.soulboundarmory.util.CollectionUtil;
 
 import java.util.List;
 
-import static transfarmer.soulboundarmory.skill.Skills.LEAPING;
+import static transfarmer.soulboundarmory.init.Skills.LEAPING;
 
 public class SkillFreezing extends SkillBaseLevelable {
     public SkillFreezing() {

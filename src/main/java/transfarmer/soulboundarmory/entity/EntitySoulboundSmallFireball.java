@@ -30,9 +30,9 @@ import transfarmer.soulboundarmory.skill.SkillLevelable;
 
 import java.util.UUID;
 
-import static transfarmer.soulboundarmory.skill.Skills.ENDERMANACLE;
-import static transfarmer.soulboundarmory.skill.Skills.PENETRATION;
-import static transfarmer.soulboundarmory.skill.Skills.VULNERABILITY;
+import static transfarmer.soulboundarmory.init.Skills.ENDERMANACLE;
+import static transfarmer.soulboundarmory.init.Skills.PENETRATION;
+import static transfarmer.soulboundarmory.init.Skills.VULNERABILITY;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.STAFF;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
 

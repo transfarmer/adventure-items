@@ -44,7 +44,7 @@ import static transfarmer.soulboundarmory.client.KeyBindings.TOGGLE_XP_BAR_KEY;
 public class Main {
     public static final String MOD_ID = "soulboundarmory";
     public static final String NAME = "soulbound armory";
-    public static final String VERSION = "2.10.4";
+    public static final String VERSION = "2.10.5";
 
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
@@ -79,7 +79,7 @@ public class Main {
         }
 
         MainConfig.instance().load();
-        MainConfig.instance().cleanUp();
+        MainConfig.instance().update();
         MainConfig.instance().save();
         ClientConfig.instance().load();
         ClientConfig.instance().cleanUp();

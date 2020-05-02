@@ -59,8 +59,8 @@ import static transfarmer.soulboundarmory.capability.entity.EntityDatumProvider.
 import static transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider.TOOLS;
 import static transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider.WEAPONS;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_SWORD;
-import static transfarmer.soulboundarmory.skill.Skills.FREEZING;
-import static transfarmer.soulboundarmory.skill.Skills.LEECHING;
+import static transfarmer.soulboundarmory.init.Skills.FREEZING;
+import static transfarmer.soulboundarmory.init.Skills.LEECHING;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.GREATSWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.STAFF;

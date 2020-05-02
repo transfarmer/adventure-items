@@ -1,4 +1,4 @@
-package transfarmer.soulboundarmory.skill;
+package transfarmer.soulboundarmory.init;
 
 import transfarmer.soulboundarmory.skill.common.SkillLeeching;
 import transfarmer.soulboundarmory.skill.dagger.SkillReturn;

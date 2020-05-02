@@ -38,8 +38,8 @@ import javax.annotation.Nonnull;
 import java.util.UUID;
 
 import static net.minecraft.init.Enchantments.FIRE_ASPECT;
-import static transfarmer.soulboundarmory.skill.Skills.RETURN;
-import static transfarmer.soulboundarmory.skill.Skills.SNEAK_RETURN;
+import static transfarmer.soulboundarmory.init.Skills.RETURN;
+import static transfarmer.soulboundarmory.init.Skills.SNEAK_RETURN;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_SPEED;

@@ -42,7 +42,7 @@ import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
-import static transfarmer.soulboundarmory.skill.Skills.TELEPORTATION;
+import static transfarmer.soulboundarmory.init.Skills.TELEPORTATION;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.PICK;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.EFFICIENCY_ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
