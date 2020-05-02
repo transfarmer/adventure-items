@@ -41,6 +41,7 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.STAFF
 public class ClientEventListeners {
     public static final GuiXPBar OVERLAY_XP_BAR = new GuiXPBar();
     public static final GuiXPBar TOOLTIP_XP_BAR = new GuiXPBar();
+    public static int i = 0;
 
     @SubscribeEvent
     public static void onMouseInput(final MouseEvent event) {

@@ -16,10 +16,12 @@ import transfarmer.soulboundarmory.init.ModItems;
 import javax.annotation.Nullable;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.Main.ResourceLocations.THROWN_SOULBOUND_DAGGER;
+import static transfarmer.soulboundarmory.Main.MOD_ID;
 
 @SideOnly(CLIENT)
 public class RenderSoulDagger<T extends Entity> extends Render<T> {
+    public static final ResourceLocation THROWN_SOULBOUND_DAGGER = new ResourceLocation(MOD_ID, "textures/item/soulbound_dagger.png");
+
     protected RenderSoulDagger(final RenderManager renderManager) {
         super(renderManager);
     }

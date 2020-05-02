@@ -5,12 +5,14 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Loader;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ClientConfig {
-    private static final ClientConfig INSTANCE = new ClientConfig();
+public class ClientConfig extends Config {
+    private static final ClientConfig INSTANCE = new ClientConfig(new ClientConfiguration(new File(String.format("%s/soulboundarmory", Loader.instance().getConfigDir()), "xp_bar.cfg")));
     public static final String CATEGORY_COLOR = "color";
     public static final String CATEGORY_OTHER = "other";
-    private final ClientConfiguration configFile = new ClientConfiguration(new File(String.format("%s/soulboundarmory", Loader.instance().getConfigDir()), "xp_bar.cfg"));
+    private final ClientConfiguration configFile;
     private float red;
     private float green;
     private float blue;
@@ -18,7 +20,11 @@ public class ClientConfig {
     private boolean displaySliders;
     private boolean overlayXPBar;
 
-    private ClientConfig() {}
+    private ClientConfig(final ClientConfiguration configFile) {
+        super(configFile);
+
+        this.configFile = configFile;
+    }
 
     public static ClientConfig instance() {
         return INSTANCE;
@@ -105,9 +111,23 @@ public class ClientConfig {
         this.load();
     }
 
-    private static class ClientConfiguration extends Configuration {
+    private static class ClientConfiguration extends ExtendedConfiguration {
         public ClientConfiguration(final File file) {
             super(file);
+        }
+
+        @Override
+        List<Property> getProperties() {
+            final List<Property> properties = new ArrayList<>();
+
+            properties.add(this.getRed());
+            properties.add(this.getGreen());
+            properties.add(this.getBlue());
+            properties.add(this.getAlpha());
+            properties.add(this.getDisplaySliders());
+            properties.add(this.getOverlayXPBar());
+
+            return properties;
         }
 
         public Property getRed() {

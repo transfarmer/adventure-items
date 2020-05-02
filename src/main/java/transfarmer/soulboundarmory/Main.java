@@ -1,6 +1,5 @@
 package transfarmer.soulboundarmory;
 
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -10,7 +9,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import transfarmer.soulboundarmory.client.render.RenderReachModifier;
@@ -81,17 +79,15 @@ public class Main {
         }
 
         MainConfig.instance().load();
+        MainConfig.instance().cleanUp();
+        MainConfig.instance().save();
         ClientConfig.instance().load();
+        ClientConfig.instance().cleanUp();
+        ClientConfig.instance().save();
     }
 
     @EventHandler
     public static void onFMLServerStarting(final FMLServerStartingEvent event) {
         event.registerServerCommand(new CommandSoulboundArmory());
-    }
-
-    @SideOnly(CLIENT)
-    public static class ResourceLocations {
-        public static final ResourceLocation REACH_MODIFIER = new ResourceLocation(MOD_ID, "textures/entity/reach_modifier.png");
-        public static final ResourceLocation THROWN_SOULBOUND_DAGGER = new ResourceLocation(MOD_ID, "textures/item/soulbound_dagger.png");
     }
 }
