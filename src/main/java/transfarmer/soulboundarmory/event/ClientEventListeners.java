@@ -14,7 +14,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Keyboard;
-import scala.actors.threadpool.Arrays;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
@@ -25,6 +24,7 @@ import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
