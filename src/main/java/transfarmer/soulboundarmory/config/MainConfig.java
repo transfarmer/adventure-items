@@ -100,7 +100,7 @@ public class MainConfig extends Config {
     public void update() {
         final String loadedVersion = this.configFile.getLoadedConfigVersion();
 
-        if (loadedVersion != null && !loadedVersion.equals(this.configFile.getDefinedConfigVersion())) {
+        if (loadedVersion == null || !loadedVersion.equals(this.configFile.getDefinedConfigVersion())) {
             if (this.configFile.getConfigFile().delete()) {
                 this.load();
 

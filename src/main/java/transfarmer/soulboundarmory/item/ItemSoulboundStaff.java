@@ -14,7 +14,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.entity.EntitySoulboundSmallFireball;
@@ -62,8 +61,8 @@ public class ItemSoulboundStaff extends ItemStaff implements SoulboundWeapon {
         final Multimap<String, AttributeModifier> modifiers = HashMultimap.create();
 
         if (slot == MAINHAND) {
-            modifiers.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(SoulboundItemUtil.ATTACK_SPEED_UUID, "generic.attackSpeed", 0, ADD));
-            modifiers.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(SoulboundItemUtil.ATTACK_DAMAGE_UUID, "generic.attackDamage", 0, ADD));
+            modifiers.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ItemSoulbound.ATTACK_SPEED_MODIFIER, "generic.attackSpeed", 0, ADD));
+            modifiers.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ItemSoulbound.ATTACK_DAMAGE_MODIFIER, "generic.attackDamage", 0, ADD));
         }
 
         return modifiers;

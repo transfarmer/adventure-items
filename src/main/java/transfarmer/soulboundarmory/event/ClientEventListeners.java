@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.event.MouseEvent;
@@ -27,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.EXPERIENCE;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
@@ -93,14 +93,15 @@ public class ClientEventListeners {
         final EntityPlayer player = event.getEntityPlayer();
 
         if (player != null) {
-            ItemStack itemStack = event.getItemStack();
+            final ItemStack itemStack = event.getItemStack();
+            final Item item = itemStack.getItem();
 
-            if (itemStack.getItem() instanceof ItemSoulbound) {
-                final SoulboundCapability capability = SoulboundItemUtil.getFirstCapability(player, itemStack.getItem());
+            if (item instanceof ItemSoulbound) {
+                final SoulboundCapability capability = SoulboundItemUtil.getFirstCapability(player, item);
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
                 final int toIndex = tooltip.size();
-                final int fromIndex = Math.min(toIndex - 1, startIndex + itemStack.getAttributeModifiers(MAINHAND).size());
+                final int fromIndex = Math.min(toIndex - 1, startIndex + ((ItemSoulbound) item).getMainhandAttributeEntries(itemStack, player));
 
                 Main.LOGGER.warn("fromIndex: " + fromIndex);
                 Main.LOGGER.warn("toIndex: " + toIndex);

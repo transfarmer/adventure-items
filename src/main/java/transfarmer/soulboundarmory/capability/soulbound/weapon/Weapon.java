@@ -11,7 +11,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.entity.EntityDatumProvider;
 import transfarmer.soulboundarmory.capability.entity.IEntityData;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundBase;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabEnchantments;
 import transfarmer.soulboundarmory.client.gui.screen.common.GuiTabSkills;
@@ -58,7 +57,7 @@ import static net.minecraft.init.Enchantments.VANISHING_CURSE;
 import static net.minecraftforge.common.util.Constants.AttributeModifierOperation.ADD;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider.WEAPONS;
-import static transfarmer.soulboundarmory.enchantment.Enchantments.IMPACT;
+import static transfarmer.soulboundarmory.enchantment.ModEnchantments.IMPACT;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_DAGGER;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_GREATSWORD;
 import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_STAFF;
@@ -255,8 +254,8 @@ public class Weapon extends SoulboundBase implements IWeaponCapability {
                         SharedMonsterAttributes.ATTACK_SPEED.getName(),
                         SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
                 },
-                new AttributeModifier(SoulboundItemUtil.ATTACK_SPEED_UUID, "generic.attackSpeed", this.getAttributeRelative(type, ATTACK_SPEED), ADD),
-                new AttributeModifier(SoulboundItemUtil.ATTACK_DAMAGE_UUID, "generic.attackDamage", this.getAttributeRelative(type, ATTACK_DAMAGE), ADD)
+                new AttributeModifier(ItemSoulbound.ATTACK_SPEED_MODIFIER, "generic.attackSpeed", this.getAttributeRelative(type, ATTACK_SPEED), ADD),
+                new AttributeModifier(ItemSoulbound.ATTACK_DAMAGE_MODIFIER, "generic.attackDamage", this.getAttributeRelative(type, ATTACK_DAMAGE), ADD)
         );
     }
 

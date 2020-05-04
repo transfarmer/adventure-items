@@ -466,6 +466,7 @@ public class EntitySoulboundDagger extends EntityArrowExtended {
     @Override
     public void onCollideWithPlayer(@Nonnull final EntityPlayer player) {
         if (!this.world.isRemote && player.getUniqueID().equals(this.shooterUUID)
+                && this.capability != null
                 && this.ticksExisted >= Math.max(1, 20 / this.capability.getAttribute(DAGGER, ATTACK_SPEED))
                 && this.arrowShake <= 0 && (this.pickupStatus == PickupStatus.ALLOWED
                 || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {

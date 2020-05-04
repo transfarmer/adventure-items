@@ -5,7 +5,9 @@ import net.minecraftforge.common.capabilities.Capability.IStorage;
 import org.jetbrains.annotations.NotNull;
 import transfarmer.soulboundarmory.Main;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
@@ -28,9 +30,16 @@ public class ReflectUtil {
         return null;
     }
 
-    public static <T, U> U getStaticValue(final Class<?> clazz, final T object, final String field) {
+    @Nonnull
+    public static <T, U> U getFieldValue(final Class<?> clazz, final T object, final String fieldName) {
         try {
-            return (U) clazz.getDeclaredField(field).get(object);
+            final Field field = clazz.getDeclaredField(fieldName);
+
+            field.setAccessible(true);
+            final U value = (U) field.get(object);
+            field.setAccessible(false);
+
+            return value;
         } catch (final NoSuchFieldException | IllegalAccessException exception) {
             Main.LOGGER.error(exception);
         }

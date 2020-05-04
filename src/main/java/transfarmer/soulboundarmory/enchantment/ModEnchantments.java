@@ -12,7 +12,7 @@ import static net.minecraft.inventory.EntityEquipmentSlot.MAINHAND;
 import static transfarmer.soulboundarmory.enchantment.EnchantmentTypes.STAFF;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
-public class Enchantments {
+public class ModEnchantments {
     public static final Enchantment IMPACT = new EnchantmentImpact(Rarity.COMMON, STAFF, new EntityEquipmentSlot[]{MAINHAND});
 
     @SubscribeEvent
