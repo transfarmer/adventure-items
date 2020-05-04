@@ -28,7 +28,7 @@ public abstract class ItemSoulboundMeleeWeapon extends ItemSword implements Soul
 
     public ItemSoulboundMeleeWeapon(final int attackDamage, final float attackSpeed, final float reachDistance,
                                     final String name) {
-        super(ToolMaterials.SOULBOUND);
+        super(ModToolMaterial.SOULBOUND);
 
         this.setRegistryName(Main.MOD_ID, name);
         this.setTranslationKey(String.format("%s.%s", Main.MOD_ID, name));

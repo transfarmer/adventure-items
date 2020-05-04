@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.util;
 
+import net.minecraft.item.Item;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import org.jetbrains.annotations.NotNull;
@@ -9,6 +10,7 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 @SuppressWarnings({"unchecked", "rawtypes", "ConstantConditions"})
@@ -45,5 +47,13 @@ public class ReflectUtil {
         }
 
         return null;
+    }
+
+    public static UUID getAttackDamageModifier() {
+        return getFieldValue(Item.class, null, Main.IS_DEBUG ? "ATTACK_DAMAGE_MODIFIER" : "field_111210_e");
+    }
+
+    public static UUID getAttackSpeedModifier() {
+        return getFieldValue(Item.class, null, Main.IS_DEBUG ? "ATTACK_SPEED_MODIFIER": "field_185050_h");
     }
 }

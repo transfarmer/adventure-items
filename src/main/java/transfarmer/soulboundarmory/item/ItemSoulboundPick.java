@@ -35,7 +35,7 @@ public class ItemSoulboundPick extends ItemPickaxe implements SoulboundTool {
     private static final String toolClass = "pickaxe";
 
     public ItemSoulboundPick(final String name) {
-        super(ToolMaterial.DIAMOND);
+        super(ModToolMaterial.SOULBOUND);
 
         this.setRegistryName(Main.MOD_ID, name);
         this.setTranslationKey(String.format("%s.%s", Main.MOD_ID, name));

@@ -35,6 +35,8 @@ import transfarmer.soulboundarmory.network.S2C.S2COpenGUI;
 import transfarmer.soulboundarmory.network.S2C.S2CRefresh;
 import transfarmer.soulboundarmory.network.S2C.S2CSync;
 
+import java.lang.management.ManagementFactory;
+
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static net.minecraftforge.fml.relauncher.Side.SERVER;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
@@ -50,6 +52,8 @@ public class Main {
 
     public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
     public static int id;
+
+    public static final boolean IS_DEBUG = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
 
     @EventHandler
     public static void onPreinit(final FMLPreInitializationEvent event) {

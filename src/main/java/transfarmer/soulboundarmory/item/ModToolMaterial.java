@@ -6,7 +6,7 @@ import net.minecraftforge.common.util.EnumHelper;
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("ConstantConditions")
-public class ToolMaterials {
+public class ModToolMaterial {
     @Nonnull
     public static final ToolMaterial SOULBOUND = EnumHelper.addToolMaterial("soulbound", 0, 0, 0.5F, 0, 0).setRepairItem(null);
 }
