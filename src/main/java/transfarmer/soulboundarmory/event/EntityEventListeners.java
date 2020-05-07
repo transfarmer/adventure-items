@@ -40,7 +40,7 @@ import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.entity.EntityReachModifier;
-import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
+import transfarmer.soulboundarmory.entity.EntityLightningBoltSoulbound;
 import transfarmer.soulboundarmory.entity.EntitySoulboundDagger;
 import transfarmer.soulboundarmory.entity.EntitySoulboundSmallFireball;
 import transfarmer.soulboundarmory.item.ItemSoulboundDagger;
@@ -99,7 +99,7 @@ public class EntityEventListeners {
                 item = DAGGER;
             } else if (source instanceof EntityPlayer) {
                 item = instance.getItemType();
-            } else if (source instanceof EntitySoulLightningBolt) {
+            } else if (source instanceof EntityLightningBoltSoulbound) {
                 item = SWORD;
             } else if (source instanceof EntitySoulboundSmallFireball) {
                 item = STAFF;
@@ -179,7 +179,7 @@ public class EntityEventListeners {
             if (immediateSource instanceof EntitySoulboundDagger) {
                 item = DAGGER;
                 displayName = ((EntitySoulboundDagger) immediateSource).itemStack.getDisplayName();
-            } else if (immediateSource instanceof EntitySoulLightningBolt) {
+            } else if (immediateSource instanceof EntityLightningBoltSoulbound) {
                 item = SWORD;
                 displayName = ItemUtil.getEquippedItemStack(player, SOULBOUND_SWORD).getDisplayName();
             } else {

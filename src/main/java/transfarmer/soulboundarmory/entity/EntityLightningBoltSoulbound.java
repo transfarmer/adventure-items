@@ -1,6 +1,5 @@
 package transfarmer.soulboundarmory.entity;
 
-import net.minecraft.block.material.Material;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -16,7 +15,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -33,41 +31,22 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.DAGGE
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.SWORD;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTACK_DAMAGE;
 
-public class EntitySoulLightningBolt extends EntityLightningBolt {
+public class EntityLightningBoltSoulbound extends EntityLightningBolt {
     private UUID casterUUID;
     private int lightningState;
     private int boltLivingTime;
 
-    public EntitySoulLightningBolt(final World world, final double x, final double y, final double z, final UUID casterUUID) {
+    public EntityLightningBoltSoulbound(final World world, final double x, final double y, final double z,
+                                        final UUID casterUUID) {
         super(world, x, y, z, true);
 
         this.casterUUID = casterUUID;
         this.lightningState = 2;
 
-        final BlockPos[] nearby = {
-                this.getPosition(),
-                new BlockPos(this.posX, this.posY - 1, this.posZ),
-        };
-
-        boolean obsidianNearby = false;
-
-        for (final BlockPos pos : nearby) {
-            if (this.world.getBlockState(pos).getBlock() == Blocks.OBSIDIAN) {
-                obsidianNearby = true;
-            }
-        }
-
-        if (obsidianNearby) {
-            for (final BlockPos pos : nearby) {
-                if (this.world.getBlockState(pos).getMaterial() == Material.AIR && Blocks.FIRE.canPlaceBlockAt(this.world, pos)) {
-                    this.world.setBlockState(pos, Blocks.FIRE.getDefaultState(), 11);
-                }
-            }
-        }
-
+        Blocks.PORTAL.trySpawnPortal(world, this.getPosition());
     }
 
-    public EntitySoulLightningBolt(final World world, final Vec3d pos, final UUID casterUUID) {
+    public EntityLightningBoltSoulbound(final World world, final Vec3d pos, final UUID casterUUID) {
         this(world, pos.x, pos.y, pos.z, casterUUID);
     }
 

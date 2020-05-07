@@ -10,7 +10,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
-import transfarmer.soulboundarmory.entity.EntitySoulLightningBolt;
+import transfarmer.soulboundarmory.entity.EntityLightningBoltSoulbound;
 import transfarmer.soulboundarmory.world.ModWorld;
 
 import javax.annotation.Nonnull;
@@ -38,7 +38,7 @@ public class ItemSoulboundSword extends ItemSoulboundMeleeWeapon {
             final RayTraceResult result = ModWorld.rayTraceAll(world, player);
 
             if (result != null) {
-                player.world.addWeatherEffect(new EntitySoulLightningBolt(player.world, result.hitVec, player.getUniqueID()));
+                player.world.addWeatherEffect(new EntityLightningBoltSoulbound(player.world, result.hitVec, player.getUniqueID()));
                 capability.resetLightningCooldown();
 
                 return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
