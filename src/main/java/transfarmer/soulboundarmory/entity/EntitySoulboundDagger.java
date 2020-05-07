@@ -74,16 +74,15 @@ public class EntitySoulboundDagger extends EntityArrowExtended {
                                  final boolean spawnClone) {
         this(world, shooter.posX, shooter.posY + shooter.getEyeHeight() - 0.1, shooter.posZ);
 
+        this.ticksToSeek = -1;
+
         if (shooter instanceof EntityPlayer) {
             this.pickupStatus = EntityArrow.PickupStatus.ALLOWED;
         }
 
-        this.ticksToSeek = -1;
-        this.shootingEntity = shooter;
+        this.setShooter(shooter);
         this.itemStack = itemStack;
-        this.shooterUUID = shooter.getUniqueID();
         this.spawnClone = spawnClone;
-        this.capability = WeaponProvider.get(shooter);
     }
 
     public EntitySoulboundDagger(final World world, final UUID id, final ItemStack itemStack, final boolean spawnClone) {
@@ -112,7 +111,7 @@ public class EntitySoulboundDagger extends EntityArrowExtended {
         return this.itemStack != null
                 ? this.itemStack
                 : this.shootingEntity instanceof EntityPlayer
-                ? WeaponProvider.get(this.shootingEntity).getItemStack(DAGGER)
+                ? this.capability.getItemStack(DAGGER)
                 : ItemStack.EMPTY;
     }
 
@@ -124,6 +123,24 @@ public class EntitySoulboundDagger extends EntityArrowExtended {
         return this.shootingEntity;
     }
 
+    protected void setShooter(final Entity entity) {
+        this.shootingEntity = entity;
+        this.shooterUUID = entity.getUniqueID();
+        this.capability = WeaponProvider.get(entity);
+    }
+
+    protected void updateShooter() {
+        if (this.shootingEntity == null && this.shooterUUID != null) {
+            this.shootingEntity = this.world.getPlayerEntityByUUID(this.shooterUUID);
+        } else if (this.shootingEntity != null) {
+            this.shooterUUID = this.shootingEntity.getUniqueID();
+        }
+
+        if (this.capability == null && this.shootingEntity != null) {
+            this.capability = WeaponProvider.get(this.shootingEntity);
+        }
+    }
+
     @Override
     public void onUpdate() {
         if (!this.world.isRemote) {
@@ -131,14 +148,7 @@ public class EntitySoulboundDagger extends EntityArrowExtended {
         }
 
         this.onEntityUpdate();
-
-        if (this.shootingEntity == null && this.shooterUUID != null) {
-            this.shootingEntity = this.world.getPlayerEntityByUUID(this.shooterUUID);
-        }
-
-        if (this.capability == null && this.shootingEntity != null) {
-            this.capability = WeaponProvider.get(this.shootingEntity);
-        }
+        this.updateShooter();
 
         if (this.prevRotationPitch == 0F && this.prevRotationYaw == 0F) {
             final float speed = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
@@ -487,17 +497,21 @@ public class EntitySoulboundDagger extends EntityArrowExtended {
     public void writeEntityToNBT(@NotNull final NBTTagCompound compound) {
         super.writeEntityToNBT(compound);
 
-        compound.setString("UUID", this.shooterUUID.toString());
+        compound.setUniqueId("shooterUUID", this.shooterUUID);
         compound.setInteger("dimensionID", this.world.provider.getDimension());
         compound.setTag("itemStack", this.itemStack.serializeNBT());
+
+        this.updateShooter();
     }
 
     @Override
     public void readEntityFromNBT(@NotNull final NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
 
-        this.shooterUUID = UUID.fromString(compound.getString("UUID"));
-        this.world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(compound.getInteger("dimensionID"));
+        this.shooterUUID = compound.getUniqueId("shooterUUID");
+        this.world = this.getServer().getWorld(compound.getInteger("dimensionID"));
         this.itemStack = new ItemStack(compound.getCompoundTag("itemStack"));
+
+        this.updateShooter();
     }
 }

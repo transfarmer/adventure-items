@@ -33,8 +33,8 @@ import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.config.PlayerConfigProvider;
 import transfarmer.soulboundarmory.capability.entity.EntityDatumProvider;
 import transfarmer.soulboundarmory.capability.entity.IEntityData;
-import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
+import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.capability.soulbound.tool.ToolProvider;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.IWeaponCapability;
 import transfarmer.soulboundarmory.capability.soulbound.weapon.WeaponProvider;
@@ -80,8 +80,7 @@ public class EntityEventListeners {
         if (entity instanceof EntityPlayer && WeaponProvider.get(entity).getLeapForce() > 0) {
             final DamageSource damageSource = event.getSource();
 
-            if (!damageSource.damageType.equals("explosion") && !damageSource.damageType.equals("explosion.player")
-                    && !(damageSource instanceof EntityDamageSourceIndirect)) {
+            if (!damageSource.damageType.contains("explosion") && !(damageSource instanceof EntityDamageSourceIndirect)) {
                 event.setCanceled(true);
             }
         }
@@ -89,47 +88,47 @@ public class EntityEventListeners {
 
     @SubscribeEvent
     public static void onLivingHurt(final LivingHurtEvent event) {
-        if (event.getSource().getTrueSource() != null && !event.getSource().getTrueSource().world.isRemote) {
-            final Entity trueSource = event.getSource().getTrueSource();
+        final Entity trueSource = event.getSource().getTrueSource();
 
-            if (trueSource instanceof EntityPlayer) {
-                final Entity source = event.getSource().getImmediateSource();
-                final SoulboundCapability instance = WeaponProvider.get(trueSource);
-                final IItem item;
+        if (trueSource instanceof EntityPlayer && !trueSource.world.isRemote) {
+            final Entity source = event.getSource().getImmediateSource();
+            final SoulboundCapability instance = WeaponProvider.get(trueSource);
+            final IItem item;
 
-                if (source instanceof EntitySoulboundDagger) {
-                    item = DAGGER;
-                } else if (source instanceof EntityPlayer) {
-                    item = instance.getItemType();
-                } else if (source instanceof EntitySoulLightningBolt) {
-                    item = SWORD;
-                } else if (source instanceof EntitySoulboundSmallFireball) {
-                    item = STAFF;
-                } else {
-                    return;
-                }
-
-                final Random random = trueSource.world.rand;
-                final float attackDamage = item != null && instance.getAttribute(item, CRITICAL) > random.nextDouble()
-                        ? 2 * event.getAmount()
-                        : event.getAmount();
-
-                if (instance.hasSkill(item, new SkillLeeching())) {
-                    final SkillLevelable leeching = (SkillLevelable) instance.getSkill(item, LEECHING);
-
-                    final float food = (1 + leeching.getLevel()) * attackDamage / 20F;
-                    final int r = random.nextInt((int) Math.ceil(food) + 1);
-                    ((EntityPlayer) trueSource).getFoodStats().addStats(r, 2 * food);
-                }
-
-                event.setAmount(attackDamage);
+            if (source instanceof EntitySoulboundDagger) {
+                item = DAGGER;
+            } else if (source instanceof EntityPlayer) {
+                item = instance.getItemType();
+            } else if (source instanceof EntitySoulLightningBolt) {
+                item = SWORD;
+            } else if (source instanceof EntitySoulboundSmallFireball) {
+                item = STAFF;
+            } else {
+                return;
             }
+
+            final Random random = trueSource.world.rand;
+            final float attackDamage = item != null && instance.getAttribute(item, CRITICAL) > random.nextDouble()
+                    ? 2 * event.getAmount()
+                    : event.getAmount();
+
+            if (instance.hasSkill(item, new SkillLeeching())) {
+                final SkillLevelable leeching = (SkillLevelable) instance.getSkill(item, LEECHING);
+
+                final float food = (1 + leeching.getLevel()) * attackDamage / 20F;
+                final int r = random.nextInt((int) Math.ceil(food) + 1);
+                ((EntityPlayer) trueSource).getFoodStats().addStats(r, 2 * food);
+            }
+
+            event.setAmount(attackDamage);
         }
     }
 
     @SubscribeEvent
     public static void onLivingKnockback(final LivingKnockBackEvent event) {
-        if (!event.getEntity().world.isRemote) {
+        final Entity entity = event.getEntity();
+
+        if (!entity.world.isRemote) {
             Entity attacker = event.getAttacker();
             IItem weaponType = null;
             final SoulboundCapability instance = WeaponProvider.get(attacker);
@@ -146,13 +145,13 @@ public class EntityEventListeners {
                     event.setStrength((event.getStrength() * (float) (1 + instance.getAttribute(weaponType, KNOCKBACK_ATTRIBUTE) / 6)));
                 }
             }
-        }
 
-        if (event.getEntity() instanceof EntityPlayer) {
-            final IWeaponCapability capability = WeaponProvider.get(event.getEntity());
+            if (entity instanceof EntityPlayer) {
+                final IWeaponCapability capability = WeaponProvider.get(entity);
 
-            if (capability.getLeapForce() > 0) {
-                event.setCanceled(true);
+                if (capability.getLeapForce() > 0) {
+                    event.setCanceled(true);
+                }
             }
         }
     }
@@ -227,11 +226,11 @@ public class EntityEventListeners {
 
             if (leapForce > 0) {
                 if (capability.hasSkill(GREATSWORD, FREEZING)) {
-                    final double horizontalRadius = Math.min(4, event.getDistance());
-                    final double verticalRadius = Math.min(2, 0.5F * event.getDistance());
+                    final double radiusXZ = Math.min(4, event.getDistance());
+                    final double radiusY = Math.min(2, 0.5F * event.getDistance());
                     final List<Entity> nearbyEntities = player.world.getEntitiesWithinAABBExcludingEntity(player, new AxisAlignedBB(
-                            player.posX - horizontalRadius, player.posY - verticalRadius, player.posZ - horizontalRadius,
-                            player.posX + horizontalRadius, player.posY + verticalRadius, player.posZ + horizontalRadius
+                            player.posX - radiusXZ, player.posY - radiusY, player.posZ - radiusXZ,
+                            player.posX + radiusXZ, player.posY + radiusY, player.posZ + radiusXZ
                     ));
 
                     boolean froze = false;
@@ -239,7 +238,7 @@ public class EntityEventListeners {
                     for (final Entity entity : nearbyEntities) {
                         final IEntityData frozenCapability = EntityDatumProvider.get(entity);
 
-                        if (frozenCapability != null && entity.getDistanceSq(entity) <= horizontalRadius * horizontalRadius) {
+                        if (frozenCapability != null && entity.getDistanceSq(entity) <= radiusXZ * radiusXZ) {
                             capability.freeze(entity, (int) Math.min(60, 12 * event.getDistance()), 0.4F * event.getDistance());
 
                             froze = true;
@@ -250,9 +249,9 @@ public class EntityEventListeners {
                         if (!nearbyEntities.isEmpty()) {
                             final WorldServer world = (WorldServer) player.world;
 
-                            for (double i = 0; i <= 2 * horizontalRadius; i += horizontalRadius / 48D) {
-                                final double x = horizontalRadius - i;
-                                final double z = Math.sqrt((horizontalRadius * horizontalRadius - x * x));
+                            for (double i = 0; i <= 2 * radiusXZ; i += radiusXZ / 48D) {
+                                final double x = radiusXZ - i;
+                                final double z = Math.sqrt((radiusXZ * radiusXZ - x * x));
                                 final int particles = 1;
 
                                 world.spawnParticle(EnumParticleTypes.SNOWBALL,
