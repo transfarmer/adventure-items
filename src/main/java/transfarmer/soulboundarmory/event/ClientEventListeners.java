@@ -25,7 +25,6 @@ import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.item.ItemSoulbound;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.EXPERIENCE;
@@ -102,12 +101,6 @@ public class ClientEventListeners {
                 final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
                 final int toIndex = tooltip.size();
                 final int fromIndex = Math.min(toIndex - 1, startIndex + ((ItemSoulbound) item).getMainhandAttributeEntries(itemStack, player));
-
-                Main.LOGGER.warn("fromIndex: " + fromIndex);
-                Main.LOGGER.warn("toIndex: " + toIndex);
-                Main.LOGGER.warn("startIndex: " + startIndex);
-                Main.LOGGER.warn("size: " + tooltip.size());
-                Main.LOGGER.warn(Arrays.toString(tooltip.toArray()));
 
                 final List<String> prior = new ArrayList<>(tooltip).subList(0, startIndex);
                 final List<String> insertion = capability.getTooltip(capability.getItemType(itemStack));
