@@ -15,10 +15,10 @@ public class ClientConfig extends Config {
     public static final String CATEGORY_OTHER = "other";
 
     private final ClientConfiguration configFile;
-    private float red;
-    private float green;
-    private float blue;
-    private float alpha;
+    private int red;
+    private int green;
+    private int blue;
+    private int alpha;
     private String style;
     private boolean displayOptions;
     private boolean overlayXPBar;
@@ -36,10 +36,10 @@ public class ClientConfig extends Config {
     public void load() {
         this.configFile.load();
 
-        this.red = (float) this.configFile.getRed().getDouble();
-        this.green = (float) this.configFile.getGreen().getDouble();
-        this.blue = (float) this.configFile.getBlue().getDouble();
-        this.alpha = (float) this.configFile.getAlpha().getDouble();
+        this.red = this.configFile.getRed().getInt();
+        this.green = this.configFile.getGreen().getInt();
+        this.blue = this.configFile.getBlue().getInt();
+        this.alpha = this.configFile.getAlpha().getInt();
         this.style = this.configFile.getStyle().getString();
         this.displayOptions = this.configFile.getDisplaySliders().getBoolean();
         this.overlayXPBar = this.configFile.getOverlayXPBar().getBoolean();
@@ -63,35 +63,35 @@ public class ClientConfig extends Config {
         return this.configFile;
     }
 
-    public static float getRed() {
+    public static int getRed() {
         return INSTANCE.red;
     }
 
-    public static void setRed(final float red) {
+    public static void setRed(final int red) {
         INSTANCE.red = red;
     }
 
-    public static float getGreen() {
+    public static int getGreen() {
         return INSTANCE.green;
     }
 
-    public static void setGreen(final float green) {
+    public static void setGreen(final int green) {
         INSTANCE.green = green;
     }
 
-    public static float getBlue() {
+    public static int getBlue() {
         return INSTANCE.blue;
     }
 
-    public static void setBlue(final float blue) {
+    public static void setBlue(final int blue) {
         INSTANCE.blue = blue;
     }
 
-    public static float getAlpha() {
+    public static int getAlpha() {
         return INSTANCE.alpha;
     }
 
-    public static void setAlpha(final float alpha) {
+    public static void setAlpha(final int alpha) {
         INSTANCE.alpha = alpha;
     }
 
@@ -145,19 +145,19 @@ public class ClientConfig extends Config {
         }
 
         public Property getRed() {
-            return this.get(CATEGORY_COLOR, "red", 160D / 255D, "red color component of XP bar");
+            return this.get(CATEGORY_COLOR, "red", 0, "red color component of XP bar");
         }
 
         public Property getGreen() {
-            return this.get(CATEGORY_COLOR, "green", 1D, "green color component of XP bar");
+            return this.get(CATEGORY_COLOR, "green", 160, "green color component of XP bar");
         }
 
         public Property getBlue() {
-            return this.get(CATEGORY_COLOR, "blue", 160D / 255D, "blue color component of XP bar");
+            return this.get(CATEGORY_COLOR, "blue", 255, "blue color component of XP bar");
         }
 
         public Property getAlpha() {
-            return this.get(CATEGORY_COLOR, "alpha", 1D, "alpha component of XP bar");
+            return this.get(CATEGORY_COLOR, "alpha", 255, "alpha component of XP bar");
         }
 
         public Property getStyle() {

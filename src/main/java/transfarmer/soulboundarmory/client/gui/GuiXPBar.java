@@ -128,19 +128,16 @@ public class GuiXPBar extends GuiScreenExtended {
     }
 
     public void drawXPBar(final int x, final int y, final int length) {
-        if (ClientConfig.getAlpha() >= 26F / 255F) {
-//            final ColorSpace yCbCr = ColorSpace.getInstance(ColorSpace.CS_PYCC);
-//            Color color = new Color(yCbCr, yCbCr.fromRGB(
-//                    new float[]{ClientConfig.getRed(), ClientConfig.getGreen(), ClientConfig.getBlue(), ClientConfig.getAlpha()}
-//            ), ClientConfig.getAlpha());
+        if (ClientConfig.getAlpha() >= 26) {
             final Color color = new Color(ClientConfig.getRed(), ClientConfig.getGreen(), ClientConfig.getBlue(), ClientConfig.getAlpha());
+            final float[] components = color.getComponents(null);
             final Style style = ClientConfig.getStyle();
             final float ratio = (float) this.capability.getDatum(this.itemType, StatisticType.XP) / this.capability.getNextLevelXP(this.itemType);
             final float effectiveLength = ratio * length;
             final int middleU = (int) Math.min(4, effectiveLength);
 
             TEXTURE_MANAGER.bindTexture(ICONS);
-            GlStateManager.color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
+            GlStateManager.color(components[0], components[1], components[2], components[3]);
 
             this.drawHorizontalInterpolatedTexturedRect(x, y, 0, style.v, 4, 177, 182, length, 5);
             this.drawHorizontalInterpolatedTexturedRect(x, y, 0, style.v + 5, middleU, effectiveLength < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
@@ -206,12 +203,8 @@ public class GuiXPBar extends GuiScreenExtended {
 
                     for (int u = 0; u < scaledWidth; u++) {
                         final int[] pixel = raster.getPixel(u, v, (int[]) null);
-                        final int mean = (int) (multipliers[bar] * Math.round(Math.sqrt(0.299F * pixel[0] * pixel[0] + 0.587F * pixel[1] * pixel[1] + 0.114F * pixel[2] * pixel[2])));
 
-                        pixel[0] = mean;
-                        pixel[1] = mean;
-                        pixel[2] = mean;
-
+                        pixel[0] = pixel[1] = pixel[2] = (int) (multipliers[bar] * Math.round(Math.sqrt(0.299F * pixel[0] * pixel[0] + 0.587F * pixel[1] * pixel[1] + 0.114F * pixel[2] * pixel[2])));
                         raster.setPixel(u, v, pixel);
                     }
                 }

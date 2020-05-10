@@ -191,19 +191,19 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
         if (row >= 0 && row <= 3) {
             final GuiSlider slider;
-            final float value;
+            final int value;
 
             if (row == 0) {
-                ClientConfig.setRed(value = MathHelper.clamp(ClientConfig.getRed() + dWheel / 255F, 0, 1));
+                ClientConfig.setRed(value = MathHelper.clamp(ClientConfig.getRed() + dWheel, 0, 1));
                 slider = this.sliderRed;
             } else if (row == 1) {
-                ClientConfig.setGreen(value = MathHelper.clamp(ClientConfig.getGreen() + dWheel / 255F, 0, 1));
+                ClientConfig.setGreen(value = MathHelper.clamp(ClientConfig.getGreen() + dWheel, 0, 1));
                 slider = this.sliderGreen;
             } else if (row == 2) {
-                ClientConfig.setBlue(value = MathHelper.clamp(ClientConfig.getBlue() + dWheel / 255F, 0, 1));
+                ClientConfig.setBlue(value = MathHelper.clamp(ClientConfig.getBlue() + dWheel, 0, 1));
                 slider = this.sliderBlue;
             } else {
-                ClientConfig.setAlpha(value = MathHelper.clamp(ClientConfig.getAlpha() + dWheel / 255F, 0, 1));
+                ClientConfig.setAlpha(value = MathHelper.clamp(ClientConfig.getAlpha() + dWheel, 0, 1));
                 slider = this.sliderAlpha;
             }
 
@@ -268,10 +268,10 @@ public abstract class GuiTabSoulbound extends GuiTab {
     }
 
     private void updateSettings() {
-        ClientConfig.setRed(this.sliderRed.getValueInt() / 255F);
-        ClientConfig.setGreen(this.sliderGreen.getValueInt() / 255F);
-        ClientConfig.setBlue(this.sliderBlue.getValueInt() / 255F);
-        ClientConfig.setAlpha(this.sliderAlpha.getValueInt() / 255F);
+        ClientConfig.setRed(this.sliderRed.getValueInt());
+        ClientConfig.setGreen(this.sliderGreen.getValueInt());
+        ClientConfig.setBlue(this.sliderBlue.getValueInt());
+        ClientConfig.setAlpha(this.sliderAlpha.getValueInt());
     }
 
     @Override
