@@ -103,21 +103,19 @@ public abstract class GuiTabSoulbound extends GuiTab {
     }
 
     protected void drawXPBar(final int mouseX, final int mouseY) {
-        if (ClientConfig.getAlpha() >= 26F / 255) {
-            final int xp = capability.getDatum(this.item, XP);
+        final int xp = capability.getDatum(this.item, XP);
 
-            this.xpBar.drawXPBar(this.getXPBarX(), this.getXPBarY(), 182);
+        this.xpBar.drawXPBar(this.getXPBarX(), this.getXPBarY(), 182);
 
-            if (this.isMouseOverLevel(mouseX, mouseY) && MainConfig.instance().getMaxLevel() >= 0) {
-                this.drawHoveringText(String.format("%d/%d", this.capability.getDatum(LEVEL), MainConfig.instance().getMaxLevel()), mouseX, mouseY);
-            } else if (this.isMouseOverXPBar(mouseX, mouseY)) {
-                this.drawHoveringText(this.capability.canLevelUp(this.item)
-                        ? String.format("%d/%d", xp, capability.getNextLevelXP(this.item))
-                        : String.format("%d", xp), mouseX, mouseY);
-            }
-
-            GlStateManager.disableLighting();
+        if (this.isMouseOverLevel(mouseX, mouseY) && MainConfig.instance().getMaxLevel() >= 0) {
+            this.drawHoveringText(String.format("%d/%d", this.capability.getDatum(LEVEL), MainConfig.instance().getMaxLevel()), mouseX, mouseY);
+        } else if (this.isMouseOverXPBar(mouseX, mouseY)) {
+            this.drawHoveringText(this.capability.canLevelUp(this.item)
+                    ? String.format("%d/%d", xp, capability.getNextLevelXP(this.item))
+                    : String.format("%d", xp), mouseX, mouseY);
         }
+
+        GlStateManager.disableLighting();
     }
 
     protected boolean displayXPBar() {
@@ -194,21 +192,21 @@ public abstract class GuiTabSoulbound extends GuiTab {
             final int value;
 
             if (row == 0) {
-                ClientConfig.setRed(value = MathHelper.clamp(ClientConfig.getRed() + dWheel, 0, 1));
+                ClientConfig.setRed(value = MathHelper.clamp(ClientConfig.getRed() + dWheel, 0, 255));
                 slider = this.sliderRed;
             } else if (row == 1) {
-                ClientConfig.setGreen(value = MathHelper.clamp(ClientConfig.getGreen() + dWheel, 0, 1));
+                ClientConfig.setGreen(value = MathHelper.clamp(ClientConfig.getGreen() + dWheel, 0, 255));
                 slider = this.sliderGreen;
             } else if (row == 2) {
-                ClientConfig.setBlue(value = MathHelper.clamp(ClientConfig.getBlue() + dWheel, 0, 1));
+                ClientConfig.setBlue(value = MathHelper.clamp(ClientConfig.getBlue() + dWheel, 0, 255));
                 slider = this.sliderBlue;
             } else {
-                ClientConfig.setAlpha(value = MathHelper.clamp(ClientConfig.getAlpha() + dWheel, 0, 1));
+                ClientConfig.setAlpha(value = MathHelper.clamp(ClientConfig.getAlpha() + dWheel, 0, 255));
                 slider = this.sliderAlpha;
             }
 
             if (slider != null) {
-                slider.setValue(value * 255);
+                slider.setValue(value);
                 slider.updateSlider();
             }
         } else {
@@ -217,7 +215,8 @@ public abstract class GuiTabSoulbound extends GuiTab {
     }
 
     @Override
-    protected void mouseClickMove(final int mouseX, final int mouseY, final int clickedMouseButton, final long timeSinceLastClick) {
+    protected void mouseClickMove(final int mouseX, final int mouseY, final int clickedMouseButton,
+                                  final long timeSinceLastClick) {
         super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
 
         if (this.sliderRed != null && (this.sliderRed.dragging || this.sliderGreen.dragging || this.sliderBlue.dragging || this.sliderAlpha.dragging)) {
@@ -296,7 +295,7 @@ public abstract class GuiTabSoulbound extends GuiTab {
     }
 
     public GuiSlider colorSlider(final int id, final int row, final double currentValue, final String text) {
-        return new GuiSlider(id, this.getOptionX(), this.getOptionY(row), 100, 20, text, "", 0, 255, currentValue * 255, false, true);
+        return new GuiSlider(id, this.getOptionX(), this.getOptionY(row), 100, 20, text, "", 0, 255, currentValue, false, true);
     }
 
     public GuiButton[] addPointButtons(final int id, final int rows, final int points) {

@@ -149,7 +149,7 @@ public class ClientConfig extends Config {
         }
 
         public Property getGreen() {
-            return this.get(CATEGORY_COLOR, "green", 160, "green color component of XP bar");
+            return this.get(CATEGORY_COLOR, "green", 128, "green color component of XP bar");
         }
 
         public Property getBlue() {
