@@ -51,9 +51,13 @@ public class GuiScreenExtended extends GuiScreen {
         this.drawVerticalInterpolatedTexturedRect(x + leftWidth, y + topHeight, middleU, middleV, endV, width - 2 * leftWidth, height - 2 * topHeight);
     }
 
-    public void drawHorizontalInterpolatedTexturedRect(int x, final int y, final int startU, final int startV,
-                                                       final int middleU, final int endU, final int finalU,
-                                                       int width, final int height) {
+    public void drawHorizontalInterpolatedTexturedRect(int x, final int y, int startU, final int startV,
+                                                       final int middleU, int endU, final int finalU, int width,
+                                                       final int height) {
+        if (middleU < startU) {
+            startU = middleU;
+        }
+
         final int startWidth = middleU - startU;
         final int finalWidth = finalU - endU;
 
@@ -68,12 +72,25 @@ public class GuiScreenExtended extends GuiScreen {
 
     public int drawHorizontalInterpolatedTexturedRect(int x, final int y, final int startV, final int middleU,
                                                       final int endU, int width, final int height) {
-        while (width > 0) {
-            final int middleWidth = Math.min(width, endU - middleU);
+        if (width > 0) {
+            final Tessellator tessellator = Tessellator.getInstance();
+            final BufferBuilder builder = tessellator.getBuffer();
 
-            this.drawTexturedModalRect(x, y, middleU, startV, middleWidth, height);
-            x += middleWidth;
-            width -= middleWidth;
+            while (width > 0) {
+                final int middleWidth = Math.min(width, endU - middleU);
+                float f = 1F / 256F;
+
+                builder.begin(7, DefaultVertexFormats.POSITION_TEX);
+                builder.pos(x, y + height, this.zLevel).tex((middleU * f), (startV + height) * f).endVertex();
+                builder.pos(x + middleWidth, y + height, this.zLevel).tex((middleU + middleWidth) * f, (startV + height) * f).endVertex();
+                builder.pos(x + middleWidth, y, this.zLevel).tex((middleU + middleWidth) * f, startV * f).endVertex();
+                builder.pos(x, y, this.zLevel).tex(middleU * f, startV * f).endVertex();
+
+                x += middleWidth;
+                width -= middleWidth;
+            }
+
+            tessellator.draw();
         }
 
         return x;
@@ -107,8 +124,8 @@ public class GuiScreenExtended extends GuiScreen {
     }
 
     public void drawRectWithCustomSizedTexture(final int x, final int y, final float u, final float v,
-                                                    final int width, final int height, final float textureWidth,
-                                                    final float textureHeight) {
+                                               final int width, final int height, final float textureWidth,
+                                               final float textureHeight) {
         final float f = 1F / textureWidth;
         final float f1 = 1F / textureHeight;
         final Tessellator tessellator = Tessellator.getInstance();

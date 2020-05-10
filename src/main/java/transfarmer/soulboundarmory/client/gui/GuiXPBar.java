@@ -127,29 +127,28 @@ public class GuiXPBar extends GuiScreenExtended {
         return this.capability != null;
     }
 
-    public void drawXPBar(final int x, final int y, final int length) {
+    public void drawXPBar(final int x, final int y, final int width) {
         if (ClientConfig.getAlpha() >= 26) {
             final Color color = new Color(ClientConfig.getRed(), ClientConfig.getGreen(), ClientConfig.getBlue(), ClientConfig.getAlpha());
             final float[] components = color.getComponents(null);
             final Style style = ClientConfig.getStyle();
             final float ratio = (float) this.capability.getDatum(this.itemType, StatisticType.XP) / this.capability.getNextLevelXP(this.itemType);
-            final float effectiveLength = ratio * length;
-            final int middleU = (int) Math.min(4, effectiveLength);
+            final float effectiveWidth = ratio * width;
+            final int middleU = (int) Math.min(4, effectiveWidth);
 
             TEXTURE_MANAGER.bindTexture(ICONS);
             GlStateManager.color(components[0], components[1], components[2], components[3]);
 
-            this.drawHorizontalInterpolatedTexturedRect(x, y, 0, style.v, 4, 177, 182, length, 5);
-            this.drawHorizontalInterpolatedTexturedRect(x, y, 0, style.v + 5, middleU, effectiveLength < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
-                    ? Math.min(length, (int) (ratio * length))
-                    : length, 5
-            );
+            this.drawHorizontalInterpolatedTexturedRect(x, y, 0, style.v, 4, 177, 182, width, 5);
+            this.drawHorizontalInterpolatedTexturedRect(x, y, 0, style.v + 5, middleU, effectiveWidth < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.capability.canLevelUp(this.itemType)
+                    ? Math.min(width, (int) (ratio * width))
+                    : width, 5);
 
             final int level = this.capability.getDatum(this.itemType, LEVEL);
 
             if (level > 0) {
                 final String levelString = String.format("%d", level);
-                final int levelX = x + (length - FONT_RENDERER.getStringWidth(levelString)) / 2;
+                final int levelX = x + (width - FONT_RENDERER.getStringWidth(levelString)) / 2;
                 final int levelY = y - 6;
 
                 FONT_RENDERER.drawString(levelString, levelX + 1, levelY, 0);
