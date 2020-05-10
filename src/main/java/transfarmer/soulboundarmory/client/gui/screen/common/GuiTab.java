@@ -1,14 +1,13 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.KeyBindings;
-import transfarmer.soulboundarmory.client.gui.GuiExtendedButton;
+import transfarmer.soulboundarmory.client.gui.GuiButtonExtended;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,12 +16,12 @@ import java.util.List;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 @SideOnly(CLIENT)
-public abstract class GuiTab extends GuiScreen implements GuiExtended {
+public abstract class GuiTab extends GuiScreenExtended {
     protected final List<GuiTab> tabs;
-    protected final List<GuiExtendedButton> tabButtons;
+    protected final List<GuiButtonExtended> tabButtons;
     protected final int index;
     protected boolean displayTabs;
-    protected GuiExtendedButton button;
+    protected GuiButtonExtended button;
 
     public GuiTab(final List<GuiTab> tabs) {
         this.tabs = tabs;
@@ -51,11 +50,11 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
     public void initGui() {
         super.initGui();
 
-        this.buttonList.clear();
-
         if (this.displayTabs) {
             for (int row = 0, size = this.tabs.size(); row < size; row++) {
-                final GuiExtendedButton button = this.addButton(new GuiExtendedButton(16 + row, width / 24, height / 16 + row * Math.max(height / 16, 30), Math.max(96, Math.round(width / 7.5F)), 20, this.tabs.get(row).getLabel()));
+                final GuiButtonExtended button = this.addButton(new GuiButtonExtended(16 + row, width / 24, height / 16 + row * Math.max(height / 16, 30), Math.max(96, Math.round(width / 7.5F)), 20, this.tabs.get(row).getLabel()));
+
+                this.tabButtons.add(button);
 
                 if (row == this.index) {
                     this.button = button;
@@ -117,6 +116,7 @@ public abstract class GuiTab extends GuiScreen implements GuiExtended {
     }
 
     public void refresh() {
+        this.buttonList.clear();
         this.initGui();
     }
 

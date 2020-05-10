@@ -5,7 +5,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fml.client.config.GuiSlider;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
@@ -27,8 +26,8 @@ import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticT
 
 @SideOnly(CLIENT)
 public class GuiTabSkills extends GuiTabSoulbound {
-    protected static final TextureAtlasSprite BACKGROUND = GuiExtended.getSprite(Blocks.STONE, 5);
-    protected static final ResourceLocation BACKGROUND_TEXTURE = GuiExtended.getTexture(BACKGROUND);
+    protected static final TextureAtlasSprite BACKGROUND = GuiScreenExtended.getSprite(Blocks.STONE, 5);
+    protected static final ResourceLocation BACKGROUND_TEXTURE = GuiScreenExtended.getTexture(BACKGROUND);
     protected static final ResourceLocation WINDOW = new ResourceLocation("textures/gui/advancements/window.png");
     protected static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/advancements/widgets.png");
 
@@ -77,13 +76,11 @@ public class GuiTabSkills extends GuiTabSoulbound {
     }
 
     @Override
-    protected void addSliders() {
-        super.addSliders();
+    protected void initOptions() {
+        super.initOptions();
 
         if (this.sliderAlpha != null && this.sliderAlpha.x < this.x + this.windowWidth) {
-            for (final GuiSlider slider : this.sliders) {
-                this.buttonList.remove(slider);
-            }
+            this.buttonList.removeAll(this.options);
         }
     }
 
@@ -104,11 +101,11 @@ public class GuiTabSkills extends GuiTabSoulbound {
         GlStateManager.enableBlend();
 
         TEXTURE_MANAGER.bindTexture(BACKGROUND_TEXTURE);
-        GuiExtended.drawModalRectWithCustomSizedTexture(x + 4, y + 4, 0, 0, this.windowWidth - 8, this.windowHeight - 8, BACKGROUND.getIconWidth(), BACKGROUND.getIconHeight(), -250);
+        this.withZ(-250, () -> this.drawRectWithCustomSizedTexture(x + 4, y + 4, 0, 0, this.windowWidth - 8, this.windowHeight - 8, BACKGROUND.getIconWidth(), BACKGROUND.getIconHeight()));
 
         this.setChroma(1F);
         TEXTURE_MANAGER.bindTexture(WINDOW);
-        GuiExtended.drawVerticalInterpolatedTexturedRect(x, y, 0, 0, 22, 126, 140, this.windowWidth, this.windowHeight, -200);
+        this.withZ(-200, () -> this.drawVerticalInterpolatedTexturedRect(x, y, 0, 0, 22, 126, 140, this.windowWidth, this.windowHeight));
 
         final int color = 0x404040;
         final int points = this.capability.getDatum(this.item, SKILL_POINTS);
@@ -155,13 +152,13 @@ public class GuiTabSkills extends GuiTabSoulbound {
         }
     }
 
-    protected void drawSkill(final Skill skill, final int mouseX, final int mouseY, int x, int y) {
+    protected void drawSkill(final Skill skill, final int mouseX, final int mouseY, final int X, final int Y) {
         final int width = 16;
         final int height = 16;
         final int offsetV = skill.isLearned() ? 26 : 0;
         final int color;
-        x -= width / 2;
-        y -= height / 2;
+        final int x = X - width / 2;
+        final int y = Y - height / 2;
 
         if (skill == this.selectedSkill) {
             this.setChroma(1);
@@ -211,7 +208,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
                 }
 
                 barWidth = 12 + Math.max(barWidth, 8 + FONT_RENDERER.getStringWidth(string));
-                tooltip = GuiExtended.wrap(barWidth, tooltip.toArray(new String[0]));
+                tooltip = this.wrap(barWidth, tooltip.toArray(new String[0]));
                 size = tooltip.size();
                 barWidth = Math.max(barWidth, 8 + FONT_RENDERER.getStringWidth(tooltip.stream().max(Comparator.comparingInt(String::length)).get()));
                 final int tooltipHeight = 1 + (1 + size) * FONT_RENDERER.FONT_HEIGHT;
@@ -220,7 +217,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
                     this.setChroma(1);
 
                     TEXTURE_MANAGER.bindTexture(WIDGETS);
-                    GuiExtended.drawHorizontalInterpolatedTexturedRect(posX - 8, y + tooltipHeight, 0, 55, 2, 198, 200, barWidth, 20, this.zLevel);
+                    this.drawHorizontalInterpolatedTexturedRect(posX - 8, y + tooltipHeight, 0, 55, 2, 198, 200, barWidth, 20);
 
                     FONT_RENDERER.drawString(string, posX - 3, textY + direction * (size + 1) * FONT_RENDERER.FONT_HEIGHT, 0x999999);
                 }
@@ -228,7 +225,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
                 this.setChroma(1);
 
                 TEXTURE_MANAGER.bindTexture(WIDGETS);
-                GuiExtended.drawInterpolatedTexturedRect(posX - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, tooltipHeight, this.zLevel);
+                this.drawInterpolatedTexturedRect(posX - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, tooltipHeight);
 
                 for (int i = 0; i < size; i++) {
                     FONT_RENDERER.drawString(tooltip.get(i), posX - 3, textY + direction * i * FONT_RENDERER.FONT_HEIGHT, 0x999999);
@@ -238,7 +235,7 @@ public class GuiTabSkills extends GuiTabSoulbound {
             this.setChroma(1);
 
             TEXTURE_MANAGER.bindTexture(WIDGETS);
-            GuiExtended.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 29 - offsetV, 2, 198, 200, barWidth, 20, this.zLevel);
+            this.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 29 - offsetV, 2, 198, 200, barWidth, 20);
 
             FONT_RENDERER.drawString(name, posX + 24, posY + 4, 0xFFFFFF);
         }

@@ -13,25 +13,32 @@ item.soulboundarmory.soulboundPick=soulbound pick
 
 # key bindings
 key.categories.soulboundarmory=soulbound armory
-key.soulboundarmory.menu=open menu
+key.soulboundarmory.gui=open GUI
 key.soulboundarmory.bar=toggle XP bar
 
-# soulbound armory menu
-menu.soulboundarmory.selection=weapon selection
-menu.soulboundarmory.confirmation=tool confirmation
-menu.soulboundarmory.attributes=attributes
-menu.soulboundarmory.enchantments=enchantments
-menu.soulboundarmory.skills=skills
-menu.soulboundarmory.reset=reset
-menu.soulboundarmory.bind=bind current slot
-menu.soulboundarmory.unbind=unbind current slot
-menu.soulboundarmory.unspentPoints=unspent points
-menu.soulboundarmory.unspentPoint=unspent point
-menu.soulboundarmory.points=points
-menu.soulboundarmory.point=point
-menu.soulboundarmory.learnCost=costs %%d %%s to learn
-menu.soulboundarmory.upgradeCost=costs %%d %%s to upgrade
-menu.soulboundarmory.level=level
+# soulbound armory GUI
+gui.soulboundarmory.selection=weapon selection
+gui.soulboundarmory.confirmation=tool confirmation
+gui.soulboundarmory.attributes=attributes
+gui.soulboundarmory.enchantments=enchantments
+gui.soulboundarmory.skills=skills
+gui.soulboundarmory.reset=reset
+gui.soulboundarmory.bind=bind current slot
+gui.soulboundarmory.unbind=unbind current slot
+gui.soulboundarmory.unspentPoints=unspent points
+gui.soulboundarmory.unspentPoint=unspent point
+gui.soulboundarmory.points=points
+gui.soulboundarmory.point=point
+gui.soulboundarmory.learnCost=costs %%d %%s to learn
+gui.soulboundarmory.upgradeCost=costs %%d %%s to upgrade
+gui.soulboundarmory.level=level
+gui.soulboundarmory.red=red
+gui.soulboundarmory.green=green
+gui.soulboundarmory.blue=blue
+gui.soulboundarmory.alpha=alpha
+gui.soulboundarmory.style=style
+gui.soulboundarmory.experience=experience
+gui.soulboundarmory.boss=boss
 
 # formatting
 format.soulboundarmory.attackDamage=§6
@@ -104,12 +111,6 @@ command.soulboundarmory.clientUsage1=/sba reset [player]
 command.soulboundarmory.serverUsage0=/sba <xp|level> <add|set> <amount> <player>
 command.soulboundarmory.serverUsage1=/sba reset <player>
 command.soulboundarmory.noItem=The selected user must be holding a soulbound item.
-
-# color slider text
-color.soulboundarmory.red=red
-color.soulboundarmory.green=green
-color.soulboundarmory.blue=blue
-color.soulboundarmory.alpha=alpha
 
 # readable unsupported enchantment level names
 enchantment.level.0=nulla

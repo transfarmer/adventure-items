@@ -97,20 +97,6 @@ public class MainConfig extends Config {
         this.load();
     }
 
-    public void update() {
-        final String loadedVersion = this.configFile.getLoadedConfigVersion();
-
-        if (loadedVersion == null || !loadedVersion.equals(this.configFile.getDefinedConfigVersion())) {
-            if (this.configFile.getConfigFile().delete()) {
-                this.load();
-
-                Main.LOGGER.warn("Deleted old configuration file.");
-            }
-        } else {
-            this.cleanUp();
-        }
-    }
-
     public NBTTagCompound writeToNBT() {
         final NBTTagCompound tag = new NBTTagCompound();
 

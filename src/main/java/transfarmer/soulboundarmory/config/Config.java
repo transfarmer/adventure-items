@@ -16,6 +16,10 @@ public abstract class Config {
         this.configFile = configFile;
     }
 
+    public abstract void load();
+
+    public abstract void save();
+
     public void cleanUp() {
         try {
             final FileInputStream inputStream = new FileInputStream(this.configFile.getConfigFile());
@@ -51,6 +55,20 @@ public abstract class Config {
             outputStream.close();
         } catch (final IOException exception) {
             Main.LOGGER.error(exception);
+        }
+    }
+
+    public void update() {
+        final String loadedVersion = this.configFile.getLoadedConfigVersion();
+
+        if (loadedVersion == null || !loadedVersion.equals(this.configFile.getDefinedConfigVersion())) {
+            if (this.configFile.getConfigFile().delete()) {
+                this.load();
+
+                Main.LOGGER.warn("Deleted old configuration file.");
+            }
+        } else {
+            this.cleanUp();
         }
     }
 }

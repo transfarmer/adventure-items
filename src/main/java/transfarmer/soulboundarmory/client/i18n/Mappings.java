@@ -14,24 +14,29 @@ public class Mappings {
     public static final String SOULBOUND_PICK_NAME = I18n.format("item.soulboundarmory.soulboundPick");
 
     public static final String KEY_CATEGORY = I18n.format("key.categories.soulboundarmory");
-    public static final String MENU_KEY = I18n.format("key.soulboundarmory.menu");
+    public static final String MENU_KEY = I18n.format("key.soulboundarmory.gui");
     public static final String TOGGLE_XP_BAR = I18n.format("key.soulboundarmory.bar");
 
-    public static final String MENU_SELECTION = I18n.format("menu.soulboundarmory.selection");
-    public static final String MENU_CONFIRMATION = I18n.format("menu.soulboundarmory.confirmation");
-    public static final String MENU_BUTTON_ATTRIBUTES = I18n.format("menu.soulboundarmory.attributes");
-    public static final String MENU_BUTTON_ENCHANTMENTS = I18n.format("menu.soulboundarmory.enchantments");
-    public static final String MENU_BUTTON_SKILLS = I18n.format("menu.soulboundarmory.skills");
-    public static final String MENU_BUTTON_RESET = I18n.format("menu.soulboundarmory.reset");
-    public static final String MENU_BUTTON_BIND = I18n.format("menu.soulboundarmory.bind");
-    public static final String MENU_BUTTON_UNBIND = I18n.format("menu.soulboundarmory.unbind");
-    public static final String MENU_UNSPENT_POINTS = I18n.format("menu.soulboundarmory.unspentPoints");
-    public static final String MENU_UNSPENT_POINT = I18n.format("menu.soulboundarmory.unspentPoint");
-    public static final String MENU_POINTS = I18n.format("menu.soulboundarmory.points");
-    public static final String MENU_POINT = I18n.format("menu.soulboundarmory.point");
-    public static final String MENU_SKILL_LEARN_COST = I18n.format("menu.soulboundarmory.learnCost");
-    public static final String MENU_SKILL_UPGRADE_COST = I18n.format("menu.soulboundarmory.upgradeCost");
-    public static final String MENU_LEVEL = I18n.format("menu.soulboundarmory.level");
+    public static final String MENU_SELECTION = I18n.format("gui.soulboundarmory.selection");
+    public static final String MENU_CONFIRMATION = I18n.format("gui.soulboundarmory.confirmation");
+    public static final String MENU_BUTTON_ATTRIBUTES = I18n.format("gui.soulboundarmory.attributes");
+    public static final String MENU_BUTTON_ENCHANTMENTS = I18n.format("gui.soulboundarmory.enchantments");
+    public static final String MENU_BUTTON_SKILLS = I18n.format("gui.soulboundarmory.skills");
+    public static final String MENU_BUTTON_RESET = I18n.format("gui.soulboundarmory.reset");
+    public static final String MENU_BUTTON_BIND = I18n.format("gui.soulboundarmory.bind");
+    public static final String MENU_BUTTON_UNBIND = I18n.format("gui.soulboundarmory.unbind");
+    public static final String MENU_UNSPENT_POINTS = I18n.format("gui.soulboundarmory.unspentPoints");
+    public static final String MENU_UNSPENT_POINT = I18n.format("gui.soulboundarmory.unspentPoint");
+    public static final String MENU_POINTS = I18n.format("gui.soulboundarmory.points");
+    public static final String MENU_POINT = I18n.format("gui.soulboundarmory.point");
+    public static final String MENU_SKILL_LEARN_COST = I18n.format("gui.soulboundarmory.learnCost");
+    public static final String MENU_SKILL_UPGRADE_COST = I18n.format("gui.soulboundarmory.upgradeCost");
+    public static final String MENU_LEVEL = I18n.format("gui.soulboundarmory.level");
+    public static final String RED = I18n.format("gui.soulboundarmory.red");
+    public static final String GREEN = I18n.format("gui.soulboundarmory.green");
+    public static final String BLUE = I18n.format("gui.soulboundarmory.blue");
+    public static final String ALPHA = I18n.format("gui.soulboundarmory.alpha");
+    public static final String XP_BAR_STYLE = I18n.format("gui.soulboundarmory.style");
 
     public static final String ATTACK_SPEED_FORMAT = I18n.format("format.soulboundarmory.attackSpeed");
     public static final String ATTACK_DAMAGE_FORMAT = I18n.format("format.soulboundarmory.attackDamage");
@@ -54,7 +59,6 @@ public class Mappings {
 
     public static final String MINING_LEVEL_COAL = I18n.format("miningLevel.soulboundarmory.coal");
     public static final String MINING_LEVEL_IRON = I18n.format("miningLevel.soulboundarmory.iron");
-
     public static final String MINING_LEVEL_DIAMOND = I18n.format("miningLevel.soulboundarmory.diamond");
     public static final String MINING_LEVEL_OBSIDIAN = I18n.format("miningLevel.soulboundarmory.obsidian");
 
@@ -62,10 +66,6 @@ public class Mappings {
     public static final String COMMAND_USAGE_1 = I18n.format("command.soulboundarmory.clientUsage1");
     public static final String COMMAND_NO_ITEM = I18n.format("command.soulboundarmory.noItem");
 
-    public static final String RED = I18n.format("color.soulboundarmory.red");
-    public static final String GREEN = I18n.format("color.soulboundarmory.green");
-    public static final String BLUE = I18n.format("color.soulboundarmory.blue");
-    public static final String ALPHA = I18n.format("color.soulboundarmory.alpha");
 
     private static final String[] miningLevels = {MINING_LEVEL_COAL, MINING_LEVEL_IRON, MINING_LEVEL_DIAMOND, MINING_LEVEL_OBSIDIAN};
 

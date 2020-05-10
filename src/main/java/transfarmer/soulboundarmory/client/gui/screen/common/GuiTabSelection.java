@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class GuiTabSelection extends GuiTabSoulbound {
-    protected final Map<Integer, String> options;
+    protected final Map<Integer, String> selection;
 
     public GuiTabSelection(final @NotNull Capability<? extends SoulboundCapability> key, final List<GuiTab> tabs,
-                           final Map<Integer, String> options) {
+                           final Map<Integer, String> selection) {
         super(key, tabs);
 
-        this.options = options;
+        this.selection = selection;
     }
 
     @Override
@@ -29,17 +29,17 @@ public abstract class GuiTabSelection extends GuiTabSoulbound {
         final int xCenter = (this.width - width) / 2;
         final int ySep = 32;
 
-        for (int id = 0, size = this.options.size(); id < size; id++) {
+        for (int id = 0, size = this.selection.size(); id < size; id++) {
             if (!this.capability.isUnlocked(id) && !this.capability.canUnlock(id)) {
-                this.options.remove(id);
+                this.selection.remove(id);
             }
         }
 
-        final int top = (this.height - height - ySep * (this.options.size() - 1)) / 2;
+        final int top = (this.height - height - ySep * (this.selection.size() - 1)) / 2;
         int row = 0;
 
-        for (final int id : this.options.keySet()) {
-            final GuiButton button = this.addButton(new GuiButton(id, xCenter, top + (row++ * ySep), width, height, this.options.get(id)));
+        for (final int id : this.selection.keySet()) {
+            final GuiButton button = this.addButton(new GuiButton(id, xCenter, top + (row++ * ySep), width, height, this.selection.get(id)));
 
             if (this.capability.hasSoulboundItem()) {
                 button.enabled = id != this.capability.getIndex();
@@ -60,7 +60,7 @@ public abstract class GuiTabSelection extends GuiTabSoulbound {
     public void actionPerformed(@NotNull final GuiButton button) {
         super.actionPerformed(button);
 
-        if (this.options.containsKey(button.id)) {
+        if (this.selection.containsKey(button.id)) {
             Main.CHANNEL.sendToServer(new C2SItemType(this.capability.getType(), this.capability.getItemType(button.id)));
         }
     }

@@ -1,13 +1,12 @@
 package transfarmer.soulboundarmory.client.gui.screen.common.skill;
 
-import net.minecraft.client.gui.Gui;
 import net.minecraft.item.ItemStack;
-import transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended;
+import transfarmer.soulboundarmory.client.gui.screen.common.GuiScreenExtended;
 import transfarmer.soulboundarmory.skill.Skill;
 
 import javax.annotation.Nullable;
 
-public class GuiSkill extends Gui implements GuiExtended {
+public class GuiSkill extends GuiScreenExtended {
     protected final Skill skill;
     protected final ItemStack itemStack;
 
@@ -16,25 +15,28 @@ public class GuiSkill extends Gui implements GuiExtended {
         this.itemStack = itemStack;
     }
 
-    public void render(final int x, final int y, final int color) {
-        this.render(x, y, color, 0);
-    }
-
     public void render(final int x, final int y, final int color, final float zLevel) {
+        final float prev = this.zLevel;
+
+        this.zLevel = zLevel;
+
         if (this.itemStack == null) {
-            this.renderCustom(x, y, zLevel);
+            this.renderCustom(x, y);
         } else {
-            this.renderItem(x, y, color, zLevel);
+            this.renderItem(x, y, color);
         }
+
+        this.zLevel = prev;
     }
 
-    public void renderCustom(final int x, final int y, final float zLevel) {
+    public void renderCustom(final int x, final int y) {
         TEXTURE_MANAGER.bindTexture(skill.getTexture());
-        drawModalRectWithCustomSizedTexture(x, y, 0, 0, 16, 16, 16, 16);
+        this.drawRectWithCustomSizedTexture(x, y, 0, 0, 16, 16, 16, 16);
     }
 
-    public void renderItem(final int x, final int y, final int color, final float zLevel) {
-        GuiExtended.renderItemModelIntoGUI(this.itemStack, x, y, RENDER_ITEM.getItemModelWithOverrides(this.itemStack, null, null), color, zLevel);
+    @SuppressWarnings("ConstantConditions")
+    public void renderItem(final int x, final int y, final int color) {
+        this.renderItemModelIntoGUI(this.itemStack, x, y, RENDER_ITEM.getItemModelWithOverrides(this.itemStack, null, null), color);
     }
 
     public ItemStack getItemStack() {

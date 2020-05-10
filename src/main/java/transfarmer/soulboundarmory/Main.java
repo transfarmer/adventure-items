@@ -86,7 +86,7 @@ public class Main {
         MainConfig.instance().update();
         MainConfig.instance().save();
         ClientConfig.instance().load();
-        ClientConfig.instance().cleanUp();
+        ClientConfig.instance().update();
         ClientConfig.instance().save();
     }
 

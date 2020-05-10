@@ -10,7 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.capability.soulbound.common.SoulboundCapability;
+import transfarmer.soulboundarmory.client.gui.GuiButtonExtended;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar;
+import transfarmer.soulboundarmory.client.gui.GuiXPBar.Style;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
@@ -36,25 +38,25 @@ public abstract class GuiTabSoulbound extends GuiTab {
     protected SoulboundCapability capability;
     protected IItem item;
     protected GuiXPBar xpBar;
-    protected List<GuiSlider> sliders;
+    protected List<GuiButton> options;
     protected GuiSlider sliderRed;
     protected GuiSlider sliderGreen;
     protected GuiSlider sliderBlue;
     protected GuiSlider sliderAlpha;
+    protected GuiButtonExtended styleButton;
     protected int slot;
 
     public GuiTabSoulbound(@NotNull final Capability<? extends SoulboundCapability> key, final List<GuiTab> tabs) {
         super(tabs);
 
         this.key = key;
-        this.sliders = new ArrayList<>(4);
+        this.options = new ArrayList<>(4);
     }
 
     @Override
     public void initGui() {
-        final boolean equipped = ItemUtil.getEquippedItemStack(this.mc.player.inventory, ItemSoulbound.class) != null;
+        this.displayTabs = ItemUtil.getEquippedItemStack(this.mc.player.inventory, ItemSoulbound.class) != null;
 
-        this.displayTabs = equipped;
         super.initGui();
 
         this.capability = this.mc.player.getCapability(this.key, null);
@@ -63,24 +65,27 @@ public abstract class GuiTabSoulbound extends GuiTab {
         this.item = capability.getItemType();
         this.slot = this.mc.player.inventory.getSlotFor(capability.getEquippedItemStack());
 
-        this.addSliders();
+        this.initOptions();
 
-        if (equipped) {
-            final int width = Math.max(112, Math.round(this.width / 7.5F));
-
-            this.addButton(new GuiButton(22, Math.min(this.getXPBarX() - width, this.width / 24), height - height / 16 - 20, width, 20, this.slot != capability.getBoundSlot()
+        if (this.displayTabs) {
+            final String text = this.slot != capability.getBoundSlot()
                     ? Mappings.MENU_BUTTON_BIND
-                    : Mappings.MENU_BUTTON_UNBIND)
+                    : Mappings.MENU_BUTTON_UNBIND;
+            final int width = Math.max(this.button.width, FONT_RENDERER.getStringWidth(text) + 8);
+            final int x = this.button.endX - width;
+
+            this.addButton(new GuiButton(22, x, this.height - this.height / 16 - 20, width, 20, text)
             );
         }
     }
 
-    protected void addSliders() {
-        if (ClientConfig.getDisplaySliders() && this.displayXPBar()) {
-            this.sliders.add(this.addButton(this.sliderRed = this.colorSlider(100, 0, ClientConfig.getRed(), Mappings.RED + ": ")));
-            this.sliders.add(this.addButton(this.sliderGreen = this.colorSlider(101, 1, ClientConfig.getGreen(), Mappings.GREEN + ": ")));
-            this.sliders.add(this.addButton(this.sliderBlue = this.colorSlider(102, 2, ClientConfig.getBlue(), Mappings.BLUE + ": ")));
-            this.sliders.add(this.addButton(this.sliderAlpha = this.colorSlider(103, 3, ClientConfig.getAlpha(), Mappings.ALPHA + ": ")));
+    protected void initOptions() {
+        if (ClientConfig.getDisplayOptions() && this.displayXPBar()) {
+            this.options.add(this.addButton(this.sliderRed = this.colorSlider(1000, 0, ClientConfig.getRed(), Mappings.RED + ": ")));
+            this.options.add(this.addButton(this.sliderGreen = this.colorSlider(1001, 1, ClientConfig.getGreen(), Mappings.GREEN + ": ")));
+            this.options.add(this.addButton(this.sliderBlue = this.colorSlider(1002, 2, ClientConfig.getBlue(), Mappings.BLUE + ": ")));
+            this.options.add(this.addButton(this.sliderAlpha = this.colorSlider(1003, 3, ClientConfig.getAlpha(), Mappings.ALPHA + ": ")));
+            this.options.add(this.addButton(this.styleButton = this.optionButton(1004, 4, String.format("%s: %s", Mappings.XP_BAR_STYLE, ClientConfig.getStyle().toString()))));
         }
     }
 
@@ -146,8 +151,8 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
     protected int sliderMousedOver(final int mouseX, final int mouseY) {
         for (int slider = 0; slider < 4; slider++) {
-            if (mouseX >= this.getColorSliderX() && mouseX <= this.getColorSliderX() + 100
-                    && mouseY >= this.getColorSliderY(slider) && mouseY <= this.getColorSliderY(slider) + 20) {
+            if (mouseX >= this.getOptionX() && mouseX <= this.getOptionX() + 100
+                    && mouseY >= this.getOptionY(slider) && mouseY <= this.getOptionY(slider) + 20) {
                 return slider;
             }
         }
@@ -161,21 +166,17 @@ public abstract class GuiTabSoulbound extends GuiTab {
 
         if (this.isMouseOverXPBar(mouseX, mouseY)) {
             if (!this.buttonList.contains(this.sliderAlpha)) {
-                this.buttonList.add(this.sliderRed);
-                this.buttonList.add(this.sliderGreen);
-                this.buttonList.add(this.sliderBlue);
-                this.buttonList.add(this.sliderAlpha);
-                ClientConfig.setDisplaySliders(true);
+                this.buttonList.addAll(this.options);
+                ClientConfig.setDisplayOptions(true);
             } else {
-                this.buttonList.remove(this.sliderRed);
-                this.buttonList.remove(this.sliderGreen);
-                this.buttonList.remove(this.sliderBlue);
-                this.buttonList.remove(this.sliderAlpha);
-                ClientConfig.setDisplaySliders(false);
+                this.buttonList.removeAll(this.options);
+                ClientConfig.setDisplayOptions(false);
             }
 
             ClientConfig.instance().save();
             this.refresh();
+        } else if (this.styleButton != null && this.styleButton.isMouseHoveringOver()) {
+            this.cycleStyle(-1);
         }
     }
 
@@ -244,11 +245,25 @@ public abstract class GuiTabSoulbound extends GuiTab {
             case 22:
                 Main.CHANNEL.sendToServer(new C2SBindSlot(this.capability.getType(), this.slot));
                 break;
-            case 100:
-            case 101:
-            case 102:
-            case 103:
+            case 1000:
+            case 1001:
+            case 1002:
+            case 1003:
                 this.updateSettings();
+                break;
+            case 1004:
+                this.cycleStyle(1);
+        }
+    }
+
+    protected void cycleStyle(final int change) {
+        int index = (Style.STYLES.indexOf(ClientConfig.getStyle()) + change) % Style.AMOUNT;
+
+        if (index < 0) {
+            this.cycleStyle(Style.AMOUNT + index);
+        } else {
+            ClientConfig.setStyle(Style.STYLES.get(index));
+            this.refresh();
         }
     }
 
@@ -276,8 +291,12 @@ public abstract class GuiTabSoulbound extends GuiTab {
         return new GuiButton(id, this.width - this.width / 24 - 112, this.height - this.height / 16 - 20, 112, 20, Mappings.MENU_BUTTON_RESET);
     }
 
+    public GuiButtonExtended optionButton(final int id, final int row, final String text) {
+        return new GuiButtonExtended(id, this.getOptionX(), this.getOptionY(row), 100, 20, text);
+    }
+
     public GuiSlider colorSlider(final int id, final int row, final double currentValue, final String text) {
-        return new GuiSlider(id, this.getColorSliderX(), this.getColorSliderY(row), 100, 20, text, "", 0, 255, currentValue * 255, false, true);
+        return new GuiSlider(id, this.getOptionX(), this.getOptionY(row), 100, 20, text, "", 0, 255, currentValue * 255, false, true);
     }
 
     public GuiButton[] addPointButtons(final int id, final int rows, final int points) {
@@ -303,11 +322,11 @@ public abstract class GuiTabSoulbound extends GuiTab {
         return buttons;
     }
 
-    public int getColorSliderX() {
+    public int getOptionX() {
         return Math.round(this.width * (1 - 1 / 24F)) - 100;
     }
 
-    public int getColorSliderY(final int row) {
+    public int getOptionY(final int row) {
         return this.height / 16 + Math.max(this.height / 16 * row, 30 * row);
     }
 

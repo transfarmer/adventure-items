@@ -33,14 +33,13 @@ import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.client.KeyBindings.TOGGLE_XP_BAR_KEY;
-import static transfarmer.soulboundarmory.client.gui.screen.common.GuiExtended.FONT_RENDERER;
+import static transfarmer.soulboundarmory.client.gui.screen.common.GuiScreenExtended.FONT_RENDERER;
 import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.STAFF;
 
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
 public class ClientEventListeners {
     public static final GuiXPBar OVERLAY_XP_BAR = new GuiXPBar();
     public static final GuiXPBar TOOLTIP_XP_BAR = new GuiXPBar();
-    public static int i = 0;
 
     @SubscribeEvent
     public static void onMouseInput(final MouseEvent event) {

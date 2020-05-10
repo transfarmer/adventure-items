@@ -10,8 +10,7 @@ import transfarmer.soulboundarmory.network.common.IExtendedMessageHandler;
 import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 import transfarmer.soulboundarmory.statistics.base.iface.IItem;
 
-public class C2SEnchant implements IExtendedMessage {
-    private String capability;
+public class C2SEnchant extends C2SSoulbound {
     private String item;
     private ResourceLocation enchantment;
     private int amount;
@@ -20,7 +19,8 @@ public class C2SEnchant implements IExtendedMessage {
     }
 
     public C2SEnchant(final ICapabilityType capability, final IItem item, final Enchantment enchantment, final int amount) {
-        this.capability = capability.toString();
+        super(capability);
+
         this.item = item.toString();
         this.enchantment = enchantment.getRegistryName();
         this.amount = amount;
@@ -28,7 +28,8 @@ public class C2SEnchant implements IExtendedMessage {
 
     @Override
     public void fromBytes(final ExtendedPacketBuffer buffer) {
-        this.capability = buffer.readString();
+        super.fromBytes(buffer);
+
         this.item = buffer.readString();
         this.enchantment = buffer.readResourceLocation();
         this.amount = buffer.readInt();
@@ -36,7 +37,8 @@ public class C2SEnchant implements IExtendedMessage {
 
     @Override
     public void toBytes(final ExtendedPacketBuffer buffer) {
-        buffer.writeString(this.capability);
+        super.toBytes(buffer);
+
         buffer.writeString(this.item);
         buffer.writeResourceLocation(this.enchantment);
         buffer.writeInt(this.amount);
@@ -45,8 +47,7 @@ public class C2SEnchant implements IExtendedMessage {
     public static final class Handler implements IExtendedMessageHandler<C2SEnchant> {
         @Override
         public IExtendedMessage onMessage(final C2SEnchant message, final MessageContext context) {
-            final ICapabilityType type = ICapabilityType.get(message.capability);
-            final SoulboundCapability capability = context.getServerHandler().player.getCapability(type.getCapability(), null);
+            final SoulboundCapability capability = context.getServerHandler().player.getCapability(message.capability, null);
             final Enchantment enchantment = Enchantment.getEnchantmentByLocation(message.enchantment.toString());
             final IItem weaponType = capability.getItemType(message.item);
 

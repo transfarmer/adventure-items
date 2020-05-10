@@ -44,7 +44,7 @@ public class GuiTabEnchantments extends GuiTabSoulbound {
         resetButton.enabled = this.capability.getDatum(this.capability.getItemType(), SPENT_ENCHANTMENT_POINTS) > 0;
 
         for (int row = 0; row < size; row++) {
-            final GuiButton button = this.addButton(this.squareButton(1000 + Enchantment.getEnchantmentID(enchantments.getKey(row)), (width + 162) / 2, this.getHeight(size, row), "+"));
+            final GuiButton button = this.addButton(this.squareButton(3000 + Enchantment.getEnchantmentID(enchantments.getKey(row)), (width + 162) / 2, this.getHeight(size, row), "+"));
             button.enabled = this.capability.getDatum(this.capability.getItemType(), ENCHANTMENT_POINTS) > 0;
         }
 
@@ -74,7 +74,7 @@ public class GuiTabEnchantments extends GuiTabSoulbound {
     public void actionPerformed(final @NotNull GuiButton button) {
         super.actionPerformed(button);
 
-        Enchantment enchantment = Enchantment.getEnchantmentByID(button.id - 1000);
+        Enchantment enchantment = Enchantment.getEnchantmentByID(button.id - 3000);
 
         if (enchantment != null) {
             int amount = 1;

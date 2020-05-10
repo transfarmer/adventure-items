@@ -3,6 +3,7 @@ package transfarmer.soulboundarmory.config;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Loader;
+import transfarmer.soulboundarmory.client.gui.GuiXPBar.Style;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,12 +13,14 @@ public class ClientConfig extends Config {
     private static final ClientConfig INSTANCE = new ClientConfig(new ClientConfiguration(new File(String.format("%s/soulboundarmory", Loader.instance().getConfigDir()), "xp_bar.cfg")));
     public static final String CATEGORY_COLOR = "color";
     public static final String CATEGORY_OTHER = "other";
+
     private final ClientConfiguration configFile;
     private float red;
     private float green;
     private float blue;
     private float alpha;
-    private boolean displaySliders;
+    private String style;
+    private boolean displayOptions;
     private boolean overlayXPBar;
 
     private ClientConfig(final ClientConfiguration configFile) {
@@ -37,7 +40,8 @@ public class ClientConfig extends Config {
         this.green = (float) this.configFile.getGreen().getDouble();
         this.blue = (float) this.configFile.getBlue().getDouble();
         this.alpha = (float) this.configFile.getAlpha().getDouble();
-        this.displaySliders = this.configFile.getDisplaySliders().getBoolean();
+        this.style = this.configFile.getStyle().getString();
+        this.displayOptions = this.configFile.getDisplaySliders().getBoolean();
         this.overlayXPBar = this.configFile.getOverlayXPBar().getBoolean();
 
         this.configFile.save();
@@ -48,7 +52,8 @@ public class ClientConfig extends Config {
         this.configFile.getGreen().set(this.green);
         this.configFile.getBlue().set(this.blue);
         this.configFile.getAlpha().set(this.alpha);
-        this.configFile.getDisplaySliders().set(this.displaySliders);
+        this.configFile.getStyle().set(this.style);
+        this.configFile.getDisplaySliders().set(this.displayOptions);
         this.configFile.getOverlayXPBar().set(this.overlayXPBar);
 
         this.configFile.save();
@@ -90,12 +95,20 @@ public class ClientConfig extends Config {
         INSTANCE.alpha = alpha;
     }
 
-    public static boolean getDisplaySliders() {
-        return INSTANCE.displaySliders;
+    public static Style getStyle() {
+        return Style.get(INSTANCE.style);
     }
 
-    public static void setDisplaySliders(final boolean displaySliders) {
-        INSTANCE.displaySliders = displaySliders;
+    public static void setStyle(final Style style) {
+        INSTANCE.style = style.name();
+    }
+
+    public static boolean getDisplayOptions() {
+        return INSTANCE.displayOptions;
+    }
+
+    public static void setDisplayOptions(final boolean displayOptions) {
+        INSTANCE.displayOptions = displayOptions;
     }
 
     public static boolean getOverlayXPBar() {
@@ -113,7 +126,7 @@ public class ClientConfig extends Config {
 
     private static class ClientConfiguration extends ExtendedConfiguration {
         public ClientConfiguration(final File file) {
-            super(file);
+            super(file, "2.10.11");
         }
 
         @Override
@@ -124,6 +137,7 @@ public class ClientConfig extends Config {
             properties.add(this.getGreen());
             properties.add(this.getBlue());
             properties.add(this.getAlpha());
+            properties.add(this.getStyle());
             properties.add(this.getDisplaySliders());
             properties.add(this.getOverlayXPBar());
 
@@ -131,27 +145,31 @@ public class ClientConfig extends Config {
         }
 
         public Property getRed() {
-            return this.get(CATEGORY_COLOR, "red", 160D / 255D);
+            return this.get(CATEGORY_COLOR, "red", 160D / 255D, "red color component of XP bar");
         }
 
         public Property getGreen() {
-            return this.get(CATEGORY_COLOR, "green", 1D);
+            return this.get(CATEGORY_COLOR, "green", 1D, "green color component of XP bar");
         }
 
         public Property getBlue() {
-            return this.get(CATEGORY_COLOR, "blue", 160D / 255D);
+            return this.get(CATEGORY_COLOR, "blue", 160D / 255D, "blue color component of XP bar");
         }
 
         public Property getAlpha() {
-            return this.get(CATEGORY_COLOR, "alpha", 1D);
+            return this.get(CATEGORY_COLOR, "alpha", 1D, "alpha component of XP bar");
+        }
+
+        public Property getStyle() {
+            return this.get(CATEGORY_OTHER, "XP bar style", "experience");
         }
 
         public Property getDisplaySliders() {
-            return this.get(CATEGORY_OTHER, "displaySliders", true);
+            return this.get(CATEGORY_OTHER, "display options", true, "display option buttons in GUI");
         }
 
         public Property getOverlayXPBar() {
-            return this.get(CATEGORY_OTHER, "overlayXPBar", true, "display an XP bar for the current item in the in-game overlay");
+            return this.get(CATEGORY_OTHER, "overlay XP bar", true, "display an XP bar for the current item in the in-game overlay");
         }
     }
 }
