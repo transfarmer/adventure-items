@@ -9,11 +9,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.skill.common.SkillLeeching;
-import transfarmer.soulboundarmory.skill.dagger.SkillReturn;
-import transfarmer.soulboundarmory.skill.dagger.SkillShadowClone;
-import transfarmer.soulboundarmory.skill.dagger.SkillSneakReturn;
-import transfarmer.soulboundarmory.skill.dagger.SkillThrowing;
+import transfarmer.soulboundarmory.skill.common.NourishmentSkill;
+import transfarmer.soulboundarmory.skill.dagger.ReturnSkill;
+import transfarmer.soulboundarmory.skill.dagger.ShadowCloneSkill;
+import transfarmer.soulboundarmory.skill.dagger.SneakReturnSkill;
+import transfarmer.soulboundarmory.skill.dagger.ThrowingSkill;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
 import transfarmer.soulboundarmory.statistics.Statistics;
@@ -60,7 +60,7 @@ public class DaggerComponent extends SoulboundItemComponent<DaggerComponent> {
                     && (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new SkillLeeching(), new SkillThrowing(), new SkillShadowClone(), new SkillReturn(), new SkillSneakReturn());
+        this.skillStorage = new SkillStorage(new NourishmentSkill(), new ThrowingSkill(), new ShadowCloneSkill(), new ReturnSkill(), new SneakReturnSkill());
     }
 
     @Nonnull

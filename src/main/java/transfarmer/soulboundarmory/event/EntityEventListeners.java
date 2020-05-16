@@ -40,7 +40,7 @@ import transfarmer.soulboundarmory.entity.SoulboundLightningEntity;
 import transfarmer.soulboundarmory.entity.SoulboundDaggerEntity;
 import transfarmer.soulboundarmory.entity.SoulboundFireballEntity;
 import transfarmer.soulboundarmory.item.SoulboundDaggerItem;
-import transfarmer.soulboundarmory.skill.common.SkillLeeching;
+import transfarmer.soulboundarmory.skill.common.NourishmentSkill;
 import transfarmer.soulboundarmory.statistics.IItem;
 import transfarmer.farmerlib.util.EntityUtil;
 import transfarmer.farmerlib.util.ItemUtil;
@@ -54,7 +54,7 @@ import static transfarmer.soulboundarmory.component.soulbound.tool.ToolProvider.
 import static transfarmer.soulboundarmory.component.soulbound.weapon.WeaponProvider.WEAPONS;
 import static transfarmer.soulboundarmory.Main.SOULBOUND_SWORD_ITEM;
 import static transfarmer.soulboundarmory.skill.Skills.FREEZING;
-import static transfarmer.soulboundarmory.skill.Skills.LEECHING;
+import static transfarmer.soulboundarmory.skill.Skills.NOURISHMENT;
 import static transfarmer.soulboundarmory.statistics.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.Item.GREATSWORD;
 import static transfarmer.soulboundarmory.statistics.Item.STAFF;
@@ -106,8 +106,8 @@ public class EntityEventListeners {
                     ? 2 * event.getAmount()
                     : event.getAmount();
 
-            if (instance.hasSkill(item, new SkillLeeching())) {
-                final Skill leeching = (Skill) instance.getSkill(item, LEECHING);
+            if (instance.hasSkill(item, new NourishmentSkill())) {
+                final Skill leeching = (Skill) instance.getSkill(item, NOURISHMENT);
 
                 final float food = (1 + leeching.getLevel()) * attackDamage / 20F;
                 final int r = random.nextInt((int) Math.ceil(food) + 1);

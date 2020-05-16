@@ -7,11 +7,11 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
 import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.skill.staff.SkillEndermanacle;
-import transfarmer.soulboundarmory.skill.staff.SkillFireball;
+import transfarmer.soulboundarmory.skill.staff.EndermanacleSkill;
+import transfarmer.soulboundarmory.skill.staff.FireballSkill;
 import transfarmer.soulboundarmory.skill.staff.SkillHealing;
-import transfarmer.soulboundarmory.skill.staff.SkillPenetration;
-import transfarmer.soulboundarmory.skill.staff.SkillVulnerability;
+import transfarmer.soulboundarmory.skill.staff.PenetrationSkill;
+import transfarmer.soulboundarmory.skill.staff.VulnerabilitySkill;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
 import transfarmer.soulboundarmory.statistics.Statistics;
@@ -29,7 +29,6 @@ import static transfarmer.soulboundarmory.Main.IMPACT;
 import static transfarmer.soulboundarmory.Main.STAFF_COMPONENT;
 import static transfarmer.soulboundarmory.statistics.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.Category.DATUM;
-import static transfarmer.soulboundarmory.statistics.Item.STAFF;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTRIBUTE_POINTS;
@@ -59,7 +58,7 @@ public class StaffComponent extends SoulboundItemComponent<StaffComponent> imple
                     && (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new SkillHealing(), new SkillFireball(), new SkillVulnerability(), new SkillPenetration(), new SkillEndermanacle());
+        this.skillStorage = new SkillStorage(new SkillHealing(), new FireballSkill(), new VulnerabilitySkill(), new PenetrationSkill(), new EndermanacleSkill());
     }
 
     @Nonnull

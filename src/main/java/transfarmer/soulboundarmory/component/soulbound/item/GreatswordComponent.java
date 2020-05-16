@@ -11,9 +11,9 @@ import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.farmerlib.nbt.NBTUtil;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.component.entity.IEntityData;
-import transfarmer.soulboundarmory.skill.common.SkillLeeching;
-import transfarmer.soulboundarmory.skill.greatsword.SkillFreezing;
-import transfarmer.soulboundarmory.skill.greatsword.SkillLeaping;
+import transfarmer.soulboundarmory.skill.common.NourishmentSkill;
+import transfarmer.soulboundarmory.skill.greatsword.FreezingSkill;
+import transfarmer.soulboundarmory.skill.greatsword.LeapingSkill;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
 import transfarmer.soulboundarmory.statistics.StatisticType;
@@ -66,7 +66,7 @@ public class GreatswordComponent extends SoulboundItemComponent<GreatswordCompon
                     && (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new SkillLeeching(), new SkillLeaping(), new SkillFreezing());
+        this.skillStorage = new SkillStorage(new NourishmentSkill(), new LeapingSkill(), new FreezingSkill());
                 this.cannotFreeze = new CompoundTag();
     }
 

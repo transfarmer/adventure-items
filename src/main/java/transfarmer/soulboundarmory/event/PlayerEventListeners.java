@@ -40,7 +40,7 @@ import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
-import static transfarmer.soulboundarmory.skill.Skills.TELEPORTATION;
+import static transfarmer.soulboundarmory.skill.Skills.PULL;
 import static transfarmer.soulboundarmory.statistics.Item.PICK;
 import static transfarmer.soulboundarmory.statistics.StatisticType.EFFICIENCY;
 import static transfarmer.soulboundarmory.statistics.StatisticType.LEVEL;
@@ -177,7 +177,7 @@ public class PlayerEventListeners {
     public static void onHarvestDrops(final HarvestDropsEvent event) {
         final PlayerEntity player = event.getHarvester();
 
-        if (player != null && player.getMainHandStack().getItem() instanceof SoulboundPickItem && ToolProvider.get(player).hasSkill(PICK, TELEPORTATION)) {
+        if (player != null && player.getMainHandStack().getItem() instanceof SoulboundPickItem && ToolProvider.get(player).hasSkill(PICK, PULL)) {
             event.setDropChance(0);
 
             for (final ItemStack drop : event.getDrops()) {

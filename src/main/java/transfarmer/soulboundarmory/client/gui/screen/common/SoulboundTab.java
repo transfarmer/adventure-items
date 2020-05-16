@@ -11,6 +11,7 @@ import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
+import transfarmer.farmerlib.item.ItemUtil;
 import transfarmer.farmerlib.util.ItemUtil;
 import transfarmer.soulboundarmory.MainClient;
 import transfarmer.soulboundarmory.client.gui.ExtendedButtonWidget;

@@ -10,6 +10,7 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -27,8 +28,12 @@ public abstract class ExtendedScreen extends Screen {
     public static final ResourceManager RESOURCE_MANAGER = CLIENT.getResourceManager();
     public static final Identifier GLINT = new Identifier("textures/misc/enchanted_item_glint.png");
 
+    public final ItemRenderer itemRenderer;
+
     protected ExtendedScreen(final Text title) {
         super(title);
+
+        this.itemRenderer = super.itemRenderer;
     }
 
     @Override
@@ -113,6 +118,10 @@ public abstract class ExtendedScreen extends Screen {
         }
 
         return y;
+    }
+
+    public void renderGuiItem(final ItemStack itemStack, final int x, final int y, final int blitOffset) {
+        this.withZ(blitOffset, () -> this.itemRenderer.renderGuiItem(itemStack, x, y));
     }
 
     public void withZ(final int blitOffset, final Runnable method) {

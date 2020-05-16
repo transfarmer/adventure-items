@@ -8,8 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.skill.common.SkillLeeching;
-import transfarmer.soulboundarmory.skill.sword.SkillSummonLightning;
+import transfarmer.soulboundarmory.skill.common.NourishmentSkill;
+import transfarmer.soulboundarmory.skill.sword.SummonLightningSkill;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
 import transfarmer.soulboundarmory.statistics.Statistics;
@@ -58,7 +58,7 @@ public class SwordComponent extends SoulboundItemComponent<SwordComponent> imple
                     && (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new SkillLeeching(), new SkillSummonLightning());
+        this.skillStorage = new SkillStorage(new NourishmentSkill(), new SummonLightningSkill());
 );
     }
 

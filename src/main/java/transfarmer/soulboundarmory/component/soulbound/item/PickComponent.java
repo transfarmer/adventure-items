@@ -4,8 +4,8 @@ import nerdhub.cardinal.components.api.ComponentType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
 import transfarmer.farmerlib.collection.CollectionUtil;
-import transfarmer.soulboundarmory.skill.pick.SkillAmbidexterity;
-import transfarmer.soulboundarmory.skill.pick.SkillTeleportation;
+import transfarmer.soulboundarmory.skill.pick.AmbidexteritySkill;
+import transfarmer.soulboundarmory.skill.pick.PullSkill;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
 import transfarmer.soulboundarmory.statistics.Statistics;
@@ -43,7 +43,7 @@ public class PickComponent extends SoulboundItemComponent<PickComponent> {
                     && !name.contains("soulbound") && !name.contains("holding") && !name.contains("smelt")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new SkillTeleportation(), new SkillAmbidexterity());
+        this.skillStorage = new SkillStorage(new PullSkill(), new AmbidexteritySkill());
     }
 
     @Nonnull

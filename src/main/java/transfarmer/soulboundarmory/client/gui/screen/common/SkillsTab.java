@@ -1,12 +1,14 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
-import net.minecraft.client.renderer.RenderSystem;
-import net.minecraft.client.renderer.texture.SpriteAtlasTexture;
-import net.minecraft.init.Blocks;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.block.Blocks;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.util.Identifier;
-import net.minecraftforge.common.capabilities.Component;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
+import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
+import transfarmer.soulboundarmory.skill.Skill;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -18,10 +20,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.statistics.StatisticType.SKILL_POINTS;
 
-@Environment(CLIENT)
+@Environment(EnvType.CLIENT)
 public class SkillsTab extends SoulboundTab {
     protected static final SpriteAtlasTexture BACKGROUND = ExtendedScreen.getSprite(Blocks.STONE, 5);
     protected static final Identifier BACKGROUND_TEXTURE = ExtendedScreen.getTexture(BACKGROUND);

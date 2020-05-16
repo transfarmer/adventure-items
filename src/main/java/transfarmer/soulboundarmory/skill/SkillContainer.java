@@ -16,10 +16,15 @@ public class SkillContainer implements NbtSerializable {
     protected int level;
 
     public SkillContainer(final Skill skill, final SkillStorage storage) {
+        this(skill, storage, false, 0);
+    }
+
+    public SkillContainer(final Skill skill, final SkillStorage storage, final boolean learned, final int level) {
         this.skill = skill;
-        this.level = 0;
         this.maxLevel = skill.maxLevel;
         this.storage = storage;
+        this.learned = learned;
+        this.level = level;
     }
 
     public Skill getSkill() {
@@ -55,7 +60,7 @@ public class SkillContainer implements NbtSerializable {
     }
 
     public int getCost() {
-        return this.skill.getCost(this.level);
+        return this.skill.getCost(this.learned, this.level);
     }
 
     public boolean isLearned() {

@@ -1,17 +1,16 @@
 package transfarmer.soulboundarmory.skill;
 
-import nerdhub.cardinal.components.api.util.NbtSerializable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.util.Identifier;
 import transfarmer.farmerlib.collection.CollectionUtil;
+import transfarmer.soulboundarmory.client.gui.screen.common.ExtendedScreen;
 
 import java.util.Arrays;
 import java.util.List;
 
-
-public abstract class Skill implements Cloneable, Comparable<Skill>, NbtSerializable {
+public abstract class Skill {
     protected final Identifier identifier;
     protected final List<Skill> dependencies;
     protected int maxLevel;
@@ -26,11 +25,11 @@ public abstract class Skill implements Cloneable, Comparable<Skill>, NbtSerializ
         this.dependencies = CollectionUtil.arrayList(dependencies);
     }
 
-    public abstract List<Skill> getDependencies();
+    public List<Skill> getDependencies() {
+        return this.dependencies;
+    }
 
-    public abstract int getCost(final int level);
-
-    public abstract void render();
+    public abstract int getCost(final boolean learned, final int level);
 
     @Environment(EnvType.CLIENT)
     public String getName() {
@@ -62,18 +61,9 @@ public abstract class Skill implements Cloneable, Comparable<Skill>, NbtSerializ
         return tier;
     }
 
-    public Identifier getTexture() {
-        return new Identifier(this.identifier.getNamespace(), String.format("textures/skill/%s.png", this.identifier.getPath()));
-    }
-
-    @Override
-    public Skill clone() {
-        try {
-            return (Skill) super.clone();
-        } catch (CloneNotSupportedException exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
+    @Environment(EnvType.CLIENT)
+    public void render(final ExtendedScreen screen, final int level, final int x, final int y, final int blitOffset) {
+        ExtendedScreen.TEXTURE_MANAGER.bindTexture(Skills.getDefaultTextureLocation(this));
+        screen.withZ(blitOffset, () -> screen.blit(x, y, 0, 0, 16, 16));
     }
 }
