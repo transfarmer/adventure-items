@@ -4,22 +4,19 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.Identifier;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
+import transfarmer.soulboundarmory.network.common.ComponentPacket;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.network.common.IExtendedMessage;
-import transfarmer.soulboundarmory.network.common.IExtendedMessageHandler;
-import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
-import transfarmer.soulboundarmory.statistics.base.iface.IItem;
+import transfarmer.soulboundarmory.statistics.IItem;
 
-public class C2SEnchant extends C2SSoulbound {
-    private String item;
+public class C2SEnchant extends ComponentPacket {
     private Identifier enchantment;
     private int amount;
 
     public C2SEnchant() {
     }
 
-    public C2SEnchant(final ICapabilityType capability, final IItem item, final Enchantment enchantment, final int amount) {
-        super(capability);
+    public C2SEnchant(final IComponentType component, final IItem item, final Enchantment enchantment, final int amount) {
+        super(component);
 
         this.item = item.toString();
         this.enchantment = enchantment.getRegistryName();
@@ -47,13 +44,13 @@ public class C2SEnchant extends C2SSoulbound {
     public static final class Handler implements IExtendedMessageHandler<C2SEnchant> {
         @Override
         public IExtendedMessage onMessage(final C2SEnchant message, final MessageContext context) {
-            final ISoulboundComponent capability = context.getServerHandler().player.getCapability(message.capability, null);
-            final Enchantment enchantment = Enchantment.getEnchantmentByLocation(message.enchantment.toString());
-            final IItem weaponType = capability.getItemType(message.item);
+            final ISoulboundComponent component = context.getServerHandler().player.getComponent(componentType, null);
+            final Enchantment enchantment = Enchantment.getEnchantmentByLocation(enchantment.toString());
+            final IItem weaponType = component.getItemType(item);
 
-            capability.addEnchantment(weaponType, enchantment, message.amount);
-            capability.sync();
-            capability.refresh();
+            component.addEnchantment(weaponType, enchantment, amount);
+            component.sync();
+            component.refresh();
 
             return null;
         }

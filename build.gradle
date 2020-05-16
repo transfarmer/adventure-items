@@ -17,7 +17,11 @@ minecraft {
 
 repositories {
     maven {
-        url = "https://jitpack.io"
+        url "https://jitpack.io"
+    }
+
+    maven {
+        url "https://maven.jamieswhiteshirt.com/libs-release/"
     }
 }
 
@@ -26,17 +30,27 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    include "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
-    include "com.google.code.findbugs:jsr305:3.0.2"
+    implementation "${project.jsr}"
+    include "${project.jsr}"
 
-    modImplementation "com.github.OnyxStudios.Cardinal-Components-API:Cardinal-Components-API:2.3.5"
-    include "com.github.OnyxStudios.Cardinal-Components-API:Cardinal-Components-API:2.3.5"
+    modImplementation "${project.farmerlib}"
+    include "${project.farmerlib}"
 
-    include "me.sargunvohra.mcmods:autoconfig1u:2.1.0"
+    modImplementation "${project.cardinalComponents}"
+    include "${project.cardinalComponents}"
 
-    implementation("com.github.transfarmer:farmerlib:1.15.2-SNAPSHOT")
+    modApi "${project.autoConfig}"
+    include "${project.autoConfig}"
+
+    modImplementation "${project.reachEntityAttributes}"
+    include "${project.reachEntityAttributes}"
+}
+
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 processResources {

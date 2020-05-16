@@ -13,13 +13,10 @@ import net.minecraft.util.DefaultedList;
 import transfarmer.farmerlib.util.CollectionUtil;
 import transfarmer.farmerlib.util.ItemUtil;
 import transfarmer.soulboundarmory.component.config.IConfigComponent;
-import transfarmer.soulboundarmory.component.soulbound.tool.ToolProvider;
-import transfarmer.soulboundarmory.component.soulbound.weapon.WeaponProvider;
-import transfarmer.soulboundarmory.item.ItemSoulbound;
-import transfarmer.soulboundarmory.item.SoulboundTool;
-import transfarmer.soulboundarmory.item.SoulboundWeapon;
+import transfarmer.soulboundarmory.item.SoulboundItem;
+import transfarmer.soulboundarmory.item.SoulboundToolItem;
+import transfarmer.soulboundarmory.item.SoulboundWeaponItem;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
@@ -30,55 +27,56 @@ import static net.minecraft.entity.EquipmentSlot.MAINHAND;
 public class SoulboundItemUtil {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
 
-    public static ISoulboundComponent getFirstHeldCapability(final PlayerEntity player) {
-        final ISoulboundComponent capability = getFirstCapability(player, player.getMainHandStack());
+    public static ISoulboundComponent getFirstHeldComponent(final PlayerEntity player) {
+        final ISoulboundComponent component = getFirstComponent(player, player.getMainHandStack());
 
-        if (capability == null) {
-            return getFirstCapability(player, player.getOffHandStack());
+        if (component == null) {
+            return getFirstComponent(player, player.getOffHandStack());
         }
 
-        return capability;
+        return component;
     }
 
-    public static ISoulboundComponent getFirstCapability(final PlayerEntity player,
-                                                         @Nonnull final ItemStack itemStack) {
-        return getFirstCapability(player, itemStack.getItem());
+    public static ISoulboundComponent getFirstComponent(final PlayerEntity player, final ItemStack itemStack) {
+        return getFirstComponent(player, itemStack.getItem());
     }
 
-    public static ISoulboundComponent getFirstCapability(final PlayerEntity player, @Nullable Item item) {
+    public static ISoulboundComponent getCurrentComponent(final PlayerEntity player) {
+        return getFirstComponent(player, (Item) null);
+    }
+
+    public static ISoulboundComponent getFirstComponent(final PlayerEntity player, @Nullable Item item) {
         final boolean passedNull = item == null;
-        ISoulboundComponent capability = null;
+        ISoulboundComponent component = null;
 
         if (passedNull) {
             item = player.getMainHandStack().getItem();
         }
 
-        if (item instanceof ItemSoulbound) {
-            if (item instanceof SoulboundWeapon) {
-                capability = WeaponProvider.get(player);
-            } else if (item instanceof SoulboundTool) {
-                capability = ToolProvider.get(player);
-            }
+        if (item instanceof SoulboundWeaponItem) {
+            component = WeaponProvider.get(player);
+        } else if (item instanceof SoulboundToolItem) {
+            component = ToolProvider.get(player);
         }
 
-        if (capability == null) {
+        if (component == null) {
             if (item == Items.WOODEN_SWORD) {
-                capability = WeaponProvider.get(player);
+                component = WeaponProvider.get(player);
             } else if (item == Items.WOODEN_PICKAXE) {
-                capability = ToolProvider.get(player);
+                component = ToolProvider.get(player);
             }
         }
 
-        if (passedNull && capability == null) {
-            capability = getFirstCapability(player, player.getOffHandStack());
+        if (passedNull && component == null) {
+            component = getFirstComponent(player, player.getOffHandStack());
         }
 
-        return capability;
+        return component;
     }
 
     public static boolean isSoulWeaponEquipped(final PlayerEntity player) {
-        return player.getMainHandStack().getItem() instanceof SoulboundWeapon
-                || player.getOffHandStack().getItem() instanceof SoulboundWeapon;
+        return player.getMainHandStack().getItem() instanceof SoulboundWeaponItem
+                || player.getOffHandStack().getItem() instanceof SoulboundWeaponItem;
     }
 
     public static boolean addItemStack(final ItemStack itemStack, final PlayerEntity player) {
@@ -88,7 +86,7 @@ public class SoulboundItemUtil {
     public static boolean addItemStack(final ItemStack itemStack, final PlayerEntity player, boolean hasReservedSlot) {
         final PlayerInventory inventory = player.inventory;
 
-        if (!(itemStack.getItem() instanceof ItemSoulbound)) {
+        if (!(itemStack.getItem() instanceof SoulboundItem)) {
             hasReservedSlot = false;
         }
 
@@ -134,7 +132,7 @@ public class SoulboundItemUtil {
             return false;
         }
 
-        final int boundSlot = getFirstCapability(player, itemStack.getItem()).getBoundSlot();
+        final int boundSlot = getFirstComponent(player, itemStack.getItem()).getBoundSlot();
 
         if (boundSlot >= 0) {
             if (inventory.getInvStack(boundSlot).isEmpty()) {
@@ -198,7 +196,7 @@ public class SoulboundItemUtil {
         inventory[player.inventory.getInvSize()] = player.getOffHandStack();
 
         for (final ItemStack itemStack : inventory) {
-            if (itemStack != null && itemStack.getItem() instanceof SoulboundWeapon) {
+            if (itemStack != null && itemStack.getItem() instanceof SoulboundWeaponItem) {
                 return true;
             }
         }
@@ -206,7 +204,7 @@ public class SoulboundItemUtil {
         return false;
     }
 
-    public static void removeSoulboundItems(final PlayerEntity player, final Class<? extends ItemSoulbound> clazz) {
+    public static void removeSoulboundItems(final PlayerEntity player, final Class<? extends SoulboundItem> clazz) {
         for (final ItemStack itemStack : player.inventory.main) {
             if (clazz.isInstance(itemStack.getItem())) {
                 player.inventory.removeOne(itemStack);

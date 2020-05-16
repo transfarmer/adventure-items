@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Environment(EnvType.CLIENT)
-public class ClientConfig extends Config {
+public class ClientConfig extends AbstractConfig {
     private static final ClientConfig INSTANCE = new ClientConfig(new ClientConfiguration(new File(String.format("%s/soulboundarmory", Loader.instance().getConfigDir()), "xp_bar.cfg")));
     public static final String CATEGORY_COLOR = "color";
     public static final String CATEGORY_OTHER = "other";

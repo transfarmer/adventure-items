@@ -1,0 +1,32 @@
+{
+    "schemaVersion": 1,
+    "id": "soulboundarmory",
+    "version": "${version}",
+    "name": "farmerlib",
+    "description": "RPG-style armory",
+    "authors": [
+        "transfarmer"
+    ],
+    "contact": {
+        "sources": "https://github.com/transfarmer/farmerlib"
+    },
+    "license": "CC0-1.0",
+    "icon": "assets/soulboundarmory/textures/item/soulbound_sword.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "transfarmer.transfarmer.Main"
+        ],
+        "client": [
+            "transfarmer.transfarmer.MainClient"
+        ]
+    },
+    "mixins": [
+        "farmerlib.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=0.8.2+build.194",
+        "fabric": "*",
+        "minecraft": "1.15.2"
+    }
+}

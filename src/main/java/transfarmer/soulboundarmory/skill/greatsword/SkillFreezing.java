@@ -2,16 +2,16 @@ package transfarmer.soulboundarmory.skill.greatsword;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nonnull;
 import transfarmer.soulboundarmory.skill.Skill;
-import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 import transfarmer.farmerlib.util.CollectionUtil;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
-import static transfarmer.soulboundarmory.init.Skills.LEAPING;
+import static transfarmer.soulboundarmory.skill.Skills.LEAPING;
 
-public class SkillFreezing extends SkillBaseLevelable {
+public class SkillFreezing extends Skill {
     public SkillFreezing() {
         this(0);
     }
@@ -20,8 +20,9 @@ public class SkillFreezing extends SkillBaseLevelable {
         super("freezing", new ItemStack(Items.SNOWBALL), level);
     }
 
+    @Nonnull
     @Override
-    public @NotNull List<Skill> getDependencies() {
+    public @Nonnull List<Skill> getDependencies() {
         return this.storage == null
                 ? CollectionUtil.arrayList(new SkillLeaping())
                 : CollectionUtil.arrayList(this.storage.get(this.item, LEAPING));

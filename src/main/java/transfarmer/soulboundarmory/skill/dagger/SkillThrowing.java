@@ -2,21 +2,21 @@ package transfarmer.soulboundarmory.skill.dagger;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nonnull;
 import transfarmer.soulboundarmory.skill.Skill;
-import transfarmer.soulboundarmory.skill.SkillBase;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SkillThrowing extends SkillBase {
+public class SkillThrowing extends Skill {
     public SkillThrowing() {
         super("throwing", new ItemStack(Items.ARROW));
     }
 
+    @Nonnull
     @Override
-    public @NotNull List<Skill> getDependencies() {
+    public @Nonnull List<Skill> getDependencies() {
         return new ArrayList<>();
     }
 

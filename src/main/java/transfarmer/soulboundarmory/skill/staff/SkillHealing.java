@@ -5,13 +5,12 @@ import net.minecraft.init.PotionTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionUtils;
 import transfarmer.soulboundarmory.skill.Skill;
-import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SkillHealing extends SkillBaseLevelable {
+public class SkillHealing extends Skill {
     public SkillHealing() {
         this(0);
     }

@@ -1,8 +1,8 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import net.minecraft.client.gui.ButtonWidget;
-import net.minecraftforge.common.capabilities.Capability;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.common.capabilities.Component;
+import org.jetbrains.annotations.Nonnull;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.C2S.C2SItemType;
@@ -13,7 +13,7 @@ import java.util.Map;
 public abstract class SelectionTab extends SoulboundTab {
     protected final Map<Integer, String> selection;
 
-    public SelectionTab(final @NotNull Capability<? extends ISoulboundComponent> key, final List<ScreenTab> tabs,
+    public SelectionTab(final @Nonnull Component<? extends ISoulboundComponent> key, final List<ScreenTab> tabs,
                         final Map<Integer, String> selection) {
         super(key, tabs);
 
@@ -42,14 +42,14 @@ public abstract class SelectionTab extends SoulboundTab {
             final ButtonWidget button = this.addButton(new ButtonWidget(id, xCenter, top + (row++ * ySep), width, height, this.selection.get(id)));
 
             if (this.component.hasSoulboundItem()) {
-                button.enabled = id != this.component.getIndex();
+                button.active = id != this.component.getIndex();
             }
         }
     }
 
     @Override
-    public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+    public void render(final int mouseX, final int mouseY, final float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
 
         if (!this.component.hasSoulboundItem()) {
             this.drawCenteredString(this.fontRenderer, this.getLabel(), this.width / 2, 40, 0xFFFFFF);
@@ -57,7 +57,7 @@ public abstract class SelectionTab extends SoulboundTab {
     }
 
     @Override
-    public void actionPerformed(@NotNull final ButtonWidget button) {
+    public void actionPerformed(@Nonnull final ButtonWidget button) {
         super.actionPerformed(button);
 
         if (this.selection.containsKey(button.id)) {

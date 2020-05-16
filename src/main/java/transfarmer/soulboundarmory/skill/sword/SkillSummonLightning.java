@@ -1,13 +1,13 @@
 package transfarmer.soulboundarmory.skill.sword;
 
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nonnull;
 import transfarmer.soulboundarmory.skill.Skill;
-import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SkillSummonLightning extends SkillBaseLevelable {
+public class SkillSummonLightning extends Skill {
     public SkillSummonLightning() {
         this(0);
     }
@@ -16,8 +16,9 @@ public class SkillSummonLightning extends SkillBaseLevelable {
         super("summon_lightning", null, level);
     }
 
+    @Nonnull
     @Override
-    public @NotNull List<Skill> getDependencies() {
+    public @Nonnull List<Skill> getDependencies() {
         return new ArrayList<>();
     }
 

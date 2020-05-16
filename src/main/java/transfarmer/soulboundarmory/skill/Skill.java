@@ -1,50 +1,79 @@
 package transfarmer.soulboundarmory.skill;
 
-import net.minecraft.nbt.CompoundTag;
+import nerdhub.cardinal.components.api.util.NbtSerializable;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.util.Identifier;
-import net.minecraftforge.common.util.INBTSerializable;
-import org.jetbrains.annotations.NotNull;
-import transfarmer.soulboundarmory.client.gui.screen.common.skill.GuiSkill;
-import transfarmer.soulboundarmory.statistics.Skills;
-import transfarmer.soulboundarmory.statistics.base.iface.IItem;
+import transfarmer.farmerlib.collection.CollectionUtil;
 
-import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.List;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
-public interface Skill extends INBTSerializable<CompoundTag> {
-    @Nonnull
-    List<Skill> getDependencies();
+public abstract class Skill implements Cloneable, Comparable<Skill>, NbtSerializable {
+    protected final Identifier identifier;
+    protected final List<Skill> dependencies;
+    protected int maxLevel;
 
-    boolean hasDependencies();
+    public Skill(final Identifier identifier, final Skill... dependencies) {
+        this(identifier, 0, dependencies);
+    }
 
-    int getTier();
+    public Skill(final Identifier identifier, final int maxLevel, final Skill... dependencies) {
+        this.identifier = identifier;
+        this.maxLevel = maxLevel;
+        this.dependencies = CollectionUtil.arrayList(dependencies);
+    }
 
-    int getCost();
+    public abstract List<Skill> getDependencies();
 
-    boolean isLearned();
+    public abstract int getCost(final int level);
 
-    boolean canBeLearned();
+    public abstract void render();
 
-    boolean canBeLearned(int points);
+    @Environment(EnvType.CLIENT)
+    public String getName() {
+        final String name = I18n.translate(String.format("skill.%s.%s.name", this.identifier.getNamespace(), this.identifier.getPath()));
 
-    void learn();
+        return name.replaceFirst("[A-Za-z]", String.valueOf(name.charAt(0)).toUpperCase());
+    }
 
-    Identifier getTexture();
+    @Environment(EnvType.CLIENT)
+    public List<String> getTooltip() {
+        return Arrays.asList(I18n.translate(String.format("skill.%s.%s.desc", this.identifier.getNamespace(), this.identifier.getPath())).split("\\\\n"));
+    }
 
-    GuiSkill getGUI();
+    public boolean hasDependencies() {
+        return !this.getDependencies().isEmpty();
+    }
 
-    @NotNull
-    String getModID();
+    public final int getTier() {
+        int tier = this.hasDependencies() ? 1 : 0;
 
-    String getRegistryName();
+        for (final Skill dependency : this.getDependencies()) {
+            final int previous = dependency.getTier();
 
-    void setStorage(Skills storage, IItem item);
+            if (previous > 0) {
+                tier++;
+            }
+        }
 
-    @Environment(CLIENT)
-    String getName();
+        return tier;
+    }
 
-    @Environment(CLIENT)
-    List<String> getTooltip();
+    public Identifier getTexture() {
+        return new Identifier(this.identifier.getNamespace(), String.format("textures/skill/%s.png", this.identifier.getPath()));
+    }
+
+    @Override
+    public Skill clone() {
+        try {
+            return (Skill) super.clone();
+        } catch (CloneNotSupportedException exception) {
+            exception.printStackTrace();
+        }
+
+        return null;
+    }
 }

@@ -4,17 +4,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.network.common.IExtendedMessage;
-import transfarmer.soulboundarmory.network.common.IExtendedMessageHandler;
-import transfarmer.soulboundarmory.statistics.base.iface.IItem;
+import transfarmer.soulboundarmory.statistics.IItem;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public class S2CRefresh extends S2CSoulbound {
     public S2CRefresh() {}
 
-    public S2CRefresh(final ISoulboundComponent capability, final IItem item) {
-        super(capability, item);
+    public S2CRefresh(final ISoulboundComponent component, final IItem item) {
+        super(component, item);
     }
 
     @Override
@@ -32,7 +30,7 @@ public class S2CRefresh extends S2CSoulbound {
         @Environment(CLIENT)
         @Override
         public IExtendedMessage onMessage(final S2CRefresh message, final MessageContext context) {
-            CLIENT.addScheduledTask(message.capability::refresh);
+            CLIENT.addScheduledTask(component::refresh);
 
             return null;
         }

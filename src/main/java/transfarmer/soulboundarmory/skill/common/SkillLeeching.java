@@ -2,14 +2,14 @@ package transfarmer.soulboundarmory.skill.common;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nonnull;
 import transfarmer.soulboundarmory.skill.Skill;
-import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SkillLeeching extends SkillBaseLevelable {
+public class SkillLeeching extends Skill {
     public SkillLeeching() {
         this(0);
     }
@@ -18,8 +18,9 @@ public class SkillLeeching extends SkillBaseLevelable {
         super("leeching", new ItemStack(Items.ROTTEN_FLESH),  level, -1);
     }
 
+    @Nonnull
     @Override
-    public @NotNull List<Skill> getDependencies() {
+    public @Nonnull List<Skill> getDependencies() {
         return new ArrayList<>();
     }
 

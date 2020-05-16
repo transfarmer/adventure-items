@@ -12,7 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainConfig extends Config {
+public class MainConfig extends AbstractConfig {
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_MULTIPLIERS = "experience multipliers";
     private static final MainConfig INSTANCE = new MainConfig(new MainConfiguration(new File(String.format("%s/soulboundarmory", Loader.instance().getConfigDir()), "main.cfg")));
@@ -100,7 +100,7 @@ public class MainConfig extends Config {
     public CompoundTag writeToNBT() {
         final CompoundTag tag = new CompoundTag();
 
-        for (final Property property : this.configFile.getIntegers()) {
+        for (final Property property : this.configFile.getInts()) {
             tag.putInt(property.getName(), property.getInt());
         }
 
@@ -116,12 +116,12 @@ public class MainConfig extends Config {
     }
 
     public void readFromNBT(final CompoundTag tag) {
-        this.initialToolXP = tag.getInteger(this.configFile.getInitialToolXP().getName());
-        this.initialWeaponXP = tag.getInteger(this.configFile.getInitialWeaponXP().getName());
-        this.levelsPerEnchantment = tag.getInteger(this.configFile.getLevelsPerEnchantment().getName());
-        this.levelsPerSkill = tag.getInteger(this.configFile.getLevelsPerSkill().getName());
-        this.maxLevel = tag.getInteger(this.configFile.getMaxLevel().getName());
-        this.preservationLevel = tag.getInteger(this.configFile.getPreservationLevel().getName());
+        this.initialToolXP = tag.getInt(this.configFile.getInitialToolXP().getName());
+        this.initialWeaponXP = tag.getInt(this.configFile.getInitialWeaponXP().getName());
+        this.levelsPerEnchantment = tag.getInt(this.configFile.getLevelsPerEnchantment().getName());
+        this.levelsPerSkill = tag.getInt(this.configFile.getLevelsPerSkill().getName());
+        this.maxLevel = tag.getInt(this.configFile.getMaxLevel().getName());
+        this.preservationLevel = tag.getInt(this.configFile.getPreservationLevel().getName());
 
         this.addToOffhand = tag.getBoolean(this.configFile.getAddToOffhand().getName());
         this.levelupNotifications = tag.getBoolean(this.configFile.getLevelupNotifications().getName());
@@ -275,14 +275,14 @@ public class MainConfig extends Config {
         public List<Property> getProperties() {
             final List<Property> properties = new ArrayList<>();
 
-            properties.addAll(this.getIntegers());
+            properties.addAll(this.getInts());
             properties.addAll(this.getBooleans());
             properties.addAll(this.getFloats());
 
             return properties;
         }
 
-        public List<Property> getIntegers() {
+        public List<Property> getInts() {
             final List<Property> properties = new ArrayList<>();
 
             properties.add(this.getInitialToolXP());

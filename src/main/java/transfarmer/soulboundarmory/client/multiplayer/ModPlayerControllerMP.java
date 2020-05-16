@@ -6,10 +6,10 @@ import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockStructure;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.entity.PlayerEntitySP;
+import net.minecraft.client.entity.ClientPlayerEntity;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
@@ -74,7 +74,7 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
     }
 
     public void flipPlayer(PlayerEntity playerIn) {
-        playerIn.rotationYaw = -180.0F;
+        playerIn.yaw = -180.0F;
     }
 
     public boolean shouldDrawHUD() {
@@ -109,7 +109,7 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
             return false;
         } else {
             World world = this.mc.world;
-            IBlockState iblockstate = world.getBlockState(pos);
+            BlockState iblockstate = world.getBlockState(pos);
             Block block = iblockstate.getBlock();
 
             if ((block instanceof BlockCommandBlock || block instanceof BlockStructure) && !this.mc.player.canUseCommandBlock()) {
@@ -129,8 +129,8 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
                         itemstack1.onBlockDestroyed(world, iblockstate, pos, this.mc.player);
 
                         if (itemstack1.isEmpty()) {
-                            net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(this.mc.player, copyBeforeUse, EnumHand.MAIN_HAND);
-                            this.mc.player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
+                            net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(this.mc.player, copyBeforeUse, Hand.MAIN_HAND);
+                            this.mc.player.setHeldItem(Hand.MAIN_HAND, ItemStack.EMPTY);
                         }
                     }
                 }
@@ -152,7 +152,7 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
                 this.netHandler.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, this.currentBlock, face));
             }
 
-            final IBlockState blockState = this.mc.world.getBlockState(loc);
+            final BlockState blockState = this.mc.world.getBlockState(loc);
             this.mc.getTutorial().onHitBlock(this.mc.world, loc, blockState, 0.0F);
             this.netHandler.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
 
@@ -196,7 +196,7 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
             clickBlockCreative(this.mc, this, posBlock, directionFacing);
             return true;
         } else if (this.isHittingPosition(posBlock)) {
-            IBlockState iblockstate = this.mc.world.getBlockState(posBlock);
+            BlockState iblockstate = this.mc.world.getBlockState(posBlock);
             Block block = iblockstate.getBlock();
 
             if (iblockstate.getMaterial() == Material.AIR) {
@@ -265,16 +265,16 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
         }
     }
 
-    public EnumActionResult processRightClickBlock(PlayerEntitySP player, WorldClient worldIn, BlockPos pos, EnumFacing direction, Vec3d vec, EnumHand hand) {
+    public ActionResult processRightClickBlock(ClientPlayerEntity player, WorldClient worldIn, BlockPos pos, EnumFacing direction, Vec3d vec, Hand hand) {
         this.syncCurrentPlayItem();
-        ItemStack itemstack = player.getHeldItem(hand);
+        ItemStack itemstack = player.getStackInHand(hand);
         float f = (float) (vec.x - (double) pos.getX());
         float f1 = (float) (vec.y - (double) pos.getY());
         float f2 = (float) (vec.z - (double) pos.getZ());
         boolean flag = false;
 
         if (!this.mc.world.getWorldBorder().contains(pos)) {
-            return EnumActionResult.FAIL;
+            return ActionResult.FAIL;
         } else {
             net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock event = net.minecraftforge.common.ForgeHooks
                     .onRightClickBlock(player, hand, pos, direction, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(player, getBlockReachDistance() + 1));
@@ -283,30 +283,30 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
                 this.netHandler.sendPacket(new CPacketPlayerTryUseItemOnBlock(pos, direction, hand, f, f1, f2));
                 return event.getCancellationResult();
             }
-            EnumActionResult result = EnumActionResult.PASS;
+            ActionResult result = ActionResult.PASS;
 
             if (this.currentGameType != GameType.SPECTATOR) {
-                EnumActionResult ret = itemstack.onItemUseFirst(player, worldIn, pos, hand, direction, f, f1, f2);
-                if (ret != EnumActionResult.PASS) {
+                ActionResult ret = itemstack.onItemUseFirst(player, worldIn, pos, hand, direction, f, f1, f2);
+                if (ret != ActionResult.PASS) {
                     // The server needs to process the item use as well. Otherwise onItemUseFirst won't ever be called on the server without causing weird bugs
                     this.netHandler.sendPacket(new CPacketPlayerTryUseItemOnBlock(pos, direction, hand, f, f1, f2));
                     return ret;
                 }
 
-                IBlockState iblockstate = worldIn.getBlockState(pos);
+                BlockState iblockstate = worldIn.getBlockState(pos);
                 boolean bypass = player.getMainHandStack().doesSneakBypassUse(worldIn, pos, player) && player.getOffHandStack().doesSneakBypassUse(worldIn, pos, player);
 
                 if ((!player.isSneaking() || bypass || event.getUseBlock() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW)) {
                     if (event.getUseBlock() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
                         flag = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, direction, f, f1, f2);
-                    if (flag) result = EnumActionResult.SUCCESS;
+                    if (flag) result = ActionResult.SUCCESS;
                 }
 
                 if (!flag && itemstack.getItem() instanceof ItemBlock) {
                     ItemBlock itemblock = (ItemBlock) itemstack.getItem();
 
                     if (!itemblock.canPlaceBlockOnSide(worldIn, pos, direction, player, itemstack)) {
-                        return EnumActionResult.FAIL;
+                        return ActionResult.FAIL;
                     }
                 }
             }
@@ -315,15 +315,15 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
 
             if (!flag && this.currentGameType != GameType.SPECTATOR || event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW) {
                 if (itemstack.isEmpty()) {
-                    return EnumActionResult.PASS;
+                    return ActionResult.PASS;
                 } else if (player.getCooldownTracker().hasCooldown(itemstack.getItem())) {
-                    return EnumActionResult.PASS;
+                    return ActionResult.PASS;
                 } else {
                     if (itemstack.getItem() instanceof ItemBlock && !player.canUseCommandBlock()) {
                         Block block = ((ItemBlock) itemstack.getItem()).getBlock();
 
                         if (block instanceof BlockCommandBlock || block instanceof BlockStructure) {
-                            return EnumActionResult.FAIL;
+                            return ActionResult.FAIL;
                         }
                     }
 
@@ -331,7 +331,7 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
                         int i = itemstack.getMetadata();
                         int j = itemstack.getCount();
                         if (event.getUseItem() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) {
-                            EnumActionResult enumactionresult = itemstack.onItemUse(player, worldIn, pos, hand, direction, f, f1, f2);
+                            ActionResult enumactionresult = itemstack.onItemUse(player, worldIn, pos, hand, direction, f, f1, f2);
                             itemstack.setItemDamage(i);
                             itemstack.setCount(j);
                             return enumactionresult;
@@ -346,23 +346,23 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
                     }
                 }
             } else {
-                return EnumActionResult.SUCCESS;
+                return ActionResult.SUCCESS;
             }
         }
     }
 
-    public EnumActionResult processRightClick(PlayerEntity player, World worldIn, EnumHand hand) {
+    public ActionResult processRightClick(PlayerEntity player, World worldIn, Hand hand) {
         if (this.currentGameType == GameType.SPECTATOR) {
-            return EnumActionResult.PASS;
+            return ActionResult.PASS;
         } else {
             this.syncCurrentPlayItem();
             this.netHandler.sendPacket(new CPacketPlayerTryUseItem(hand));
-            ItemStack itemstack = player.getHeldItem(hand);
+            ItemStack itemstack = player.getStackInHand(hand);
 
             if (player.getCooldownTracker().hasCooldown(itemstack.getItem())) {
-                return EnumActionResult.PASS;
+                return ActionResult.PASS;
             } else {
-                EnumActionResult cancelResult = net.minecraftforge.common.ForgeHooks.onItemRightClick(player, hand);
+                ActionResult cancelResult = net.minecraftforge.common.ForgeHooks.onItemRightClick(player, hand);
                 if (cancelResult != null) return cancelResult;
                 int i = itemstack.getCount();
                 ActionResult<ItemStack> actionresult = itemstack.useItemRightClick(worldIn, player, hand);
@@ -380,8 +380,8 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
         }
     }
 
-    public PlayerEntitySP createPlayer(World p_192830_1_, StatisticsManager p_192830_2_, RecipeBook p_192830_3_) {
-        return new PlayerEntitySP(this.mc, p_192830_1_, this.netHandler, p_192830_2_, p_192830_3_);
+    public ClientPlayerEntity createPlayer(World p_192830_1_, StatisticsManager p_192830_2_, RecipeBook p_192830_3_) {
+        return new ClientPlayerEntity(this.mc, p_192830_1_, this.netHandler, p_192830_2_, p_192830_3_);
     }
 
     public void attackEntity(PlayerEntity playerIn, Entity targetEntity) {
@@ -394,21 +394,21 @@ public class ModPlayerControllerMP extends PlayerControllerMP {
         }
     }
 
-    public EnumActionResult interactWithEntity(PlayerEntity player, Entity target, EnumHand hand) {
+    public ActionResult interactWithEntity(PlayerEntity player, Entity target, Hand hand) {
         this.syncCurrentPlayItem();
         this.netHandler.sendPacket(new CPacketUseEntity(target, hand));
-        return this.currentGameType == GameType.SPECTATOR ? EnumActionResult.PASS : player.interactOn(target, hand);
+        return this.currentGameType == GameType.SPECTATOR ? ActionResult.PASS : player.interactOn(target, hand);
     }
 
-    public EnumActionResult interactWithEntity(PlayerEntity player, Entity target, RayTraceResult ray, EnumHand hand) {
+    public ActionResult interactWithEntity(PlayerEntity player, Entity target, RayTraceResult ray, Hand hand) {
         this.syncCurrentPlayItem();
-        Vec3d vec3d = new Vec3d(ray.hitVec.x - target.posX, ray.hitVec.y - target.posY, ray.hitVec.z - target.posZ);
+        Vec3d vec3d = new Vec3d(ray.hitVec.x - target.getX(), ray.hitVec.y - target.getY(), ray.hitVec.z - target.getZ());
         this.netHandler.sendPacket(new CPacketUseEntity(target, hand, vec3d));
         if (this.currentGameType == GameType.SPECTATOR)
-            return EnumActionResult.PASS; // don't fire for spectators to match non-specific EntityInteract
-        EnumActionResult cancelResult = net.minecraftforge.common.ForgeHooks.onInteractEntityAt(player, target, ray, hand);
+            return ActionResult.PASS; // don't fire for spectators to match non-specific EntityInteract
+        ActionResult cancelResult = net.minecraftforge.common.ForgeHooks.onInteractEntityAt(player, target, ray, hand);
         if (cancelResult != null) return cancelResult;
-        return this.currentGameType == GameType.SPECTATOR ? EnumActionResult.PASS : target.applyPlayerInteraction(player, vec3d, hand);
+        return this.currentGameType == GameType.SPECTATOR ? ActionResult.PASS : target.applyPlayerInteraction(player, vec3d, hand);
     }
 
     public ItemStack windowClick(int windowId, int slotId, int mouseButton, ClickType type, PlayerEntity player) {

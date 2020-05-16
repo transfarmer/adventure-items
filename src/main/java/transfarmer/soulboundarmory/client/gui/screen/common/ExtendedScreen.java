@@ -2,7 +2,6 @@ package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.Mouse;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.item.ItemModels;
@@ -11,7 +10,6 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -136,7 +134,7 @@ public abstract class ExtendedScreen extends Screen {
     }
 
     public static SpriteAtlasTexture getSprite(final Item item) {
-        return ITEM_MODELS.getModel(new ItemStack(item)).getQuads(null, null, null).get(0);
+        return null;//ITEM_MODELS.getModel(new ItemStack(item)).getQuads(null, null, null).get(0);
     }
 
     public static Identifier getTexture(final SpriteAtlasTexture sprite) {

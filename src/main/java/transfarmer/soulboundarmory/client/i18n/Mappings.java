@@ -35,6 +35,9 @@ public class Mappings {
     public static final LangEntry BLUE = new LangEntry("gui.soulboundarmory.blue");
     public static final LangEntry ALPHA = new LangEntry("gui.soulboundarmory.alpha");
     public static final LangEntry XP_BAR_STYLE = new LangEntry("gui.soulboundarmory.style");
+    public static final LangEntry EXPERIENCE = new LangEntry("gui.soulboundarmory.experience");
+    public static final LangEntry BOSS = new LangEntry("gui.soulboundarmory.boss");
+    public static final LangEntry HORSE = new LangEntry("entity.Horse.name");
 
     public static final LangEntry ATTACK_SPEED_FORMAT = new LangEntry("format.soulboundarmory.attackSpeed");
     public static final LangEntry ATTACK_DAMAGE_FORMAT = new LangEntry("format.soulboundarmory.attackDamage");

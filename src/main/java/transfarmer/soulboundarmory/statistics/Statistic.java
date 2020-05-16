@@ -1,20 +1,28 @@
 package transfarmer.soulboundarmory.statistics;
 
+import nerdhub.cardinal.components.api.util.NbtSerializable;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
-import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
-import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 
+import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 
-public class Statistic extends BigDecimal implements INBTSerializable<CompoundTag> {
-    private final ICategory category;
-    private final IStatistic type;
-    private double min;
-    private BigDecimal value;
-    private int points;
+public class Statistic extends BigDecimal implements NbtSerializable {
+    protected Category category;
+    protected StatisticType type;
 
-    public Statistic(final ICategory category, final IStatistic statistic, final double min, final BigDecimal value, final int points) {
+    protected BigDecimal value;
+    protected double min;
+    protected int points;
+
+    public Statistic(final Category category, final StatisticType statistic, final double min) {
+        this(category, statistic, min, BigDecimal.valueOf(min));
+    }
+
+    public Statistic(final Category category, final StatisticType statistic, final double min, final BigDecimal value) {
+        this(category, statistic, min, value, 0);
+    }
+
+    public Statistic(final Category category, final StatisticType statistic, final double min, final BigDecimal value, final int points) {
         super(min);
 
         this.type = statistic;
@@ -24,12 +32,10 @@ public class Statistic extends BigDecimal implements INBTSerializable<CompoundTa
         this.points = points;
     }
 
-    public Statistic(final ICategory category, final IStatistic statistic, final double min, final BigDecimal value) {
-        this(category, statistic, min, value, 0);
-    }
+    public Statistic(final CompoundTag tag) {
+        super(0);
 
-    public Statistic(final ICategory category, final IStatistic statistic, final double min) {
-        this(category, statistic, min, BigDecimal.valueOf(min));
+        this.fromTag(tag);
     }
 
     @Override
@@ -41,16 +47,20 @@ public class Statistic extends BigDecimal implements INBTSerializable<CompoundTa
         return new Statistic(this.category, this.type, this.min, value, this.points);
     }
 
-    public IStatistic getType() {
+    public StatisticType getType() {
         return this.type;
     }
 
-    public ICategory getCategory() {
+    public Category getCategory() {
         return this.category;
     }
 
     public double min() {
         return this.min;
+    }
+
+    public void setMin(final double min) {
+        this.min = min;
     }
 
     public int getPoints() {
@@ -75,6 +85,10 @@ public class Statistic extends BigDecimal implements INBTSerializable<CompoundTa
 
     public void setValue(final Number value) {
         this.value = BigDecimal.valueOf(value.doubleValue());
+    }
+
+    public boolean aboveMin() {
+        return this.greaterThan(this.min);
     }
 
     @Override
@@ -127,22 +141,25 @@ public class Statistic extends BigDecimal implements INBTSerializable<CompoundTa
         this.value = this.value.add(number instanceof BigDecimal ? (BigDecimal) number : BigDecimal.valueOf(number.doubleValue()));
     }
 
-    @Override
-    public CompoundTag serializeNBT() {
-        final CompoundTag tag = new CompoundTag();
+    public CompoundTag toTag() {
+        return this.toTag(new CompoundTag());
+    }
 
-        tag.setDouble("min", this.min);
-        tag.setString("value", this.value.toString());
+    @Nonnull
+    @Override
+    public CompoundTag toTag(final CompoundTag tag) {
+        tag.putDouble("min", this.min);
+        tag.putString("value", this.value.toString());
         tag.putInt("points", this.points);
 
         return tag;
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag tag) {
+    public void fromTag(final CompoundTag tag) {
         this.min = tag.getDouble("min");
         this.value = new BigDecimal(tag.getString("value"));
-        this.points = tag.getInteger("points");
+        this.points = tag.getInt("points");
     }
 
     public void reset() {

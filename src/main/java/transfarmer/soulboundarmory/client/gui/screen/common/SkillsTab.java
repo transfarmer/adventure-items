@@ -4,11 +4,9 @@ import net.minecraft.client.renderer.RenderSystem;
 import net.minecraft.client.renderer.texture.SpriteAtlasTexture;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.Identifier;
-import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.Component;
 import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.skill.Skill;
-import transfarmer.soulboundarmory.skill.SkillLevelable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
+import static transfarmer.soulboundarmory.statistics.StatisticType.SKILL_POINTS;
 
 @Environment(CLIENT)
 public class SkillsTab extends SoulboundTab {
@@ -44,7 +42,7 @@ public class SkillsTab extends SoulboundTab {
     protected int x;
     protected int y;
 
-    public SkillsTab(final Capability<? extends ISoulboundComponent> key, final List<ScreenTab> tabs) {
+    public SkillsTab(final Component<? extends ISoulboundComponent> key, final List<ScreenTab> tabs) {
         super(key, tabs);
 
         this.skills = new LinkedHashMap<>();
@@ -84,8 +82,8 @@ public class SkillsTab extends SoulboundTab {
     }
 
     @Override
-    public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+    public void render(final int mouseX, final int mouseY, final float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
 
         this.drawWindow(mouseX, mouseY, partialTicks);
         this.drawSkills(mouseX, mouseY);
@@ -182,7 +180,7 @@ public class SkillsTab extends SoulboundTab {
         this.blitOffset = 0;
     }
 
-    protected void drawTooltip(final Skill skill, final int posX, final int posY, final int offsetV) {
+    protected void drawTooltip(final Skill skill, final int getX(), final int getY(), final int offsetV) {
         final String name = skill.getName();
         List<String> tooltip = skill.getTooltip();
         int barWidth = 36 + TEXT_RENDERER.getStringWidth(name);
@@ -192,9 +190,9 @@ public class SkillsTab extends SoulboundTab {
 
             if (size > 0) {
                 final boolean learned = skill.isLearned();
-                final boolean aboveCenter = posY > this.centerY;
+                final boolean aboveCenter = getY() > this.centerY;
                 final int direction = aboveCenter ? -1 : 1;
-                final int y = posY + (aboveCenter ? -16 : 14);
+                final int y = getY() + (aboveCenter ? -16 : 14);
                 final int textY = y + (aboveCenter ? -5 : 7);
                 String string = "";
 
@@ -202,8 +200,8 @@ public class SkillsTab extends SoulboundTab {
                     final int cost = skill.getCost();
                     final String plural = cost > 1 ? Mappings.MENU_POINTS : Mappings.MENU_POINT;
                     string = String.format(Mappings.MENU_SKILL_LEARN_COST, cost, plural);
-                } else if (skill instanceof SkillLevelable) {
-                    string = String.format("%s %d", Mappings.MENU_LEVEL, ((SkillLevelable) skill).getLevel());
+                } else if (skill instanceof Skill) {
+                    string = String.format("%s %d", Mappings.MENU_LEVEL, ((Skill) skill).getLevel());
                 }
 
                 barWidth = 12 + Math.max(barWidth, 8 + TEXT_RENDERER.getStringWidth(string));
@@ -212,31 +210,31 @@ public class SkillsTab extends SoulboundTab {
                 barWidth = Math.max(barWidth, 8 + TEXT_RENDERER.getStringWidth(tooltip.stream().max(Comparator.comparingInt(String::length)).get()));
                 final int tooltipHeight = 1 + (1 + size) * TEXT_RENDERER.FONT_HEIGHT;
 
-                if (!learned || skill instanceof SkillLevelable) {
+                if (!learned || skill instanceof Skill) {
                     this.setChroma(1);
 
                     TEXTURE_MANAGER.bindTexture(WIDGETS);
-                    this.drawHorizontalInterpolatedTexturedRect(posX - 8, y + tooltipHeight, 0, 55, 2, 198, 200, barWidth, 20);
+                    this.drawHorizontalInterpolatedTexturedRect(getX() - 8, y + tooltipHeight, 0, 55, 2, 198, 200, barWidth, 20);
 
-                    TEXT_RENDERER.drawString(string, posX - 3, textY + direction * (size + 1) * TEXT_RENDERER.FONT_HEIGHT, 0x999999);
+                    TEXT_RENDERER.drawString(string, getX() - 3, textY + direction * (size + 1) * TEXT_RENDERER.FONT_HEIGHT, 0x999999);
                 }
 
                 this.setChroma(1);
 
                 TEXTURE_MANAGER.bindTexture(WIDGETS);
-                this.drawInterpolatedTexturedRect(posX - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, tooltipHeight);
+                this.drawInterpolatedTexturedRect(getX() - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, tooltipHeight);
 
                 for (int i = 0; i < size; i++) {
-                    TEXT_RENDERER.drawString(tooltip.get(i), posX - 3, textY + direction * i * TEXT_RENDERER.FONT_HEIGHT, 0x999999);
+                    TEXT_RENDERER.drawString(tooltip.get(i), getX() - 3, textY + direction * i * TEXT_RENDERER.FONT_HEIGHT, 0x999999);
                 }
             }
 
             this.setChroma(1);
 
             TEXTURE_MANAGER.bindTexture(WIDGETS);
-            this.drawHorizontalInterpolatedTexturedRect(posX - 8, posY - 2, 0, 29 - offsetV, 2, 198, 200, barWidth, 20);
+            this.drawHorizontalInterpolatedTexturedRect(getX() - 8, getY() - 2, 0, 29 - offsetV, 2, 198, 200, barWidth, 20);
 
-            TEXT_RENDERER.drawString(name, posX + 24, posY + 4, 0xFFFFFF);
+            TEXT_RENDERER.drawString(name, getX() + 24, getY() + 4, 0xFFFFFF);
         }
     }
 

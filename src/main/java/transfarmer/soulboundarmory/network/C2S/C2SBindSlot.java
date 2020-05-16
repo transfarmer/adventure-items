@@ -1,54 +1,23 @@
 package transfarmer.soulboundarmory.network.C2S;
 
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
+import net.fabricmc.fabric.api.network.PacketContext;
+import transfarmer.soulboundarmory.network.common.ComponentPacket;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.network.common.IExtendedMessage;
-import transfarmer.soulboundarmory.network.common.IExtendedMessageHandler;
-import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 
-public class C2SBindSlot implements IExtendedMessage {
-    private String capability;
-    private int slot;
-
-    public C2SBindSlot() {
-    }
-
-    public C2SBindSlot(final ICapabilityType capability, final int slot) {
-        this.capability = capability.toString();
-        this.slot = slot;
-    }
-
+public class C2SBindSlot extends ComponentPacket {
     @Override
-    public void fromBytes(final ExtendedPacketBuffer buffer) {
-        this.capability = buffer.readString();
-        this.slot = buffer.readInt();
-    }
+    protected void accept(final PacketContext context, final ExtendedPacketBuffer buffer) {
+        super.accept(context, buffer);
 
-    @Override
-    public void toBytes(final ExtendedPacketBuffer buffer) {
-        buffer.writeString(this.capability);
-        buffer.writeInt(this.slot);
-    }
+        final int slot = buffer.readInt();
 
-    public static final class Handler implements IExtendedMessageHandler<C2SBindSlot> {
-        @Override
-        public IExtendedMessage onMessage(final C2SBindSlot message, final MessageContext context) {
-            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-                final ISoulboundComponent capability = context.getServerHandler().player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
-
-                if (capability.getBoundSlot() == message.slot) {
-                    capability.unbindSlot();
-                } else {
-                    capability.bindSlot(message.slot);
-                }
-
-                capability.sync();
-                capability.refresh();
-            });
-
-            return null;
+        if (this.component.getBoundSlot() == slot) {
+            this.component.unbindSlot();
+        } else {
+            this.component.bindSlot(slot);
         }
+
+        this.component.sync();
+        this.component.refresh();
     }
 }

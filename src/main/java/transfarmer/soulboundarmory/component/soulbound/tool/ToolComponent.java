@@ -2,96 +2,61 @@ package transfarmer.soulboundarmory.component.soulbound.tool;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import transfarmer.farmerlib.util.CollectionUtil;
+import transfarmer.soulboundarmory.client.gui.screen.common.EnchantmentTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
-import transfarmer.soulboundarmory.client.gui.screen.common.EnchantmentsTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.SkillsTab;
 import transfarmer.soulboundarmory.client.gui.screen.tool.ToolAttributesTab;
 import transfarmer.soulboundarmory.client.gui.screen.tool.ToolConfirmationTab;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundBase;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.ItemSoulbound;
-import transfarmer.soulboundarmory.item.SoulboundTool;
-import transfarmer.soulboundarmory.skill.Skill;
-import transfarmer.soulboundarmory.skill.pick.SkillAmbidexterity;
-import transfarmer.soulboundarmory.skill.pick.SkillTeleportation;
-import transfarmer.soulboundarmory.statistics.Skills;
-import transfarmer.soulboundarmory.statistics.SoulboundEnchantments;
+import transfarmer.soulboundarmory.item.SoulboundItem;
+import transfarmer.soulboundarmory.item.SoulboundToolItem;
 import transfarmer.soulboundarmory.statistics.Statistic;
-import transfarmer.soulboundarmory.statistics.Statistics;
-import transfarmer.soulboundarmory.statistics.base.iface.ICategory;
-import transfarmer.soulboundarmory.statistics.base.iface.IItem;
-import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
+import transfarmer.soulboundarmory.statistics.StatisticType;
+import transfarmer.soulboundarmory.statistics.IItem;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.minecraft.enchantment.Enchantments.UNBREAKING;
-import static net.minecraft.enchantment.Enchantments.VANISHING_CURSE;
-import static net.minecraft.init.Enchantments.VANISHING_CURSE;
+import static transfarmer.soulboundarmory.Main.SOULBOUND_PICK_ITEM;
 import static transfarmer.soulboundarmory.component.soulbound.tool.ToolProvider.TOOLS;
-import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_PICK;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.CapabilityType.TOOL;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.DATUM;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.PICK;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTRIBUTE_POINTS;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.EFFICIENCY_ATTRIBUTE;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ENCHANTMENT_POINTS;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.HARVEST_LEVEL;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.LEVEL;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.REACH_DISTANCE;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SKILL_POINTS;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ATTRIBUTE_POINTS;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ENCHANTMENT_POINTS;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.XP;
+import static transfarmer.soulboundarmory.statistics.Item.PICK;
+import static transfarmer.soulboundarmory.statistics.StatisticType.ATTRIBUTE_POINTS;
+import static transfarmer.soulboundarmory.statistics.StatisticType.EFFICIENCY;
+import static transfarmer.soulboundarmory.statistics.StatisticType.HARVEST_LEVEL;
+import static transfarmer.soulboundarmory.statistics.StatisticType.REACH;
+import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBUTE_POINTS;
 
 public class ToolComponent extends SoulboundBase implements IToolComponent {
     public ToolComponent(final PlayerEntity player) {
-        super(player, TOOL, new IItem[]{PICK}, new Item[]{SOULBOUND_PICK});
+        super(player, new IItem[]{PICK}, new Item[]{SOULBOUND_PICK_ITEM});
 
         final List<IItem> itemTypes = this.itemTypes.keyList();
-
-        this.statistics = new Statistics(itemTypes,
-                new ICategory[]{DATUM, ATTRIBUTE},
-                new IStatistic[][]{
-                        {XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS},
-                        {EFFICIENCY_ATTRIBUTE, REACH_DISTANCE, HARVEST_LEVEL}
-                }, new double[][][]{{{0, 0, 0, 0, 0, 0, 0}, {0.5, 2, 0}}}
-        );
-        this.enchantments = new SoulboundEnchantments(itemTypes, this.items, (final Enchantment enchantment, final IItem item) -> {
-            final String name = enchantment.getName(1).getString().toLowerCase();
-
-            return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
-                    && !name.contains("soulbound") && !name.contains("holding") && !name.contains("smelt")
-                    && !name.contains("mending");
-        });
-        this.skills = new Skills(itemTypes, new Skill[]{new SkillTeleportation(), new SkillAmbidexterity()});
     }
 
     @Override
-    public double getAttributeRelative(final IItem type, final IStatistic attribute) {
-        if (attribute == REACH_DISTANCE) {
-            return this.getAttribute(type, REACH_DISTANCE) - 3;
+    public double getAttributeRelative(final IItem type, final StatisticType attribute) {
+        if (attribute == REACH) {
+            return this.getAttribute(type, REACH) - 3;
         }
 
         return this.statistics.get(type, attribute).doubleValue();
     }
 
     @Override
-    public double getAttributeTotal(final IItem item, final IStatistic statistic) {
+    public double getAttributeTotal(final IItem item, final StatisticType statistic) {
         return this.getAttribute(item, statistic);
     }
 
     @Override
-    public void addAttribute(final IItem item, final IStatistic attribute, final int amount) {
+    public void addAttribute(final IItem item, final StatisticType attribute, final int amount) {
         final int sign = (int) Math.signum(amount);
 
         for (int i = 0; i < Math.abs(amount); i++) {
@@ -119,11 +84,11 @@ public class ToolComponent extends SoulboundBase implements IToolComponent {
     }
 
     @Override
-    public double getIncrease(final IItem type, final IStatistic statistic) {
+    public double getIncrease(final IItem type, final StatisticType statistic) {
         if (type == PICK) {
-            return statistic == EFFICIENCY_ATTRIBUTE
+            return statistic == EFFICIENCY
                     ? 0.5
-                    : statistic == REACH_DISTANCE
+                    : statistic == REACH
                     ? 0.1
                     : statistic == HARVEST_LEVEL
                     ? 0.2
@@ -146,8 +111,8 @@ public class ToolComponent extends SoulboundBase implements IToolComponent {
         final NumberFormat FORMAT = DecimalFormat.getInstance();
         final List<String> tooltip = new ArrayList<>(5);
 
-        tooltip.add(String.format(" %s%s %s", Mappings.REACH_DISTANCE_FORMAT, FORMAT.format(this.getAttribute(item, REACH_DISTANCE)), Mappings.REACH_DISTANCE_NAME));
-        tooltip.add(String.format(" %s%s %s", Mappings.TOOL_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(item, EFFICIENCY_ATTRIBUTE)), Mappings.EFFICIENCY_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.REACH_DISTANCE_FORMAT, FORMAT.format(this.getAttribute(item, REACH)), Mappings.REACH_DISTANCE_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.TOOL_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(item, EFFICIENCY)), Mappings.EFFICIENCY_NAME));
         tooltip.add(String.format(" %s%s %s", Mappings.HARVEST_LEVEL_FORMAT, FORMAT.format(this.getAttribute(item, HARVEST_LEVEL)), Mappings.HARVEST_LEVEL_NAME));
 
         tooltip.add("");
@@ -164,13 +129,13 @@ public class ToolComponent extends SoulboundBase implements IToolComponent {
     @Override
     public List<ScreenTab> getTabs() {
         List<ScreenTab> tabs = new ArrayList<>();
-        tabs = CollectionUtil.arrayList(new ToolConfirmationTab(tabs), new ToolAttributesTab(tabs), new EnchantmentsTab(TOOLS, tabs), new SkillsTab(TOOLS, tabs));
+        tabs = CollectionUtil.arrayList(new ToolConfirmationTab(tabs), new ToolAttributesTab(tabs), new EnchantmentTab(TOOLS, tabs), new SkillsTab(TOOLS, tabs));
 
         return tabs;
     }
 
     @Override
-    public Class<? extends ItemSoulbound> getBaseItemClass() {
-        return SoulboundTool.class;
+    public Class<? extends SoulboundItem> getBaseItemClass() {
+        return SoulboundToolItem.class;
     }
 }

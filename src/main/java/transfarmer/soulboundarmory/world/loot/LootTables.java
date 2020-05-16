@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import transfarmer.soulboundarmory.Main;
 
-import static transfarmer.soulboundarmory.init.ModItems.SOULBOUND_STAFF;
+import static transfarmer.soulboundarmory.Main.SOULBOUND_STAFF_ITEM;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 public class LootTables {
@@ -23,7 +23,7 @@ public class LootTables {
             final LootCondition[] conditions = {new RandomChance(0.1F)};
             final RandomValueRange range = new RandomValueRange(1);
             final LootFunction[] functions = {new SetCount(conditions, range)};
-            final LootEntry[] entries = new LootEntryItem[]{new LootEntryItem(SOULBOUND_STAFF, 1, 0, functions, conditions, "soulbound_staff")};
+            final LootEntry[] entries = new LootEntryItem[]{new LootEntryItem(SOULBOUND_STAFF_ITEM, 1, 0, functions, conditions, "soulbound_staff")};
             final LootPool pool = new LootPool(entries, conditions, range, new RandomValueRange(0), "soulbound_staff");
 
             event.getTable().addPool(pool);

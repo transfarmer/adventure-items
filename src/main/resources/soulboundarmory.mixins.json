@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "package": "transfarmer.soulboundarmory.mixin.client.network",
+    "compatibilityLevel": "JAVA_8",
+    "mixins": [
+        "MixinClientPlayerInteractionManager"
+    ],
+    "client": [
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

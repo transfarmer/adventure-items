@@ -1,13 +1,12 @@
 package transfarmer.soulboundarmory.skill.staff;
 
 import transfarmer.soulboundarmory.skill.Skill;
-import transfarmer.soulboundarmory.skill.SkillBaseLevelable;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SkillPenetration extends SkillBaseLevelable {
+public class SkillPenetration extends Skill {
     public SkillPenetration() {
         this(0);
     }

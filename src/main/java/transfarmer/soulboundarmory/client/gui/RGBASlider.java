@@ -1,24 +1,24 @@
 package transfarmer.soulboundarmory.client.gui;
 
-import transfarmer.farmerlib.reflect.FieldWrapper;
+import transfarmer.soulboundarmory.client.i18n.LangEntry;
 import transfarmer.soulboundarmory.config.ClientConfig;
 
 public class RGBASlider extends Slider {
-    protected static final FieldWrapper<>
+    protected int componentValue;
 
     public RGBASlider(final int x, final int y, final int width, final int height, final double value,
-                      final String translationKey) {
-        super(x, y, width, height, value, 0, 255, translationKey);
+                      final LangEntry langEntry) {
+        super(x, y, width, height, value, 0, 255, langEntry);
+    }
+
+    public int getValue() {
+        return this.componentValue;
     }
 
     @Override
-    protected void applyValue() {
-        ClientConfig.setColor(this.translationKey, (int) this.value);
+    public void applyValue() {
+        this.componentValue = (int) (2.55 * this.value);
+
+        ClientConfig.setColor(this.langEntry.getKey(), this.componentValue);
     }
-
-    public String getColor() {
-        return this.translationKey;
-    }
-
-
 }

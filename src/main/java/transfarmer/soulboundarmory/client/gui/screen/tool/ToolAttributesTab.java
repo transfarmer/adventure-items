@@ -1,58 +1,52 @@
 package transfarmer.soulboundarmory.client.gui.screen.tool;
 
-import net.minecraft.client.gui.ButtonWidget;
-import org.jetbrains.annotations.NotNull;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.client.gui.screen.common.AttributeTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
-import transfarmer.soulboundarmory.client.gui.screen.common.SoulboundTab;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.network.C2S.C2SAttribute;
-import transfarmer.soulboundarmory.network.C2S.C2SReset;
-import transfarmer.soulboundarmory.statistics.Statistic;
-import transfarmer.soulboundarmory.statistics.base.iface.IStatistic;
 
 import java.util.List;
 
-import static transfarmer.soulboundarmory.component.soulbound.tool.ToolProvider.TOOLS;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.Category.ATTRIBUTE;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.ATTRIBUTE_POINTS;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.EFFICIENCY_ATTRIBUTE;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.HARVEST_LEVEL;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.REACH_DISTANCE;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.StatisticType.SPENT_ATTRIBUTE_POINTS;
+import static transfarmer.soulboundarmory.statistics.Category.ATTRIBUTE;
+import static transfarmer.soulboundarmory.statistics.StatisticType.ATTRIBUTE_POINTS;
+import static transfarmer.soulboundarmory.statistics.StatisticType.EFFICIENCY;
+import static transfarmer.soulboundarmory.statistics.StatisticType.HARVEST_LEVEL;
+import static transfarmer.soulboundarmory.statistics.StatisticType.REACH;
+import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBUTE_POINTS;
 
-public class ToolAttributesTab extends SoulboundTab {
+public class ToolAttributesTab extends AttributeTab {
     public ToolAttributesTab(final List<ScreenTab> tabs) {
-        super(TOOLS, tabs);
-    }
-
-    @Override
-    protected String getLabel() {
-        return Mappings.MENU_BUTTON_ATTRIBUTES;
+        super(Main.TOOLS, tabs);
     }
 
     @Override
     public void init() {
         super.init();
 
-        final ButtonWidget resetButton = this.addButton(this.resetButton(20));
-        final ButtonWidget[] removePointButtons = this.addButtons(this.removePointButtons(23, this.component.size(ATTRIBUTE)));
-        final ButtonWidget[] addPointButtons = this.addButtons(this.addPointButtons(4, this.component.size(ATTRIBUTE), this.component.getDatum(this.item, ATTRIBUTE_POINTS)));
-        resetButton.enabled = this.component.getDatum(this.item, SPENT_ATTRIBUTE_POINTS) > 0;
+        final int size = this.component.size(ATTRIBUTE);
+        final int start = (this.height - (size - 1) * this.height / 16) / 2;
+        final ButtonWidget resetButton = this.addButton(this.resetButton(this.resetAction(ATTRIBUTE)));
 
-        for (int index = 0; index < this.component.size(ATTRIBUTE); index++) {
-            final Statistic statistic = this.component.getStatistic(this.item, this.getAttribute(index));
+        resetButton.active = this.component.getDatum(this.item, SPENT_ATTRIBUTE_POINTS) > 0;
 
-            removePointButtons[index].enabled = statistic.greaterThan(statistic.min());
+        for (int index = 0; index < size; index++) {
+            final ButtonWidget add = this.addButton(this.squareButton((this.width + 162) / 2 - 20, start + index * this.height / 16 + 4, "-", this.addPointAction(index)));
+            final ButtonWidget remove = this.addButton(this.squareButton((this.width + 162) / 2, start + index * this.height / 16 + 4, "+", this.removePointAction(index)));
+            final StatisticType attribute = this.getAttribute(index);
+
+            add.active = this.component.size(ATTRIBUTE) > 0;
+            remove.active = this.component.getStatistic(this.item, this.getAttribute(index)).aboveMin();
+
+            if (attribute == HARVEST_LEVEL) {
+                add.active &= this.component.getAttribute(this.item, HARVEST_LEVEL) < 3;
+            }
         }
-
-        addPointButtons[2].enabled &= this.component.getAttribute(this.item, HARVEST_LEVEL) < 3;
     }
 
     @Override
-    public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+    public void render(final int mouseX, final int mouseY, final float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
 
         final String efficiency = String.format("%s%s: %%s", Mappings.WEAPON_EFFICIENCY_FORMAT, Mappings.EFFICIENCY_NAME);
         final String harvestLevel = String.format("%s%s: %%s (%s)", Mappings.HARVEST_LEVEL_FORMAT, Mappings.HARVEST_LEVEL_NAME,
@@ -61,57 +55,20 @@ public class ToolAttributesTab extends SoulboundTab {
         final int points = this.component.getDatum(this.item, ATTRIBUTE_POINTS);
 
         if (points > 0) {
-            this.drawCenteredString(this.fontRenderer, String.format("%s: %d", Mappings.MENU_UNSPENT_POINTS, points),
-                    Math.round(width / 2F), 4, 0xFFFFFF);
+            TEXT_RENDERER.draw(String.format("%s: %d", Mappings.MENU_UNSPENT_POINTS, points), Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.drawMiddleAttribute(efficiency, component.getAttribute(this.item, EFFICIENCY_ATTRIBUTE), 0, 3);
-        this.drawMiddleAttribute(reachDistance, component.getAttribute(this.item, REACH_DISTANCE), 1, 3);
+        this.drawMiddleAttribute(efficiency, component.getAttribute(this.item, EFFICIENCY), 0, 3);
+        this.drawMiddleAttribute(reachDistance, component.getAttribute(this.item, REACH), 1, 3);
         this.drawMiddleAttribute(harvestLevel, component.getAttribute(this.item, HARVEST_LEVEL), 2, 3);
     }
 
-    public void actionPerformed(final @NotNull ButtonWidget button) {
-        super.actionPerformed(button);
-
-        switch (button.id) {
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-                int amount = 1;
-
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.component.getDatum(this.item, ATTRIBUTE_POINTS);
-                }
-
-                Main.CHANNEL.sendToServer(new C2SAttribute(this.component.getType(), this.item, this.getAttribute(button.id - 4), amount));
-                break;
-            case 20:
-                Main.CHANNEL.sendToServer(new C2SReset(this.component.getType(), this.item, ATTRIBUTE));
-                break;
-            case 23:
-            case 24:
-            case 25:
-            case 26:
-            case 27:
-                amount = 1;
-
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                    amount = this.component.getDatum(this.item, SPENT_ATTRIBUTE_POINTS);
-                }
-
-                Main.CHANNEL.sendToServer(new C2SAttribute(this.component.getType(), this.item, this.getAttribute(button.id - 23), -amount));
-                break;
-        }
-    }
-
-    protected IStatistic getAttribute(final int index) {
+    protected StatisticType getAttribute(final int index) {
         switch (index) {
             case 0:
-                return EFFICIENCY_ATTRIBUTE;
+                return EFFICIENCY;
             case 1:
-                return REACH_DISTANCE;
+                return REACH;
             case 2:
                 return HARVEST_LEVEL;
             default:

@@ -3,13 +3,12 @@ package transfarmer.soulboundarmory.client.gui.screen.common;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.gui.ExtendedButtonWidget;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,19 +52,19 @@ public abstract class ScreenTab extends ExtendedScreen {
         super.init();
 
         if (this.displayTabs) {
-            for (int row = 0, size = this.tabs.size(); row < size; row++) {
+            for (int index = 0, size = this.tabs.size(); index < size; index++) {
                 final ExtendedButtonWidget button = this.addButton(new ExtendedButtonWidget(
-                        width / 24,
-                        height / 16 + row * Math.max(height / 16, 30),
+                        this.width / 24,
+                        this.height / 16 + index * Math.max(this.height / 16, 30),
                         Math.max(96, Math.round(width / 7.5F)),
                         20,
-                        this.tabs.get(row).getLabel(),
-                        new
+                        this.tabs.get(index).getLabel(),
+                        this.setTabAction(index)
                 ));
 
                 this.tabButtons.add(button);
 
-                if (row == this.index) {
+                if (index == this.index) {
                     this.button = button;
                     button.active = false;
                 }
@@ -121,5 +120,9 @@ public abstract class ScreenTab extends ExtendedScreen {
 
     public int getHeight(final int sep, final int rows, final int row) {
         return this.getTop(rows, sep) + row * sep;
+    }
+
+    protected PressAction setTabAction(final int index) {
+        return (final ButtonWidget button) -> ScreenTab.this.setTab(index);
     }
 }

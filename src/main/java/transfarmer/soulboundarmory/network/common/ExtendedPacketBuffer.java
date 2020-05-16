@@ -5,23 +5,52 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 import transfarmer.farmerlib.util.EntityUtil;
+import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
+import transfarmer.soulboundarmory.statistics.IItem;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
 public class ExtendedPacketBuffer extends PacketByteBuf {
-    public ExtendedPacketBuffer(final ByteBuf wrapped) {
-        super(wrapped);
+    public ExtendedPacketBuffer(final ISoulboundComponent component, final IItem item) {
+        this(component);
+
+        this.writeString(item.toString());
+    }
+
+    public ExtendedPacketBuffer(final ISoulboundComponent component) {
+        this();
+
+        this.writeIdentifier(component.getComponentType().getId());
     }
 
     public ExtendedPacketBuffer() {
         this(Unpooled.buffer());
     }
 
+    public ExtendedPacketBuffer(final ByteBuf wrapped) {
+        super(wrapped);
+    }
+
+    @Override
+    public ExtendedPacketBuffer writeIdentifier(final Identifier identifier) {
+        super.writeIdentifier(identifier);
+
+        return this;
+    }
+
     public String readString() {
         return super.readString(1 << 10);
+    }
+
+    @Override
+    public ExtendedPacketBuffer writeString(final String string) {
+        super.writeString(string);
+
+        return this;
     }
 
     @Override

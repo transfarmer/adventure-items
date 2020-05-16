@@ -1,24 +1,41 @@
 package transfarmer.soulboundarmory.client.gui;
 
 import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.client.resource.language.I18n;
+import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.client.i18n.LangEntry;
 
 public abstract class Slider extends SliderWidget {
-    protected double value;
-    protected String translationKey;
+    protected LangEntry langEntry;
 
     public Slider(final int x, final int y, final int width, final int height, final double value, final double min,
-                  final double max, final String translationKey) {
+                  final double max, final LangEntry langEntry) {
         super(x, y, width, height, value / (min + max));
 
         this.value = value;
-        this.translationKey = translationKey;
+        this.langEntry = langEntry;
 
         this.updateMessage();
     }
 
     @Override
     protected void updateMessage() {
-        this.setMessage(String.format("%s: %s", I18n.translate(this.translationKey), this.value));
+        this.setMessage(String.format("%s: %s", this.langEntry.toString(), this.value));
+    }
+
+    public String getKey() {
+        return this.langEntry.getKey();
+    }
+
+    public void setValue(final double value) {
+        this.value = value;
+
+        this.applyValue();
+    }
+
+    @Override
+    public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
+        Main.LOGGER.warn("button scrolled");
+
+        return true;
     }
 }

@@ -18,11 +18,10 @@ import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
-import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponCapability;
-import transfarmer.soulboundarmory.component.soulbound.weapon.WeaponProvider;
+import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponComponent;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar;
 import transfarmer.soulboundarmory.config.ClientConfig;
-import transfarmer.soulboundarmory.item.ItemSoulbound;
+import transfarmer.soulboundarmory.item.SoulboundItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import static transfarmer.soulboundarmory.client.KeyBindings.MENU_KEY;
 import static transfarmer.soulboundarmory.client.KeyBindings.TOGGLE_XP_BAR_KEY;
 import static transfarmer.soulboundarmory.client.gui.screen.common.ExtendedScreen.TEXT_RENDERER;
-import static transfarmer.soulboundarmory.statistics.base.enumeration.Item.STAFF;
+import static transfarmer.soulboundarmory.statistics.Item.STAFF;
 
 @EventBusSubscriber(value = CLIENT, modid = Main.MOD_ID)
 public class ClientEventListeners {
@@ -45,14 +44,14 @@ public class ClientEventListeners {
     public static void onMouseInput(final MouseEvent event) {
         if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
             final Minecraft minecraft = CLIENT;
-            final IWeaponCapability capability = WeaponProvider.get(minecraft.player);
+            final IWeaponComponent component = WeaponProvider.get(minecraft.player);
 
-            if (capability.getItemType() == STAFF) {
+            if (component.getItemType() == STAFF) {
                 final int dWheel = event.getDwheel();
 
                 if (dWheel != 0) {
-                    capability.cycleSpells(-dWheel / 120);
-                    minecraft.ingameGUI.setOverlayMessage(new TextComponentTranslation("§4§l%s", capability.getSpell()), false);
+                    component.cycleSpells(-dWheel / 120);
+                    minecraft.ingameGUI.setOverlayMessage(new TextComponentTranslation("§4§l%s", component.getSpell()), false);
                     event.setCanceled(true);
                 }
             }
@@ -63,10 +62,10 @@ public class ClientEventListeners {
     public static void onClientTick(final ClientTickEvent event) {
         if (event.phase == END) {
             if (MENU_KEY.isPressed()) {
-                final ISoulboundComponent capability = SoulboundItemUtil.getFirstHeldCapability(CLIENT.player);
+                final ISoulboundComponent component = SoulboundItemUtil.getFirstHeldComponent(CLIENT.player);
 
-                if (capability != null) {
-                    capability.openGUI();
+                if (component != null) {
+                    component.openGUI();
                 }
             } else if (TOGGLE_XP_BAR_KEY.isPressed()) {
                 ClientConfig.setOverlayXPBar(!ClientConfig.getOverlayXPBar());
@@ -94,15 +93,15 @@ public class ClientEventListeners {
             final ItemStack itemStack = event.getItemStack();
             final Item item = itemStack.getItem();
 
-            if (item instanceof ItemSoulbound) {
-                final ISoulboundComponent capability = SoulboundItemUtil.getFirstCapability(player, item);
+            if (item instanceof SoulboundItem) {
+                final ISoulboundComponent component = SoulboundItemUtil.getFirstComponent(player, item);
                 final List<String> tooltip = event.getToolTip();
-                final int startIndex = tooltip.indexOf(I18n.format("item.modifiers.mainhand")) + 1;
+                final int startIndex = tooltip.indexOf(I18n.translate("item.modifiers.mainhand")) + 1;
                 final int toIndex = tooltip.size();
-                final int fromIndex = Math.min(toIndex - 1, startIndex + ((ItemSoulbound) item).getMainhandAttributeEntries(itemStack, player));
+                final int fromIndex = Math.min(toIndex - 1, startIndex + ((SoulboundItem) item).getMainhandAttributeEntries(itemStack, player));
 
                 final List<String> prior = new ArrayList<>(tooltip).subList(0, startIndex);
-                final List<String> insertion = capability.getTooltip(capability.getItemType(itemStack));
+                final List<String> insertion = component.getTooltip(component.getItemType(itemStack));
                 final List<String> posterior = new ArrayList<>(tooltip).subList(fromIndex, toIndex);
 
                 tooltip.clear();
@@ -119,7 +118,7 @@ public class ClientEventListeners {
 
     @SubscribeEvent
     public static void onRenderTooltip(final RenderTooltipEvent.PostText event) {
-        if (event.getStack().getItem() instanceof ItemSoulbound) {
+        if (event.getStack().getItem() instanceof SoulboundItem) {
             TOOLTIP_XP_BAR.drawTooltip(event.getX(), event.getY(), event.getStack());
         }
     }

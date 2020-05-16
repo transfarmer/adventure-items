@@ -4,33 +4,30 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.client.gui.screen.common.SoulboundTab;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.network.common.IExtendedMessage;
-import transfarmer.soulboundarmory.network.common.IExtendedMessageHandler;
-import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public class S2COpenGUI implements IExtendedMessage {
-    String capability;
+    String component;
     int tab;
 
     public S2COpenGUI() {
     }
 
-    public S2COpenGUI(final ICapabilityType capability, final int tab) {
-        this.capability = capability.toString();
+    public S2COpenGUI(final IComponentType component, final int tab) {
+        this.component = component.toString();
         this.tab = tab;
     }
 
     @Override
     public void fromBytes(final ExtendedPacketBuffer buffer) {
-        this.capability = buffer.readString();
+        this.component = buffer.readString();
         this.tab = buffer.readInt();
     }
 
     @Override
     public void toBytes(final ExtendedPacketBuffer buffer) {
-        buffer.writeString(this.capability);
+        buffer.writeString(this.component);
         buffer.writeInt(this.tab);
     }
 
@@ -42,7 +39,7 @@ public class S2COpenGUI implements IExtendedMessage {
 
             minecraft.addScheduledTask(() -> {
                 if (minecraft.currentScreen instanceof SoulboundTab) {
-                    minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null).openGUI(message.tab);
+                    minecraft.player.getComponent(IComponentType.get(component).getComponent(), null).openGUI(tab);
                 }
             });
 

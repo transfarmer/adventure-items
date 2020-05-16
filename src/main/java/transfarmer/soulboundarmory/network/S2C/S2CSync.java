@@ -5,31 +5,28 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.network.common.IExtendedMessage;
-import transfarmer.soulboundarmory.network.common.IExtendedMessageHandler;
-import transfarmer.soulboundarmory.statistics.base.iface.ICapabilityType;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public class S2CSync implements IExtendedMessage {
-    private String capability;
+    private String component;
     private CompoundTag tag;
 
     public S2CSync() {}
 
-    public S2CSync(final ICapabilityType capability, final CompoundTag tag) {
-        this.capability = capability.toString();
+    public S2CSync(final IComponentType component, final CompoundTag tag) {
+        this.component = component.toString();
         this.tag = tag;
     }
 
     @Environment(CLIENT)
     public void fromBytes(final ExtendedPacketBuffer buffer) {
-        this.capability = buffer.readString();
+        this.component = buffer.readString();
         this.tag = buffer.readCompoundTag();
     }
 
     public void toBytes(final ExtendedPacketBuffer buffer) {
-        buffer.writeString(this.capability);
+        buffer.writeString(this.component);
         buffer.writeCompoundTag(this.tag);
     }
 
@@ -40,10 +37,10 @@ public class S2CSync implements IExtendedMessage {
             final Minecraft minecraft = CLIENT;
 
             minecraft.addScheduledTask(() -> {
-                final ISoulboundComponent capability = minecraft.player.getCapability(ICapabilityType.get(message.capability).getCapability(), null);
+                final ISoulboundComponent component = minecraft.player.getComponent(IComponentType.get(component).getComponent(), null);
 
-                capability.deserializeNBT(message.tag);
-                capability.sync();
+                component.fromTag(tag);
+                component.sync();
             });
 
             return null;
