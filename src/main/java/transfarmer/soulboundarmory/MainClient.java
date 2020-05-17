@@ -9,14 +9,20 @@ import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil.Type;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import transfarmer.soulboundarmory.client.render.SoulboundDaggerEntityRenderer;
 import transfarmer.soulboundarmory.config.ClientConfig;
 
+import javax.annotation.Nonnull;
+
 @Environment(EnvType.CLIENT)
 public class MainClient implements ClientModInitializer {
     public static final MinecraftClient CLIENT = MinecraftClient.getInstance();
+    @SuppressWarnings("ConstantConditions")
+    @Nonnull
+    public static final PlayerEntity PLAYER = CLIENT.player;
 
     public static final FabricKeyBinding GUI_KEY_BINDING = FabricKeyBinding.Builder
             .create(new Identifier("gui"), Type.KEYSYM, GLFW.GLFW_KEY_R, Main.MOD_NAME)

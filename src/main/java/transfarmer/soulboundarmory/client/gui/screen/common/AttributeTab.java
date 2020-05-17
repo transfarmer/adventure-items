@@ -3,9 +3,9 @@ package transfarmer.soulboundarmory.client.gui.screen.common;
 import nerdhub.cardinal.components.api.ComponentType;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
+import net.minecraft.text.Text;
 import transfarmer.soulboundarmory.MainClient;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.Packets;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 
@@ -15,13 +15,13 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.ATTRIBUTE_POI
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBUTE_POINTS;
 
 public abstract class AttributeTab extends SoulboundTab {
-    public AttributeTab(final ComponentType<? extends ISoulboundComponent> componentType,
+    public AttributeTab(final ComponentType<? extends ISoulboundItemComponent> componentType,
                         final List<ScreenTab> tabs) {
         super(Mappings.MENU_BUTTON_ATTRIBUTES.toString(), componentType, tabs);
     }
 
     @Override
-    protected String getLabel() {
+    protected Text getLabel() {
         return this.title.asFormattedString();
     }
 

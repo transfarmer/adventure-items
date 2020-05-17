@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.network.C2S;
 
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.common.ComponentPacket;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.statistics.IItem;
@@ -52,7 +51,7 @@ public class C2SReset extends ComponentPacket {
     public static final class Handler implements IExtendedMessageHandler<C2SReset> {
         @Override
         public IExtendedMessage onMessage(final C2SReset message, final MessageContext context) {
-            final ISoulboundComponent component = context.getServerHandler().player.getComponent(componentType, null);
+            final ISoulboundItemComponent component = context.getServerHandler().player.getComponent(componentType, null);
 
             if (item != null) {
                 final IItem item = IItem.get(item);

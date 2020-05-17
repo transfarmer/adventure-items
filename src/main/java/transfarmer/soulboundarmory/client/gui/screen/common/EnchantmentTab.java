@@ -1,14 +1,15 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
-import nerdhub.cardinal.components.api.ComponentType;
+import nerdhub.cardinal.components.api.component.Component;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.text.Text;
 import net.minecraft.util.registry.Registry;
 import transfarmer.farmerlib.util.IndexedMap;
 import transfarmer.soulboundarmory.MainClient;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
 import transfarmer.soulboundarmory.network.Packets;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 
@@ -19,21 +20,21 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.ENCHANTMENT_P
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ENCHANTMENT_POINTS;
 
 public class EnchantmentTab extends SoulboundTab {
-    public EnchantmentTab(final ComponentType<? extends ISoulboundComponent> componentType,
+    public EnchantmentTab(final ISoulboundItemComponent<? extends Component> component,
                           final List<ScreenTab> tabs) {
-        super(Mappings.MENU_BUTTON_ENCHANTMENTS.toString(), componentType, tabs);
+        super(Mappings.MENU_BUTTON_ENCHANTMENTS, component, tabs);
     }
 
     @Override
-    protected String getLabel() {
-        return Mappings.MENU_BUTTON_ENCHANTMENTS.toString();
+    protected Text getLabel() {
+        return Mappings.MENU_BUTTON_ENCHANTMENTS;
     }
 
     @Override
     public void init() {
         super.init();
 
-        final IndexedMap<Enchantment, Integer> enchantments = this.component.getEnchantments(this.component.getItemType());
+        final IndexedMap<Enchantment, Integer> enchantments = this.component.getEnchantments();
         final int size = enchantments.size();
         final ButtonWidget resetButton = this.addButton(this.resetButton(this.resetAction(ENCHANTMENT)));
         final ButtonWidget[] removePointButtons = new ButtonWidget[size];
@@ -42,11 +43,11 @@ public class EnchantmentTab extends SoulboundTab {
             removePointButtons[row] = this.addButton(this.squareButton((width + 162) / 2 - 20, this.getHeight(size, row), "-", this.enchantAction(enchantments.getKey(row))));
         }
 
-        resetButton.active = this.component.getDatum(this.component.getItemType(), SPENT_ENCHANTMENT_POINTS) > 0;
+        resetButton.active = this.component.getDatum(SPENT_ENCHANTMENT_POINTS) > 0;
 
         for (int row = 0; row < size; row++) {
             final ButtonWidget button = this.addButton(this.squareButton((width + 162) / 2, this.getHeight(size, row), "+", this.disenchantAction(enchantments.getKey(row))));
-            button.active = this.component.getDatum(this.component.getItemType(), ENCHANTMENT_POINTS) > 0;
+            button.active = this.component.getDatum(ENCHANTMENT_POINTS) > 0;
         }
 
         for (int i = 0; i < size; i++) {
@@ -59,7 +60,7 @@ public class EnchantmentTab extends SoulboundTab {
         super.render(mouseX, mouseY, partialTicks);
 
         final IndexedMap<Enchantment, Integer> enchantments = this.component.getEnchantments();
-        final int points = this.component.getDatum(this.item, ENCHANTMENT_POINTS);
+        final int points = this.component.getDatum(ENCHANTMENT_POINTS);
 
         if (points > 0) {
             TEXT_RENDERER.draw(String.format("%s: %d", Mappings.MENU_UNSPENT_POINTS, points),
@@ -74,7 +75,7 @@ public class EnchantmentTab extends SoulboundTab {
     protected PressAction enchantAction(final Enchantment enchantment) {
         return (final ButtonWidget button) -> {
             final int amount = hasShiftDown() ?
-                    this.component.getDatum(this.item, ENCHANTMENT_POINTS)
+                    this.component.getDatum(ENCHANTMENT_POINTS)
                     : 1;
 
             MainClient.PACKET_REGISTRY.sendToServer(Packets.C2S_ENCHANT, new ExtendedPacketBuffer(this.component).writeIdentifier(Registry.ENCHANTMENT.getId(enchantment)).writeInt(amount));
@@ -84,7 +85,7 @@ public class EnchantmentTab extends SoulboundTab {
     protected PressAction disenchantAction(final Enchantment enchantment) {
         return (final ButtonWidget button) -> {
             final int amount = hasShiftDown()
-                    ? this.component.getDatum(this.item, SPENT_ENCHANTMENT_POINTS)
+                    ? this.component.getDatum(SPENT_ENCHANTMENT_POINTS)
                     : 1;
 
             MainClient.PACKET_REGISTRY.sendToServer(Packets.C2S_ENCHANT, new ExtendedPacketBuffer(this.component).writeIdentifier(Registry.ENCHANTMENT.getId(enchantment)).writeInt(-amount));

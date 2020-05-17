@@ -2,7 +2,7 @@ package transfarmer.soulboundarmory.component.soulbound.item;
 
 import net.minecraft.entity.Entity;
 
-public interface IGreatswordComponent {
+public interface IGreatswordComponent extends ISoulboundItemComponent<IGreatswordComponent> {
     double getLeapForce();
 
     void setLeapForce(double force);

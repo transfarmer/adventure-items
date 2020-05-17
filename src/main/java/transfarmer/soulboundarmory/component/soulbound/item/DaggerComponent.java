@@ -4,20 +4,17 @@ import nerdhub.cardinal.components.api.ComponentType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.skill.common.NourishmentSkill;
-import transfarmer.soulboundarmory.skill.dagger.ReturnSkill;
-import transfarmer.soulboundarmory.skill.dagger.ShadowCloneSkill;
-import transfarmer.soulboundarmory.skill.dagger.SneakReturnSkill;
-import transfarmer.soulboundarmory.skill.dagger.ThrowingSkill;
+import transfarmer.soulboundarmory.skill.Skills;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
-import transfarmer.soulboundarmory.statistics.Statistics;
 import transfarmer.soulboundarmory.statistics.StatisticType;
+import transfarmer.soulboundarmory.statistics.Statistics;
 
 import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
@@ -45,9 +42,9 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBU
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 
-public class DaggerComponent extends SoulboundItemComponent<DaggerComponent> {
-    public DaggerComponent(final ItemStack itemStack) {
-        super(itemStack);
+public class DaggerComponent extends SoulboundWeaponComponent<IDaggerComponent> implements IDaggerComponent {
+    public DaggerComponent(final ItemStack itemStack, final PlayerEntity player) {
+        super(itemStack, player);
 
         this.statistics = Statistics.builder()
                 .category(DATUM, XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS)
@@ -56,16 +53,16 @@ public class DaggerComponent extends SoulboundItemComponent<DaggerComponent> {
         this.enchantments = new EnchantmentStorage((final Enchantment enchantment) -> {
             final String name = enchantment.getName(1).asString().toLowerCase();
 
-            return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
+            return enchantment.isAcceptableItem(this.itemStack) && !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
                     && (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new NourishmentSkill(), new ThrowingSkill(), new ShadowCloneSkill(), new ReturnSkill(), new SneakReturnSkill());
+        this.skillStorage = new SkillStorage(Skills.NOURISHMENT, Skills.THROWING, Skills.SHADOW_CLONE, Skills.RETURN, Skills.SNEAK_RETURN);
     }
 
     @Nonnull
     @Override
-    public ComponentType<DaggerComponent> getComponentType() {
+    public ComponentType<IDaggerComponent> getComponentType() {
         return DAGGER_COMPONENT;
     }
 

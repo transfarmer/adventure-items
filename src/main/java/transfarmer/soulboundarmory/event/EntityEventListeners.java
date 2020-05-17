@@ -31,7 +31,6 @@ import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.registries.IForgeRegistry;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.component.entity.IEntityData;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponComponent;
 import transfarmer.soulboundarmory.config.MainConfig;
@@ -86,7 +85,7 @@ public class EntityEventListeners {
 
         if (trueSource instanceof PlayerEntity && !trueSource.world.isClient) {
             final Entity source = event.getSource().getImmediateSource();
-            final ISoulboundComponent instance = WeaponProvider.get(trueSource);
+            final ISoulboundItemComponent instance = WeaponProvider.get(trueSource);
             final IItem item;
 
             if (source instanceof SoulboundDaggerEntity) {
@@ -125,7 +124,7 @@ public class EntityEventListeners {
         if (!entity.world.isClient) {
             Entity attacker = event.getAttacker();
             IItem weaponType = null;
-            final ISoulboundComponent instance = WeaponProvider.get(attacker);
+            final ISoulboundItemComponent instance = WeaponProvider.get(attacker);
 
             if (attacker instanceof SoulboundDaggerEntity) {
                 attacker = ((SoulboundDaggerEntity) attacker).shootingEntity;

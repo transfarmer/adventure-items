@@ -2,11 +2,10 @@ package transfarmer.soulboundarmory.network.common;
 
 import nerdhub.cardinal.components.api.component.ComponentProvider;
 import net.fabricmc.fabric.api.network.PacketContext;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.statistics.IItem;
 
 public abstract class ComponentPacket extends Packet {
-    protected ISoulboundComponent component;
+    protected ISoulboundItemComponent component;
     protected IItem item;
 
     @Override

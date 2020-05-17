@@ -4,7 +4,6 @@ import net.minecraft.client.gui.ButtonWidget;
 import net.minecraftforge.common.capabilities.Component;
 import org.jetbrains.annotations.Nonnull;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.C2S.C2SItemType;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.Map;
 public abstract class SelectionTab extends SoulboundTab {
     protected final Map<Integer, String> selection;
 
-    public SelectionTab(final @Nonnull Component<? extends ISoulboundComponent> key, final List<ScreenTab> tabs,
+    public SelectionTab(final @Nonnull Component<? extends ISoulboundItemComponent> key, final List<ScreenTab> tabs,
                         final Map<Integer, String> selection) {
         super(key, tabs);
 

@@ -1,40 +1,34 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import nerdhub.cardinal.components.api.ComponentType;
-import nerdhub.cardinal.components.api.component.ComponentProvider;
+import nerdhub.cardinal.components.api.component.Component;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
-import transfarmer.farmerlib.item.ItemUtil;
-import transfarmer.farmerlib.util.ItemUtil;
 import transfarmer.soulboundarmory.MainClient;
 import transfarmer.soulboundarmory.client.gui.ExtendedButtonWidget;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar.Style;
 import transfarmer.soulboundarmory.client.gui.RGBASlider;
-import transfarmer.soulboundarmory.client.i18n.LangEntry;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.SoulboundItem;
 import transfarmer.soulboundarmory.network.Packets;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.statistics.IItem;
+import transfarmer.soulboundarmory.statistics.Category;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static transfarmer.soulboundarmory.MainClient.CLIENT;
 import static transfarmer.soulboundarmory.statistics.StatisticType.LEVEL;
 import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 
@@ -42,53 +36,49 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 public abstract class SoulboundTab extends ScreenTab {
     protected static final NumberFormat FORMAT = DecimalFormat.getInstance();
 
-    protected final ComponentType<? extends ISoulboundComponent> componentType;
-    @Nonnull
     protected final PlayerEntity player;
     protected final List<AbstractButtonWidget> options;
     protected final List<RGBASlider> rgbaSliders;
+    protected final ISoulboundItemComponent<? extends Component> component;
 
-    protected ISoulboundComponent component;
-    protected IItem item;
     protected GuiXPBar xpBar;
     protected ExtendedButtonWidget styleButton;
     protected int slot;
 
-    public SoulboundTab(final String title, final ComponentType<? extends ISoulboundComponent> componentType,
+    public SoulboundTab(final Text title, final ISoulboundItemComponent<? extends Component> component,
                         final List<ScreenTab> tabs) {
-        super(new TranslatableText(title), tabs);
+        super(title, tabs);
 
-        this.componentType = componentType;
-        //noinspection ConstantConditions
-        this.player = CLIENT.player;
+        this.player = MainClient.PLAYER;
+        this.component = component;
         this.options = new ArrayList<>(5);
         this.rgbaSliders = new ArrayList<>(4);
     }
 
     @Override
     public void init() {
-        this.displayTabs = ItemUtil.getEquippedItemStack(player.inventory, SoulboundItem.class) != null;
-
-        super.init();
-
-        this.component = ComponentProvider.fromEntity(this.player).getComponent(this.componentType);
-        this.component.setCurrentTab(this.index);
-        this.xpBar = new GuiXPBar(this.component);
-        this.item = component.getItemType();
-        this.slot = ItemUtil.getSlotFor(this.player.inventory, component.getEquippedItemStack());
-
-        this.initOptions();
+        this.displayTabs = this.component != null;
 
         if (this.displayTabs) {
-            final LangEntry text = this.slot != component.getBoundSlot()
+            this.initOptions();
+
+            this.component.setCurrentTab(this.index);
+            this.slot = this.player.inventory.getSlotWithStack(this.component.getValidEquippedStack());
+
+            final Text text = this.slot != component.getBoundSlot()
                     ? Mappings.MENU_BUTTON_BIND
                     : Mappings.MENU_BUTTON_UNBIND;
             final int width = Math.max(this.button.getWidth(), TEXT_RENDERER.getStringWidth(text.toString()) + 8);
             final int x = this.button.endX - width;
 
-            this.addButton(new ButtonWidget(x, this.height - this.height / 16 - 20, width, 20, text.toString(), this.bindSlotAction())
-            );
+            this.addButton(new ButtonWidget(x, this.height - this.height / 16 - 20, width, 20, text.toString(), this.bindSlotAction()));
+
+            if (this.displayXPBar()) {
+                this.xpBar = new GuiXPBar(this.component);
+            }
         }
+
+        super.init();
     }
 
     protected void initOptions() {
@@ -115,15 +105,15 @@ public abstract class SoulboundTab extends ScreenTab {
     }
 
     protected void drawXPBar(final int mouseX, final int mouseY) {
-        final int xp = component.getDatum(this.item, XP);
+        final int xp = component.getDatum(XP);
 
         this.xpBar.drawXPBar(this.getXPBarX(), this.getXPBarY(), 182);
 
         if (this.isMouseOverLevel(mouseX, mouseY) && MainConfig.instance().getMaxLevel() >= 0) {
             this.renderTooltip(String.format("%d/%d", this.component.getDatum(LEVEL), MainConfig.instance().getMaxLevel()), mouseX, mouseY);
         } else if (this.isMouseOverXPBar(mouseX, mouseY)) {
-            this.renderTooltip(this.component.canLevelUp(this.item)
-                    ? String.format("%d/%d", xp, component.getNextLevelXP(this.item))
+            this.renderTooltip(this.component.canLevelUp()
+                    ? String.format("%d/%d", xp, component.getNextLevelXP())
                     : String.format("%d", xp), mouseX, mouseY);
         }
 
@@ -131,7 +121,7 @@ public abstract class SoulboundTab extends ScreenTab {
     }
 
     protected boolean displayXPBar() {
-        return this.item != null;
+        return this.component != null;
     }
 
     protected boolean isMouseOverXPBar(final double mouseX, final double mouseY) {
@@ -150,7 +140,7 @@ public abstract class SoulboundTab extends ScreenTab {
     }
 
     protected boolean isMouseOverLevel(final int mouseX, final int mouseY) {
-        final String levelString = "" + this.component.getDatum(this.item, LEVEL);
+        final String levelString = "" + this.component.getDatum(LEVEL);
 
         final int levelLeftX = (this.width - TEXT_RENDERER.getStringWidth(levelString)) / 2;
         final int levelTopY = height - 35;
@@ -250,8 +240,8 @@ public abstract class SoulboundTab extends ScreenTab {
         return new ExtendedButtonWidget(this.getOptionX(), this.getOptionY(row), 100, 20, text, primaryAction, secondaryAction);
     }
 
-    public RGBASlider colorSlider(final int row, final double currentValue, final LangEntry langEntry) {
-        return new RGBASlider(this.getOptionX(), this.getOptionY(row), 100, 20, currentValue, langEntry);
+    public RGBASlider colorSlider(final int row, final double currentValue, final TranslatableText text) {
+        return new RGBASlider(this.getOptionX(), this.getOptionY(row), 100, 20, currentValue, text);
     }
 
     public ButtonWidget[] addPointButtons(final int rows, final int points, final PressAction action) {

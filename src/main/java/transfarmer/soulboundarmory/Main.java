@@ -5,7 +5,6 @@ import me.sargunvohra.mcmods.autoconfig1u.serializer.Toml4jConfigSerializer;
 import nerdhub.cardinal.components.api.ComponentRegistry;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.event.EntityComponentCallback;
-import nerdhub.cardinal.components.api.event.ItemComponentCallback;
 import nerdhub.cardinal.components.api.util.EntityComponents;
 import nerdhub.cardinal.components.api.util.RespawnCopyStrategy;
 import net.fabricmc.api.ModInitializer;
@@ -30,15 +29,11 @@ import transfarmer.soulboundarmory.component.config.ConfigComponent;
 import transfarmer.soulboundarmory.component.config.IConfigComponent;
 import transfarmer.soulboundarmory.component.entity.EntityData;
 import transfarmer.soulboundarmory.component.entity.IEntityData;
-import transfarmer.soulboundarmory.component.soulbound.item.DaggerComponent;
-import transfarmer.soulboundarmory.component.soulbound.item.GreatswordComponent;
-import transfarmer.soulboundarmory.component.soulbound.item.PickComponent;
-import transfarmer.soulboundarmory.component.soulbound.item.StaffComponent;
-import transfarmer.soulboundarmory.component.soulbound.item.SwordComponent;
-import transfarmer.soulboundarmory.component.soulbound.tool.IToolComponent;
-import transfarmer.soulboundarmory.component.soulbound.tool.ToolComponent;
-import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponComponent;
-import transfarmer.soulboundarmory.component.soulbound.weapon.WeaponComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.IDaggerComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.IGreatswordComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.IPickComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.IStaffComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.ISwordComponent;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.enchantment.ImpactEnchantment;
@@ -75,20 +70,18 @@ public class Main implements ModInitializer {
     public static final SoulboundStaffItem SOULBOUND_STAFF_ITEM = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_staff"), new SoulboundStaffItem());
     public static final SoulboundPickItem SOULBOUND_PICK_ITEM = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_pick"), new SoulboundPickItem());
 
-    public static final ComponentType<IConfigComponent> CONFIG = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "config_component"), IConfigComponent.class).attach(EntityComponentCallback.event(PlayerEntity.class), ConfigComponent::new);
+    public static final ComponentType<IConfigComponent> CONFIG_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "config_component"), IConfigComponent.class).attach(EntityComponentCallback.event(PlayerEntity.class), ConfigComponent::new);
 
     public static final ComponentType<IEntityData> ENTITY_DATA = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "entity_data"), IEntityData.class).attach(EntityComponentCallback.event(Entity.class), (final Entity entity) ->
             (entity instanceof LivingEntity || entity instanceof Projectile)
                     && !(entity instanceof ReachModifierEntity || entity instanceof SoulboundDaggerEntity)
                     ? new EntityData(entity) : null
     );
-    public static final ComponentType<IToolComponent> TOOLS = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "tools"), IToolComponent.class).attach(EntityComponentCallback.event(PlayerEntity.class), ToolComponent::new);
-    public static final ComponentType<IWeaponComponent> WEAPONS = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "weapons"), IWeaponComponent.class).attach(EntityComponentCallback.event(PlayerEntity.class), WeaponComponent::new);
-    public static final ComponentType<DaggerComponent> DAGGER_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "item"), DaggerComponent.class).attach(ItemComponentCallback.event(SOULBOUND_DAGGER_ITEM), DaggerComponent::new);
-    public static final ComponentType<SwordComponent> SWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "item"), SwordComponent.class).attach(ItemComponentCallback.event(SOULBOUND_SWORD_ITEM), SwordComponent::new);
-    public static final ComponentType<GreatswordComponent> GREATSWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "item"), GreatswordComponent.class).attach(ItemComponentCallback.event(SOULBOUND_GREATSWORD_ITEM), GreatswordComponent::new);
-    public static final ComponentType<StaffComponent> STAFF_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "item"), StaffComponent.class).attach(ItemComponentCallback.event(SOULBOUND_STAFF_ITEM), StaffComponent::new);
-    public static final ComponentType<PickComponent> PICK_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "item"), PickComponent.class).attach(ItemComponentCallback.event(SOULBOUND_PICK_ITEM), PickComponent::new);
+    public static final ComponentType<IDaggerComponent> DAGGER_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "dagger"), IDaggerComponent.class);
+    public static final ComponentType<ISwordComponent> SWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "sword"), ISwordComponent.class);
+    public static final ComponentType<IGreatswordComponent> GREATSWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "greatsword"), IGreatswordComponent.class);
+    public static final ComponentType<IStaffComponent> STAFF_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "staff"), IStaffComponent.class);
+    public static final ComponentType<IPickComponent> PICK_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "pick"), IPickComponent.class);
 
     public static final EntityType<SoulboundDaggerEntity> SOULBOUND_DAGGER_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, "dagger"), FabricEntityTypeBuilder.create(EntityCategory.MISC, (EntityFactory<SoulboundDaggerEntity>) SoulboundDaggerEntity::new).dimensions(EntityDimensions.fixed(1, 1)).build());
     public static final EntityType<SoulboundFireballEntity> SOULBOUND_FIREBALL_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, "fireball"), FabricEntityTypeBuilder.create(EntityCategory.MISC, (EntityFactory<SoulboundFireballEntity>) SoulboundFireballEntity::new).dimensions(EntityDimensions.fixed(1, 1)).build());
@@ -103,8 +96,7 @@ public class Main implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public void onInitialize() {
-        EntityComponents.setRespawnCopyStrategy(CONFIG, RespawnCopyStrategy.ALWAYS_COPY);
-        EntityComponents.setRespawnCopyStrategy(TOOLS, RespawnCopyStrategy.ALWAYS_COPY);
+        EntityComponents.setRespawnCopyStrategy(CONFIG_COMPONENT, RespawnCopyStrategy.ALWAYS_COPY);
 
         PACKET_REGISTRY.register(C2S_ATTRIBUTE, new C2SAttribute());
         PACKET_REGISTRY.register(C2S_BIND_SLOT, new C2SBindSlot());

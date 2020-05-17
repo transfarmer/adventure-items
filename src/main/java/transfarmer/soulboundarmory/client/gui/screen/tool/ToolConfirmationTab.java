@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.client.gui.screen.tool;
 
+import net.minecraft.text.Text;
 import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.SelectionTab;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
@@ -15,7 +16,7 @@ public class ToolConfirmationTab extends SelectionTab {
     }
 
     @Override
-    protected String getLabel() {
+    protected Text getLabel() {
         return Mappings.MENU_CONFIRMATION;
     }
 }

@@ -1,16 +1,26 @@
 package transfarmer.soulboundarmory.component.soulbound.item;
 
 import nerdhub.cardinal.components.api.ComponentType;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import transfarmer.farmerlib.collection.CollectionUtil;
-import transfarmer.soulboundarmory.skill.pick.AmbidexteritySkill;
-import transfarmer.soulboundarmory.skill.pick.PullSkill;
+import transfarmer.soulboundarmory.client.i18n.Mappings;
+import transfarmer.soulboundarmory.skill.Skills;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
+import transfarmer.soulboundarmory.statistics.StatisticType;
 import transfarmer.soulboundarmory.statistics.Statistics;
 
 import javax.annotation.Nonnull;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import static net.minecraft.enchantment.Enchantments.UNBREAKING;
 import static net.minecraft.enchantment.Enchantments.VANISHING_CURSE;
@@ -28,9 +38,9 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBU
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 
-public class PickComponent extends SoulboundItemComponent<PickComponent> {
-    public PickComponent(final ItemStack itemStack) {
-        super(itemStack);
+public class PickComponent extends SoulboundItemComponent<IPickComponent> implements IPickComponent {
+    public PickComponent(final ItemStack itemStack, final PlayerEntity player) {
+        super(itemStack, player);
 
         this.statistics = Statistics.builder()
                 .category(DATUM, XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS)
@@ -43,12 +53,44 @@ public class PickComponent extends SoulboundItemComponent<PickComponent> {
                     && !name.contains("soulbound") && !name.contains("holding") && !name.contains("smelt")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new PullSkill(), new AmbidexteritySkill());
+        this.skillStorage = new SkillStorage(Skills.PULL, Skills.AMBIDEXTERITY);
     }
 
     @Nonnull
     @Override
-    public ComponentType<PickComponent> getComponentType() {
+    public ComponentType<IPickComponent> getComponentType() {
         return PICK_COMPONENT;
+    }
+
+    @Override
+    public Item getConsumableItem() {
+        return Items.WOODEN_PICKAXE;
+    }
+
+    @Override
+    public double getIncrease(final StatisticType statistic) {
+        return statistic == EFFICIENCY
+                ? 0.5
+                : statistic == REACH
+                ? 0.1
+                : statistic == HARVEST_LEVEL
+                ? 0.2
+                : 0;
+    }
+
+    @Override
+    @Environment(EnvType.CLIENT)
+    public List<String> getTooltip() {
+        final NumberFormat FORMAT = DecimalFormat.getInstance();
+        final List<String> tooltip = new ArrayList<>(5);
+
+        tooltip.add(String.format(" %s%s %s", Mappings.REACH_DISTANCE_FORMAT, FORMAT.format(this.getAttribute(REACH)), Mappings.REACH_DISTANCE_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.TOOL_EFFICIENCY_FORMAT, FORMAT.format(this.getAttribute(EFFICIENCY)), Mappings.EFFICIENCY_NAME));
+        tooltip.add(String.format(" %s%s %s", Mappings.HARVEST_LEVEL_FORMAT, FORMAT.format(this.getAttribute(HARVEST_LEVEL)), Mappings.HARVEST_LEVEL_NAME));
+
+        tooltip.add("");
+        tooltip.add("");
+
+        return tooltip;
     }
 }

@@ -16,6 +16,7 @@ import transfarmer.soulboundarmory.skill.pick.PullSkill;
 import transfarmer.soulboundarmory.skill.staff.EndermanacleSkill;
 import transfarmer.soulboundarmory.skill.staff.FireballSkill;
 import transfarmer.soulboundarmory.skill.staff.PenetrationSkill;
+import transfarmer.soulboundarmory.skill.staff.HealingSkill;
 import transfarmer.soulboundarmory.skill.staff.VulnerabilitySkill;
 import transfarmer.soulboundarmory.skill.sword.SummonLightningSkill;
 
@@ -26,6 +27,7 @@ public class Skills {
     public static final Skill ENDERMANACLE = register(new EndermanacleSkill(new Identifier(Main.MOD_ID, "endermanacle")));
     public static final Skill FIREBALL = register(new FireballSkill(new Identifier(Main.MOD_ID, "fireball")));
     public static final Skill FREEZING = register(new FreezingSkill(new Identifier(Main.MOD_ID, "freezing")));
+    public static final Skill HEALING = register(new HealingSkill(new Identifier(Main.MOD_ID, "healing")));
     public static final Skill LEAPING = register(new LeapingSkill(new Identifier(Main.MOD_ID, "leaping")));
     public static final Skill NOURISHMENT = register(new NourishmentSkill(new Identifier(Main.MOD_ID, "nourishment")));
     public static final Skill PENETRATION = register(new PenetrationSkill(new Identifier(Main.MOD_ID, "penetration")));
@@ -53,10 +55,6 @@ public class Skills {
         return null;
     }
 
-    public static Identifier getID(final Skill skill) {
-        return REGISTRY.inverse().get(skill);
-    }
-
     public static Skill get(final String string) {
         return get(getID(string));
     }
@@ -66,7 +64,7 @@ public class Skills {
     }
 
     public static Identifier getDefaultTextureLocation(final Skill skill) {
-        final Identifier identifier = getID(skill);
+        final Identifier identifier = skill.getIdentifier();
 
         return new Identifier(identifier.getNamespace(), String.format("skill/%s.png", identifier.getPath()));
     }

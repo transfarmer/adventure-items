@@ -1,9 +1,13 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.item.ItemModels;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.texture.Sprite;
@@ -118,6 +122,25 @@ public abstract class ExtendedScreen extends Screen {
         }
 
         return y;
+    }
+
+    public void renderBackground(final Identifier identifier, final int x, final int y, final int width,
+                                 final int height, final int alpha) {
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder builder = tessellator.getBuffer();
+        final int endX = x + width;
+        final int endY = y + height;
+        final float f = 32;
+
+        CLIENT.getTextureManager().bindTexture(identifier);
+        RenderSystem.color4f(1, 1, 1, 1);
+
+        builder.begin(7, VertexFormats.POSITION_COLOR_TEXTURE);
+        builder.vertex(x, endY, 0).texture(0, endY / f + alpha).color(64, 64, 64, 255).next();
+        builder.vertex(endX, endY, 0).texture(endX / f, endY / f + alpha).color(64, 64, 64, 255).next();
+        builder.vertex(endX, y, 0).texture(endX / f, alpha).color(64, 64, 64, 255).next();
+        builder.vertex(x, y, 0).texture(0, alpha).color(64, 64, 64, 255).next();
+        tessellator.draw();
     }
 
     public void renderGuiItem(final ItemStack itemStack, final int x, final int y, final int blitOffset) {

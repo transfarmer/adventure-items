@@ -2,7 +2,6 @@ package transfarmer.soulboundarmory.network.S2C;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.statistics.IItem;
 
@@ -11,7 +10,7 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 public class S2CRefresh extends S2CSoulbound {
     public S2CRefresh() {}
 
-    public S2CRefresh(final ISoulboundComponent component, final IItem item) {
+    public S2CRefresh(final ISoulboundItemComponent component, final IItem item) {
         super(component, item);
     }
 

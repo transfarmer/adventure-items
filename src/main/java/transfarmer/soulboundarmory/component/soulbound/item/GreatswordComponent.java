@@ -5,15 +5,16 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.farmerlib.nbt.NBTUtil;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.component.entity.IEntityData;
-import transfarmer.soulboundarmory.skill.common.NourishmentSkill;
-import transfarmer.soulboundarmory.skill.greatsword.FreezingSkill;
-import transfarmer.soulboundarmory.skill.greatsword.LeapingSkill;
+import transfarmer.soulboundarmory.skill.Skills;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
 import transfarmer.soulboundarmory.statistics.StatisticType;
@@ -47,13 +48,13 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBU
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 
-public class GreatswordComponent extends SoulboundItemComponent<GreatswordComponent> implements IGreatswordComponent {
+public class GreatswordComponent extends SoulboundWeaponComponent<IGreatswordComponent> implements IGreatswordComponent {
     protected CompoundTag cannotFreeze;
     protected int leapDuration;
     protected double leapForce;
 
-    public GreatswordComponent(final ItemStack itemStack) {
-        super(itemStack);
+    public GreatswordComponent(final ItemStack itemStack, final PlayerEntity player) {
+        super(itemStack, player);
 
         this.statistics = Statistics.builder()
                 .category(DATUM, XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS)
@@ -62,17 +63,17 @@ public class GreatswordComponent extends SoulboundItemComponent<GreatswordCompon
         this.enchantments = new EnchantmentStorage((final Enchantment enchantment) -> {
             final String name = enchantment.getName(1).asString().toLowerCase();
 
-            return !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
+            return enchantment.isAcceptableItem(this.itemStack) && !CollectionUtil.hashSet(UNBREAKING, VANISHING_CURSE).contains(enchantment)
                     && (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new NourishmentSkill(), new LeapingSkill(), new FreezingSkill());
-                this.cannotFreeze = new CompoundTag();
+        this.skillStorage = new SkillStorage(Skills.NOURISHMENT, Skills.LEAPING, Skills.FREEZING);
+        this.cannotFreeze = new CompoundTag();
     }
 
     @Nonnull
     @Override
-    public ComponentType<GreatswordComponent> getComponentType() {
+    public ComponentType<IGreatswordComponent> getComponentType() {
         return GREATSWORD_COMPONENT;
     }
 
@@ -135,6 +136,11 @@ public class GreatswordComponent extends SoulboundItemComponent<GreatswordCompon
     }
 
     @Override
+    public Item getConsumableItem() {
+        return Items.IRON_SWORD;
+    }
+
+    @Override
     @Environment(EnvType.CLIENT)
     public List<String> getTooltip() {
         final NumberFormat format = DecimalFormat.getInstance();
@@ -160,6 +166,15 @@ public class GreatswordComponent extends SoulboundItemComponent<GreatswordCompon
     }
 
     @Override
+    public void tick() {
+        if (this.leapDuration > 0) {
+            if (--this.leapDuration == 0) {
+                this.resetLeapForce();
+            }
+        }
+    }
+
+    @Override
     public void fromTag(@Nonnull final CompoundTag tag) {
         super.fromTag(tag);
 
@@ -171,6 +186,8 @@ public class GreatswordComponent extends SoulboundItemComponent<GreatswordCompon
     public CompoundTag toTag(@Nonnull CompoundTag tag) {
         tag = super.toTag(tag);
 
+        tag.putInt("leapDuration", this.getLeapDuration());
+        tag.putDouble("leapForce", this.getLeapForce());
         tag.put("cannotFreeze", this.cannotFreeze);
 
         return tag;

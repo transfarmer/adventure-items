@@ -24,7 +24,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.SoulboundItem;
 import transfarmer.soulboundarmory.item.SoulboundMeleeWeaponItem;
@@ -69,7 +68,7 @@ public class PlayerEventListeners {
         final PlayerEntity player = event.getPlayerEntity();
 
         if (!(player instanceof FakePlayer) && !player.world.getGameRules().getBoolean("keepInventory")) {
-            ISoulboundComponent weapons = WeaponProvider.get(player);
+            ISoulboundItemComponent weapons = WeaponProvider.get(player);
             IItem type = weapons.getItemType();
 
             if (type != null && weapons.getDatum(type, LEVEL) >= MainConfig.instance().getPreservationLevel()) {
@@ -90,10 +89,10 @@ public class PlayerEventListeners {
         final PlayerEntity original = event.getOriginal();
         final PlayerEntity player = event.getPlayerEntity();
 
-        final ISoulboundComponent originalTools = ToolProvider.get(original);
-        final ISoulboundComponent originalWeapons = WeaponProvider.get(original);
-        final ISoulboundComponent newTools = ToolProvider.get(player);
-        final ISoulboundComponent newWeapons = WeaponProvider.get(player);
+        final ISoulboundItemComponent originalTools = ToolProvider.get(original);
+        final ISoulboundItemComponent originalWeapons = WeaponProvider.get(original);
+        final ISoulboundItemComponent newTools = ToolProvider.get(player);
+        final ISoulboundItemComponent newWeapons = WeaponProvider.get(player);
 
         newWeapons.fromTag(originalWeapons.toTag());
         newTools.fromTag(originalTools.toTag());
@@ -112,8 +111,8 @@ public class PlayerEventListeners {
     }
 
     private static void updatePlayer(final PlayerEntity player) {
-        final ISoulboundComponent weapons = WeaponProvider.get(player);
-        final ISoulboundComponent tools = ToolProvider.get(player);
+        final ISoulboundItemComponent weapons = WeaponProvider.get(player);
+        final ISoulboundItemComponent tools = ToolProvider.get(player);
 
         weapons.initPlayer(player);
         tools.initPlayer(player);
@@ -136,7 +135,7 @@ public class PlayerEventListeners {
     public static void onBreakSpeed(final BreakSpeed event) {
         if (event.getPlayerEntity().getMainHandStack().getItem() instanceof SoulboundItem) {
             final SoulboundItem item = (SoulboundItem) event.getPlayerEntity().getMainHandStack().getItem();
-            final ISoulboundComponent component = SoulboundItemUtil.getFirstComponent(event.getPlayerEntity(), (Item) item);
+            final ISoulboundItemComponent component = SoulboundItemUtil.getFirstComponent(event.getPlayerEntity(), (Item) item);
             final IItem type = component.getItemType();
 
             if (item instanceof SoulboundToolItem) {

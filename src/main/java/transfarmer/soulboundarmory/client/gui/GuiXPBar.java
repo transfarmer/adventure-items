@@ -1,26 +1,28 @@
 package transfarmer.soulboundarmory.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import nerdhub.cardinal.components.api.component.Component;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.Window;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import transfarmer.farmerlib.image.ImageUtil;
 import transfarmer.soulboundarmory.Main;
+import transfarmer.soulboundarmory.MainClient;
 import transfarmer.soulboundarmory.client.gui.screen.common.ExtendedScreen;
-import transfarmer.soulboundarmory.client.i18n.LangEntry;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.client.renderer.texture.ExperienceBarTexture;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
-import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
+import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.SoulboundItemComponent;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.item.SoulboundItem;
 import transfarmer.soulboundarmory.statistics.StatisticType;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class GuiXPBar extends ExtendedScreen {
     protected static final Identifier ICONS = new Identifier(Main.MOD_ID, "textures/gui/icons");
 
     protected ItemStack itemStack;
-    protected ISoulboundComponent component;
+    protected ISoulboundItemComponent<? extends Component> component;
     protected int row;
     protected int length;
 
@@ -53,12 +55,12 @@ public class GuiXPBar extends ExtendedScreen {
         this.update(itemStack);
     }
 
-    public GuiXPBar(final ISoulboundComponent component) {
+    public GuiXPBar(final ISoulboundItemComponent<? extends Component> component) {
         this();
 
         this.update(component);
 
-        this.itemType = this.component.getItemType();
+        this.component = component;
     }
 
     public void setData(final int row, final int length) {
@@ -67,25 +69,11 @@ public class GuiXPBar extends ExtendedScreen {
     }
 
     public boolean drawXPBar() {
-        final PlayerEntity player = CLIENT.player;
-        final ItemStack itemStack = player.getMainHandStack();
+        final PlayerEntity player = MainClient.PLAYER;
         final Window window = CLIENT.getWindow();
 
-        if (this.update(SoulboundItemUtil.getFirstComponent(player, itemStack))) {
-            this.itemType = this.component.getItemType(itemStack);
-
-            if (this.itemType == null) {
-                final int slot = player.inventory.selectedSlot;
-                ISoulboundComponent component;
-
-                if ((component = WeaponProvider.get(player)).getBoundSlot() == slot
-                        || (component = ToolProvider.get(player)).getBoundSlot() == slot) {
-                    this.component = component;
-                    this.itemType = component.getItemType();
-                }
-            }
-
-            if (this.itemType != null) {
+        for (final ItemStack itemStack : player.getItemsHand()) {
+            if (this.update(SoulboundItemComponent.get(itemStack))) {
                 this.drawXPBar((window.getScaledWidth() - 182) / 2, window.getScaledHeight() - 29, 182);
 
                 return true;
@@ -105,23 +93,18 @@ public class GuiXPBar extends ExtendedScreen {
     }
 
     public boolean update(final ItemStack itemStack) {
-        if (this.update(SoulboundItemUtil.getFirstComponent(CLIENT.player, itemStack))) {
+        if (this.update(SoulboundItemComponent.get(itemStack))) {
             if (itemStack.getItem() instanceof SoulboundItem && this.itemStack != itemStack) {
                 this.itemStack = itemStack;
-                this.itemType = this.component.getItemType(itemStack);
             }
-
-            return this.itemType != null;
         }
 
         return false;
     }
 
-    public boolean update(final ISoulboundComponent component) {
+    public boolean update(final ISoulboundItemComponent<? extends Component> component) {
         if (component != null) {
             this.component = component;
-        } else {
-            this.itemType = null;
         }
 
         return this.component != null;
@@ -140,11 +123,11 @@ public class GuiXPBar extends ExtendedScreen {
             RenderSystem.color4f(components[0], components[1], components[2], components[3]);
 
             this.drawHorizontalInterpolatedTexturedRect(x, y, 0, style.v, 4, 177, 182, width, 5);
-            this.drawHorizontalInterpolatedTexturedRect(x, y, 0, style.v + 5, middleU, effectiveWidth < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.component.canLevelUp(this.itemType)
+            this.drawHorizontalInterpolatedTexturedRect(x, y, 0, style.v + 5, middleU, effectiveWidth < 4 ? middleU : (int) (ratio * 177), (int) (ratio * 182), this.component.canLevelUp()
                     ? Math.min(width, (int) (ratio * width))
                     : width, 5);
 
-            final int level = this.component.getDatum(this.itemType, LEVEL);
+            final int level = this.component.getDatum(LEVEL);
 
             if (level > 0) {
                 final String levelString = String.format("%d", level);
@@ -223,11 +206,11 @@ public class GuiXPBar extends ExtendedScreen {
         public static final int AMOUNT = STYLES.size();
 
         public final int v;
-        private final LangEntry langEntry;
+        private final Text text;
 
-        Style(final int v, final LangEntry langEntry) {
+        Style(final int v, final Text text) {
             this.v = v;
-            this.langEntry = langEntry;
+            this.text = text;
         }
 
         public static Style get(final String name) {
@@ -244,7 +227,7 @@ public class GuiXPBar extends ExtendedScreen {
 
         @Override
         public String toString() {
-            return this.langEntry.toString();
+            return this.text.toString();
         }
     }
 }

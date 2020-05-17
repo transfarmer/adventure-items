@@ -3,7 +3,6 @@ package transfarmer.soulboundarmory.network.C2S;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.Identifier;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.common.ComponentPacket;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.statistics.IItem;
@@ -44,7 +43,7 @@ public class C2SEnchant extends ComponentPacket {
     public static final class Handler implements IExtendedMessageHandler<C2SEnchant> {
         @Override
         public IExtendedMessage onMessage(final C2SEnchant message, final MessageContext context) {
-            final ISoulboundComponent component = context.getServerHandler().player.getComponent(componentType, null);
+            final ISoulboundItemComponent component = context.getServerHandler().player.getComponent(componentType, null);
             final Enchantment enchantment = Enchantment.getEnchantmentByLocation(enchantment.toString());
             final IItem weaponType = component.getItemType(item);
 

@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.Identifier;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.statistics.IItem;
 
@@ -49,7 +48,7 @@ public class S2CEnchant implements IExtendedMessage {
             final Minecraft minecraft = CLIENT;
             final Enchantment enchantment = Enchantment.getEnchantmentByLocation(enchantment.toString());
             final IItem item = IItem.get(item);
-            final ISoulboundComponent component = minecraft.player.getComponent(IComponentType.get(component).getComponent(), null);
+            final ISoulboundItemComponent component = minecraft.player.getComponent(IComponentType.get(component).getComponent(), null);
 
             minecraft.addScheduledTask(() -> {
                 component.addEnchantment(item, enchantment, amount);

@@ -29,22 +29,8 @@ public abstract class Skill {
         return this.dependencies;
     }
 
-    public abstract int getCost(final boolean learned, final int level);
-
-    @Environment(EnvType.CLIENT)
-    public String getName() {
-        final String name = I18n.translate(String.format("skill.%s.%s.name", this.identifier.getNamespace(), this.identifier.getPath()));
-
-        return name.replaceFirst("[A-Za-z]", String.valueOf(name.charAt(0)).toUpperCase());
-    }
-
-    @Environment(EnvType.CLIENT)
-    public List<String> getTooltip() {
-        return Arrays.asList(I18n.translate(String.format("skill.%s.%s.desc", this.identifier.getNamespace(), this.identifier.getPath())).split("\\\\n"));
-    }
-
     public boolean hasDependencies() {
-        return !this.getDependencies().isEmpty();
+        return !this.dependencies.isEmpty();
     }
 
     public final int getTier() {
@@ -59,6 +45,24 @@ public abstract class Skill {
         }
 
         return tier;
+    }
+
+    public Identifier getIdentifier() {
+        return this.identifier;
+    }
+
+    public abstract int getCost(final boolean learned, final int level);
+
+    @Environment(EnvType.CLIENT)
+    public String getName() {
+        final String name = I18n.translate(String.format("skill.%s.%s.name", this.identifier.getNamespace(), this.identifier.getPath()));
+
+        return name.replaceFirst("[A-Za-z]", String.valueOf(name.charAt(0)).toUpperCase());
+    }
+
+    @Environment(EnvType.CLIENT)
+    public List<String> getTooltip() {
+        return Arrays.asList(I18n.translate(String.format("skill.%s.%s.desc", this.identifier.getNamespace(), this.identifier.getPath())).split("\\\\n"));
     }
 
     @Environment(EnvType.CLIENT)

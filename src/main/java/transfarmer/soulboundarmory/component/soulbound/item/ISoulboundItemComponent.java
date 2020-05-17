@@ -1,32 +1,42 @@
 package transfarmer.soulboundarmory.component.soulbound.item;
 
+import nerdhub.cardinal.components.api.component.Component;
 import nerdhub.cardinal.components.api.util.ItemComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import transfarmer.farmerlib.util.IndexedMap;
-import transfarmer.soulboundarmory.item.SoulboundItem;
+import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
 import transfarmer.soulboundarmory.skill.Skill;
+import transfarmer.soulboundarmory.skill.SkillContainer;
 import transfarmer.soulboundarmory.statistics.Category;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.StatisticType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public interface ISoulboundItemComponent<C extends SoulboundItemComponent<?>> extends ItemComponent<C> {
+public interface ISoulboundItemComponent<C extends Component> extends ItemComponent<C> {
+    List<SoulboundItemComponent<? extends Component>> REGISTRY = new ArrayList<>();
+
     ItemStack getItemStack();
 
     Item getItem();
+
+    PlayerEntity getPlayer();
 
     Map<String, EntityAttributeModifier> getModifiers();
 
     List<String> getTooltip();
 
     Item getConsumableItem();
+
+    ItemStack getValidEquippedStack();
 
     boolean canConsume(Item item);
 
@@ -66,7 +76,7 @@ public interface ISoulboundItemComponent<C extends SoulboundItemComponent<?>> ex
 
     boolean canLevelUp();
 
-    int onLevel(int sign);
+    int onLevelup(int sign);
 
     int getEnchantment(Enchantment enchantment);
 
@@ -74,11 +84,11 @@ public interface ISoulboundItemComponent<C extends SoulboundItemComponent<?>> ex
 
     void addEnchantment(Enchantment enchantment, int amount);
 
-    List<Skill> getSkills();
+    List<SkillContainer> getSkills();
 
-    Skill getSkill(Identifier identifier);
+    SkillContainer getSkill(Identifier identifier);
 
-    Skill getSkill(Skill skill);
+    SkillContainer getSkill(Skill skill);
 
     boolean hasSkill(Identifier identifier);
 
@@ -86,13 +96,33 @@ public interface ISoulboundItemComponent<C extends SoulboundItemComponent<?>> ex
 
     boolean hasSkill(Skill skill, int level);
 
-    void upgradeSkill(Skill skill);
+    void upgradeSkill(SkillContainer skill);
 
     void reset(Category category);
 
     void reset();
 
-    Class<? extends SoulboundItem> getBaseItemClass();
+    int getCurrentTab();
 
-    PlayerEntity getPlayer();
+    void setCurrentTab(int currentTab);
+
+    int getBoundSlot();
+
+    void bindSlot(int boundSlot);
+
+    void unbindSlot();
+
+    void refresh();
+
+    void openGUI();
+
+    void openGUI(int tab);
+
+    List<ScreenTab> getTabs();
+
+    boolean isItemEquipped();
+
+    void tick();
+
+    CompoundTag toClientTag();
 }

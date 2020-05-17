@@ -1,6 +1,6 @@
 package transfarmer.soulboundarmory.component.soulbound.item;
 
-public interface IStaffComponent {
+public interface IStaffComponent extends ISoulboundItemComponent<IStaffComponent> {
     int getFireballCooldown();
 
     void setFireballCooldown(int ticks);

@@ -16,7 +16,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Keyboard;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponComponent;
 import transfarmer.soulboundarmory.client.gui.GuiXPBar;
@@ -62,7 +61,7 @@ public class ClientEventListeners {
     public static void onClientTick(final ClientTickEvent event) {
         if (event.phase == END) {
             if (MENU_KEY.isPressed()) {
-                final ISoulboundComponent component = SoulboundItemUtil.getFirstHeldComponent(CLIENT.player);
+                final ISoulboundItemComponent component = SoulboundItemUtil.getFirstHeldComponent(CLIENT.player);
 
                 if (component != null) {
                     component.openGUI();
@@ -94,7 +93,7 @@ public class ClientEventListeners {
             final Item item = itemStack.getItem();
 
             if (item instanceof SoulboundItem) {
-                final ISoulboundComponent component = SoulboundItemUtil.getFirstComponent(player, item);
+                final ISoulboundItemComponent component = SoulboundItemUtil.getFirstComponent(player, item);
                 final List<String> tooltip = event.getToolTip();
                 final int startIndex = tooltip.indexOf(I18n.translate("item.modifiers.mainhand")) + 1;
                 final int toIndex = tooltip.size();

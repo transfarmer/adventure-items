@@ -40,7 +40,7 @@ public class ConfigComponent implements IConfigComponent {
     @Override
     @Nonnull
     public ComponentType<?> getComponentType() {
-        return Main.CONFIG;
+        return Main.CONFIG_COMPONENT;
     }
 
     @Override

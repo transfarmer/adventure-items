@@ -19,6 +19,7 @@ public abstract class ScreenTab extends ExtendedScreen {
     protected final List<ScreenTab> tabs;
     protected final List<ExtendedButtonWidget> tabButtons;
     protected final int index;
+
     protected boolean displayTabs;
     protected ExtendedButtonWidget button;
 
@@ -45,7 +46,7 @@ public abstract class ScreenTab extends ExtendedScreen {
         return buttons;
     }
 
-    abstract protected String getLabel();
+    abstract protected Text getLabel();
 
     @Override
     public void init() {
@@ -58,7 +59,7 @@ public abstract class ScreenTab extends ExtendedScreen {
                         this.height / 16 + index * Math.max(this.height / 16, 30),
                         Math.max(96, Math.round(width / 7.5F)),
                         20,
-                        this.tabs.get(index).getLabel(),
+                        this.tabs.get(index).getLabel().asString(),
                         this.setTabAction(index)
                 ));
 

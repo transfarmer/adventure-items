@@ -4,18 +4,17 @@ import nerdhub.cardinal.components.api.ComponentType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.skill.staff.EndermanacleSkill;
-import transfarmer.soulboundarmory.skill.staff.FireballSkill;
-import transfarmer.soulboundarmory.skill.staff.SkillHealing;
-import transfarmer.soulboundarmory.skill.staff.PenetrationSkill;
-import transfarmer.soulboundarmory.skill.staff.VulnerabilitySkill;
+import transfarmer.soulboundarmory.skill.Skills;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
-import transfarmer.soulboundarmory.statistics.Statistics;
 import transfarmer.soulboundarmory.statistics.StatisticType;
+import transfarmer.soulboundarmory.statistics.Statistics;
 
 import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
@@ -26,6 +25,7 @@ import java.util.List;
 import static net.minecraft.enchantment.Enchantments.UNBREAKING;
 import static net.minecraft.enchantment.Enchantments.VANISHING_CURSE;
 import static transfarmer.soulboundarmory.Main.IMPACT;
+import static transfarmer.soulboundarmory.Main.SOULBOUND_STAFF_ITEM;
 import static transfarmer.soulboundarmory.Main.STAFF_COMPONENT;
 import static transfarmer.soulboundarmory.statistics.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.Category.DATUM;
@@ -40,12 +40,12 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBU
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 
-public class StaffComponent extends SoulboundItemComponent<StaffComponent> implements IStaffComponent {
+public class StaffComponent extends SoulboundWeaponComponent<IStaffComponent> implements IStaffComponent {
     protected int fireballCooldown;
     protected int spell;
 
-    public StaffComponent(final ItemStack itemStack) {
-        super(itemStack);
+    public StaffComponent(final ItemStack itemStack, final PlayerEntity player) {
+        super(itemStack, player);
 
         this.statistics = Statistics.builder()
                 .category(DATUM, XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS)
@@ -58,12 +58,12 @@ public class StaffComponent extends SoulboundItemComponent<StaffComponent> imple
                     && (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new SkillHealing(), new FireballSkill(), new VulnerabilitySkill(), new PenetrationSkill(), new EndermanacleSkill());
+        this.skillStorage = new SkillStorage(Skills.HEALING, Skills.PENETRATION, Skills.VULNERABILITY, Skills.PENETRATION, Skills.ENDERMANACLE);
     }
 
     @Nonnull
     @Override
-    public ComponentType<StaffComponent> getComponentType() {
+    public ComponentType<IStaffComponent> getComponentType() {
         return STAFF_COMPONENT;
     }
 
@@ -96,7 +96,7 @@ public class StaffComponent extends SoulboundItemComponent<StaffComponent> imple
     public void cycleSpells(final int spells) {
         this.spell = Math.abs((this.spell + spells) % 2);
 
-        this.sync();
+//        this.sync();
     }
 
     @Override
@@ -119,6 +119,11 @@ public class StaffComponent extends SoulboundItemComponent<StaffComponent> imple
     }
 
     @Override
+    public Item getConsumableItem() {
+        return SOULBOUND_STAFF_ITEM;
+    }
+
+    @Override
     public double getIncrease(final StatisticType statistic) {
         return statistic == ATTACK_SPEED
                 ? 0.08
@@ -127,6 +132,38 @@ public class StaffComponent extends SoulboundItemComponent<StaffComponent> imple
                 : statistic == CRITICAL_STRIKE_PROBABILITY
                 ? 0.04
                 : 0;
+    }
 
+    @Override
+    public void tick() {
+        if (this.fireballCooldown > 0) {
+            this.fireballCooldown--;
+        }
+    }
+
+    @Override
+    public void fromTag(@Nonnull final CompoundTag tag) {
+        super.fromTag(tag);
+
+        this.setSpell(tag.getInt("spell"));
+    }
+
+    @Nonnull
+    @Override
+    public CompoundTag toTag(@Nonnull CompoundTag tag) {
+        tag = super.toTag(tag);
+
+        tag.putInt("spell", this.spell);
+
+        return tag;
+    }
+
+    @Override
+    public CompoundTag toClientTag() {
+        final CompoundTag tag = super.toClientTag();
+
+        tag.putInt("spell", this.spell);
+
+        return tag;
     }
 }

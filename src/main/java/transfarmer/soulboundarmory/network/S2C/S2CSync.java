@@ -3,7 +3,6 @@ package transfarmer.soulboundarmory.network.S2C;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
@@ -37,7 +36,7 @@ public class S2CSync implements IExtendedMessage {
             final Minecraft minecraft = CLIENT;
 
             minecraft.addScheduledTask(() -> {
-                final ISoulboundComponent component = minecraft.player.getComponent(IComponentType.get(component).getComponent(), null);
+                final ISoulboundItemComponent component = minecraft.player.getComponent(IComponentType.get(component).getComponent(), null);
 
                 component.fromTag(tag);
                 component.sync();

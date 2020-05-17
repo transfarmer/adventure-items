@@ -3,7 +3,6 @@ package transfarmer.soulboundarmory.network.S2C;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.statistics.IItem;
@@ -13,7 +12,7 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 public class S2CItemType extends S2CSoulbound {
     public S2CItemType() {}
 
-    public S2CItemType(final ISoulboundComponent component, final IItem item) {
+    public S2CItemType(final ISoulboundItemComponent component, final IItem item) {
         super(component, item);
     }
 
@@ -35,7 +34,7 @@ public class S2CItemType extends S2CSoulbound {
             CLIENT.addScheduledTask(new Runnable() {
                 @Override
                 public void run() {
-                    final ISoulboundComponent component = component;
+                    final ISoulboundItemComponent component = component;
                     final IItem item = item;
                     final PlayerEntity player = player;
 

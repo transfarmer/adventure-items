@@ -19,7 +19,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import transfarmer.farmerlib.util.CollectionUtil;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
 
 import javax.annotation.Nonnull;
@@ -172,7 +171,7 @@ public class SoulboundArmoryCommand implements Command<ServerCommandSource> {
                         : (PlayerEntityMP) sender;
 
                 if (player != null) {
-                    final ISoulboundComponent component = SoulboundItemUtil.getFirstComponent(player, (Item) null);
+                    final ISoulboundItemComponent component = SoulboundItemUtil.getFirstComponent(player, (Item) null);
 
                     if (component == null) {
                         this.sendUsage(sender, true);

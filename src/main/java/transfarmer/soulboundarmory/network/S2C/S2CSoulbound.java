@@ -2,20 +2,19 @@ package transfarmer.soulboundarmory.network.S2C;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.statistics.IItem;
 
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 
 public abstract class S2CSoulbound implements IExtendedMessage {
-    protected ISoulboundComponent component;
+    protected ISoulboundItemComponent component;
     protected IItem item;
     protected PlayerEntity player;
 
     public S2CSoulbound() {}
 
-    public S2CSoulbound(final ISoulboundComponent component, final IItem item) {
+    public S2CSoulbound(final ISoulboundItemComponent component, final IItem item) {
         this.component = component;
         this.item = item;
     }

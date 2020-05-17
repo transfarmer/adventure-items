@@ -2,26 +2,20 @@ package transfarmer.soulboundarmory.network.common;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import nerdhub.cardinal.components.api.component.Component;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
-import transfarmer.farmerlib.util.EntityUtil;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
-import transfarmer.soulboundarmory.statistics.IItem;
+import transfarmer.farmerlib.entity.EntityUtil;
+import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
 public class ExtendedPacketBuffer extends PacketByteBuf {
-    public ExtendedPacketBuffer(final ISoulboundComponent component, final IItem item) {
-        this(component);
-
-        this.writeString(item.toString());
-    }
-
-    public ExtendedPacketBuffer(final ISoulboundComponent component) {
+    public ExtendedPacketBuffer(final ISoulboundItemComponent<? extends Component> component) {
         this();
 
         this.writeIdentifier(component.getComponentType().getId());

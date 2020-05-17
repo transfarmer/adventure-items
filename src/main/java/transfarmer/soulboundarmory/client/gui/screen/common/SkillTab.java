@@ -1,16 +1,17 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import nerdhub.cardinal.components.api.component.Component;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import transfarmer.soulboundarmory.client.gui.RGBASlider;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
 import transfarmer.soulboundarmory.skill.Skill;
+import transfarmer.soulboundarmory.skill.SkillContainer;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,14 +24,13 @@ import java.util.Map;
 import static transfarmer.soulboundarmory.statistics.StatisticType.SKILL_POINTS;
 
 @Environment(EnvType.CLIENT)
-public class SkillsTab extends SoulboundTab {
-    protected static final SpriteAtlasTexture BACKGROUND = ExtendedScreen.getSprite(Blocks.STONE, 5);
-    protected static final Identifier BACKGROUND_TEXTURE = ExtendedScreen.getTexture(BACKGROUND);
+public class SkillTab extends SoulboundTab {
+    protected static final Identifier BACKGROUND_TEXTURE = new Identifier("textures/block/andesite.png");
     protected static final Identifier WINDOW = new Identifier("textures/gui/advancements/window.png");
     protected static final Identifier WIDGETS = new Identifier("textures/gui/advancements/widgets.png");
 
-    protected final Map<Skill, List<Integer>> skills;
-    protected Skill selectedSkill;
+    protected final Map<SkillContainer, List<Integer>> skills;
+    protected SkillContainer selectedSkill;
     protected float chroma;
     protected int windowWidth;
     protected int windowHeight;
@@ -43,15 +43,15 @@ public class SkillsTab extends SoulboundTab {
     protected int x;
     protected int y;
 
-    public SkillsTab(final Component<? extends ISoulboundComponent> key, final List<ScreenTab> tabs) {
-        super(key, tabs);
+    public SkillTab(final ISoulboundItemComponent<? extends Component> component, final List<ScreenTab> tabs) {
+        super(Mappings.MENU_SKILLS, component, tabs);
 
         this.skills = new LinkedHashMap<>();
     }
 
     @Override
-    protected String getLabel() {
-        return Mappings.MENU_BUTTON_SKILLS;
+    protected Text getLabel() {
+        return Mappings.MENU_SKILLS;
     }
 
     @Override
@@ -77,8 +77,10 @@ public class SkillsTab extends SoulboundTab {
     protected void initOptions() {
         super.initOptions();
 
-        if (this.alphaSlider != null && this.alphaSlider.x < this.x + this.windowWidth) {
-            this.buttonList.removeAll(this.options);
+        final RGBASlider slider = this.rgbaSliders.get(0);
+
+        if (slider != null && slider.x < this.x + this.windowWidth) {
+            this.buttons.removeAll(this.options);
         }
     }
 
@@ -99,21 +101,21 @@ public class SkillsTab extends SoulboundTab {
         RenderSystem.enableBlend();
 
         TEXTURE_MANAGER.bindTexture(BACKGROUND_TEXTURE);
-        this.withZ(-250, () -> this.drawRectWithCustomSizedTexture(x + 4, y + 4, 0, 0, this.windowWidth - 8, this.windowHeight - 8, BACKGROUND.getIconWidth(), BACKGROUND.getIconHeight()));
+        this.renderBackground(BACKGROUND_TEXTURE, this.x, this.y, this.insideWidth, this.insideHeight, 0);
 
         this.setChroma(1F);
         TEXTURE_MANAGER.bindTexture(WINDOW);
         this.withZ(-200, () -> this.drawVerticalInterpolatedTexturedRect(x, y, 0, 0, 22, 126, 140, this.windowWidth, this.windowHeight));
 
         final int color = 0x404040;
-        final int points = this.component.getDatum(this.item, SKILL_POINTS);
+        final int points = this.component.getDatum(SKILL_POINTS);
 
-        TEXT_RENDERER.drawString(Mappings.MENU_BUTTON_SKILLS, x + 8, y + 6, color);
+        TEXT_RENDERER.draw(Mappings.MENU_SKILLS.toString(), x + 8, y + 6, color);
 
         if (points > 0) {
             final String text = String.format("%s: %d", Mappings.MENU_UNSPENT_POINTS, points);
 
-            TEXT_RENDERER.drawString(text, rightX - TEXT_RENDERER.getStringWidth(text), y + 6, color);
+            TEXT_RENDERER.draw(text, rightX - TEXT_RENDERER.getStringWidth(text), y + 6, color);
         }
 
         final float delta = 20F * partialTicks / 255F;
@@ -125,10 +127,10 @@ public class SkillsTab extends SoulboundTab {
     }
 
     protected void drawSkills(final int mouseX, final int mouseY) {
-        final Skill[] skills = this.skills.keySet().toArray(new Skill[0]);
+        final List<SkillContainer> skills = new ArrayList<>(this.skills.keySet());
 
-        for (int i = 0, skillsLength = skills.length; i < skillsLength; i++) {
-            final Skill skill = skills[i];
+        for (int i = 0, skillsLength = skills.size(); i < skillsLength; i++) {
+            final SkillContainer skill = skills.get(i);
 
             if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
                 this.selectedSkill = skill;
@@ -142,7 +144,7 @@ public class SkillsTab extends SoulboundTab {
         }
     }
 
-    protected void drawSkill(final Skill skill, final int mouseX, final int mouseY) {
+    protected void drawSkill(final SkillContainer skill, final int mouseX, final int mouseY) {
         final List<Integer> positions = this.skills.get(skill);
 
         if (positions != null) {
@@ -150,11 +152,11 @@ public class SkillsTab extends SoulboundTab {
         }
     }
 
-    protected void drawSkill(final Skill skill, final int mouseX, final int mouseY, final int X, final int Y) {
+    protected void drawSkill(final SkillContainer skill, final int mouseX, final int mouseY, final int X, final int Y) {
         final int width = 16;
         final int height = 16;
         final int offsetV = skill.isLearned() ? 26 : 0;
-        final int color;
+        final float[] color = new float[3];
         final int x = X - width / 2;
         final int y = Y - height / 2;
 
@@ -165,23 +167,24 @@ public class SkillsTab extends SoulboundTab {
                 this.drawTooltip(skill, x, y, offsetV);
             }
 
-            color = 0xFFFFFFFF;
+            color[0] = color[1] = color[2] = 1;
         } else {
             this.setChroma(this.chroma);
-            this.blitOffset -= 50;
+            this.addBlitOffset(-50);
 
-            color = new Color(this.chroma, this.chroma, this.chroma).getRGB();
+            color[0] = color[1] = color[2] = this.chroma;
         }
 
         TEXTURE_MANAGER.bindTexture(WIDGETS);
-        this.drawTexturedModalRect(x - 4, y - 4, 1, 155 - offsetV, 24, 24);
+        this.blit(x - 4, y - 4, 1, 155 - offsetV, 24, 24);
 
-        skill.getGUI().render(x, y, color, this.blitOffset);
+        RenderSystem.color3f(color[0], color[1], color[2]);
+        skill.render(this, x, y, this.getBlitOffset());
 
-        this.blitOffset = 0;
+        this.setBlitOffset(0);
     }
 
-    protected void drawTooltip(final Skill skill, final int getX(), final int getY(), final int offsetV) {
+    protected void drawTooltip(final SkillContainer skill, final int centerX, final int centerY, final int offsetV) {
         final String name = skill.getName();
         List<String> tooltip = skill.getTooltip();
         int barWidth = 36 + TEXT_RENDERER.getStringWidth(name);
@@ -191,51 +194,51 @@ public class SkillsTab extends SoulboundTab {
 
             if (size > 0) {
                 final boolean learned = skill.isLearned();
-                final boolean aboveCenter = getY() > this.centerY;
+                final boolean aboveCenter = centerY > this.centerY;
                 final int direction = aboveCenter ? -1 : 1;
-                final int y = getY() + (aboveCenter ? -16 : 14);
+                final int y = centerY + (aboveCenter ? -16 : 14);
                 final int textY = y + (aboveCenter ? -5 : 7);
                 String string = "";
 
                 if (!learned) {
                     final int cost = skill.getCost();
-                    final String plural = cost > 1 ? Mappings.MENU_POINTS : Mappings.MENU_POINT;
-                    string = String.format(Mappings.MENU_SKILL_LEARN_COST, cost, plural);
-                } else if (skill instanceof Skill) {
-                    string = String.format("%s %d", Mappings.MENU_LEVEL, ((Skill) skill).getLevel());
+                    final Text plural = cost > 1 ? Mappings.MENU_POINTS : Mappings.MENU_POINT;
+                    string = String.format(Mappings.MENU_SKILL_LEARN_COST.asFormattedString(), cost, plural);
+                } else if (skill.canBeUpgraded()) {
+                    string = String.format("%s %d", Mappings.MENU_LEVEL, skill.getLevel());
                 }
 
                 barWidth = 12 + Math.max(barWidth, 8 + TEXT_RENDERER.getStringWidth(string));
                 tooltip = this.wrap(barWidth, tooltip.toArray(new String[0]));
                 size = tooltip.size();
                 barWidth = Math.max(barWidth, 8 + TEXT_RENDERER.getStringWidth(tooltip.stream().max(Comparator.comparingInt(String::length)).get()));
-                final int tooltipHeight = 1 + (1 + size) * TEXT_RENDERER.FONT_HEIGHT;
+                final int tooltipHeight = 1 + (1 + size) * TEXT_RENDERER.fontHeight;
 
-                if (!learned || skill instanceof Skill) {
+                if (!learned || skill.canBeUpgraded()) {
                     this.setChroma(1);
 
                     TEXTURE_MANAGER.bindTexture(WIDGETS);
-                    this.drawHorizontalInterpolatedTexturedRect(getX() - 8, y + tooltipHeight, 0, 55, 2, 198, 200, barWidth, 20);
+                    this.drawHorizontalInterpolatedTexturedRect(centerX - 8, y + tooltipHeight, 0, 55, 2, 198, 200, barWidth, 20);
 
-                    TEXT_RENDERER.drawString(string, getX() - 3, textY + direction * (size + 1) * TEXT_RENDERER.FONT_HEIGHT, 0x999999);
+                    TEXT_RENDERER.draw(string, centerX - 3, textY + direction * (size + 1) * TEXT_RENDERER.fontHeight, 0x999999);
                 }
 
                 this.setChroma(1);
 
                 TEXTURE_MANAGER.bindTexture(WIDGETS);
-                this.drawInterpolatedTexturedRect(getX() - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, tooltipHeight);
+                this.drawInterpolatedTexturedRect(centerX - 8, y, 0, 55, 2, 57, 198, 73, 200, 75, barWidth, tooltipHeight);
 
                 for (int i = 0; i < size; i++) {
-                    TEXT_RENDERER.drawString(tooltip.get(i), getX() - 3, textY + direction * i * TEXT_RENDERER.FONT_HEIGHT, 0x999999);
+                    TEXT_RENDERER.draw(tooltip.get(i), centerX - 3, textY + direction * i * TEXT_RENDERER.fontHeight, 0x999999);
                 }
             }
 
             this.setChroma(1);
 
             TEXTURE_MANAGER.bindTexture(WIDGETS);
-            this.drawHorizontalInterpolatedTexturedRect(getX() - 8, getY() - 2, 0, 29 - offsetV, 2, 198, 200, barWidth, 20);
+            this.drawHorizontalInterpolatedTexturedRect(x - 8, y - 2, 0, 29 - offsetV, 2, 198, 200, barWidth, 20);
 
-            TEXT_RENDERER.drawString(name, getX() + 24, getY() + 4, 0xFFFFFF);
+            TEXT_RENDERER.draw(name, x + 24, y + 4, 0xFFFFFF);
         }
     }
 
@@ -243,8 +246,8 @@ public class SkillsTab extends SoulboundTab {
         return this.getSelectedSkill(mouseX, mouseY) != null;
     }
 
-    protected Skill getSelectedSkill(final int mouseX, final int mouseY) {
-        for (final Skill skill : this.skills.keySet()) {
+    protected SkillContainer getSelectedSkill(final double mouseX, final double mouseY) {
+        for (final SkillContainer skill : this.skills.keySet()) {
             if (this.isMouseOverSkill(skill, mouseX, mouseY)) {
                 return skill;
             }
@@ -253,24 +256,24 @@ public class SkillsTab extends SoulboundTab {
         return null;
     }
 
-    protected boolean isMouseOverSkill(final Skill skill, final int mouseX, final int mouseY) {
+    protected boolean isMouseOverSkill(final SkillContainer skill, final double mouseX, final double mouseY) {
         final List<Integer> positions = this.skills.get(skill);
 
         return Math.abs(positions.get(0) - mouseX) <= 12 && Math.abs(positions.get(1) - mouseY) <= 12;
     }
 
     protected void setChroma(final float chroma) {
-        RenderSystem.color(chroma, chroma, chroma);
+        RenderSystem.color3f(chroma, chroma, chroma);
     }
 
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int mouseButton) {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
-        final Skill skill = this.getSelectedSkill(mouseX, mouseY);
+        final SkillContainer skill = this.getSelectedSkill(mouseX, mouseY);
 
         if (skill != null) {
-            this.component.upgradeSkill(this.item, skill);
+            this.component.upgradeSkill(skill);
         }
         return false;
     }
@@ -288,9 +291,9 @@ public class SkillsTab extends SoulboundTab {
         this.skills.clear();
 
         final Map<Integer, List<Integer>> tierOrders = new HashMap<>();
-        final List<Skill> skills = this.component.getSkills(this.item);
+        final List<SkillContainer> skills = this.component.getSkills();
 
-        for (final Skill skill : skills) {
+        for (final SkillContainer skill : skills) {
             final int tier = skill.getTier();
             final List<Integer> data = tierOrders.getOrDefault(tier, new ArrayList<>(Collections.nCopies(3, 0)));
 
@@ -311,7 +314,7 @@ public class SkillsTab extends SoulboundTab {
             }
         }
 
-        for (final Skill skill : skills) {
+        for (final SkillContainer skill : skills) {
             final int tier = skill.getTier();
             final List<Integer> data = tierOrders.getOrDefault(tier, new ArrayList<>(Collections.nCopies(3, 0)));
             data.set(0, data.get(0) + 1);
@@ -330,7 +333,7 @@ public class SkillsTab extends SoulboundTab {
                 int total = 0;
 
                 for (final Skill other : dependencies) {
-                    total += this.skills.get(other).get(0);
+                    total += this.skills.get(this.component.getSkill(other)).get(0);
                 }
 
                 x += total / dependencies.size();

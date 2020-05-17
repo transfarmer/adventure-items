@@ -1,5 +1,6 @@
 package transfarmer.soulboundarmory.client.gui.screen.weapon;
 
+import net.minecraft.text.Text;
 import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.SelectionTab;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
@@ -20,7 +21,7 @@ public class WeaponSelectionTab extends SelectionTab {
     }
 
     @Override
-    protected String getLabel() {
+    protected Text getLabel() {
         return Mappings.MENU_SELECTION;
     }
 }

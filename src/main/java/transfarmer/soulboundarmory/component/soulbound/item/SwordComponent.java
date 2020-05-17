@@ -4,16 +4,18 @@ import nerdhub.cardinal.components.api.ComponentType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
-import transfarmer.soulboundarmory.skill.common.NourishmentSkill;
-import transfarmer.soulboundarmory.skill.sword.SummonLightningSkill;
+import transfarmer.soulboundarmory.skill.Skills;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
-import transfarmer.soulboundarmory.statistics.Statistics;
 import transfarmer.soulboundarmory.statistics.StatisticType;
+import transfarmer.soulboundarmory.statistics.Statistics;
 
 import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
@@ -41,11 +43,11 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBU
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 
-public class SwordComponent extends SoulboundItemComponent<SwordComponent> implements ISwordComponent {
+public class SwordComponent extends SoulboundWeaponComponent<ISwordComponent> implements ISwordComponent {
     protected int lightningCooldown;
 
-    public SwordComponent(final ItemStack itemStack) {
-        super(itemStack);
+    public SwordComponent(final ItemStack itemStack, final PlayerEntity player) {
+        super(itemStack, player);
 
         this.statistics = Statistics.builder()
                 .category(DATUM, XP, LEVEL, SKILL_POINTS, ATTRIBUTE_POINTS, ENCHANTMENT_POINTS, SPENT_ATTRIBUTE_POINTS, SPENT_ENCHANTMENT_POINTS)
@@ -58,13 +60,12 @@ public class SwordComponent extends SoulboundItemComponent<SwordComponent> imple
                     && (enchantment == IMPACT || !name.contains("soulbound")) && !name.contains("holding")
                     && !name.contains("mending");
         });
-        this.skillStorage = new SkillStorage(new NourishmentSkill(), new SummonLightningSkill());
-);
+        this.skillStorage = new SkillStorage(Skills.NOURISHMENT, Skills.SUMMON_LIGHTNING);
     }
 
     @Nonnull
     @Override
-    public ComponentType<SwordComponent> getComponentType() {
+    public ComponentType<ISwordComponent> getComponentType() {
         return SWORD_COMPONENT;
     }
 
@@ -81,7 +82,7 @@ public class SwordComponent extends SoulboundItemComponent<SwordComponent> imple
     @Override
     public void resetLightningCooldown() {
         if (!this.getPlayer().isCreative()) {
-            this.lightningCooldown = (int) Math.round(96 / this.getAttribute(this.item, ATTACK_SPEED));
+            this.lightningCooldown = (int) Math.round(96 / this.getAttribute(ATTACK_SPEED));
         }
     }
 
@@ -126,6 +127,20 @@ public class SwordComponent extends SoulboundItemComponent<SwordComponent> imple
     }
 
     @Override
+    public Item getConsumableItem() {
+        return Items.WOODEN_SWORD;
+    }
+
+    @Override
+    public void tick() {
+        if (!this.isClient) {
+            if (this.lightningCooldown > 0) {
+                this.lightningCooldown--;
+            }
+        }
+    }
+
+    @Override
     public void fromTag(@Nonnull final CompoundTag tag) {
         super.fromTag(tag);
 
@@ -134,7 +149,11 @@ public class SwordComponent extends SoulboundItemComponent<SwordComponent> imple
 
     @Nonnull
     @Override
-    public CompoundTag toTag(@Nonnull final CompoundTag tag) {
-        return super.toTag(tag);
+    public CompoundTag toTag(@Nonnull CompoundTag tag) {
+        tag = super.toTag(tag);
+
+        tag.putInt("lightningCooldown", this.getLightningCooldown());
+
+        return tag;
     }
 }

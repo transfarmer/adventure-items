@@ -3,26 +3,32 @@ package transfarmer.soulboundarmory.component.soulbound.item;
 import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import nerdhub.cardinal.components.api.component.Component;
 import nerdhub.cardinal.components.api.util.ItemComponent;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.farmerlib.item.ItemModifiers;
+import transfarmer.farmerlib.item.ItemUtil;
 import transfarmer.farmerlib.util.IndexedMap;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.MainClient;
+import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
+import transfarmer.soulboundarmory.client.gui.screen.common.SoulboundTab;
 import transfarmer.soulboundarmory.config.MainConfig;
+import transfarmer.soulboundarmory.item.SoulboundItem;
 import transfarmer.soulboundarmory.network.Packets;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 import transfarmer.soulboundarmory.skill.Skill;
+import transfarmer.soulboundarmory.skill.SkillContainer;
+import transfarmer.soulboundarmory.skill.Skills;
 import transfarmer.soulboundarmory.statistics.Category;
 import transfarmer.soulboundarmory.statistics.EnchantmentStorage;
-import transfarmer.soulboundarmory.statistics.IItem;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
 import transfarmer.soulboundarmory.statistics.Statistic;
 import transfarmer.soulboundarmory.statistics.StatisticType;
@@ -37,6 +43,7 @@ import java.util.Map.Entry;
 
 import static net.minecraft.entity.EquipmentSlot.MAINHAND;
 import static net.minecraft.entity.attribute.EntityAttributeModifier.Operation.ADDITION;
+import static transfarmer.soulboundarmory.MainClient.CLIENT;
 import static transfarmer.soulboundarmory.statistics.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.Category.DATUM;
 import static transfarmer.soulboundarmory.statistics.Category.ENCHANTMENT;
@@ -44,7 +51,6 @@ import static transfarmer.soulboundarmory.statistics.Category.SKILL;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_SPEED;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTRIBUTE_POINTS;
-import static transfarmer.soulboundarmory.statistics.StatisticType.CRITICAL_STRIKE_PROBABILITY;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.StatisticType.LEVEL;
 import static transfarmer.soulboundarmory.statistics.StatisticType.REACH;
@@ -53,16 +59,44 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBU
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 
-public abstract class SoulboundItemComponent<C extends SoulboundItemComponent<?>> implements ISoulboundItemComponent<C> {
+public abstract class SoulboundItemComponent<C extends Component> implements ISoulboundItemComponent<C> {
     protected final ItemStack itemStack;
+    protected final PlayerEntity player;
+    protected final boolean isClient;
 
     protected EnchantmentStorage enchantments;
     protected SkillStorage skillStorage;
     protected Statistics statistics;
     protected boolean unlocked;
+    protected int boundSlot;
+    protected int currentTab;
 
-    public SoulboundItemComponent(final ItemStack itemStack) {
+    public SoulboundItemComponent(final ItemStack itemStack, final PlayerEntity player) {
         this.itemStack = itemStack;
+        this.player = player;
+        this.isClient = player.world.isClient;
+
+        REGISTRY.add(this);
+    }
+
+    public static ISoulboundItemComponent<? extends Component> get(final ItemStack itemStack) {
+        for (final ISoulboundItemComponent<? extends Component> component : REGISTRY) {
+            if (component.getItemStack() == itemStack) {
+                return component;
+            }
+        }
+
+        return null;
+    }
+
+    public static boolean isSlotBound(final int slot) {
+        for (final ISoulboundItemComponent<? extends Component> component : REGISTRY) {
+            if (slot == component.getBoundSlot()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -71,8 +105,26 @@ public abstract class SoulboundItemComponent<C extends SoulboundItemComponent<?>
     }
 
     @Override
+    public PlayerEntity getPlayer() {
+        return this.player;
+    }
+
+    @Override
     public Item getItem() {
         return this.itemStack.getItem();
+    }
+
+    @Override
+    public ItemStack getValidEquippedStack() {
+        for (final ItemStack itemStack : this.player.getItemsHand()) {
+            final Item item = itemStack.getItem();
+
+            if (item == this.getItem() || item == this.getConsumableItem()) {
+                return itemStack;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -91,52 +143,42 @@ public abstract class SoulboundItemComponent<C extends SoulboundItemComponent<?>
     }
 
     @Override
-    public Statistic getStatistic(final IItem item, final StatisticType statistic) {
-        return this.statistics.get(item, statistic);
+    public Statistic getStatistic(final StatisticType statistic) {
+        return this.statistics.get(statistic);
     }
 
     @Override
-    public Statistic getStatistic(final IItem item, final Category category, final StatisticType statistic) {
-        return this.statistics.get(item, category, statistic);
+    public Statistic getStatistic(final Category category, final StatisticType statistic) {
+        return this.statistics.get(category, statistic);
     }
 
     @Override
     public int getDatum(final StatisticType statistic) {
-        return this.getDatum(this.item, statistic);
+        return this.statistics.get(statistic).intValue();
     }
 
     @Override
-    public int getDatum(final IItem type, final StatisticType datum) {
-        return this.statistics.get(type, datum).intValue();
+    public void setDatum(final StatisticType datum, final int value) {
+        this.statistics.set(datum, value);
     }
 
     @Override
-    public void setDatum(final IItem type, final StatisticType datum, final int value) {
-        this.statistics.set(type, datum, value);
-    }
-
-    @Override
-    public boolean addDatum(final StatisticType statistic, final int amount) {
-        return this.addDatum(this.item, statistic, amount);
-    }
-
-    @Override
-    public boolean addDatum(final IItem item, final StatisticType datum, final int amount) {
+    public boolean addDatum(final StatisticType datum, final int amount) {
         if (datum == XP) {
-            final int xp = this.statistics.add(item, XP, amount).intValue();
+            final int xp = this.statistics.add(XP, amount).intValue();
 
-            if (xp >= this.getNextLevelXP(item) && this.canLevelUp(item)) {
-                final int nextLevelXP = this.getNextLevelXP(item);
+            if (xp >= this.getNextLevelXP() && this.canLevelUp()) {
+                final int nextLevelXP = this.getNextLevelXP();
 
-                this.addDatum(item, LEVEL, 1);
-                this.addDatum(item, XP, -nextLevelXP);
+                this.addDatum(LEVEL, 1);
+                this.addDatum(XP, -nextLevelXP);
 
                 return true;
             } else if (xp < 0) {
-                final int currentLevelXP = this.getLevelXP(item, this.getDatum(item, LEVEL) - 1);
+                final int currentLevelXP = this.getLevelXP(this.getDatum(LEVEL) - 1);
 
-                this.addDatum(item, LEVEL, -1);
-                this.addDatum(item, XP, currentLevelXP);
+                this.addDatum(LEVEL, -1);
+                this.addDatum(XP, currentLevelXP);
 
                 return false;
             }
@@ -144,10 +186,10 @@ public abstract class SoulboundItemComponent<C extends SoulboundItemComponent<?>
             final int sign = (int) Math.signum(amount);
 
             for (int i = 0; i < Math.abs(amount); i++) {
-                this.onLevel(item, sign);
+                this.onLevelup(sign);
             }
         } else {
-            this.statistics.add(item, datum, amount);
+            this.statistics.add(datum, amount);
         }
 
         return false;
@@ -158,148 +200,95 @@ public abstract class SoulboundItemComponent<C extends SoulboundItemComponent<?>
         return this.statistics.get(statistic).doubleValue();
     }
 
+
+    @Override
+    public double getAttributeRelative(final StatisticType attribute) {
+        if (attribute == REACH) {
+            return this.getAttribute(REACH) - 3;
+        }
+
+        return this.getStatistic(attribute).doubleValue();
+    }
+
     @Override
     public void setAttribute(final StatisticType statistic, final double value) {
         this.statistics.set(statistic, value);
     }
 
     @Override
-    public int getLevelXP(final int level) {
-        return this.canLevelUp()
-                ? MainConfig.instance().getInitialWeaponXP() + 3 * (int) Math.round(Math.pow(level, 1.65))
-                : -1;
+    public boolean canLevelUp() {
+        return this.getDatum(LEVEL) < MainConfig.instance().getMaxLevel() || MainConfig.instance().getMaxLevel() < 0;
     }
 
     @Override
-    public List<Skill> getSkills() {
-        final List<Skill> skills = new ArrayList<>(this.skillStorage.values());
+    public int onLevelup(final int sign) {
+        final int level = this.statistics.add(LEVEL, sign).intValue();
 
-        skills.sort(Comparator.comparingInt(Skill::getTier));
+        if (level % MainConfig.instance().getLevelsPerEnchantment() == 0) {
+            this.addDatum(ENCHANTMENT_POINTS, sign);
+        }
+
+        if (level % MainConfig.instance().getLevelsPerSkill() == 0) {
+            this.addDatum(SKILL_POINTS, sign);
+        }
+
+        this.addDatum(ATTRIBUTE_POINTS, sign);
+
+        return level;
+    }
+
+    @Override
+    public List<SkillContainer> getSkills() {
+        final List<SkillContainer> skills = new ArrayList<>(this.skillStorage.values());
+
+        skills.sort(Comparator.comparingInt(SkillContainer::getTier));
 
         return skills;
     }
 
     @Override
-    public Skill getSkill(final Skill skill) {
-        return this.getSkill(skill.getIdentifier());
+    public SkillContainer getSkill(final Identifier identifier) {
+        return this.getSkill(Skills.get(identifier));
     }
 
     @Override
-    public Skill getSkill(final Identifier identifier) {
-        return (Skill) this.getSkill(identifier);
+    public SkillContainer getSkill(final Skill skill) {
+        return this.skillStorage.get(skill);
     }
 
     @Override
-    public Skill getSkill(final String skill) {
-        return this.getSkill(this.item, skill);
+    public boolean hasSkill(final Identifier identifier) {
+        return this.hasSkill(Skills.get(identifier));
     }
 
     @Override
-    public Skill getSkill(final IItem item, final String skill) {
-        return this.skills.get(item, skill);
+    public boolean hasSkill(final Skill skill) {
+        return this.skillStorage.contains(skill);
     }
 
     @Override
-    public boolean hasSkill(final IItem item, final String skill) {
-        return this.skills.contains(item, skill);
+    public boolean hasSkill(final Skill skill, final int level) {
+        return this.skillStorage.contains(skill, level);
     }
 
     @Override
-    public boolean hasSkill(final IItem item, final Skill skill) {
-        return this.skills.contains(item, skill);
-    }
+    public void upgradeSkill(final SkillContainer skill) {
+//        if (this.isClient) {
+//            MainClient.PACKET_REGISTRY.sendToServer(Packets.C2S_SKILL, new ExtendedPacketBuffer(this, item).writeString(skill.toString()));
+//        } else {
+        final int points = this.getDatum(SKILL_POINTS);
+        final int cost = skill.getCost();
 
-    @Override
-    public boolean hasSkill(final IItem item, final Skill skill, final int level) {
-        return this.skills.contains(item, skill, level);
-    }
+        if (skill.canBeLearned(points)) {
+            skill.learn();
 
-    @SuppressWarnings("VariableUseSideOnly")
-    @Override
-    public void upgradeSkill(final IItem item, final Skill skill) {
-        if (this.isClient) {
-            MainClient.PACKET_REGISTRY.sendToServer(Packets.C2S_SKILL, new ExtendedPacketBuffer(this, item).writeString(skill.toString()));
-        } else {
-            final int points = this.getDatum(SKILL_POINTS);
-            final int cost = skill.getCost();
+            this.addDatum(SKILL_POINTS, -cost);
+        } else if (skill.canBeUpgraded(points)) {
+            skill.upgrade();
 
-            if (skill.canBeLearned(points)) {
-                skill.learn();
-
-                this.addDatum(SKILL_POINTS, -cost);
-            } else if (skill instanceof Skill) {
-                final Skill levelable = (Skill) skill;
-
-                if (levelable.canBeUpgraded(points)) {
-                    levelable.upgrade();
-
-                    this.addDatum(SKILL_POINTS, -cost);
-                }
-            }
+            this.addDatum(SKILL_POINTS, -cost);
         }
-    }
-
-    @Override
-    public double getAttributeRelative(final StatisticType statistic) {
-        if (statistic == ATTACK_SPEED) {
-            return this.getAttribute(ATTACK_SPEED) - 4;
-        }
-
-        if (statistic == ATTACK_DAMAGE) {
-            return this.getAttribute(ATTACK_DAMAGE) - 1;
-        }
-
-        if (statistic == REACH) {
-            return this.getAttribute(REACH) - 3;
-        }
-
-        return this.getStatistic(statistic).doubleValue();
-    }
-
-    @Override
-    public double getAttributeTotal(final StatisticType statistic) {
-        if (statistic == ATTACK_DAMAGE) {
-            double attackDamage = this.getAttribute(ATTACK_DAMAGE);
-
-            for (final Enchantment enchantment : this.enchantments) {
-                attackDamage += enchantment.getAttackDamage(this.getEnchantment(enchantment), EntityGroup.DEFAULT);
-            }
-
-            return attackDamage;
-        }
-
-        return this.getAttribute(statistic);
-    }
-
-
-    @Override
-    public void addAttribute(final StatisticType attribute, final int amount) {
-        final int sign = (int) Math.signum(amount);
-
-        for (int i = 0; i < Math.abs(amount); i++) {
-            if (sign > 0 && this.getDatum(ATTRIBUTE_POINTS) > 0 || sign < 0 && this.getDatum(SPENT_ATTRIBUTE_POINTS) > 0) {
-                this.addDatum(ATTRIBUTE_POINTS, -sign);
-                this.addDatum(SPENT_ATTRIBUTE_POINTS, sign);
-
-                final double change = sign * this.getIncrease(attribute);
-
-                if ((attribute.equals(CRITICAL_STRIKE_PROBABILITY) && this.getAttribute(CRITICAL_STRIKE_PROBABILITY) + change >= 1)) {
-                    this.setAttribute(attribute, 1);
-
-                    return;
-                }
-
-                final Statistic statistic = this.statistics.get(attribute);
-
-                if (this.getAttribute(attribute) + change <= statistic.min()) {
-                    this.setAttribute(attribute, statistic.min());
-
-                    return;
-                }
-
-                this.statistics.add(attribute, change);
-            }
-        }
+//        }
     }
 
     @Override
@@ -372,12 +361,87 @@ public abstract class SoulboundItemComponent<C extends SoulboundItemComponent<?>
 
     @Override
     public boolean canUnlock() {
-        return !this.unlocked && this.canConsume(this.getEquippedItemStack().getItem());
+        return !this.unlocked && ItemUtil.isItemEquipped(this.player, this.getItem());
     }
 
     @Override
     public boolean canConsume(final Item item) {
         return this.getConsumableItem() == item;
+    }
+
+    @Override
+    public int getBoundSlot() {
+        return this.boundSlot;
+    }
+
+    @Override
+    public void bindSlot(final int boundSlot) {
+        this.boundSlot = boundSlot;
+    }
+
+    @Override
+    public void unbindSlot() {
+        this.boundSlot = -1;
+    }
+
+    @Override
+    public int getCurrentTab() {
+        return this.currentTab;
+    }
+
+    @Override
+    public void setCurrentTab(final int tab) {
+        this.currentTab = tab;
+
+//        if (this.isClient) {
+//            this.sync();
+//        }
+    }
+
+    @SuppressWarnings("VariableUseSideOnly")
+    @Override
+    public void refresh() {
+        if (this.isClient) {
+            if (CLIENT.currentScreen instanceof SoulboundTab) {
+                final List<Item> handItems = ItemUtil.getHandItems(this.player);
+
+                if (handItems.contains(this.getItem())) {
+                    this.openGUI();
+                } else if (handItems.contains(this.getConsumableItem())) {
+                    this.openGUI(0);
+                }
+            }
+        } else {
+            Main.PACKET_REGISTRY.sendToPlayer(this.player, Packets.S2C_REFRESH, new ExtendedPacketBuffer(this));
+        }
+    }
+
+    @Override
+    public void openGUI() {
+        this.openGUI(ItemUtil.getEquippedItemStack(this.player.inventory, SoulboundItem.class) == null ? 0 : this.currentTab);
+    }
+
+    @SuppressWarnings({"LocalVariableDeclarationSideOnly", "VariableUseSideOnly", "MethodCallSideOnly"})
+    @Override
+    public void openGUI(final int tab) {
+        if (this.isClient) {
+            final Screen currentScreen = CLIENT.currentScreen;
+
+            if (currentScreen instanceof SoulboundTab && this.currentTab == tab) {
+                ((SoulboundTab) currentScreen).refresh();
+            } else {
+                final List<ScreenTab> tabs = this.getTabs();
+
+                CLIENT.openScreen(tabs.get(MathHelper.clamp(tab, 0, tabs.size() - 1)));
+            }
+        } else {
+            Main.PACKET_REGISTRY.sendToPlayer(this.player, Packets.S2C_OPEN_GUI, new ExtendedPacketBuffer(this).writeInt(tab));
+        }
+    }
+
+    @Override
+    public boolean isItemEquipped() {
+        return ItemUtil.isItemEquipped(this.player, this.getItem());
     }
 
     @Override
@@ -406,7 +470,9 @@ public abstract class SoulboundItemComponent<C extends SoulboundItemComponent<?>
         this.statistics.fromTag(tag.getCompound("statistics"));
         this.enchantments.fromTag(tag.getCompound("enchantments"));
         this.skillStorage.fromTag(tag.getCompound("skills"));
+        this.bindSlot(tag.getInt("slot"));
         this.unlocked = tag.getBoolean("unlocked");
+        this.setCurrentTab(tag.getInt("tab"));
     }
 
     @Nonnull
@@ -414,9 +480,23 @@ public abstract class SoulboundItemComponent<C extends SoulboundItemComponent<?>
     public CompoundTag toTag(@Nonnull final CompoundTag tag) {
         tag.put("statistics", this.statistics.toTag(new CompoundTag()));
         tag.put("enchantments", this.enchantments.toTag(new CompoundTag()));
-        tag.put("skills", this.skillStorage.toTag());
+        tag.put("skills", this.skillStorage.toTag(new CompoundTag()));
         tag.putBoolean("unlocked", this.unlocked);
+        tag.putInt("slot", this.getBoundSlot());
+        tag.putInt("tab", this.getCurrentTab());
 
         return tag;
     }
+
+    @Override
+    public CompoundTag toClientTag() {
+        final CompoundTag tag = new CompoundTag();
+
+        tag.putInt("tab", this.currentTab);
+
+        return tag;
+    }
+
+    @Override
+    public void tick() {}
 }

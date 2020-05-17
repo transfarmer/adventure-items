@@ -1,13 +1,16 @@
 package transfarmer.soulboundarmory.skill;
 
 import nerdhub.cardinal.components.api.util.NbtSerializable;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
+import transfarmer.soulboundarmory.client.gui.screen.common.ExtendedScreen;
 import transfarmer.soulboundarmory.statistics.SkillStorage;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class SkillContainer implements NbtSerializable {
+public class SkillContainer implements Comparable<SkillContainer>, NbtSerializable {
     protected final Skill skill;
     protected final int maxLevel;
     protected final SkillStorage storage;
@@ -37,6 +40,10 @@ public class SkillContainer implements NbtSerializable {
 
     public boolean hasDependencies() {
         return this.skill.hasDependencies();
+    }
+
+    public int getTier() {
+        return this.skill.getTier();
     }
 
     public int getLevel() {
@@ -85,8 +92,26 @@ public class SkillContainer implements NbtSerializable {
         this.learned = true;
     }
 
+    @Override
     public int compareTo(@Nonnull final SkillContainer other) {
-        return this.getLevel() - other.getLevel();
+        final int tierDifference = this.skill.getTier() - other.skill.getTier();
+
+        return tierDifference != 0 ? tierDifference : this.getLevel() - other.getLevel();
+    }
+
+    @Environment(EnvType.CLIENT)
+    public String getName() {
+        return this.skill.getName();
+    }
+
+    @Environment(EnvType.CLIENT)
+    public List<String> getTooltip() {
+        return this.skill.getTooltip();
+    }
+
+    @Environment(EnvType.CLIENT)
+    public void render(final ExtendedScreen screen, final int x, final int y, final int blitOffset) {
+        this.skill.render(screen, this.level, x, y, blitOffset);
     }
 
     @Nonnull

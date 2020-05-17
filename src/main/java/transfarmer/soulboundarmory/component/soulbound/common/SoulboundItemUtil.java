@@ -1,23 +1,22 @@
 package transfarmer.soulboundarmory.component.soulbound.common;
 
 import com.google.common.collect.Multimap;
+import nerdhub.cardinal.components.api.component.Component;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.util.DefaultedList;
-import transfarmer.farmerlib.util.CollectionUtil;
-import transfarmer.farmerlib.util.ItemUtil;
+import transfarmer.farmerlib.collection.CollectionUtil;
+import transfarmer.farmerlib.item.ItemUtil;
 import transfarmer.soulboundarmory.component.config.IConfigComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.SoulboundItemComponent;
 import transfarmer.soulboundarmory.item.SoulboundItem;
-import transfarmer.soulboundarmory.item.SoulboundToolItem;
 import transfarmer.soulboundarmory.item.SoulboundWeaponItem;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -27,51 +26,16 @@ import static net.minecraft.entity.EquipmentSlot.MAINHAND;
 public class SoulboundItemUtil {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
 
-    public static ISoulboundComponent getFirstHeldComponent(final PlayerEntity player) {
-        final ISoulboundComponent component = getFirstComponent(player, player.getMainHandStack());
+    public static ISoulboundItemComponent<? extends Component> getFirstComponent(final PlayerEntity player) {
+        for (final ItemStack itemStack : player.getItemsHand()) {
+            final ISoulboundItemComponent<? extends Component> component = SoulboundItemComponent.get(itemStack);
 
-        if (component == null) {
-            return getFirstComponent(player, player.getOffHandStack());
-        }
-
-        return component;
-    }
-
-    public static ISoulboundComponent getFirstComponent(final PlayerEntity player, final ItemStack itemStack) {
-        return getFirstComponent(player, itemStack.getItem());
-    }
-
-    public static ISoulboundComponent getCurrentComponent(final PlayerEntity player) {
-        return getFirstComponent(player, (Item) null);
-    }
-
-    public static ISoulboundComponent getFirstComponent(final PlayerEntity player, @Nullable Item item) {
-        final boolean passedNull = item == null;
-        ISoulboundComponent component = null;
-
-        if (passedNull) {
-            item = player.getMainHandStack().getItem();
-        }
-
-        if (item instanceof SoulboundWeaponItem) {
-            component = WeaponProvider.get(player);
-        } else if (item instanceof SoulboundToolItem) {
-            component = ToolProvider.get(player);
-        }
-
-        if (component == null) {
-            if (item == Items.WOODEN_SWORD) {
-                component = WeaponProvider.get(player);
-            } else if (item == Items.WOODEN_PICKAXE) {
-                component = ToolProvider.get(player);
+            if (component != null) {
+                return component;
             }
         }
 
-        if (passedNull && component == null) {
-            component = getFirstComponent(player, player.getOffHandStack());
-        }
-
-        return component;
+        return null;
     }
 
     public static boolean isSoulWeaponEquipped(final PlayerEntity player) {
@@ -91,8 +55,6 @@ public class SoulboundItemUtil {
         }
 
         if (!hasReservedSlot) {
-            final int weaponBoundSlot = WeaponProvider.get(player).getBoundSlot();
-            final int toolBoundSlot = ToolProvider.get(player).getBoundSlot();
             int slot = inventory.getOccupiedSlotWithRoomForStack(itemStack);
 
             if (slot == -1) {
@@ -117,7 +79,7 @@ public class SoulboundItemUtil {
             }
 
             for (int index = 0; index < mergedInventory.size(); index++) {
-                if (index != weaponBoundSlot && index != toolBoundSlot && mergedInventory.get(index).isEmpty()) {
+                if (!SoulboundItemComponent.isSlotBound(index) && mergedInventory.get(index).isEmpty()) {
                     if (index != size) {
                         return inventory.insertStack(index, itemStack);
                     }
@@ -132,7 +94,7 @@ public class SoulboundItemUtil {
             return false;
         }
 
-        final int boundSlot = getFirstComponent(player, itemStack.getItem()).getBoundSlot();
+        final int boundSlot = SoulboundItemComponent.get(itemStack).getBoundSlot();
 
         if (boundSlot >= 0) {
             if (inventory.getInvStack(boundSlot).isEmpty()) {

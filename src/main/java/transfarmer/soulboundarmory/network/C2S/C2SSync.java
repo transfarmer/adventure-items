@@ -3,7 +3,6 @@ package transfarmer.soulboundarmory.network.C2S;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import transfarmer.soulboundarmory.component.soulbound.common.ISoulboundComponent;
 import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponComponent;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 
@@ -33,7 +32,7 @@ public class C2SSync implements IExtendedMessage {
         @Override
         public IExtendedMessage onMessage(final C2SSync message, final MessageContext context) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-                final ISoulboundComponent component = context.getServerHandler().player.getComponent(IComponentType.get(component).getComponent(), null);
+                final ISoulboundItemComponent component = context.getServerHandler().player.getComponent(IComponentType.get(component).getComponent(), null);
 
                 if (tag.hasKey("tab")) {
                     component.setCurrentTab(tag.getInt("tab"));
