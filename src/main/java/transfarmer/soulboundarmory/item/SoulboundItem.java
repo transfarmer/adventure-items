@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.item;
 
 import com.google.common.collect.Multimap;
-import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.EquipmentSlot;
@@ -10,6 +9,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import transfarmer.farmerlib.item.ItemModifiers;
+import transfarmer.reachentityattributes.ReachEntityAttributes;
 
 import static net.minecraft.entity.EquipmentSlot.MAINHAND;
 import static net.minecraft.entity.attribute.EntityAttributeModifier.Operation.ADDITION;

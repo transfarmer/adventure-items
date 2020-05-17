@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.item;
 
 import com.google.common.collect.Multimap;
-import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import nerdhub.cardinal.components.api.component.Component;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
@@ -15,6 +14,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import transfarmer.farmerlib.math.MathUtil;
+import transfarmer.reachentityattributes.ReachEntityAttributes;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;

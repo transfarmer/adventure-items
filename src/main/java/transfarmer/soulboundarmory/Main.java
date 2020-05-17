@@ -16,9 +16,7 @@ import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EntityType.EntityFactory;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.Projectile;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +25,7 @@ import transfarmer.soulboundarmory.component.config.ConfigComponent;
 import transfarmer.soulboundarmory.component.config.IConfigComponent;
 import transfarmer.soulboundarmory.component.entity.EntityData;
 import transfarmer.soulboundarmory.component.entity.IEntityData;
+import transfarmer.soulboundarmory.component.soulbound.common.IPlayerSoulboundComponent;
 import transfarmer.soulboundarmory.component.soulbound.common.PlayerSoulboundComponent;
 import transfarmer.soulboundarmory.component.soulbound.item.IDaggerComponent;
 import transfarmer.soulboundarmory.component.soulbound.item.IGreatswordComponent;
@@ -69,12 +68,8 @@ public class Main implements ModInitializer {
     public static final SoulboundPickItem SOULBOUND_PICK_ITEM = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_pick"), new SoulboundPickItem());
 
     public static final ComponentType<IConfigComponent> CONFIG_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "config_component"), IConfigComponent.class).attach(EntityComponentCallback.event(PlayerEntity.class), ConfigComponent::new);
-
-    public static final ComponentType<IEntityData> ENTITY_DATA = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "entity_data"), IEntityData.class).attach(EntityComponentCallback.event(Entity.class), (final Entity entity) ->
-            (entity instanceof LivingEntity || entity instanceof Projectile) && !(entity instanceof SoulboundDaggerEntity)
-                    ? new EntityData(entity) : null
-    );
-    public static final ComponentType<PlayerSoulboundComponent> COMPONENTS = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "components"), PlayerSoulboundComponent.class);
+    public static final ComponentType<IEntityData> ENTITY_DATA = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "entity_data"), IEntityData.class).attach(EntityComponentCallback.event(Entity.class), EntityData::new);
+    public static final ComponentType<IPlayerSoulboundComponent> COMPONENTS = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "components"), IPlayerSoulboundComponent.class).attach(EntityComponentCallback.event(PlayerEntity.class), PlayerSoulboundComponent::new);
     public static final ComponentType<IDaggerComponent> DAGGER_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "dagger"), IDaggerComponent.class);
     public static final ComponentType<ISwordComponent> SWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "sword"), ISwordComponent.class);
     public static final ComponentType<IGreatswordComponent> GREATSWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "greatsword"), IGreatswordComponent.class);
@@ -96,7 +91,6 @@ public class Main implements ModInitializer {
     public void onInitialize() {
         EntityComponents.setRespawnCopyStrategy(CONFIG_COMPONENT, RespawnCopyStrategy.ALWAYS_COPY);
 
-        COMPONENTS.attach(EntityComponentCallback.event(PlayerEntity.class), PlayerSoulboundComponent::new);
 
         PACKET_REGISTRY.register(C2S_ATTRIBUTE, new C2SAttribute());
         PACKET_REGISTRY.register(C2S_BIND_SLOT, new C2SBindSlot());

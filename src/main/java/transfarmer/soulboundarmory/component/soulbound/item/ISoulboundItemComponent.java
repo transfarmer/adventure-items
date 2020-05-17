@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import transfarmer.farmerlib.util.IndexedMap;
 import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
-import transfarmer.soulboundarmory.component.soulbound.common.PlayerSoulboundComponent;
+import transfarmer.soulboundarmory.component.soulbound.common.IPlayerSoulboundComponent;
 import transfarmer.soulboundarmory.skill.Skill;
 import transfarmer.soulboundarmory.skill.SkillContainer;
 import transfarmer.soulboundarmory.statistics.Category;
@@ -58,7 +58,7 @@ public interface ISoulboundItemComponent<C extends Component> extends ItemCompon
 
     ItemStack getItemStack();
 
-    PlayerSoulboundComponent getParent();
+    IPlayerSoulboundComponent getParent();
 
     Item getItem();
 
@@ -155,6 +155,8 @@ public interface ISoulboundItemComponent<C extends Component> extends ItemCompon
     List<ScreenTab> getTabs();
 
     boolean isItemEquipped();
+
+    boolean isAnyItemEquipped();
 
     void tick();
 

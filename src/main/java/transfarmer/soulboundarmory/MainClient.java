@@ -12,6 +12,8 @@ import net.minecraft.client.util.InputUtil.Type;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
+import transfarmer.soulboundarmory.client.keyboard.GUIKeyBinding;
+import transfarmer.soulboundarmory.client.keyboard.ToggleXPBarKeyBinding;
 import transfarmer.soulboundarmory.client.render.SoulboundDaggerEntityRenderer;
 import transfarmer.soulboundarmory.client.render.SoulboundFireballEntityRenderer;
 
@@ -24,12 +26,8 @@ public class MainClient implements ClientModInitializer {
     @Nonnull
     public static final PlayerEntity PLAYER = CLIENT.player;
 
-    public static final FabricKeyBinding GUI_KEY_BINDING = FabricKeyBinding.Builder
-            .create(new Identifier("gui"), Type.KEYSYM, GLFW.GLFW_KEY_R, Main.MOD_NAME)
-            .build();
-    public static final FabricKeyBinding TOGGLE_XP_BAR_KEY_BINDING = FabricKeyBinding.Builder
-            .create(new Identifier("xp_bar"), Type.KEYSYM, GLFW.GLFW_KEY_X, Main.MOD_NAME)
-            .build();
+    public static final FabricKeyBinding GUI_KEY_BINDING = new GUIKeyBinding(new Identifier(Main.MOD_ID, "gui"), Type.KEYSYM, GLFW.GLFW_KEY_R, Main.MOD_NAME);
+    public static final FabricKeyBinding TOGGLE_XP_BAR_KEY_BINDING = new ToggleXPBarKeyBinding(new Identifier(Main.MOD_ID, "xp_bar"), Type.KEYSYM, GLFW.GLFW_KEY_X, Main.MOD_NAME);
 
     public static final ClientSidePacketRegistry PACKET_REGISTRY = ClientSidePacketRegistry.INSTANCE;
 

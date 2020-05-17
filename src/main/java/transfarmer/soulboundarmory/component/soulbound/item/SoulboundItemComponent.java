@@ -1,6 +1,5 @@
 package transfarmer.soulboundarmory.component.soulbound.item;
 
-import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import nerdhub.cardinal.components.api.component.Component;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
 import nerdhub.cardinal.components.api.util.ItemComponent;
@@ -18,10 +17,11 @@ import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.farmerlib.item.ItemModifiers;
 import transfarmer.farmerlib.item.ItemUtil;
 import transfarmer.farmerlib.util.IndexedMap;
+import transfarmer.reachentityattributes.ReachEntityAttributes;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.SoulboundTab;
-import transfarmer.soulboundarmory.component.soulbound.common.PlayerSoulboundComponent;
+import transfarmer.soulboundarmory.component.soulbound.common.IPlayerSoulboundComponent;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.SoulboundItem;
 import transfarmer.soulboundarmory.network.Packets;
@@ -41,9 +41,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import static net.minecraft.entity.EquipmentSlot.MAINHAND;
 import static net.minecraft.entity.attribute.EntityAttributeModifier.Operation.ADDITION;
 import static transfarmer.soulboundarmory.Main.COMPONENTS;
 import static transfarmer.soulboundarmory.MainClient.CLIENT;
@@ -65,7 +63,7 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 public abstract class SoulboundItemComponent<C extends Component> implements ISoulboundItemComponent<C> {
     protected final ItemStack itemStack;
     protected final PlayerEntity player;
-    protected final PlayerSoulboundComponent parent;
+    protected final IPlayerSoulboundComponent parent;
     protected final boolean isClient;
 
     protected EnchantmentStorage enchantments;
@@ -90,7 +88,7 @@ public abstract class SoulboundItemComponent<C extends Component> implements ISo
     }
 
     @Override
-    public PlayerSoulboundComponent getParent() {
+    public IPlayerSoulboundComponent getParent() {
         return this.parent;
     }
 
@@ -435,22 +433,27 @@ public abstract class SoulboundItemComponent<C extends Component> implements ISo
     }
 
     @Override
+    public boolean isAnyItemEquipped() {
+        return this.getValidEquippedStack() != null;
+    }
+
+    @Override
     public ItemStack getItemStack() {
-        final ItemStack itemStack = new ItemStack(this.getItem());
-        final Map<String, EntityAttributeModifier> attributeModifiers = this.getModifiers();
-        final Map<Enchantment, Integer> enchantments = this.getEnchantments();
-
-        for (final String name : attributeModifiers.keySet()) {
-            itemStack.addAttributeModifier(name, attributeModifiers.get(name), MAINHAND);
-        }
-
-        for (final Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
-            final Integer level = entry.getValue();
-
-            if (level > 0) {
-                itemStack.addEnchantment(entry.getKey(), level);
-            }
-        }
+//        final ItemStack itemStack = new ItemStack(this.getItem());
+//        final Map<String, EntityAttributeModifier> attributeModifiers = this.getModifiers();
+//        final Map<Enchantment, Integer> enchantments = this.getEnchantments();
+//
+//        for (final String name : attributeModifiers.keySet()) {
+//            itemStack.addAttributeModifier(name, attributeModifiers.get(name), MAINHAND);
+//        }
+//
+//        for (final Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+//            final Integer level = entry.getValue();
+//
+//            if (level > 0) {
+//                itemStack.addEnchantment(entry.getKey(), level);
+//            }
+//        }
 
         return itemStack;
     }
