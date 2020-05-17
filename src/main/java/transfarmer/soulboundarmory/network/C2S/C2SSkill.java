@@ -1,16 +1,14 @@
 package transfarmer.soulboundarmory.network.C2S;
 
 import net.fabricmc.fabric.api.network.PacketContext;
-import transfarmer.soulboundarmory.network.common.ComponentPacket;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.statistics.ISkillType;
+import transfarmer.soulboundarmory.network.common.ItemComponentPacket;
+import transfarmer.soulboundarmory.skill.Skills;
 
-public class C2SSkill extends ComponentPacket {
+public class C2SSkill extends ItemComponentPacket {
     @Override
     protected void accept(final PacketContext context, final ExtendedPacketBuffer buffer) {
-        super.accept(context, buffer);
-
-        this.component.upgradeSkill(this.item, this.component.getSkill(item, ISkillType.get(buffer.readString()).toString()));
-        this.component.sync();
+        this.component.upgradeSkill(this.component.getSkill(Skills.get(buffer.readString())));
+//        this.component.sync();
     }
 }

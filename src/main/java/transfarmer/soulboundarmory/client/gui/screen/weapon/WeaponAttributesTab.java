@@ -1,13 +1,15 @@
 package transfarmer.soulboundarmory.client.gui.screen.weapon;
 
+import nerdhub.cardinal.components.api.component.Component;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import transfarmer.soulboundarmory.client.gui.screen.common.AttributeTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
+import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
+import transfarmer.soulboundarmory.statistics.StatisticType;
 
 import java.util.List;
 
-import static transfarmer.soulboundarmory.Main.WEAPONS;
 import static transfarmer.soulboundarmory.statistics.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_SPEED;
@@ -18,8 +20,9 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.KNOCKBACK;
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBUTE_POINTS;
 
 public class WeaponAttributesTab extends AttributeTab {
-    public WeaponAttributesTab(final List<ScreenTab> tabs) {
-        super(WEAPONS, tabs);
+    public WeaponAttributesTab(final ISoulboundItemComponent<? extends Component> component,
+                               final List<ScreenTab> tabs) {
+        super(component, tabs);
     }
 
     @Override
@@ -30,18 +33,18 @@ public class WeaponAttributesTab extends AttributeTab {
         final int start = (this.height - (size - 1) * this.height / 16) / 2;
         final ButtonWidget resetButton = this.addButton(this.resetButton(this.resetAction(ATTRIBUTE)));
 
-        resetButton.active = this.component.getDatum(this.item, SPENT_ATTRIBUTE_POINTS) > 0;
+        resetButton.active = this.component.getDatum(SPENT_ATTRIBUTE_POINTS) > 0;
 
         for (int index = 0; index < size; index++) {
             final ButtonWidget add = this.addButton(squareButton((this.width + 162) / 2, start + index * this.height / 16 + 4, "+", this.addPointAction(index)));
             final ButtonWidget remove = this.addButton(this.squareButton((this.width + 162) / 2 - 20, start + index * this.height / 16 + 4, "-", this.removePointAction(index)));
             final StatisticType attribute = this.getAttribute(index);
 
-            add.active = this.component.getDatum(this.item, ATTRIBUTE_POINTS) > 0;
-            remove.active = this.component.getStatistic(this.item, attribute).aboveMin();
+            add.active = this.component.getDatum(ATTRIBUTE_POINTS) > 0;
+            remove.active = this.component.getStatistic(attribute).aboveMin();
 
             if (attribute == CRITICAL_STRIKE_PROBABILITY) {
-                add.active &= this.component.getAttribute(this.item, CRITICAL_STRIKE_PROBABILITY) < 1;
+                add.active &= this.component.getAttribute(CRITICAL_STRIKE_PROBABILITY) < 1;
             }
         }
     }
@@ -55,17 +58,17 @@ public class WeaponAttributesTab extends AttributeTab {
         final String critical = String.format("%s%s: %%s%%%%", Mappings.CRITICAL_FORMAT, Mappings.CRITICAL_NAME);
         final String knockback = String.format("%s%s: %%s", Mappings.KNOCKBACK_ATTRIBUTE_FORMAT, Mappings.KNOCKBACK_ATTRIBUTE_NAME);
         final String efficiency = String.format("%s%s: %%s", Mappings.WEAPON_EFFICIENCY_FORMAT, Mappings.EFFICIENCY_NAME);
-        final int points = this.component.getDatum(this.item, ATTRIBUTE_POINTS);
+        final int points = this.component.getDatum(ATTRIBUTE_POINTS);
 
         if (points > 0) {
             TEXT_RENDERER.draw(String.format("%s: %d", Mappings.MENU_UNSPENT_POINTS, points), Math.round(width / 2F), 4, 0xFFFFFF);
         }
 
-        this.drawMiddleAttribute(attackSpeed, component.getAttribute(this.item, ATTACK_SPEED), 0, 5);
-        this.drawMiddleAttribute(attackDamage, component.getAttributeTotal(this.item, ATTACK_DAMAGE), 1, 5);
-        this.drawMiddleAttribute(critical, component.getAttribute(this.item, CRITICAL_STRIKE_PROBABILITY) * 100, 2, 5);
-        this.drawMiddleAttribute(knockback, component.getAttribute(this.item, KNOCKBACK), 3, 5);
-        this.drawMiddleAttribute(efficiency, component.getAttribute(this.item, EFFICIENCY), 4, 5);
+        this.drawMiddleAttribute(attackSpeed, component.getAttribute(ATTACK_SPEED), 0, 5);
+        this.drawMiddleAttribute(attackDamage, component.getAttributeTotal(ATTACK_DAMAGE), 1, 5);
+        this.drawMiddleAttribute(critical, component.getAttribute(CRITICAL_STRIKE_PROBABILITY) * 100, 2, 5);
+        this.drawMiddleAttribute(knockback, component.getAttribute(KNOCKBACK), 3, 5);
+        this.drawMiddleAttribute(efficiency, component.getAttribute(EFFICIENCY), 4, 5);
     }
 
     protected StatisticType getAttribute(final int index) {

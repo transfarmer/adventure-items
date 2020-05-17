@@ -1,48 +1,37 @@
 package transfarmer.soulboundarmory.entity;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerEntityMP;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.play.server.SPacketEntityVelocity;
-import net.minecraft.stats.StatList;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.stat.Stats;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import transfarmer.farmerlib.util.EntityUtil;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
-import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponComponent;
-import transfarmer.soulboundarmory.entity.damage.ISoulboundDamageSource;
+import transfarmer.soulboundarmory.component.soulbound.item.IDaggerComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
 
 import static net.minecraft.entity.projectile.ProjectileEntity.PickupPermission.ALLOWED;
-import static net.minecraft.init.Enchantments.FIRE_ASPECT;
+import static transfarmer.soulboundarmory.Main.SOULBOUND_DAGGER_ENTITY;
 import static transfarmer.soulboundarmory.skill.Skills.RETURN;
 import static transfarmer.soulboundarmory.skill.Skills.SNEAK_RETURN;
-import static transfarmer.soulboundarmory.statistics.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_DAMAGE;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_SPEED;
 
@@ -50,49 +39,18 @@ public class SoulboundDaggerEntity extends ExtendedProjectile {
     public ItemStack itemStack;
     protected boolean spawnClone;
     protected boolean isClone;
-    protected boolean passedX;
-    protected boolean passedZ;
-    protected float attackDamageRatio;
+    protected double attackDamageRatio;
     protected int ticksToSeek;
     protected int ticksSeeking;
     protected int ticksInGround;
-    protected int xTile;
-    protected int yTile;
-    protected int zTile;
-    protected int inData;
-    protected Block inTile;
-    protected IWeaponComponent component;
+    protected IDaggerComponent component;
 
     public SoulboundDaggerEntity(final World world) {
         super(world);
     }
 
-    public SoulboundDaggerEntity(final World world, final LivingEntity shooter, final ItemStack itemStack,
-                                 final boolean spawnClone) {
-        this(world, shooter.getX(), shooter.getEyeY() - 0.1, shooter.getZ());
-
-        this.ticksToSeek = -1;
-
-        if (shooter instanceof PlayerEntity) {
-            this.pickupType = ALLOWED;
-        }
-
-        this.itemStack = itemStack;
-        this.spawnClone = spawnClone;
-
-        this.attackDamageRatio = attackDamageRatio;
-
-        this.updateShooter();
-        this.setDamage();
-    }
-
-    public SoulboundDaggerEntity(final World world, final UUID id, final ItemStack itemStack,
-                                 final boolean spawnClone) {
-        this(world, (LivingEntity) EntityUtil.getEntity(id), itemStack, spawnClone);
-    }
-
     public SoulboundDaggerEntity(final SoulboundDaggerEntity original, final boolean spawnClone) {
-        this(original.world, original.ownerUuid, original.itemStack, spawnClone);
+        this(original.world, original.getOwner(), original.itemStack, spawnClone, original.getVelocityD(), original.getVelocityD());
 
         this.isClone = true;
         this.setPos(original.getX(), original.getY(), original.getZ());
@@ -104,12 +62,31 @@ public class SoulboundDaggerEntity extends ExtendedProjectile {
         this.attackDamageRatio = original.attackDamageRatio;
     }
 
+    public SoulboundDaggerEntity(final World world, final Entity shooter, final ItemStack itemStack,
+                                 final boolean spawnClone, final double velocity, final double maxVelocity) {
+        super(SOULBOUND_DAGGER_ENTITY, shooter.getX(), shooter.getEyeY() - 0.1, shooter.getZ(), world);
+
+        this.ticksToSeek = -1;
+
+        if (shooter instanceof PlayerEntity) {
+            this.pickupType = ALLOWED;
+        }
+
+        this.itemStack = itemStack;
+        this.spawnClone = spawnClone;
+
+        this.attackDamageRatio = velocity / maxVelocity;
+
+        this.updateShooter();
+        this.setDamage();
+    }
+
     public <T extends ProjectileEntity> SoulboundDaggerEntity(final EntityType<T> entityType, final World world) {
         super(entityType, world);
     }
 
     public void setDamage() {
-        this.setDamage(this.component.getAttribute(DAGGER, ATTACK_DAMAGE) * this.attackDamageRatio);
+        this.setDamage(this.component.getAttribute(ATTACK_DAMAGE) * this.attackDamageRatio);
     }
 
     @Override
@@ -118,13 +95,13 @@ public class SoulboundDaggerEntity extends ExtendedProjectile {
         return this.itemStack != null
                 ? this.itemStack
                 : this.getOwner() instanceof PlayerEntity
-                ? this.component.getItemStack(DAGGER)
+                ? this.component.getItemStack()
                 : ItemStack.EMPTY;
     }
 
     protected void updateShooter() {
         if (this.component == null && this.getOwner() != null) {
-            this.component = IWeaponComponent.get(this.getOwner());
+            this.component = (IDaggerComponent) ISoulboundItemComponent.get(this.itemStack);
         }
     }
 
@@ -139,15 +116,16 @@ public class SoulboundDaggerEntity extends ExtendedProjectile {
         final Entity owner = this.getOwner();
 
         if (owner instanceof PlayerEntity) {
-            final double attackSpeed = this.component.getAttribute(DAGGER, ATTACK_SPEED);
+            final double attackSpeed = this.component.getAttribute(ATTACK_SPEED);
 
-            if (this.component.hasSkill(DAGGER, SNEAK_RETURN) && owner.isSneaking()
-                    && this.life.get() >= 60 / attackSpeed
-                    || this.component.hasSkill(DAGGER, RETURN)
-                    && (this.life.get() >= 300 || this.ticksInGround > 20 / attackSpeed
-                    || owner.distanceTo(this)
-                    >= 16 * (this.world.getServer().getPlayerManager().getViewDistance() - 1)
-                    || this.getY() <= 0) || this.ticksSeeking > 0) {
+            if (this.component.hasSkill(SNEAK_RETURN) && owner.isSneaking()
+                    && this.getLife() >= 60 / attackSpeed
+                    || this.component.hasSkill(RETURN)
+                    && (this.getLife() >= 300
+                    || this.ticksInGround > 20 / attackSpeed
+                    || owner.distanceTo(this) >= 16 * (this.world.getServer().getPlayerManager().getViewDistance() - 1)
+                    || this.getY() <= 0)
+                    || this.ticksSeeking > 0) {
                 final Box box = owner.getBoundingBox();
                 final double dX = (box.getMax(Axis.X) + box.getMin(Axis.X)) / 2 - this.getZ();
                 final double dY = (box.getMax(Axis.Y) + box.getMin(Axis.Y)) / 2 - this.getY();
@@ -222,9 +200,7 @@ public class SoulboundDaggerEntity extends ExtendedProjectile {
         }
 
         if (!this.isClone && this.ticksSeeking == 0) {
-            this.motionX *= -0.1;
-            this.motionY *= -0.1;
-            this.velocityZ() *= -0.1;
+            this.setVelocity(this.getVelocity().multiply(-0.1));
             this.yaw += 180;
             this.prevYaw += 180;
         }
@@ -232,126 +208,94 @@ public class SoulboundDaggerEntity extends ExtendedProjectile {
         if (owner instanceof PlayerEntity) {
             final PlayerEntity player = (PlayerEntity) owner;
             final DamageSource damageSource = DamageSource.thrownProjectile(this, owner);
-
-            ((ISoulboundDamageSource) damageSource).setItemStack(this.asItemStack());
+            final double attackDamage = this.component.getAttribute(ATTACK_DAMAGE);
 
             int burnTime = 0;
 
             if (attackDamage > 0) {
-                final int knockbackModifier = EnchantmentHelper.getKnockbackModifier(player);
-                float initialHealth = 0;
+                final int knockbackModifier = EnchantmentHelper.getKnockback(player);
+                final float initialHealth = target.getHealth();
 
-                burnTime += EnchantmentHelper.getFireAspectModifier(player);
+                burnTime += EnchantmentHelper.getFireAspect(player) * 80;
 
-                if (target instanceof LivingEntity) {
-                    initialHealth = ((LivingEntity) target).getHealth();
-
-                    if (this.isBurning()) {
-                        burnTime += 5;
-                    }
-
-                    if (this.component.getEnchantments(DAGGER).containsKey(FIRE_ASPECT) && !(target instanceof EntityEnderman)) {
-                        burnTime += this.component.getEnchantment(DAGGER, FIRE_ASPECT) * 4;
-                    }
-
-                    if (burnTime > 0 && !target.isBurning()) {
-                        target.setFire(1);
-                    }
+                if (this.isOnFire()) {
+                    burnTime += 100;
                 }
 
-                final double motionX = target.motionX;
-                final double motionY = target.motionY;
-                final double velocityZ () = target.velocityZ();
+                if (burnTime > 0 && !target.isOnFire()) {
+                    target.setFireTicks(1);
+                }
 
-                if (target.attackEntityFrom(damageSource, (float) attackDamage)) {
+                final Vec3d velocity = target.getVelocity();
+                final double velocityX = velocity.x;
+                final double velocityY = velocity.y;
+                final double velocityZ = velocity.z;
+
+                if (target.damage(damageSource, (float) attackDamage)) {
                     if (knockbackModifier > 0) {
-                        if (target instanceof LivingEntity) {
-                            ((LivingEntity) target).knockBack(player, knockbackModifier * 0.5F, MathHelper.sin(player.yaw * 0.017453292F), -MathHelper.cos(player.yaw * 0.017453292F));
-                        } else {
-                            target.addVelocity(-MathHelper.sin(player.yaw * 0.017453292F) * knockbackModifier * 0.5, 0.1, MathHelper.cos(player.yaw * 0.017453292F) * knockbackModifier * 0.5);
-                        }
+                        target.takeKnockback(player, knockbackModifier * 0.5F, MathHelper.sin(player.yaw * 0.017453292F), -MathHelper.cos(player.yaw * 0.017453292F));
                     }
+                }
 
-                    if (target instanceof PlayerEntityMP && target.velocityChanged) {
-                        ((PlayerEntityMP) target).connection.sendPacket(new SPacketEntityVelocity(target));
-                        target.velocityChanged = false;
-                        target.motionX = motionX;
-                        target.motionY = motionY;
-                        target.velocityZ() = velocityZ();
-                    }
+                if (!target.world.isClient && target.velocityModified) {
+                    ((ServerPlayerEntity) target).networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(target));
+                    target.velocityModified = false;
+                    this.setVelocity(velocityX, velocityY, velocityZ);
+                }
 
-                    if (attackDamageModifier > 0) {
-                        player.onEnchantmentCritical(target);
-                    }
+                if (attackDamage > 0) {
+                    player.addCritParticles(target);
+                }
 
-                    player.setLastAttackedEntity(target);
+                player.setAttacker(target);
 
-                    this.applyEnchantments(player, target);
+                EnchantmentHelper.onUserDamaged(target, player);
 
-                    if (target instanceof LivingEntity) {
-                        final float damageDealt = initialHealth - ((LivingEntity) target).getHealth();
-                        player.addStat(StatList.DAMAGE_DEALT, Math.round(damageDealt * 10));
+                final float damageDealt = initialHealth - target.getHealth();
+                player.increaseStat(Stats.DAMAGE_DEALT, Math.round(damageDealt * 10));
 
-                        if (burnTime > 0) {
-                            target.setFire(burnTime);
-                        }
+                if (burnTime > 0) {
+                    target.setFireTicks(burnTime);
+                }
 
-                        if (player.world instanceof WorldServer && damageDealt > 2) {
-                            ((WorldServer) player.world).spawnParticle(EnumParticleTypes.DAMAGE_INDICATOR, target.getX(), target.getY() + target.height * 0.5, target.getZ(), (int) (damageDealt * 0.5), 0.1, 0, 0.1, 0.2);
-                        }
-                    }
-                } else {
-                    if (burnTime > 0) {
-                        target.extinguish();
-                    }
+                if (!player.world.isClient && damageDealt > 2) {
+                    ((ServerWorld) player.world).spawnParticles(ParticleTypes.DAMAGE_INDICATOR, target.getX(), target.getY() + target.getHeight() * 0.5, target.getZ(), (int) (damageDealt * 0.5), 0.1, 0, 0.1, 0.2);
                 }
             }
         }
     }
 
-    public void shoot(final @Nonnull Entity shooter, final float pitch, final float yaw, final float velocity,
-                      final float attackDamageRatio, final float inaccuracy) {
-        super.shoot(shooter, pitch, yaw, 0, velocity, inaccuracy);
-    }
-
     @Override
-    public void onCollideWithPlayer(@Nonnull final PlayerEntity player) {
-        if (!this.world.isClient && player.getUniqueID().equals(this.shooterUUID)
-                && this.component != null
-                && this.ticksExisted >= Math.max(1, 20 / this.component.getAttribute(DAGGER, ATTACK_SPEED))
-                && this.arrowShake <= 0 && (this.pickupStatus == PickupStatus.ALLOWED
-                || this.pickupStatus == PickupStatus.CREATIVE_ONLY && player.isCreative())) {
-            if (this.isClone) {
-                player.onItemPickup(this, 1);
-                this.setDead();
-            } else if (player.isCreative() && SoulboundItemUtil.hasSoulWeapon(player)) {
-                player.onItemPickup(this, 1);
-                this.setDead();
-            } else if (SoulboundItemUtil.addItemStack(this.getArrowStack(), player, true)) {
-                player.onItemPickup(this, 1);
-                this.setDead();
-            }
+    public void onPlayerCollision(@Nonnull final PlayerEntity player) {
+        if (!this.world.isClient && player.getUuid().equals(this.ownerUuid)
+                && (this.isClone
+                || this.component != null
+                && this.getLife() >= Math.max(1, 20 / this.component.getAttribute(ATTACK_SPEED))
+                && (player.isCreative()
+                && (SoulboundItemUtil.hasSoulWeapon(player)))
+                || SoulboundItemUtil.addItemStack(this.asItemStack(), player, true))) {
+            player.sendPickup(this, 1);
+            this.remove();
         }
     }
 
     @Override
-    public void writeEntityToNBT(@Nonnull final CompoundTag compound) {
-        super.writeEntityToNBT(compound);
+    public CompoundTag toTag(@Nonnull final CompoundTag tag) {
+        super.toTag(tag);
 
-        compound.setUniqueId("shooterUUID", this.shooterUUID);
-        compound.putInt("dimensionID", this.world.provider.getDimension());
-        compound.put("itemStack", this.itemStack.toTag());
+        tag.putUuid("shooterUUID", this.ownerUuid);
+        tag.put("itemStack", this.itemStack.toTag(new CompoundTag()));
 
         this.updateShooter();
+        return tag;
     }
 
     @Override
-    public void readEntityFromNBT(@Nonnull final CompoundTag compound) {
-        super.readEntityFromNBT(compound);
+    public void fromTag(@Nonnull final CompoundTag tag) {
+        super.fromTag(tag);
 
-        this.shooterUUID = compound.getUniqueId("shooterUUID");
-        this.world = this.getServer().getWorld(compound.getInt("dimensionID"));
-        this.itemStack = new ItemStack(compound.getCompound("itemStack"));
+        this.ownerUuid = tag.getUuid("shooterUUID");
+        this.itemStack = ItemStack.fromTag(tag.getCompound("itemStack"));
 
         this.updateShooter();
     }

@@ -1,14 +1,12 @@
 package transfarmer.soulboundarmory.network.C2S;
 
 import net.fabricmc.fabric.api.network.PacketContext;
-import transfarmer.soulboundarmory.network.common.ComponentPacket;
+import transfarmer.soulboundarmory.network.common.ItemComponentPacket;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 
-public class C2SBindSlot extends ComponentPacket {
+public class C2SBindSlot extends ItemComponentPacket {
     @Override
     protected void accept(final PacketContext context, final ExtendedPacketBuffer buffer) {
-        super.accept(context, buffer);
-
         final int slot = buffer.readInt();
 
         if (this.component.getBoundSlot() == slot) {
@@ -17,7 +15,7 @@ public class C2SBindSlot extends ComponentPacket {
             this.component.bindSlot(slot);
         }
 
-        this.component.sync();
+//        this.component.sync();
         this.component.refresh();
     }
 }

@@ -1,37 +1,15 @@
 package transfarmer.soulboundarmory.network.S2C;
 
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.network.PacketContext;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.statistics.IItem;
+import transfarmer.soulboundarmory.network.common.ItemComponentPacket;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-
-public class S2CRefresh extends S2CSoulbound {
-    public S2CRefresh() {}
-
-    public S2CRefresh(final ISoulboundItemComponent component, final IItem item) {
-        super(component, item);
-    }
-
+public class S2CRefresh extends ItemComponentPacket {
     @Override
-    @Environment(CLIENT)
-    public void fromBytes(final ExtendedPacketBuffer buffer) {
-        super.fromBytes(buffer);
-    }
-
-    @Override
-    public void toBytes(final ExtendedPacketBuffer buffer) {
-        super.toBytes(buffer);
-    }
-
-    public static final class Handler implements IExtendedMessageHandler<S2CRefresh> {
-        @Environment(CLIENT)
-        @Override
-        public IExtendedMessage onMessage(final S2CRefresh message, final MessageContext context) {
-            CLIENT.addScheduledTask(component::refresh);
-
-            return null;
-        }
+    @Environment(EnvType.CLIENT)
+    protected void accept(final PacketContext context, final ExtendedPacketBuffer buffer) {
+        component.refresh();
     }
 }

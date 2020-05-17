@@ -1,45 +1,6 @@
 package transfarmer.soulboundarmory.command;
 
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerEntityMP;
-import net.minecraft.item.Item;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ExperienceCommand;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
-import transfarmer.farmerlib.util.CollectionUtil;
-import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
-import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
-import static net.minecraft.command.arguments.EntityArgumentType.getPlayer;
-import static net.minecraft.command.arguments.EntityArgumentType.getPlayers;
-import static net.minecraft.command.arguments.EntityArgumentType.player;
-import static net.minecraft.command.arguments.EntityArgumentType.players;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-import static net.minecraft.server.command.TimeCommand.executeAdd;
-import static net.minecraft.server.command.TimeCommand.executeSet;
-import static transfarmer.soulboundarmory.statistics.StatisticType.LEVEL;
-import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
-
+/*
 public class SoulboundArmoryCommand implements Command<ServerCommandSource> {
     private static final List<String> COMMAND_TYPES = CollectionUtil.arrayList("xp", "level", "reset");
     private static final List<String> OPERATIONS = CollectionUtil.arrayList("add", "set");
@@ -210,3 +171,4 @@ public class SoulboundArmoryCommand implements Command<ServerCommandSource> {
         }
     }
 }
+*/

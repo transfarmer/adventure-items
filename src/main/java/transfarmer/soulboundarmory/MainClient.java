@@ -13,7 +13,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import transfarmer.soulboundarmory.client.render.SoulboundDaggerEntityRenderer;
-import transfarmer.soulboundarmory.config.ClientConfig;
+import transfarmer.soulboundarmory.client.render.SoulboundFireballEntityRenderer;
 
 import javax.annotation.Nonnull;
 
@@ -35,14 +35,15 @@ public class MainClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ClientConfig.instance().load();
-        ClientConfig.instance().update();
-        ClientConfig.instance().save();
+//        ClientConfig.instance().load();
+//        ClientConfig.instance().update();
+//        ClientConfig.instance().save();
 
         KeyBindingRegistry.INSTANCE.addCategory(Main.MOD_NAME);
         KeyBindingRegistry.INSTANCE.register(GUI_KEY_BINDING);
         KeyBindingRegistry.INSTANCE.register(TOGGLE_XP_BAR_KEY_BINDING);
 
         EntityRendererRegistry.INSTANCE.register(Main.SOULBOUND_DAGGER_ENTITY, SoulboundDaggerEntityRenderer::new);
+        EntityRendererRegistry.INSTANCE.register(Main.SOULBOUND_FIREBALL_ENTITY, SoulboundFireballEntityRenderer::new);
     }
 }

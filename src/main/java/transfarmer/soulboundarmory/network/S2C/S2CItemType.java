@@ -1,58 +1,26 @@
 package transfarmer.soulboundarmory.network.S2C;
 
-import net.minecraft.client.Minecraft;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.statistics.IItem;
+import transfarmer.soulboundarmory.network.common.ItemComponentPacket;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
-
-public class S2CItemType extends S2CSoulbound {
-    public S2CItemType() {}
-
-    public S2CItemType(final ISoulboundItemComponent component, final IItem item) {
-        super(component, item);
-    }
-
+public class S2CItemType extends ItemComponentPacket {
     @Override
-    @Environment(CLIENT)
-    public void fromBytes(final ExtendedPacketBuffer buffer) {
-        super.fromBytes(buffer);
-    }
+    @Environment(EnvType.CLIENT)
+    protected void accept(final PacketContext context, final ExtendedPacketBuffer buffer) {
+        final PlayerEntity player = context.getPlayer();
 
-    @Override
-    public void toBytes(final ExtendedPacketBuffer buffer) {
-        super.toBytes(buffer);
-    }
+        player.inventory.removeOne(component.getValidEquippedStack());
 
-    public static final class Handler implements IExtendedMessageHandler<S2CItemType> {
-        @Environment(CLIENT)
-        @Override
-        public IExtendedMessage onMessage(final S2CItemType message, final MessageContext context) {
-            CLIENT.addScheduledTask(new Runnable() {
-                @Override
-                public void run() {
-                    final ISoulboundItemComponent component = component;
-                    final IItem item = item;
-                    final PlayerEntity player = player;
-
-                    player.inventory.deleteStack(component.getEquippedItemStack());
-                    component.setItemType(item);
-
-                    if (component.hasSoulboundItem()) {
-                        SoulboundItemUtil.removeSoulboundItems(player, component.getBaseItemClass());
-                    } else {
-                        component.setCurrentTab(0);
-                    }
-
-                    SoulboundItemUtil.addItemStack(component.getItemStack(item), player);
-                    component.refresh();
-                }
-            });
-
-            return null;
+        if (!component.isItemEquipped()) {
+            component.setCurrentTab(0);
         }
+
+        SoulboundItemUtil.addItemStack(component.getItemStack(), player);
+        component.refresh();
     }
 }

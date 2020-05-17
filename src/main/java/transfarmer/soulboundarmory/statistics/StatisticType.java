@@ -1,5 +1,8 @@
 package transfarmer.soulboundarmory.statistics;
 
+import net.minecraft.util.Identifier;
+import transfarmer.soulboundarmory.Main;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,32 +24,38 @@ public class StatisticType {
     public static final StatisticType KNOCKBACK = new StatisticType("knockback");
     public static final StatisticType ATTACK_RANGE = new StatisticType("attackRange");
 
-    protected static final Map<String, StatisticType> STATISTICS = new HashMap<>();
+    protected static final Map<Identifier, StatisticType> STATISTICS = new HashMap<>();
 
-    private final String name;
+    private final Identifier identifier;
 
-    public StatisticType(final String name) {
-        STATISTICS.put(name, this);
-
-        this.name = name;
+    public StatisticType(final String path) {
+        this(new Identifier(Main.MOD_ID, path));
     }
 
-    public static StatisticType get(final String string) {
-        for (final StatisticType type : STATISTICS.values()) {
-            if (type.toString().equals(string)) {
-                return type;
+    public StatisticType(final Identifier identifier) {
+        STATISTICS.put(identifier, this);
+
+        this.identifier = identifier;
+    }
+
+    public static StatisticType valueOf(final String path) {
+        for (final Identifier identifier : STATISTICS.keySet()) {
+            if (identifier.getNamespace().equals(Main.MOD_ID) && identifier.getPath().equals(path)) {
+                return valueOf(identifier);
             }
         }
 
         return null;
     }
 
-    @Override
-    public String toString() {
-        return this.name;
+    public static StatisticType valueOf(final Identifier identifier) {
+        STATISTICS.get(identifier);
+
+        return null;
     }
 
-    public StatisticType valueOf(final String string) {
-        return STATISTICS.get(string);
+    @Override
+    public String toString() {
+        return this.identifier.toString();
     }
 }

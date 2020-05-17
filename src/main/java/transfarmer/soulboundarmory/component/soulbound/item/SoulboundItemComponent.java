@@ -2,6 +2,7 @@ package transfarmer.soulboundarmory.component.soulbound.item;
 
 import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import nerdhub.cardinal.components.api.component.Component;
+import nerdhub.cardinal.components.api.component.ComponentProvider;
 import nerdhub.cardinal.components.api.util.ItemComponent;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.enchantment.Enchantment;
@@ -20,6 +21,7 @@ import transfarmer.farmerlib.util.IndexedMap;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.gui.screen.common.ScreenTab;
 import transfarmer.soulboundarmory.client.gui.screen.common.SoulboundTab;
+import transfarmer.soulboundarmory.component.soulbound.common.PlayerSoulboundComponent;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.SoulboundItem;
 import transfarmer.soulboundarmory.network.Packets;
@@ -43,6 +45,7 @@ import java.util.Map.Entry;
 
 import static net.minecraft.entity.EquipmentSlot.MAINHAND;
 import static net.minecraft.entity.attribute.EntityAttributeModifier.Operation.ADDITION;
+import static transfarmer.soulboundarmory.Main.COMPONENTS;
 import static transfarmer.soulboundarmory.MainClient.CLIENT;
 import static transfarmer.soulboundarmory.statistics.Category.ATTRIBUTE;
 import static transfarmer.soulboundarmory.statistics.Category.DATUM;
@@ -62,6 +65,7 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 public abstract class SoulboundItemComponent<C extends Component> implements ISoulboundItemComponent<C> {
     protected final ItemStack itemStack;
     protected final PlayerEntity player;
+    protected final PlayerSoulboundComponent parent;
     protected final boolean isClient;
 
     protected EnchantmentStorage enchantments;
@@ -74,39 +78,25 @@ public abstract class SoulboundItemComponent<C extends Component> implements ISo
     public SoulboundItemComponent(final ItemStack itemStack, final PlayerEntity player) {
         this.itemStack = itemStack;
         this.player = player;
+        this.parent = COMPONENTS.get(ComponentProvider.fromEntity(player));
         this.isClient = player.world.isClient;
 
         REGISTRY.add(this);
     }
 
-    public static ISoulboundItemComponent<? extends Component> get(final ItemStack itemStack) {
-        for (final ISoulboundItemComponent<? extends Component> component : REGISTRY) {
-            if (component.getItemStack() == itemStack) {
-                return component;
-            }
-        }
-
-        return null;
+    @Override
+    public PlayerEntity getPlayer() {
+        return this.player;
     }
 
-    public static boolean isSlotBound(final int slot) {
-        for (final ISoulboundItemComponent<? extends Component> component : REGISTRY) {
-            if (slot == component.getBoundSlot()) {
-                return true;
-            }
-        }
-
-        return false;
+    @Override
+    public PlayerSoulboundComponent getParent() {
+        return this.parent;
     }
 
     @Override
     public boolean isComponentEqual(final Component other) {
         return other instanceof ItemComponent && other.toTag(new CompoundTag()).equals(this.toTag(new CompoundTag()));
-    }
-
-    @Override
-    public PlayerEntity getPlayer() {
-        return this.player;
     }
 
     @Override
@@ -217,18 +207,18 @@ public abstract class SoulboundItemComponent<C extends Component> implements ISo
 
     @Override
     public boolean canLevelUp() {
-        return this.getDatum(LEVEL) < MainConfig.instance().getMaxLevel() || MainConfig.instance().getMaxLevel() < 0;
+        return this.getDatum(LEVEL) < MainConfig.instance().maxLevel || MainConfig.instance().maxLevel < 0;
     }
 
     @Override
     public int onLevelup(final int sign) {
         final int level = this.statistics.add(LEVEL, sign).intValue();
 
-        if (level % MainConfig.instance().getLevelsPerEnchantment() == 0) {
+        if (level % MainConfig.instance().levelsPerEnchantment == 0) {
             this.addDatum(ENCHANTMENT_POINTS, sign);
         }
 
-        if (level % MainConfig.instance().getLevelsPerSkill() == 0) {
+        if (level % MainConfig.instance().levelsPerSkill == 0) {
             this.addDatum(SKILL_POINTS, sign);
         }
 

@@ -19,10 +19,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import transfarmer.farmerlib.reflect.FieldWrapper;
+import transfarmer.soulboundarmory.component.soulbound.item.ISwordComponent;
 
 import java.util.UUID;
 
-import static transfarmer.soulboundarmory.statistics.Item.SWORD;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_DAMAGE;
 
 public class SoulboundLightningEntity extends LightningEntity {
@@ -88,7 +88,7 @@ public class SoulboundLightningEntity extends LightningEntity {
                         new Box(this.getX() - radius, this.getY() - radius, this.getZ() - radius, this.getX() + radius, this.getY() + 6 + radius, this.getZ() + radius))) {
                     final LivingEntity caster = this.getCaster();
                     final float attackDamage = caster instanceof PlayerEntity
-                            ? (float) WeaponProvider.get(caster).getAttributeTotal(SWORD, ATTACK_DAMAGE)
+                            ? (float) ISwordComponent.get(caster).getAttributeTotal(ATTACK_DAMAGE)
                             : 5;
 
                     if (entity != caster && entity instanceof LivingEntity) {

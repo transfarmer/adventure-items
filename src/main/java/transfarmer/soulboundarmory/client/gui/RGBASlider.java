@@ -19,6 +19,6 @@ public class RGBASlider extends Slider {
     public void applyValue() {
         this.componentValue = (int) (2.55 * this.value);
 
-        ClientConfig.setColor(this.text.getKey(), this.componentValue);
+        ClientConfig.instance().setColor(this.text, this.componentValue);
     }
 }

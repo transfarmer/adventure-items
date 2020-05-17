@@ -1,69 +1,11 @@
 package transfarmer.soulboundarmory.event;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerEntityMP;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.PlayerDropsEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
-import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
-import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.item.SoulboundItem;
-import transfarmer.soulboundarmory.item.SoulboundMeleeWeaponItem;
-import transfarmer.soulboundarmory.item.SoulboundPickItem;
-import transfarmer.soulboundarmory.item.SoulboundToolItem;
-import transfarmer.soulboundarmory.item.SoulboundWeaponItem;
-import transfarmer.soulboundarmory.network.S2C.S2CConfig;
-import transfarmer.soulboundarmory.statistics.IItem;
-
-import static net.minecraft.init.Enchantments.EFFICIENCY;
-import static net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW;
-import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
-import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase.END;
-import static transfarmer.soulboundarmory.skill.Skills.PULL;
-import static transfarmer.soulboundarmory.statistics.Item.PICK;
-import static transfarmer.soulboundarmory.statistics.StatisticType.EFFICIENCY;
-import static transfarmer.soulboundarmory.statistics.StatisticType.LEVEL;
-
-@EventBusSubscriber(modid = Main.MOD_ID)
 public class PlayerEventListeners {
-    @SubscribeEvent
+/*
     public static void onPlayerLoggedIn(final PlayerLoggedInEvent event) {
-        updatePlayer(event.player);
-
         Main.CHANNEL.sendTo(new S2CConfig(), (PlayerEntityMP) event.player);
     }
 
-    @SubscribeEvent
-    public static void onPlayerChangedDimension(final PlayerChangedDimensionEvent event) {
-        updatePlayer(event.player);
-    }
-
-    @SubscribeEvent
-    public static void onPlayerRespawn(final PlayerRespawnEvent event) {
-        updatePlayer(event.player);
-    }
-
-    @SubscribeEvent(priority = HIGHEST)
     public static void onPlayerDrops(final PlayerDropsEvent event) {
         final PlayerEntity player = event.getPlayerEntity();
 
@@ -84,7 +26,6 @@ public class PlayerEventListeners {
         }
     }
 
-    @SubscribeEvent(priority = HIGHEST)
     public static void onClone(final Clone event) {
         final PlayerEntity original = event.getOriginal();
         final PlayerEntity player = event.getPlayerEntity();
@@ -110,18 +51,6 @@ public class PlayerEventListeners {
         }
     }
 
-    private static void updatePlayer(final PlayerEntity player) {
-        final ISoulboundItemComponent weapons = WeaponProvider.get(player);
-        final ISoulboundItemComponent tools = ToolProvider.get(player);
-
-        weapons.initPlayer(player);
-        tools.initPlayer(player);
-
-        weapons.sync();
-        tools.sync();
-    }
-
-    @SubscribeEvent
     public static void onRightClickBlock(final RightClickBlock event) {
         final PlayerEntity player = event.getPlayerEntity();
         final ItemStack stackMainhand = player.getMainHandStack();
@@ -131,7 +60,6 @@ public class PlayerEventListeners {
         }
     }
 
-    @SubscribeEvent
     public static void onBreakSpeed(final BreakSpeed event) {
         if (event.getPlayerEntity().getMainHandStack().getItem() instanceof SoulboundItem) {
             final SoulboundItem item = (SoulboundItem) event.getPlayerEntity().getMainHandStack().getItem();
@@ -172,7 +100,6 @@ public class PlayerEventListeners {
         }
     }
 
-    @SubscribeEvent
     public static void onHarvestDrops(final HarvestDropsEvent event) {
         final PlayerEntity player = event.getHarvester();
 
@@ -196,7 +123,6 @@ public class PlayerEventListeners {
         SoulboundItemUtil.addItemStack(event.getItem().getItem(), event.getPlayerEntity());
     }
 
-    @SubscribeEvent
     public static void onPlayerTick(final PlayerTickEvent event) {
         if (event.phase == END) {
             final PlayerEntity player = event.player;
@@ -205,20 +131,5 @@ public class PlayerEventListeners {
             WeaponProvider.get(player).onTick();
         }
     }
-
-//    @Environment(CLIENT)
-//    @SubscribeEvent
-//    public static void onLeftClickBlock(final LeftClickBlock event) {
-//        final PlayerEntity player = event.getPlayerEntity();
-//        final ISoulComponent component = SoulItemHelper.getComponent(player, player.getOffHandStack());
-//        final Minecraft minecraft = CLIENT;
-//
-//        if (component instanceof SoulTool && component.getDatum(SKILLS, component.getCurrentType()) >= 1) {
-//            final BlockPos blockPos = minecraft.objectMouseOver.getBlockPos();
-//
-//            if (!minecraft.world.isAirBlock(blockPos)) {
-//                ModPlayerControllerMP.modController.clickBlockOffhand(blockPos, event.getFace());
-//            }
-//        }
-//    }
+*/
 }

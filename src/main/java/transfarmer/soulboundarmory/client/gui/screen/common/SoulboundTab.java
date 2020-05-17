@@ -82,12 +82,12 @@ public abstract class SoulboundTab extends ScreenTab {
     }
 
     protected void initOptions() {
-        if (ClientConfig.getDisplayOptions() && this.displayXPBar()) {
-            this.options.add(this.addButton(this.colorSlider(0, ClientConfig.getRed(), Mappings.RED)));
-            this.options.add(this.addButton(this.colorSlider(1, ClientConfig.getGreen(), Mappings.GREEN)));
-            this.options.add(this.addButton(this.colorSlider(2, ClientConfig.getBlue(), Mappings.BLUE)));
-            this.options.add(this.addButton(this.colorSlider(3, ClientConfig.getAlpha(), Mappings.ALPHA)));
-            this.options.add(this.addButton(this.styleButton = this.optionButton(4, String.format("%s: %s", Mappings.XP_BAR_STYLE, ClientConfig.getStyle().toString()), this.cycleStyleAction(1), this.cycleStyleAction(-1))));
+        if (ClientConfig.instance().displayOptions && this.displayXPBar()) {
+            this.options.add(this.addButton(this.colorSlider(0, ClientConfig.instance().getRGBA(Mappings.RED), Mappings.RED)));
+            this.options.add(this.addButton(this.colorSlider(1, ClientConfig.instance().getRGBA(Mappings.GREEN), Mappings.GREEN)));
+            this.options.add(this.addButton(this.colorSlider(2, ClientConfig.instance().getRGBA(Mappings.BLUE), Mappings.BLUE)));
+            this.options.add(this.addButton(this.colorSlider(3, ClientConfig.instance().getRGBA(Mappings.ALPHA), Mappings.ALPHA)));
+            this.options.add(this.addButton(this.styleButton = this.optionButton(4, String.format("%s: %s", Mappings.XP_BAR_STYLE, ClientConfig.instance().style), this.cycleStyleAction(1), this.cycleStyleAction(-1))));
         }
     }
 
@@ -109,8 +109,8 @@ public abstract class SoulboundTab extends ScreenTab {
 
         this.xpBar.drawXPBar(this.getXPBarX(), this.getXPBarY(), 182);
 
-        if (this.isMouseOverLevel(mouseX, mouseY) && MainConfig.instance().getMaxLevel() >= 0) {
-            this.renderTooltip(String.format("%d/%d", this.component.getDatum(LEVEL), MainConfig.instance().getMaxLevel()), mouseX, mouseY);
+        if (this.isMouseOverLevel(mouseX, mouseY) && MainConfig.instance().maxLevel >= 0) {
+            this.renderTooltip(String.format("%d/%d", this.component.getDatum(LEVEL), MainConfig.instance().maxLevel), mouseX, mouseY);
         } else if (this.isMouseOverXPBar(mouseX, mouseY)) {
             this.renderTooltip(this.component.canLevelUp()
                     ? String.format("%d/%d", xp, component.getNextLevelXP())
@@ -165,15 +165,15 @@ public abstract class SoulboundTab extends ScreenTab {
         super.mouseClicked(mouseX, mouseY, button);
 
         if (this.isMouseOverXPBar(mouseX, mouseY)) {
-            if (!ClientConfig.getDisplayOptions()) {
+            if (!ClientConfig.instance().displayOptions) {
                 this.buttons.addAll(this.options);
-                ClientConfig.setDisplayOptions(true);
+                ClientConfig.instance().displayOptions = true;
             } else {
                 this.buttons.removeAll(this.options);
-                ClientConfig.setDisplayOptions(false);
+                ClientConfig.instance().displayOptions = false;
             }
 
-            ClientConfig.instance().save();
+//            ClientConfig.instance().save();
             this.refresh();
 
             return true;
@@ -196,9 +196,9 @@ public abstract class SoulboundTab extends ScreenTab {
         final RGBASlider slider = this.sliderMousedOver(x, y);
 
         if (slider != null) {
-            final String key = slider.getKey();
-            final int value = MathHelper.clamp(ClientConfig.getRGBA(key), 0, 255);
-            ClientConfig.setColor(key, value);
+            final TranslatableText text = slider.getText();
+            final int value = MathHelper.clamp(ClientConfig.instance().getRGBA(text), 0, 255);
+            ClientConfig.instance().setColor(text, value);
 
             slider.setValue(value);
         }
@@ -207,12 +207,12 @@ public abstract class SoulboundTab extends ScreenTab {
     }
 
     protected void cycleStyle(final int change) {
-        int index = (Style.STYLES.indexOf(ClientConfig.getStyle()) + change) % Style.AMOUNT;
+        int index = (Style.STYLES.indexOf(ClientConfig.instance().getStyle()) + change) % Style.AMOUNT;
 
         if (index < 0) {
             this.cycleStyle(Style.AMOUNT + index);
         } else {
-            ClientConfig.setStyle(Style.STYLES.get(index));
+            ClientConfig.instance().setStyle(Style.STYLES.get(index));
             this.refresh();
         }
     }

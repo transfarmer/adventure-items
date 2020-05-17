@@ -17,7 +17,6 @@ import transfarmer.soulboundarmory.client.gui.screen.common.ExtendedScreen;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.client.renderer.texture.ExperienceBarTexture;
 import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
-import transfarmer.soulboundarmory.component.soulbound.item.SoulboundItemComponent;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.item.SoulboundItem;
 import transfarmer.soulboundarmory.statistics.StatisticType;
@@ -73,7 +72,7 @@ public class GuiXPBar extends ExtendedScreen {
         final Window window = CLIENT.getWindow();
 
         for (final ItemStack itemStack : player.getItemsHand()) {
-            if (this.update(SoulboundItemComponent.get(itemStack))) {
+            if (this.update(ISoulboundItemComponent.get(itemStack))) {
                 this.drawXPBar((window.getScaledWidth() - 182) / 2, window.getScaledHeight() - 29, 182);
 
                 return true;
@@ -93,7 +92,7 @@ public class GuiXPBar extends ExtendedScreen {
     }
 
     public boolean update(final ItemStack itemStack) {
-        if (this.update(SoulboundItemComponent.get(itemStack))) {
+        if (this.update(ISoulboundItemComponent.get(itemStack))) {
             if (itemStack.getItem() instanceof SoulboundItem && this.itemStack != itemStack) {
                 this.itemStack = itemStack;
             }
@@ -111,10 +110,10 @@ public class GuiXPBar extends ExtendedScreen {
     }
 
     public void drawXPBar(final int x, final int y, final int width) {
-        if (ClientConfig.getAlpha() >= 26) {
-            final Color color = new Color(ClientConfig.getRed(), ClientConfig.getGreen(), ClientConfig.getBlue(), ClientConfig.getAlpha());
+        if (ClientConfig.instance().getRGBA(Mappings.ALPHA) >= 26) {
+            final Color color = new Color(ClientConfig.instance().getRGBA(Mappings.RED), ClientConfig.instance().getRGBA(Mappings.GREEN), ClientConfig.instance().getRGBA(Mappings.BLUE), ClientConfig.instance().getRGBA(Mappings.ALPHA));
             final float[] components = color.getComponents(null);
-            final Style style = ClientConfig.getStyle();
+            final Style style = ClientConfig.instance().getStyle();
             final float ratio = (float) this.component.getDatum(StatisticType.XP) / this.component.getNextLevelXP();
             final float effectiveWidth = ratio * width;
             final int middleU = (int) Math.min(4, effectiveWidth);

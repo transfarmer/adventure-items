@@ -13,11 +13,11 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import transfarmer.soulboundarmory.component.soulbound.item.IGreatswordComponent;
 
 import javax.annotation.Nonnull;
 
 import static transfarmer.soulboundarmory.skill.Skills.LEAPING;
-import static transfarmer.soulboundarmory.statistics.Item.GREATSWORD;
 
 public class SoulboundGreatswordItem extends SoulboundMeleeWeaponItem {
     public SoulboundGreatswordItem() {
@@ -38,7 +38,7 @@ public class SoulboundGreatswordItem extends SoulboundMeleeWeaponItem {
     @Override
     @Nonnull
     public TypedActionResult<ItemStack> use(final World world, @Nonnull final PlayerEntity player, @Nonnull final Hand hand) {
-        if (!world.isClient && WeaponProvider.get(player).hasSkill(GREATSWORD, LEAPING)) {
+        if (!world.isClient && IGreatswordComponent.get(player).hasSkill(LEAPING)) {
             player.setCurrentHand(hand);
 
             return new TypedActionResult<>(ActionResult.SUCCESS, player.getStackInHand(hand));
@@ -58,7 +58,7 @@ public class SoulboundGreatswordItem extends SoulboundMeleeWeaponItem {
 
             player.addVelocity(look.x * speed, look.y * speed / 4 + 0.2, look.z * speed);
             player.setSprinting(true);
-            WeaponProvider.get(player).setLeapForce(speed / maxSpeed);
+            IGreatswordComponent.get(player).setLeapForce(speed / maxSpeed);
         }
     }
 

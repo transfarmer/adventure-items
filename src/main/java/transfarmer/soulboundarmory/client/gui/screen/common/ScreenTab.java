@@ -59,7 +59,7 @@ public abstract class ScreenTab extends ExtendedScreen {
                         this.height / 16 + index * Math.max(this.height / 16, 30),
                         Math.max(96, Math.round(width / 7.5F)),
                         20,
-                        this.tabs.get(index).getLabel().asString(),
+                        this.tabs.get(index).getLabel().asFormattedString(),
                         this.setTabAction(index)
                 ));
 

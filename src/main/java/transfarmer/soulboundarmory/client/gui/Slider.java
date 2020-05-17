@@ -26,6 +26,10 @@ public abstract class Slider extends SliderWidget {
         return this.text.getKey();
     }
 
+    public TranslatableText getText() {
+        return this.text;
+    }
+
     public void setValue(final double value) {
         this.value = value;
 

@@ -1,7 +1,10 @@
 package transfarmer.soulboundarmory.item;
 
+import com.google.common.collect.Multimap;
+import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityGroup;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,6 +12,8 @@ import net.minecraft.item.ItemStack;
 import transfarmer.farmerlib.item.ItemModifiers;
 
 import static net.minecraft.entity.EquipmentSlot.MAINHAND;
+import static net.minecraft.entity.attribute.EntityAttributeModifier.Operation.ADDITION;
+import static transfarmer.soulboundarmory.Main.ATTACK_RANGE_MODIFIER_UUID;
 
 public interface SoulboundItem {
     default int getMainhandAttributeEntries(final ItemStack itemStack, final PlayerEntity player) {
@@ -33,5 +38,14 @@ public interface SoulboundItem {
         }
 
         return entries;
+    }
+
+    default Multimap<String, EntityAttributeModifier> putReach(
+            final Multimap<String, EntityAttributeModifier> modifiers, final EquipmentSlot slot, final float reach) {
+        if (slot == MAINHAND) {
+            modifiers.put(ReachEntityAttributes.ATTACK_RANGE.getId(), new EntityAttributeModifier(ATTACK_RANGE_MODIFIER_UUID, "Weapon modifier", reach, ADDITION));
+        }
+
+        return modifiers;
     }
 }

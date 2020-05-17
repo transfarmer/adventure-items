@@ -9,14 +9,13 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
-import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponComponent;
+import transfarmer.soulboundarmory.component.soulbound.item.IDaggerComponent;
 import transfarmer.soulboundarmory.entity.SoulboundDaggerEntity;
 
 import javax.annotation.Nonnull;
 
 import static transfarmer.soulboundarmory.skill.Skills.SHADOW_CLONE;
 import static transfarmer.soulboundarmory.skill.Skills.THROWING;
-import static transfarmer.soulboundarmory.statistics.Item.DAGGER;
 import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_SPEED;
 
 public class SoulboundDaggerItem extends SoulboundMeleeWeaponItem {
@@ -46,9 +45,9 @@ public class SoulboundDaggerItem extends SoulboundMeleeWeaponItem {
     @Override
     @Nonnull
     public TypedActionResult<ItemStack> use(final World world, @Nonnull final PlayerEntity player, @Nonnull final Hand hand) {
-        final IWeaponComponent component = WeaponProvider.get(player);
+        final IDaggerComponent component = IDaggerComponent.get(player);
 
-        if (!world.isClient && component.hasSkill(DAGGER, THROWING)) {
+        if (!world.isClient && component.hasSkill(THROWING)) {
             player.setCurrentHand(hand);
 
             return new TypedActionResult<>(ActionResult.SUCCESS, player.getStackInHand(hand));
@@ -60,14 +59,14 @@ public class SoulboundDaggerItem extends SoulboundMeleeWeaponItem {
     @Override
     public void onStoppedUsing(@Nonnull final ItemStack itemStack, final World world, @Nonnull final LivingEntity entity, final int timeLeft) {
         final PlayerEntity player = (PlayerEntity) entity;
-        final IWeaponComponent component = WeaponProvider.get(player);
+        final IDaggerComponent component = IDaggerComponent.get(player);
 
         if (!world.isClient) {
-            final SoulboundDaggerEntity dagger = new SoulboundDaggerEntity(world, entity, itemStack, component.hasSkill(DAGGER, SHADOW_CLONE));
-            final float attackSpeed = (float) component.getAttributeTotal(DAGGER, ATTACK_SPEED);
+            final float attackSpeed = (float) component.getAttributeTotal(ATTACK_SPEED);
             final float velocity = this.getMaxUsageRatio(attackSpeed, timeLeft) * attackSpeed;
+            final float maxVelocity = velocity / attackSpeed;
+            final SoulboundDaggerEntity dagger = new SoulboundDaggerEntity(world, entity, itemStack, component.hasSkill(SHADOW_CLONE), velocity, maxVelocity);
 
-            dagger.shoot(entity, entity.pitch, entity.yaw, velocity, velocity / attackSpeed, 0);
             world.spawnEntity(dagger);
 
             if (!player.isCreative()) {

@@ -1,41 +1,41 @@
 package transfarmer.soulboundarmory.config;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
+import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
+import me.sargunvohra.mcmods.autoconfig1u.annotation.Config;
+import me.sargunvohra.mcmods.autoconfig1u.annotation.Config.Gui.Background;
 import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.network.C2S.C2SConfig;
-import transfarmer.soulboundarmory.network.S2C.S2CConfig;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+@Config(name = Main.MOD_ID)
+@Background(value = "minecraft:block/andesite")
 public class MainConfig extends AbstractConfig {
-    public static final String CATEGORY_GENERAL = "general";
-    public static final String CATEGORY_MULTIPLIERS = "experience multipliers";
-    private static final MainConfig INSTANCE = new MainConfig(new MainConfiguration(new File(String.format("%s/soulboundarmory", Loader.instance().getConfigDir()), "main.cfg")));
-    private final MainConfiguration configFile;
+//    public static final String CATEGORY_GENERAL = "general";
+//    public static final String CATEGORY_MULTIPLIERS = "experience multipliers";
+//    private static final MainConfig INSTANCE = new MainConfig(new MainConfiguration(new File(String.format("%s/soulboundarmory", Loader.instance().getConfigDir()), "main.cfg")));
+//    private final MainConfiguration configFile;
 
-    private int initialWeaponXP;
-    private int initialToolXP;
-    private int levelsPerEnchantment;
-    private int levelsPerSkill;
-    private int maxLevel;
-    private int preservationLevel;
+    public int initialWeaponXP;
+    public int initialToolXP;
+    public int levelsPerEnchantment;
+    public int levelsPerSkill;
+    public int maxLevel;
+    public int preservationLevel;
 
-    private boolean addToOffhand;
-    private boolean levelupNotifications;
+    public boolean addToOffhand;
+    public boolean levelupNotifications;
 
-    private float armorMultiplier;
-    private float attackDamageMultiplier;
-    private float difficultyMultiplier;
-    private float babyMultiplier;
-    private float bossMultiplier;
-    private float hardcoreMultiplier;
-    private float passiveMultiplier;
+    public float armorMultiplier;
+    public float attackDamageMultiplier;
+    public float difficultyMultiplier;
+    public float babyMultiplier;
+    public float bossMultiplier;
+    public float hardcoreMultiplier;
+    public float passiveMultiplier;
 
+    public static MainConfig instance() {
+        return AutoConfig.getConfigHolder(MainConfig.class).getConfig();
+    }
+
+/*
     public MainConfig(final MainConfiguration configFile) {
         super(configFile);
 
@@ -378,4 +378,5 @@ public class MainConfig extends AbstractConfig {
             return this.get(CATEGORY_MULTIPLIERS, "passive entity XP multiplier", 0, "the factor by which XP gained by killing passive entities are multiplied");
         }
     }
+*/
 }

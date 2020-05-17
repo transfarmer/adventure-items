@@ -1,72 +1,7 @@
 package transfarmer.soulboundarmory.event;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.IProjectile;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSourceIndirect;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.RegistryEvent.Register;
-import net.minecraftforge.event.entity.living.EnderTeleportEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
-import net.minecraftforge.event.world.GetCollisionBoxesEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
-import net.minecraftforge.registries.IForgeRegistry;
-import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.component.entity.IEntityData;
-import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
-import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponComponent;
-import transfarmer.soulboundarmory.config.MainConfig;
-import transfarmer.soulboundarmory.entity.ReachModifierEntity;
-import transfarmer.soulboundarmory.entity.SoulboundLightningEntity;
-import transfarmer.soulboundarmory.entity.SoulboundDaggerEntity;
-import transfarmer.soulboundarmory.entity.SoulboundFireballEntity;
-import transfarmer.soulboundarmory.item.SoulboundDaggerItem;
-import transfarmer.soulboundarmory.skill.common.NourishmentSkill;
-import transfarmer.soulboundarmory.statistics.IItem;
-import transfarmer.farmerlib.util.EntityUtil;
-import transfarmer.farmerlib.util.ItemUtil;
-
-import java.util.List;
-import java.util.Random;
-
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
-import static transfarmer.soulboundarmory.component.entity.EntityDatumProvider.FROZEN;
-import static transfarmer.soulboundarmory.component.soulbound.tool.ToolProvider.TOOLS;
-import static transfarmer.soulboundarmory.component.soulbound.weapon.WeaponProvider.WEAPONS;
-import static transfarmer.soulboundarmory.Main.SOULBOUND_SWORD_ITEM;
-import static transfarmer.soulboundarmory.skill.Skills.FREEZING;
-import static transfarmer.soulboundarmory.skill.Skills.NOURISHMENT;
-import static transfarmer.soulboundarmory.statistics.Item.DAGGER;
-import static transfarmer.soulboundarmory.statistics.Item.GREATSWORD;
-import static transfarmer.soulboundarmory.statistics.Item.STAFF;
-import static transfarmer.soulboundarmory.statistics.Item.SWORD;
-import static transfarmer.soulboundarmory.statistics.StatisticType.ATTACK_SPEED;
-import static transfarmer.soulboundarmory.statistics.StatisticType.CRITICAL_STRIKE_PROBABILITY;
-import static transfarmer.soulboundarmory.statistics.StatisticType.KNOCKBACK;
-import static transfarmer.soulboundarmory.statistics.StatisticType.LEVEL;
-import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
-
-@EventBusSubscriber(modid = Main.MOD_ID)
 public class EntityEventListeners {
-    @SubscribeEvent
+/*
     public static void onLivingAttack(final LivingAttackEvent event) {
         final Entity entity = event.getEntity();
 
@@ -79,7 +14,6 @@ public class EntityEventListeners {
         }
     }
 
-    @SubscribeEvent
     public static void onLivingHurt(final LivingHurtEvent event) {
         final Entity trueSource = event.getSource().getTrueSource();
 
@@ -117,7 +51,6 @@ public class EntityEventListeners {
         }
     }
 
-    @SubscribeEvent
     public static void onLivingKnockback(final LivingKnockBackEvent event) {
         final Entity entity = event.getEntity();
 
@@ -150,7 +83,6 @@ public class EntityEventListeners {
     }
 
     @SuppressWarnings("ConstantConditions")
-    @SubscribeEvent
     public static void onLivingDeath(final LivingDeathEvent event) {
         final LivingEntity entity = event.getEntityLiving();
 
@@ -277,7 +209,6 @@ public class EntityEventListeners {
         }
     }
 
-    @SubscribeEvent
     public static void onLivingUpdate(final LivingUpdateEvent event) {
         final IEntityData entityData = EntityDatumProvider.get(event.getEntity());
 
@@ -290,7 +221,6 @@ public class EntityEventListeners {
         }
     }
 
-    @SubscribeEvent
     public static void onGetCollsionBoxes(final GetCollisionBoxesEvent event) {
         final Entity entity = event.getEntity();
 
@@ -319,7 +249,6 @@ public class EntityEventListeners {
         }
     }
 
-    @SubscribeEvent
     public static void onRightClickItem(final LivingEntityUseItemEvent.Tick event) {
         if (event.getEntity() instanceof PlayerEntity) {
             final PlayerEntity player = (PlayerEntity) event.getEntity();
@@ -341,7 +270,6 @@ public class EntityEventListeners {
         }
     }
 
-    @SubscribeEvent
     public static void onEnderTeleport(final EnderTeleportEvent event) {
         final IEntityData component = EntityDatumProvider.get(event.getEntity());
 
@@ -349,44 +277,5 @@ public class EntityEventListeners {
             event.setCanceled(true);
         }
     }
-
-    @SubscribeEvent
-    public static void onRegisterEntityEntry(final Register<EntityEntry> event) {
-        final IForgeRegistry<EntityEntry> registry = event.getRegistry();
-
-        registry.register(EntityEntryBuilder.create()
-                .entity(SoulboundDaggerEntity.class)
-                .id(new Identifier(Main.MOD_ID, "entity_soul_dagger"), 0)
-                .name("soul dagger")
-                .tracker(512, 1, true)
-                .build()
-        );
-        registry.register(EntityEntryBuilder.create()
-                .entity(ReachModifierEntity.class)
-                .id(new Identifier(Main.MOD_ID, "entity_reach_extender"), 1)
-                .name("reach extender")
-                .tracker(16, 1, true)
-                .build()
-        );
-        registry.register(EntityEntryBuilder.create()
-                .entity(SoulboundFireballEntity.class)
-                .id(new Identifier(Main.MOD_ID, "entity_soulbound_small_fireball"), 2)
-                .name("small fireball")
-                .tracker(512, 1, true)
-                .build()
-        );
-    }
-
-    public static void onAttachCapabilities() {
-        if (entity instanceof PlayerEntity) {
-            final ToolProvider tools = new ToolProvider();
-            final WeaponProvider weapons = new WeaponProvider();
-
-            event.addComponent(new Identifier(Main.MOD_ID, "soulboundtool"), tools);
-            event.addComponent(new Identifier(Main.MOD_ID, "soulboundweapon"), weapons);
-            event.addComponent(new Identifier(Main.MOD_ID, "playerconfig"), new ConfigProvider());
-            tools.getComponent(TOOLS, null).initPlayer((PlayerEntity) entity);
-            weapons.getComponent(WEAPONS, null).initPlayer((PlayerEntity) entity);
-        }
-    }
+*/
 }

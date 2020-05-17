@@ -1,61 +1,24 @@
 package transfarmer.soulboundarmory.network.S2C;
 
-import net.minecraft.client.Minecraft;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.util.Identifier;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.registry.Registry;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
-import transfarmer.soulboundarmory.statistics.IItem;
+import transfarmer.soulboundarmory.network.common.ItemComponentPacket;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulboundarmory.MainClient.CLIENT;
 
-public class S2CEnchant implements IExtendedMessage {
-    private String component;
-    private String item;
-    private Identifier enchantment;
-    private int amount;
-
-    public S2CEnchant() {}
-
-    public S2CEnchant(final IComponentType component,
-                      final IItem item, final Enchantment enchantment, final int amount) {
-        this.component = component.toString();
-        this.item = item.toString();
-        this.enchantment = enchantment.getRegistryName();
-        this.amount = amount;
-    }
-
+public class S2CEnchant extends ItemComponentPacket {
     @Override
-    public void fromBytes(final ExtendedPacketBuffer buffer) {
-        this.component = buffer.readString();
-        this.item = buffer.readString();
-        this.enchantment = buffer.readIdentifier();
-        this.amount = buffer.readInt();
-    }
+    @Environment(EnvType.CLIENT)
+    protected void accept(final PacketContext context, final ExtendedPacketBuffer buffer) {
+        final Enchantment enchantment = Registry.ENCHANTMENT.get(buffer.readIdentifier());
 
-    @Override
-    public void toBytes(final ExtendedPacketBuffer buffer) {
-        buffer.writeString(this.component);
-        buffer.writeString(this.item);
-        buffer.writeIdentifier(this.enchantment);
-        buffer.writeInt(this.amount);
-    }
-
-    public static final class Handler implements IExtendedMessageHandler<S2CEnchant> {
-        @Environment(CLIENT)
-        @Override
-        public IExtendedMessage onMessage(final S2CEnchant message, final MessageContext context) {
-            final Minecraft minecraft = CLIENT;
-            final Enchantment enchantment = Enchantment.getEnchantmentByLocation(enchantment.toString());
-            final IItem item = IItem.get(item);
-            final ISoulboundItemComponent component = minecraft.player.getComponent(IComponentType.get(component).getComponent(), null);
-
-            minecraft.addScheduledTask(() -> {
-                component.addEnchantment(item, enchantment, amount);
-                component.refresh();
-            });
-
-            return null;
-        }
+        CLIENT.execute(() -> {
+            component.addEnchantment(enchantment, buffer.readInt());
+            component.refresh();
+        });
     }
 }

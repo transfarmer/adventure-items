@@ -32,22 +32,6 @@ public abstract class SoulboundWeaponComponent<C extends Component> extends Soul
     }
 
     @Override
-    public int getLevelXP(final int level) {
-        return this.canLevelUp()
-                ? MainConfig.instance().getInitialWeaponXP() + 3 * (int) Math.round(Math.pow(level, 1.65))
-                : -1;
-    }
-
-    @Override
-    @Environment(EnvType.CLIENT)
-    public List<ScreenTab> getTabs() {
-        List<ScreenTab> tabs = new ArrayList<>();
-        tabs = CollectionUtil.arrayList(new WeaponSelectionTab(tabs), new WeaponAttributesTab(tabs), new EnchantmentTab(this, tabs), new SkillTab(this, tabs));
-
-        return tabs;
-    }
-
-    @Override
     public double getAttributeRelative(final StatisticType statistic) {
         if (statistic == ATTACK_SPEED) {
             return this.getAttribute(ATTACK_SPEED) - 4;
@@ -103,5 +87,21 @@ public abstract class SoulboundWeaponComponent<C extends Component> extends Soul
                 this.statistics.add(attribute, change);
             }
         }
+    }
+
+    @Override
+    @Environment(EnvType.CLIENT)
+    public List<ScreenTab> getTabs() {
+        List<ScreenTab> tabs = new ArrayList<>();
+        tabs = CollectionUtil.arrayList(new WeaponSelectionTab(this, tabs), new WeaponAttributesTab(this, tabs), new EnchantmentTab(this, tabs), new SkillTab(this, tabs));
+
+        return tabs;
+    }
+
+    @Override
+    public int getLevelXP(final int level) {
+        return this.canLevelUp()
+                ? MainConfig.instance().initialWeaponXP + 3 * (int) Math.round(Math.pow(level, 1.65))
+                : -1;
     }
 }

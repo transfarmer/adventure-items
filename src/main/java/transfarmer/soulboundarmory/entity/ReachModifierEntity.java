@@ -1,35 +1,7 @@
 package transfarmer.soulboundarmory.entity;
 
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.EnumCreatureAttribute;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerEntityMP;
-import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.init.MobEffects;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
-import net.minecraft.network.play.server.SPacketEntityVelocity;
-import net.minecraft.stats.StatList;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RayTraceContext;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.player.CriticalHitEvent;
-import transfarmer.soulboundarmory.component.soulbound.weapon.IWeaponComponent;
-
-public class ReachModifierEntity extends ExtendedProjectile {
+public class ReachModifierEntity {
+/*
     private float reachDistance;
 
     public ReachModifierEntity(final World worldIn) {
@@ -250,4 +222,5 @@ public class ReachModifierEntity extends ExtendedProjectile {
 
         return Math.pow(pos.x - this.getX(), 2) + Math.pow(pos.y - this.getY(), 2) + Math.pow(pos.z - this.getZ(), 2);
     }
+*/
 }

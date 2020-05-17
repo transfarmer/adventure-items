@@ -38,7 +38,7 @@ import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ATTRIBU
 import static transfarmer.soulboundarmory.statistics.StatisticType.SPENT_ENCHANTMENT_POINTS;
 import static transfarmer.soulboundarmory.statistics.StatisticType.XP;
 
-public class PickComponent extends SoulboundItemComponent<IPickComponent> implements IPickComponent {
+public class PickComponent extends SoulboundToolComponent<IPickComponent> implements IPickComponent {
     public PickComponent(final ItemStack itemStack, final PlayerEntity player) {
         super(itemStack, player);
 

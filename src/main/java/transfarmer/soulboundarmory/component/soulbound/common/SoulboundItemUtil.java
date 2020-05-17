@@ -13,7 +13,6 @@ import transfarmer.farmerlib.collection.CollectionUtil;
 import transfarmer.farmerlib.item.ItemUtil;
 import transfarmer.soulboundarmory.component.config.IConfigComponent;
 import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
-import transfarmer.soulboundarmory.component.soulbound.item.SoulboundItemComponent;
 import transfarmer.soulboundarmory.item.SoulboundItem;
 import transfarmer.soulboundarmory.item.SoulboundWeaponItem;
 
@@ -28,7 +27,7 @@ public class SoulboundItemUtil {
 
     public static ISoulboundItemComponent<? extends Component> getFirstComponent(final PlayerEntity player) {
         for (final ItemStack itemStack : player.getItemsHand()) {
-            final ISoulboundItemComponent<? extends Component> component = SoulboundItemComponent.get(itemStack);
+            final ISoulboundItemComponent<? extends Component> component = ISoulboundItemComponent.get(itemStack);
 
             if (component != null) {
                 return component;
@@ -79,7 +78,7 @@ public class SoulboundItemUtil {
             }
 
             for (int index = 0; index < mergedInventory.size(); index++) {
-                if (!SoulboundItemComponent.isSlotBound(index) && mergedInventory.get(index).isEmpty()) {
+                if (!ISoulboundItemComponent.isSlotBound(index) && mergedInventory.get(index).isEmpty()) {
                     if (index != size) {
                         return inventory.insertStack(index, itemStack);
                     }
@@ -94,7 +93,7 @@ public class SoulboundItemUtil {
             return false;
         }
 
-        final int boundSlot = SoulboundItemComponent.get(itemStack).getBoundSlot();
+        final int boundSlot = ISoulboundItemComponent.get(itemStack).getBoundSlot();
 
         if (boundSlot >= 0) {
             if (inventory.getInvStack(boundSlot).isEmpty()) {

@@ -86,13 +86,19 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
     @Override
     public void fromTag(final CompoundTag tag) {
         for (final String key : tag.getKeys()) {
-            this.fromTag(tag.getCompound(key), this.get(Category.valueOf(key)).toTag());
+            this.fromTag(tag.getCompound(key), Category.valueOf(key));
         }
     }
 
     public void fromTag(final CompoundTag tag, final Category category) {
         if (category != null) {
-            this.get(category).fromTag(tag.getCompound(key));
+            for (final String identifier : tag.getCompound(category.toString()).getKeys()) {
+                final Statistic statistic = this.get(StatisticType.valueOf(identifier));
+
+                if (statistic != null) {
+                    statistic.fromTag(tag.getCompound(identifier));
+                }
+            }
         }
     }
 

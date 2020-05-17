@@ -1,17 +1,9 @@
 package transfarmer.soulboundarmory.config;
 
 import me.sargunvohra.mcmods.autoconfig1u.ConfigData;
-import me.sargunvohra.mcmods.autoconfig1u.annotation.Config;
-import transfarmer.soulboundarmory.Main;
-import transfarmer.farmerlib.util.CollectionUtil;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
-
-@Config(name = Main.MOD_NAME)
 public abstract class AbstractConfig implements ConfigData {
+/*
     protected final ExtendedConfiguration configFile;
 
     public AbstractConfig(final ExtendedConfiguration configFile) {
@@ -73,4 +65,5 @@ public abstract class AbstractConfig implements ConfigData {
             this.cleanUp();
         }
     }
+*/
 }

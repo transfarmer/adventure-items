@@ -1,20 +1,27 @@
 package transfarmer.soulboundarmory.client.gui.screen.common;
 
-import net.minecraft.client.gui.ButtonWidget;
-import net.minecraftforge.common.capabilities.Component;
-import org.jetbrains.annotations.Nonnull;
-import transfarmer.soulboundarmory.Main;
-import transfarmer.soulboundarmory.network.C2S.C2SItemType;
+import nerdhub.cardinal.components.api.component.Component;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import transfarmer.soulboundarmory.MainClient;
+import transfarmer.soulboundarmory.client.i18n.Mappings;
+import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
+import transfarmer.soulboundarmory.network.Packets;
+import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
 public abstract class SelectionTab extends SoulboundTab {
-    protected final Map<Integer, String> selection;
+    protected final Map<ISoulboundItemComponent<? extends Component>, Text> selection;
 
-    public SelectionTab(final @Nonnull Component<? extends ISoulboundItemComponent> key, final List<ScreenTab> tabs,
-                        final Map<Integer, String> selection) {
-        super(key, tabs);
+    public SelectionTab(final @Nonnull ISoulboundItemComponent<? extends Component> component,
+                        final List<ScreenTab> tabs,
+                        final Map<ISoulboundItemComponent<? extends Component>, Text> selection) {
+        super(Mappings.MENU_SELECTION, component, tabs);
 
         this.selection = selection;
     }
@@ -25,42 +32,42 @@ public abstract class SelectionTab extends SoulboundTab {
 
         final int width = 128;
         final int height = 20;
-        final int xCenter = (this.width - width) / 2;
+        final int centerX = (this.width - width) / 2;
         final int ySep = 32;
 
-        for (int id = 0, size = this.selection.size(); id < size; id++) {
-            if (!this.component.isUnlocked(id) && !this.component.canUnlock(id)) {
-                this.selection.remove(id);
+        for (final ISoulboundItemComponent<? extends Component> component : this.selection.keySet()) {
+            if (!this.component.isUnlocked() && !component.canUnlock()) {
+                this.selection.remove(component);
             }
         }
 
         final int top = (this.height - height - ySep * (this.selection.size() - 1)) / 2;
-        int row = 0;
+        int n = 0;
 
-        for (final int id : this.selection.keySet()) {
-            final ButtonWidget button = this.addButton(new ButtonWidget(id, xCenter, top + (row++ * ySep), width, height, this.selection.get(id)));
+        for (final ISoulboundItemComponent<? extends Component> component : this.selection.keySet()) {
+            final Identifier identifier = component.getComponentType().getId();
+            final ButtonWidget button = this.addButton(new ButtonWidget(centerX, top + (n++ * ySep), width, height, this.selection.get(component).asFormattedString(), this.selectAction(component)));
 
-            if (this.component.hasSoulboundItem()) {
-                button.active = id != this.component.getIndex();
+            if (this.displayTabs) {
+                button.active = identifier != this.component.getComponentType().getId();
             }
         }
+    }
+
+    private PressAction selectAction(final ISoulboundItemComponent<? extends Component> component) {
+        return (final ButtonWidget button) -> {
+            if (this.selection.containsKey(component)) {
+                MainClient.PACKET_REGISTRY.sendToServer(Packets.C2S_ITEM_TYPE, new ExtendedPacketBuffer(component));
+            }
+        };
     }
 
     @Override
     public void render(final int mouseX, final int mouseY, final float partialTicks) {
         super.render(mouseX, mouseY, partialTicks);
 
-        if (!this.component.hasSoulboundItem()) {
-            this.drawCenteredString(this.fontRenderer, this.getLabel(), this.width / 2, 40, 0xFFFFFF);
-        }
-    }
-
-    @Override
-    public void actionPerformed(@Nonnull final ButtonWidget button) {
-        super.actionPerformed(button);
-
-        if (this.selection.containsKey(button.id)) {
-            Main.CHANNEL.sendToServer(new C2SItemType(this.component.getType(), this.component.getItemType(button.id)));
+        if (!this.component.isItemEquipped()) {
+            this.font.draw(this.getLabel().asFormattedString(), this.width / 2F, 40, 0xFFFFFF);
         }
     }
 }

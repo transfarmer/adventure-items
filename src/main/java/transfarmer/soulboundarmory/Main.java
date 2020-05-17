@@ -1,14 +1,13 @@
 package transfarmer.soulboundarmory;
 
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
-import me.sargunvohra.mcmods.autoconfig1u.serializer.Toml4jConfigSerializer;
+import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
 import nerdhub.cardinal.components.api.ComponentRegistry;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.event.EntityComponentCallback;
 import nerdhub.cardinal.components.api.util.EntityComponents;
 import nerdhub.cardinal.components.api.util.RespawnCopyStrategy;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.enchantment.Enchantment;
@@ -24,11 +23,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import transfarmer.soulboundarmory.command.SoulboundArmoryCommand;
 import transfarmer.soulboundarmory.component.config.ConfigComponent;
 import transfarmer.soulboundarmory.component.config.IConfigComponent;
 import transfarmer.soulboundarmory.component.entity.EntityData;
 import transfarmer.soulboundarmory.component.entity.IEntityData;
+import transfarmer.soulboundarmory.component.soulbound.common.PlayerSoulboundComponent;
 import transfarmer.soulboundarmory.component.soulbound.item.IDaggerComponent;
 import transfarmer.soulboundarmory.component.soulbound.item.IGreatswordComponent;
 import transfarmer.soulboundarmory.component.soulbound.item.IPickComponent;
@@ -37,7 +36,6 @@ import transfarmer.soulboundarmory.component.soulbound.item.ISwordComponent;
 import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.enchantment.ImpactEnchantment;
-import transfarmer.soulboundarmory.entity.ReachModifierEntity;
 import transfarmer.soulboundarmory.entity.SoulboundDaggerEntity;
 import transfarmer.soulboundarmory.entity.SoulboundFireballEntity;
 import transfarmer.soulboundarmory.item.SoulboundDaggerItem;
@@ -73,10 +71,10 @@ public class Main implements ModInitializer {
     public static final ComponentType<IConfigComponent> CONFIG_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "config_component"), IConfigComponent.class).attach(EntityComponentCallback.event(PlayerEntity.class), ConfigComponent::new);
 
     public static final ComponentType<IEntityData> ENTITY_DATA = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "entity_data"), IEntityData.class).attach(EntityComponentCallback.event(Entity.class), (final Entity entity) ->
-            (entity instanceof LivingEntity || entity instanceof Projectile)
-                    && !(entity instanceof ReachModifierEntity || entity instanceof SoulboundDaggerEntity)
+            (entity instanceof LivingEntity || entity instanceof Projectile) && !(entity instanceof SoulboundDaggerEntity)
                     ? new EntityData(entity) : null
     );
+    public static final ComponentType<PlayerSoulboundComponent> COMPONENTS = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "components"), PlayerSoulboundComponent.class);
     public static final ComponentType<IDaggerComponent> DAGGER_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "dagger"), IDaggerComponent.class);
     public static final ComponentType<ISwordComponent> SWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "sword"), ISwordComponent.class);
     public static final ComponentType<IGreatswordComponent> GREATSWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "greatsword"), IGreatswordComponent.class);
@@ -98,19 +96,21 @@ public class Main implements ModInitializer {
     public void onInitialize() {
         EntityComponents.setRespawnCopyStrategy(CONFIG_COMPONENT, RespawnCopyStrategy.ALWAYS_COPY);
 
+        COMPONENTS.attach(EntityComponentCallback.event(PlayerEntity.class), PlayerSoulboundComponent::new);
+
         PACKET_REGISTRY.register(C2S_ATTRIBUTE, new C2SAttribute());
         PACKET_REGISTRY.register(C2S_BIND_SLOT, new C2SBindSlot());
         PACKET_REGISTRY.register(C2S_CONFIG, new C2SConfig());
         PACKET_REGISTRY.register(C2S_ENCHANT, new C2SEnchant());
         PACKET_REGISTRY.register(C2S_ITEM_TYPE, new C2SItemType());
 
-        CommandRegistrationCallback.EVENT.register(SoulboundArmoryCommand::register);
+//        CommandRegistrationCallback.EVENT.register(SoulboundArmoryCommand::register);
 
-        AutoConfig.register(MainConfig.class, Toml4jConfigSerializer::new);
-        AutoConfig.register(ClientConfig.class, Toml4jConfigSerializer::new);
+        AutoConfig.register(MainConfig.class, JanksonConfigSerializer::new);
+        AutoConfig.register(ClientConfig.class, JanksonConfigSerializer::new);
 
-        MainConfig.instance().load();
-        MainConfig.instance().update();
-        MainConfig.instance().save();
+//        MainConfig.instance().load();
+//        MainConfig.instance().update();
+//        MainConfig.instance().save();
     }
 }

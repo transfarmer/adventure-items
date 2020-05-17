@@ -4,21 +4,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import transfarmer.farmerlib.reflect.FieldWrapper;
-import transfarmer.farmerlib.util.MathUtil;
+import transfarmer.farmerlib.math.MathUtil;
+import transfarmer.soulboundarmory.duck.entity.ProjectileEntityDuck;
 
 public abstract class ExtendedProjectile extends ProjectileEntity {
-    protected FieldWrapper<Vec3d, ExtendedProjectile> velocity;
-    protected FieldWrapper<Integer, ExtendedProjectile> life;
-
     public ExtendedProjectile(final World world) {
         super(EntityType.ARROW, world);
-
-        this.setVelocityVector();
-
-        this.life = new FieldWrapper<>(ProjectileEntity.class, this, "life");
     }
 
     protected ExtendedProjectile(final EntityType<? extends ProjectileEntity> type, final double x, final double y,
@@ -34,19 +26,11 @@ public abstract class ExtendedProjectile extends ProjectileEntity {
 
     public ExtendedProjectile(final EntityType<? extends ProjectileEntity> type, final World world) {
         super(type, world);
-
-        this.setVelocityVector();
     }
 
     public ExtendedProjectile(final World world, final EntityType<? extends ProjectileEntity> entityType,
                               final double x, final double y, final double z) {
         super(entityType, x, y, z, world);
-
-        this.setVelocityVector();
-    }
-
-    private void setVelocityVector() {
-        this.velocity = new FieldWrapper<>(ProjectileEntity.class, this, "velocity");
     }
 
     public double displacementTo(final Entity entity) {
@@ -69,18 +53,22 @@ public abstract class ExtendedProjectile extends ProjectileEntity {
     }
 
     public double velocityX() {
-        return this.velocity.get().x;
+        return this.getVelocity().x;
     }
 
     public double velocityY() {
-        return this.velocity.get().y;
+        return this.getVelocity().y;
     }
 
     public double velocityZ() {
-        return this.velocity.get().z;
+        return this.getVelocity().z;
     }
 
     public double getVelocityD() {
         return this.getSpeed() * MathUtil.signum(this.velocityX(), this.velocityY(), this.velocityZ());
+    }
+
+    protected int getLife() {
+        return ((ProjectileEntityDuck) this).getLife();
     }
 }

@@ -1,49 +1,20 @@
 package transfarmer.soulboundarmory.network.S2C;
 
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.network.PacketContext;
 import transfarmer.soulboundarmory.client.gui.screen.common.SoulboundTab;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
+import transfarmer.soulboundarmory.network.common.ItemComponentPacket;
 
-import static net.minecraftforge.fml.relauncher.Side.CLIENT;
+import static transfarmer.soulboundarmory.MainClient.CLIENT;
 
-public class S2COpenGUI implements IExtendedMessage {
-    String component;
-    int tab;
-
-    public S2COpenGUI() {
-    }
-
-    public S2COpenGUI(final IComponentType component, final int tab) {
-        this.component = component.toString();
-        this.tab = tab;
-    }
-
+public class S2COpenGUI extends ItemComponentPacket {
     @Override
-    public void fromBytes(final ExtendedPacketBuffer buffer) {
-        this.component = buffer.readString();
-        this.tab = buffer.readInt();
-    }
-
-    @Override
-    public void toBytes(final ExtendedPacketBuffer buffer) {
-        buffer.writeString(this.component);
-        buffer.writeInt(this.tab);
-    }
-
-    public static final class Handler implements IExtendedMessageHandler<S2COpenGUI> {
-        @Override
-        @Environment(CLIENT)
-        public IExtendedMessage onMessage(final S2COpenGUI message, final MessageContext context) {
-            final Minecraft minecraft = CLIENT;
-
-            minecraft.addScheduledTask(() -> {
-                if (minecraft.currentScreen instanceof SoulboundTab) {
-                    minecraft.player.getComponent(IComponentType.get(component).getComponent(), null).openGUI(tab);
-                }
-            });
-
-            return null;
+    @Environment(EnvType.CLIENT)
+    protected void accept(final PacketContext context, final ExtendedPacketBuffer buffer) {
+        if (CLIENT.currentScreen instanceof SoulboundTab) {
+            this.component.openGUI(buffer.readInt());
         }
     }
 }

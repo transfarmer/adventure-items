@@ -63,7 +63,7 @@ public abstract class SoulboundToolComponent<C extends Component> extends Soulbo
     @Override
     public int getLevelXP(final int level) {
         return this.canLevelUp()
-                ? MainConfig.instance().getInitialToolXP() + (int) Math.round(4 * Math.pow(level, 1.25))
+                ? MainConfig.instance().initialToolXP + (int) Math.round(4 * Math.pow(level, 1.25))
                 : -1;
     }
 
@@ -71,7 +71,7 @@ public abstract class SoulboundToolComponent<C extends Component> extends Soulbo
     @Environment(EnvType.CLIENT)
     public List<ScreenTab> getTabs() {
         List<ScreenTab> tabs = new ArrayList<>();
-        tabs = Arrays.asList(new ToolConfirmationTab(tabs), new ToolAttributesTab(tabs), new EnchantmentTab(this, tabs), new SkillTab(this, tabs));
+        tabs = Arrays.asList(new ToolConfirmationTab(this, tabs), new ToolAttributesTab(this, tabs), new EnchantmentTab(this, tabs), new SkillTab(this, tabs));
 
         return tabs;
     }

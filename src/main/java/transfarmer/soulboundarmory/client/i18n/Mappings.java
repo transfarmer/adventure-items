@@ -1,10 +1,7 @@
 package transfarmer.soulboundarmory.client.i18n;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.text.TranslatableText;
 
-@Environment(EnvType.CLIENT)
 public class Mappings {
     public static final TranslatableText SOULBOUND_GREATSWORD_NAME = new TranslatableText("item.soulboundarmory.soulboundGreatsword");
     public static final TranslatableText SOULBOUND_SWORD_NAME = new TranslatableText("item.soulboundarmory.soulboundSword");
