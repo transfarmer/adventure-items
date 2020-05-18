@@ -27,7 +27,7 @@ public class MainConfig implements ConfigData {
     public int levelsPerEnchantment = 10;
     @Tooltip
     public int levelsPerSkillPoint = 5;
-    @Tooltip
+    @Tooltip(count = 2)
     public int maxLevel = -1;
     @Tooltip
     public int preservationLevel = 0;
@@ -43,7 +43,7 @@ public class MainConfig implements ConfigData {
     @Tooltip
     public double attackDamageMultiplier = 0.35;
     @Category("multipliers")
-    @Tooltip
+    @Tooltip(count = 2)
     public double difficultyMultiplier = 0.5;
     @Category("multipliers")
     @Tooltip
@@ -65,7 +65,6 @@ public class MainConfig implements ConfigData {
     @Tooltip
     public boolean overlayXPBar = true;
     @Category("client")
-    @Tooltip
     @EnumHandler(option = EnumDisplayOption.BUTTON)
     public Style style = Style.EXPERIENCE;
     @Category("client")

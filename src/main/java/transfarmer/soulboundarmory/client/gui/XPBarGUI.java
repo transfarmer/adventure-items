@@ -226,7 +226,7 @@ public class XPBarGUI extends ExtendedScreen {
 
         @Override
         public String toString() {
-            return this.text.toString();
+            return this.text.asFormattedString();
         }
     }
 }

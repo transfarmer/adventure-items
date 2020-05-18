@@ -35,7 +35,7 @@ public class Mappings {
     public static final TranslatableText XP_BAR_STYLE = new TranslatableText("gui.soulboundarmory.style");
     public static final TranslatableText EXPERIENCE = new TranslatableText("gui.soulboundarmory.experience");
     public static final TranslatableText BOSS = new TranslatableText("gui.soulboundarmory.boss");
-    public static final TranslatableText HORSE = new TranslatableText("entity.Horse.name");
+    public static final TranslatableText HORSE = new TranslatableText("gui.soulboundarmory.horse");
 
     public static final TranslatableText ATTACK_SPEED_FORMAT = new TranslatableText("format.soulboundarmory.attackSpeed");
     public static final TranslatableText ATTACK_DAMAGE_FORMAT = new TranslatableText("format.soulboundarmory.attackDamage");

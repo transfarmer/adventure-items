@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screen.Screen;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.config.MainConfig;
 
+@Environment(EnvType.CLIENT)
 public class ModMenuIntegration implements ModMenuApi {
     @Override
     public String getModId() {
@@ -16,7 +17,6 @@ public class ModMenuIntegration implements ModMenuApi {
     }
 
     @Override
-    @Environment(EnvType.CLIENT)
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return (final Screen parent) -> AutoConfig.getConfigScreen(MainConfig.class, parent).get();
     }

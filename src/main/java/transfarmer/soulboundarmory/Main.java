@@ -60,25 +60,49 @@ public class Main implements ModInitializer {
     public static final String MOD_NAME = "soulbound armory";
     public static final String VERSION = "3.0.0";
 
-    public static final SoulboundDaggerItem SOULBOUND_DAGGER_ITEM = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_dagger"), new SoulboundDaggerItem());
-    public static final SoulboundSwordItem SOULBOUND_SWORD_ITEM = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_sword"), new SoulboundSwordItem());
-    public static final SoulboundGreatswordItem SOULBOUND_GREATSWORD_ITEM = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_greatsword"), new SoulboundGreatswordItem());
-    public static final SoulboundStaffItem SOULBOUND_STAFF_ITEM = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_staff"), new SoulboundStaffItem());
-    public static final SoulboundPickItem SOULBOUND_PICK_ITEM = Registry.register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_pick"), new SoulboundPickItem());
+    public static final SoulboundDaggerItem SOULBOUND_DAGGER_ITEM = Registry
+            .register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_dagger"), new SoulboundDaggerItem());
+    public static final SoulboundSwordItem SOULBOUND_SWORD_ITEM = Registry
+            .register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_sword"), new SoulboundSwordItem());
+    public static final SoulboundGreatswordItem SOULBOUND_GREATSWORD_ITEM = Registry
+            .register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_greatsword"), new SoulboundGreatswordItem());
+    public static final SoulboundStaffItem SOULBOUND_STAFF_ITEM = Registry
+            .register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_staff"), new SoulboundStaffItem());
+    public static final SoulboundPickItem SOULBOUND_PICK_ITEM = Registry
+            .register(Registry.ITEM, new Identifier(MOD_ID, "soulbound_pick"), new SoulboundPickItem());
 
-    public static final ComponentType<IConfigComponent> CONFIG_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "config_component"), IConfigComponent.class).attach(EntityComponentCallback.event(PlayerEntity.class), ConfigComponent::new);
-    public static final ComponentType<IEntityData> ENTITY_DATA = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "entity_data"), IEntityData.class).attach(EntityComponentCallback.event(Entity.class), EntityData::new);
-    public static final ComponentType<IPlayerSoulboundComponent> COMPONENTS = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "components"), IPlayerSoulboundComponent.class).attach(EntityComponentCallback.event(PlayerEntity.class), PlayerSoulboundComponent::new);
-    public static final ComponentType<IDaggerComponent> DAGGER_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "dagger"), IDaggerComponent.class);
-    public static final ComponentType<ISwordComponent> SWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "sword"), ISwordComponent.class);
-    public static final ComponentType<IGreatswordComponent> GREATSWORD_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "greatsword"), IGreatswordComponent.class);
-    public static final ComponentType<IStaffComponent> STAFF_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "staff"), IStaffComponent.class);
-    public static final ComponentType<IPickComponent> PICK_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(MOD_ID, "pick"), IPickComponent.class);
+    public static final ComponentType<IConfigComponent> CONFIG_COMPONENT = ComponentRegistry.INSTANCE
+            .registerIfAbsent(new Identifier(MOD_ID, "config_component"), IConfigComponent.class)
+            .attach(EntityComponentCallback.event(PlayerEntity.class), ConfigComponent::new);
+    public static final ComponentType<IEntityData> ENTITY_DATA = ComponentRegistry.INSTANCE
+            .registerIfAbsent(new Identifier(MOD_ID, "entity_data"), IEntityData.class)
+            .attach(EntityComponentCallback.event(Entity.class), EntityData::new);
+    public static final ComponentType<IPlayerSoulboundComponent> COMPONENTS = ComponentRegistry.INSTANCE
+            .registerIfAbsent(new Identifier(MOD_ID, "components"), IPlayerSoulboundComponent.class)
+            .attach(EntityComponentCallback.event(PlayerEntity.class), PlayerSoulboundComponent::new);
 
-    public static final EntityType<SoulboundDaggerEntity> SOULBOUND_DAGGER_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, "dagger"), FabricEntityTypeBuilder.create(EntityCategory.MISC, (EntityFactory<SoulboundDaggerEntity>) SoulboundDaggerEntity::new).dimensions(EntityDimensions.fixed(1, 1)).build());
-    public static final EntityType<SoulboundFireballEntity> SOULBOUND_FIREBALL_ENTITY = Registry.register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, "fireball"), FabricEntityTypeBuilder.create(EntityCategory.MISC, (EntityFactory<SoulboundFireballEntity>) SoulboundFireballEntity::new).dimensions(EntityDimensions.fixed(1, 1)).build());
+    public static final ComponentType<IDaggerComponent> DAGGER_COMPONENT = ComponentRegistry.INSTANCE
+            .registerIfAbsent(new Identifier(MOD_ID, "dagger"), IDaggerComponent.class);
+    public static final ComponentType<ISwordComponent> SWORD_COMPONENT = ComponentRegistry.INSTANCE
+            .registerIfAbsent(new Identifier(MOD_ID, "sword"), ISwordComponent.class);
+    public static final ComponentType<IGreatswordComponent> GREATSWORD_COMPONENT = ComponentRegistry.INSTANCE
+            .registerIfAbsent(new Identifier(MOD_ID, "greatsword"), IGreatswordComponent.class);
+    public static final ComponentType<IStaffComponent> STAFF_COMPONENT = ComponentRegistry.INSTANCE
+            .registerIfAbsent(new Identifier(MOD_ID, "staff"), IStaffComponent.class);
+    public static final ComponentType<IPickComponent> PICK_COMPONENT = ComponentRegistry.INSTANCE
+            .registerIfAbsent(new Identifier(MOD_ID, "pick"), IPickComponent.class);
 
-    public static final Enchantment IMPACT = Registry.register(Registry.ENCHANTMENT, new Identifier(MOD_ID, "impact"), new ImpactEnchantment());
+    public static final EntityType<SoulboundDaggerEntity> SOULBOUND_DAGGER_ENTITY = Registry
+            .register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, "dagger"), FabricEntityTypeBuilder
+                    .create(EntityCategory.MISC, (EntityFactory<SoulboundDaggerEntity>) SoulboundDaggerEntity::new)
+                    .dimensions(EntityDimensions.fixed(1, 1)).build());
+    public static final EntityType<SoulboundFireballEntity> SOULBOUND_FIREBALL_ENTITY = Registry
+            .register(Registry.ENTITY_TYPE, new Identifier(MOD_ID, "fireball"), FabricEntityTypeBuilder
+                    .create(EntityCategory.MISC, (EntityFactory<SoulboundFireballEntity>) SoulboundFireballEntity::new)
+                    .dimensions(EntityDimensions.fixed(1, 1)).build());
+
+    public static final Enchantment IMPACT = Registry
+            .register(Registry.ENCHANTMENT, new Identifier(MOD_ID, "impact"), new ImpactEnchantment());
 
     public static final UUID ATTACK_RANGE_MODIFIER_UUID = UUID.fromString("F136C871-E55A-4DB5-A8FE-8EA49D9B5B81");
     public static final UUID REACH_MODIFIER_UUID = UUID.fromString("2D4AA65A-4A15-4C46-9F6B-D3898AEC42B6");
