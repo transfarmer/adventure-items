@@ -5,14 +5,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import transfarmer.soulboundarmory.MainClient;
-import transfarmer.soulboundarmory.client.gui.GuiXPBar;
+import transfarmer.soulboundarmory.client.gui.XPBarGUI;
 import transfarmer.soulboundarmory.component.soulbound.common.SoulboundItemUtil;
 import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
 
 @Environment(EnvType.CLIENT)
 public class ClientEventListeners {
-    public static final GuiXPBar OVERLAY_XP_BAR = new GuiXPBar();
-    public static final GuiXPBar TOOLTIP_XP_BAR = new GuiXPBar();
+    public static final XPBarGUI OVERLAY_XP_BAR = new XPBarGUI();
+    public static final XPBarGUI TOOLTIP_XP_BAR = new XPBarGUI();
 
 //    public static void onMouseInput(final MouseEvent event) {
 //        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {

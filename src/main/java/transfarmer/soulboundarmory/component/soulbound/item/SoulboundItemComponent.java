@@ -216,7 +216,7 @@ public abstract class SoulboundItemComponent<C extends Component> implements ISo
             this.addDatum(ENCHANTMENT_POINTS, sign);
         }
 
-        if (level % MainConfig.instance().levelsPerSkill == 0) {
+        if (level % MainConfig.instance().levelsPerSkillPoint == 0) {
             this.addDatum(SKILL_POINTS, sign);
         }
 

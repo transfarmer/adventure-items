@@ -19,6 +19,9 @@
         ],
         "client": [
             "transfarmer.soulboundarmory.MainClient"
+        ],
+        "modmenu": [
+            "transfarmer.soulboundarmory.client.ModMenuIntegration"
         ]
     },
     "mixins": [

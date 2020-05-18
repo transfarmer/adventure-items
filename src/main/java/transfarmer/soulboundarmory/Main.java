@@ -32,7 +32,6 @@ import transfarmer.soulboundarmory.component.soulbound.item.IGreatswordComponent
 import transfarmer.soulboundarmory.component.soulbound.item.IPickComponent;
 import transfarmer.soulboundarmory.component.soulbound.item.IStaffComponent;
 import transfarmer.soulboundarmory.component.soulbound.item.ISwordComponent;
-import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.enchantment.ImpactEnchantment;
 import transfarmer.soulboundarmory.entity.SoulboundDaggerEntity;
@@ -91,7 +90,6 @@ public class Main implements ModInitializer {
     public void onInitialize() {
         EntityComponents.setRespawnCopyStrategy(CONFIG_COMPONENT, RespawnCopyStrategy.ALWAYS_COPY);
 
-
         PACKET_REGISTRY.register(C2S_ATTRIBUTE, new C2SAttribute());
         PACKET_REGISTRY.register(C2S_BIND_SLOT, new C2SBindSlot());
         PACKET_REGISTRY.register(C2S_CONFIG, new C2SConfig());
@@ -101,10 +99,5 @@ public class Main implements ModInitializer {
 //        CommandRegistrationCallback.EVENT.register(SoulboundArmoryCommand::register);
 
         AutoConfig.register(MainConfig.class, JanksonConfigSerializer::new);
-        AutoConfig.register(ClientConfig.class, JanksonConfigSerializer::new);
-
-//        MainConfig.instance().load();
-//        MainConfig.instance().update();
-//        MainConfig.instance().save();
     }
 }

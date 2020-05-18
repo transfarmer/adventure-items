@@ -17,7 +17,7 @@ import transfarmer.soulboundarmory.client.gui.screen.common.ExtendedScreen;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.client.renderer.texture.ExperienceBarTexture;
 import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
-import transfarmer.soulboundarmory.config.ClientConfig;
+import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.item.SoulboundItem;
 import transfarmer.soulboundarmory.statistics.StatisticType;
 
@@ -32,7 +32,7 @@ import static transfarmer.soulboundarmory.MainClient.CLIENT;
 import static transfarmer.soulboundarmory.statistics.StatisticType.LEVEL;
 
 @Environment(EnvType.CLIENT)
-public class GuiXPBar extends ExtendedScreen {
+public class XPBarGUI extends ExtendedScreen {
     protected static final Identifier ICONS = new Identifier(Main.MOD_ID, "textures/gui/icons");
 
     protected ItemStack itemStack;
@@ -44,17 +44,17 @@ public class GuiXPBar extends ExtendedScreen {
         TEXTURE_MANAGER.registerTexture(ICONS, new ExperienceBarTexture(getTexture()));
     }
 
-    public GuiXPBar() {
+    public XPBarGUI() {
         super(null);
     }
 
-    public GuiXPBar(final ItemStack itemStack) {
+    public XPBarGUI(final ItemStack itemStack) {
         this();
 
         this.update(itemStack);
     }
 
-    public GuiXPBar(final ISoulboundItemComponent<? extends Component> component) {
+    public XPBarGUI(final ISoulboundItemComponent<? extends Component> component) {
         this();
 
         this.update(component);
@@ -110,10 +110,10 @@ public class GuiXPBar extends ExtendedScreen {
     }
 
     public void drawXPBar(final int x, final int y, final int width) {
-        if (ClientConfig.instance().getRGBA(Mappings.ALPHA) >= 26) {
-            final Color color = new Color(ClientConfig.instance().getRGBA(Mappings.RED), ClientConfig.instance().getRGBA(Mappings.GREEN), ClientConfig.instance().getRGBA(Mappings.BLUE), ClientConfig.instance().getRGBA(Mappings.ALPHA));
+        if (MainConfig.instance().colors.alpha >= 26) {
+            final Color color = new Color(MainConfig.instance().colors.red, MainConfig.instance().colors.green, MainConfig.instance().colors.blue, MainConfig.instance().colors.alpha);
             final float[] components = color.getComponents(null);
-            final Style style = ClientConfig.instance().getStyle();
+            final Style style = MainConfig.instance().style;
             final float ratio = (float) this.component.getDatum(StatisticType.XP) / this.component.getNextLevelXP();
             final float effectiveWidth = ratio * width;
             final int middleU = (int) Math.min(4, effectiveWidth);

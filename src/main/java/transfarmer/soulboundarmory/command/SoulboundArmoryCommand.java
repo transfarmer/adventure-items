@@ -72,7 +72,7 @@ public class SoulboundArmoryCommand implements Command<ServerCommandSource> {
                 ? new TextComponentTranslation("commands.generic.usage", new TextComponentTranslation(key).getFormattedText())
                 : new TextComponentTranslation(key));
 
-        message.getStyle().setColor(TextFormatting.RED);
+        message.style().setColor(TextFormatting.RED);
         sender.sendMessage(message);
     }
 

@@ -31,14 +31,19 @@ dependencies {
     implementation "${project.jsr}"
     include "${project.jsr}"
 
-    modImplementation "${project.farmerlib}"
-    include "${project.farmerlib}"
+    modApi "${project.autoConfig}"
+    include "${project.autoConfig}"
+
+    modApi "${project.clothConfig}"
+    include "${project.clothConfig}"
 
     modImplementation "${project.cardinalComponents}"
     include "${project.cardinalComponents}"
 
-    modApi "${project.autoConfig}"
-    include "${project.autoConfig}"
+    modImplementation "${project.farmerlib}"
+    include "${project.farmerlib}"
+
+    modImplementation "${project.modMenu}"
 
     modApi "${project.reachEntityAttributes}"
     include "${project.reachEntityAttributes}"

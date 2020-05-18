@@ -3,7 +3,6 @@
     "package": "transfarmer.soulboundarmory.mixin",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "client.network.MixinClientPlayerInteractionManager",
         "entity.MixinProjectileEntity"
     ],
     "client": [

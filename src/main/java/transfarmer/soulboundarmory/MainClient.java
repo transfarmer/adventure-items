@@ -33,10 +33,6 @@ public class MainClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-//        ClientConfig.instance().load();
-//        ClientConfig.instance().update();
-//        ClientConfig.instance().save();
-
         KeyBindingRegistry.INSTANCE.addCategory(Main.MOD_NAME);
         KeyBindingRegistry.INSTANCE.register(GUI_KEY_BINDING);
         KeyBindingRegistry.INSTANCE.register(TOGGLE_XP_BAR_KEY_BINDING);

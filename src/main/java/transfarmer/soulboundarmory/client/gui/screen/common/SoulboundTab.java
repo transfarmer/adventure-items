@@ -10,15 +10,13 @@ import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.MathHelper;
 import transfarmer.soulboundarmory.MainClient;
 import transfarmer.soulboundarmory.client.gui.ExtendedButtonWidget;
-import transfarmer.soulboundarmory.client.gui.GuiXPBar;
-import transfarmer.soulboundarmory.client.gui.GuiXPBar.Style;
+import transfarmer.soulboundarmory.client.gui.XPBarGUI;
+import transfarmer.soulboundarmory.client.gui.XPBarGUI.Style;
 import transfarmer.soulboundarmory.client.gui.RGBASlider;
 import transfarmer.soulboundarmory.client.i18n.Mappings;
 import transfarmer.soulboundarmory.component.soulbound.item.ISoulboundItemComponent;
-import transfarmer.soulboundarmory.config.ClientConfig;
 import transfarmer.soulboundarmory.config.MainConfig;
 import transfarmer.soulboundarmory.network.Packets;
 import transfarmer.soulboundarmory.network.common.ExtendedPacketBuffer;
@@ -41,7 +39,7 @@ public abstract class SoulboundTab extends ScreenTab {
     protected final List<RGBASlider> rgbaSliders;
     protected final ISoulboundItemComponent<? extends Component> component;
 
-    protected GuiXPBar xpBar;
+    protected XPBarGUI xpBar;
     protected ExtendedButtonWidget styleButton;
     protected int slot;
 
@@ -74,7 +72,7 @@ public abstract class SoulboundTab extends ScreenTab {
             this.addButton(new ButtonWidget(x, this.height - this.height / 16 - 20, width, 20, text.toString(), this.bindSlotAction()));
 
             if (this.displayXPBar()) {
-                this.xpBar = new GuiXPBar(this.component);
+                this.xpBar = new XPBarGUI(this.component);
             }
         }
 
@@ -82,12 +80,12 @@ public abstract class SoulboundTab extends ScreenTab {
     }
 
     protected void initOptions() {
-        if (ClientConfig.instance().displayOptions && this.displayXPBar()) {
-            this.options.add(this.addButton(this.colorSlider(0, ClientConfig.instance().getRGBA(Mappings.RED), Mappings.RED)));
-            this.options.add(this.addButton(this.colorSlider(1, ClientConfig.instance().getRGBA(Mappings.GREEN), Mappings.GREEN)));
-            this.options.add(this.addButton(this.colorSlider(2, ClientConfig.instance().getRGBA(Mappings.BLUE), Mappings.BLUE)));
-            this.options.add(this.addButton(this.colorSlider(3, ClientConfig.instance().getRGBA(Mappings.ALPHA), Mappings.ALPHA)));
-            this.options.add(this.addButton(this.styleButton = this.optionButton(4, String.format("%s: %s", Mappings.XP_BAR_STYLE, ClientConfig.instance().style), this.cycleStyleAction(1), this.cycleStyleAction(-1))));
+        if (MainConfig.instance().displayOptions && this.displayXPBar()) {
+            this.options.add(this.addButton(this.colorSlider(0, MainConfig.instance().colors.red, Mappings.RED)));
+            this.options.add(this.addButton(this.colorSlider(1, MainConfig.instance().colors.green, Mappings.GREEN)));
+            this.options.add(this.addButton(this.colorSlider(2, MainConfig.instance().colors.blue, Mappings.BLUE)));
+            this.options.add(this.addButton(this.colorSlider(3, MainConfig.instance().colors.alpha, Mappings.ALPHA)));
+            this.options.add(this.addButton(this.styleButton = this.optionButton(4, String.format("%s: %s", Mappings.XP_BAR_STYLE, MainConfig.instance().style), this.cycleStyleAction(1), this.cycleStyleAction(-1))));
         }
     }
 
@@ -165,12 +163,12 @@ public abstract class SoulboundTab extends ScreenTab {
         super.mouseClicked(mouseX, mouseY, button);
 
         if (this.isMouseOverXPBar(mouseX, mouseY)) {
-            if (!ClientConfig.instance().displayOptions) {
+            if (!MainConfig.instance().displayOptions) {
                 this.buttons.addAll(this.options);
-                ClientConfig.instance().displayOptions = true;
+                MainConfig.instance().displayOptions = true;
             } else {
                 this.buttons.removeAll(this.options);
-                ClientConfig.instance().displayOptions = false;
+                MainConfig.instance().displayOptions = false;
             }
 
 //            ClientConfig.instance().save();
@@ -197,22 +195,22 @@ public abstract class SoulboundTab extends ScreenTab {
 
         if (slider != null) {
             final TranslatableText text = slider.getText();
-            final int value = MathHelper.clamp(ClientConfig.instance().getRGBA(text), 0, 255);
-            ClientConfig.instance().setColor(text, value);
-
-            slider.setValue(value);
+//            final int value = MathHelper.clamp(MainConfig.instance()., 0, 255);
+//            MainConfig.instance().setColor(text, value);
+//
+//            slider.setValue(value);
         }
 
         return super.mouseScrolled(x, y, dWheel);
     }
 
     protected void cycleStyle(final int change) {
-        int index = (Style.STYLES.indexOf(ClientConfig.instance().getStyle()) + change) % Style.AMOUNT;
+        int index = (Style.STYLES.indexOf(MainConfig.instance().style) + change) % Style.AMOUNT;
 
         if (index < 0) {
             this.cycleStyle(Style.AMOUNT + index);
         } else {
-            ClientConfig.instance().setStyle(Style.STYLES.get(index));
+            MainConfig.instance().style = Style.STYLES.get(index);
             this.refresh();
         }
     }

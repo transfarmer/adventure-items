@@ -1,7 +1,6 @@
 package transfarmer.soulboundarmory.client.gui;
 
 import net.minecraft.text.TranslatableText;
-import transfarmer.soulboundarmory.config.ClientConfig;
 
 public class RGBASlider extends Slider {
     protected int componentValue;
@@ -19,6 +18,6 @@ public class RGBASlider extends Slider {
     public void applyValue() {
         this.componentValue = (int) (2.55 * this.value);
 
-        ClientConfig.instance().setColor(this.text, this.componentValue);
+//        MainConfig.instance().setColor(this.text, this.componentValue);
     }
 }
