@@ -1,7 +1,7 @@
 package transfarmer.soulboundarmory;
 
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
-import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
+import me.sargunvohra.mcmods.autoconfig1u.serializer.Toml4jConfigSerializer;
 import nerdhub.cardinal.components.api.ComponentRegistry;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.event.EntityComponentCallback;
@@ -122,6 +122,6 @@ public class Main implements ModInitializer {
 
 //        CommandRegistrationCallback.EVENT.register(SoulboundArmoryCommand::register);
 
-        AutoConfig.register(MainConfig.class, JanksonConfigSerializer::new);
+        AutoConfig.register(MainConfig.class, Toml4jConfigSerializer::new);
     }
 }

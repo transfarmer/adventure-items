@@ -195,7 +195,6 @@ public class XPBarGUI extends ExtendedScreen {
         return ImageUtil.toNativeImage(raster);
     }
 
-    @Environment(EnvType.CLIENT)
     public enum Style {
         EXPERIENCE(64, Mappings.EXPERIENCE),
         BOSS(74, Mappings.BOSS),

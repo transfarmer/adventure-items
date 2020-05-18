@@ -12,6 +12,7 @@ import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry.Gui.EnumHandler
 import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry.Gui.Tooltip;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import transfarmer.soulboundarmory.Main;
 import transfarmer.soulboundarmory.client.gui.XPBarGUI.Style;
@@ -20,7 +21,7 @@ import transfarmer.soulboundarmory.client.gui.XPBarGUI.Style;
 @Background(value = "minecraft:textures/block/andesite.png")
 public class MainConfig implements ConfigData {
     @Tooltip
-    public int initialWeaponXP = 48;
+    public int initialWeaponXP = 64;
     @Tooltip
     public int initialToolXP = 16;
     @Tooltip
@@ -31,10 +32,6 @@ public class MainConfig implements ConfigData {
     public int maxLevel = -1;
     @Tooltip
     public int preservationLevel = 0;
-    @Tooltip
-    public boolean addToOffhand = true;
-    @Tooltip
-    public boolean levelupNotifications = true;
 
     @Category("multipliers")
     @Tooltip
@@ -60,10 +57,17 @@ public class MainConfig implements ConfigData {
 
     @Category("client")
     @Tooltip
+    public boolean addToOffhand = true;
+    @Category("client")
+    @Tooltip
+    public boolean levelupNotifications = true;
+    @Category("client")
+    @Tooltip
     public boolean displayOptions = true;
     @Category("client")
     @Tooltip
     public boolean overlayXPBar = true;
+    @Environment(EnvType.CLIENT)
     @Category("client")
     @EnumHandler(option = EnumDisplayOption.BUTTON)
     public Style style = Style.EXPERIENCE;
