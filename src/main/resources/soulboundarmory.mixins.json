@@ -1,9 +1,9 @@
 {
     "required": true,
-    "package": "transfarmer.soulboundarmory.mixin",
+    "package": "user11681.soulboundarmory.mixin",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "entity.MixinProjectileEntity"
+        "entity.ProjectileEntityMixin"
     ],
     "client": [
     ],

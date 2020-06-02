@@ -1,21 +1,19 @@
 plugins {
-    id "fabric-loom" version "0.4.13"
-    id "maven-publish"
+    id 'fabric-loom' version '0.4-SNAPSHOT'
+    id 'maven-publish'
 }
 
 apply plugin: "maven"
+apply from: "project.gradle"
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-archivesBaseName = project.archiveBaseName
-version = project.modVersion
-group = project.mavenGroup
-
-minecraft {
-}
+group = "user11681"
 
 repositories {
+    mavenLocal()
+
     maven {
         url "https://jitpack.io"
     }
@@ -26,27 +24,13 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarnMappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loaderVersion}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.apiVersion}"
 
-    implementation "${project.jsr}"
-    include "${project.jsr}"
+    compileOnly "${project.jsr}"
+}
 
-    modApi "${project.autoConfig}"
-    include "${project.autoConfig}"
-
-    modApi "${project.clothConfig}"
-    include "${project.clothConfig}"
-
-    modImplementation "${project.cardinalComponents}"
-    include "${project.cardinalComponents}"
-
-    modImplementation "${project.farmerlib}"
-    include "${project.farmerlib}"
-
-    modImplementation "${project.modMenu}"
-
-    modApi "${project.reachEntityAttributes}"
-    include "${project.reachEntityAttributes}"
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 processResources {
@@ -69,6 +53,14 @@ tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
+// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+// if it is present.
+// If you remove this task, sources will not be generated.
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = "sources"
+    from sourceSets.main.allSource
+}
+
 jar {
     from "LICENSE"
 }
@@ -81,12 +73,15 @@ publishing {
             artifact(remapJar) {
                 builtBy remapJar
             }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
         }
     }
 
     // select the repositories you want to publish to
     repositories {
         // uncomment to publish to the local maven
-        // mavenLocal()
+         mavenLocal()
     }
 }
