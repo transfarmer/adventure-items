@@ -13,22 +13,32 @@ import user11681.soulboundarmory.component.config.ConfigComponent;
 import user11681.soulboundarmory.component.config.IConfigComponent;
 import user11681.soulboundarmory.component.entity.EntityData;
 import user11681.soulboundarmory.component.entity.IEntityData;
-import user11681.soulboundarmory.component.soulbound.player.SoulboundComponent;
+import user11681.soulboundarmory.component.soulbound.player.SoulboundComponentBase;
 import user11681.soulboundarmory.component.soulbound.player.ToolSoulboundComponent;
 import user11681.soulboundarmory.component.soulbound.player.WeaponSoulboundComponent;
 
 public class Components {
-    public static final List<ComponentType<? extends SoulboundComponent>> SOULBOUND_COMPONENTS = new ArrayList<>();
+    public static final List<ComponentType<? extends SoulboundComponentBase>> SOULBOUND_COMPONENTS = new ArrayList<>();
 
     public static final ComponentType<IConfigComponent> CONFIG_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(Main.MOD_ID, "config_component"), IConfigComponent.class);
     public static final ComponentType<IEntityData> ENTITY_DATA = ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(Main.MOD_ID, "entity_data"), IEntityData.class);
-    public static final ComponentType<SoulboundComponent> WEAPON_COMPONENT = register(ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(Main.MOD_ID, "weapon_component"), SoulboundComponent.class));
-    public static final ComponentType<SoulboundComponent> TOOL_COMPONENT = register(ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(Main.MOD_ID, "tool_component"), SoulboundComponent.class));
+    public static final ComponentType<SoulboundComponentBase> WEAPON_COMPONENT = register(ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(Main.MOD_ID, "weapon_component"), SoulboundComponentBase.class));
+    public static final ComponentType<SoulboundComponentBase> TOOL_COMPONENT = register(ComponentRegistry.INSTANCE.registerIfAbsent(new Identifier(Main.MOD_ID, "tool_component"), SoulboundComponentBase.class));
 
-    public static <T extends ComponentType<? extends SoulboundComponent>> T register(final T componentType) {
+    public static <T extends ComponentType<? extends SoulboundComponentBase>> T register(final T componentType) {
         SOULBOUND_COMPONENTS.add(componentType);
 
         return componentType;
+    }
+
+    public static List<SoulboundComponentBase> getComponents(final Entity entity) {
+        final List<SoulboundComponentBase> components = new ArrayList<>();
+
+        for (final ComponentType<? extends SoulboundComponentBase> type : SOULBOUND_COMPONENTS) {
+            components.add(type.get(entity));
+        }
+
+        return components;
     }
 
     public static void attach() {

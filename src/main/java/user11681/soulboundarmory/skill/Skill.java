@@ -2,28 +2,36 @@ package user11681.soulboundarmory.skill;
 
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nonnull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.util.Identifier;
-import user11681.soulboundarmory.client.gui.screen.common.ExtendedScreen;
-import user11681.usersmanual.collections.CollectionUtil;
+import user11681.soulboundarmory.registry.Skills;
+import user11681.usersmanual.client.gui.screen.ExtendedScreen;
+import user11681.usersmanual.collections.ArraySet;
 import user11681.usersmanual.registry.RegistryEntry;
 
 public abstract class Skill implements RegistryEntry {
     protected final Identifier identifier;
-    protected final List<Skill> dependencies;
+    protected ArraySet<Skill> dependencies;
     protected int maxLevel;
 
-    public Skill(final Identifier identifier, final Skill... dependencies) {
-        this(identifier, 0, dependencies);
+    public Skill(final Identifier identifier) {
+        this(identifier, 0);
     }
 
-    public Skill(final Identifier identifier, final int maxLevel, final Skill... dependencies) {
+    public Skill(final Identifier identifier, final int maxLevel) {
         this.identifier = identifier;
         this.maxLevel = maxLevel;
-        this.dependencies = CollectionUtil.arrayList(dependencies);
+        this.dependencies = new ArraySet<>();
     }
+
+    /**
+     * Register dependencies for this skill.<br>
+     * <b><i>Must</i></b> be called after all skills are initialized.
+     */
+    public void initDependencies() {}
 
     public List<Skill> getDependencies() {
         return this.dependencies;
@@ -40,7 +48,7 @@ public abstract class Skill implements RegistryEntry {
             final int previous = dependency.getTier();
 
             if (previous > 0) {
-                tier++;
+                ++tier;
             }
         }
 
@@ -62,13 +70,14 @@ public abstract class Skill implements RegistryEntry {
     }
 
     @Environment(EnvType.CLIENT)
+    @Nonnull
     public List<String> getTooltip() {
         return Arrays.asList(I18n.translate(String.format("skill.%s.%s.desc", this.identifier.getNamespace(), this.identifier.getPath())).split("\\\\n"));
     }
 
     @Environment(EnvType.CLIENT)
-    public void render(final ExtendedScreen screen, final int level, final int x, final int y, final int blitOffset) {
+    public void render(final ExtendedScreen screen, final int level, final int x, final int y, final int zOffset) {
         ExtendedScreen.TEXTURE_MANAGER.bindTexture(Skills.getDefaultTextureLocation(this));
-        screen.withZ(blitOffset, () -> screen.blit(x, y, 0, 0, 16, 16));
+        screen.withZ(zOffset, () -> screen.blit(x, y, 0, 0, 16, 16));
     }
 }

@@ -1,8 +1,8 @@
-package user11681.soulboundarmory.skill;
+package user11681.soulboundarmory.registry;
 
 import net.minecraft.util.Identifier;
 import user11681.soulboundarmory.Main;
-import user11681.soulboundarmory.registry.Registries;
+import user11681.soulboundarmory.skill.Skill;
 import user11681.soulboundarmory.skill.common.NourishmentSkill;
 import user11681.soulboundarmory.skill.dagger.ReturnSkill;
 import user11681.soulboundarmory.skill.dagger.ShadowCloneSkill;
@@ -36,9 +36,17 @@ public class Skills {
     public static final Skill THROWING = Registries.SKILL.register(new ThrowingSkill(new Identifier(Main.MOD_ID, "throwing")));
     public static final Skill VULNERABILITY = Registries.SKILL.register(new VulnerabilitySkill(new Identifier(Main.MOD_ID, "vulnerability")));
 
+    static {
+        for (final Skill skill : Registries.SKILL) {
+            if (skill.getIdentifier().getNamespace().equals(Main.MOD_ID)) {
+                skill.initDependencies();
+            }
+        }
+    }
+
     public static Identifier getDefaultTextureLocation(final Skill skill) {
         final Identifier identifier = skill.getIdentifier();
 
-        return new Identifier(identifier.getNamespace(), String.format("skill/%s.png", identifier.getPath()));
+        return new Identifier(identifier.getNamespace(), String.format("textures/skill/%s.png", identifier.getPath()));
     }
 }

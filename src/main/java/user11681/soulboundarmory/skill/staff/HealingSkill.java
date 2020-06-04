@@ -6,8 +6,8 @@ import net.minecraft.item.Items;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
 import net.minecraft.util.Identifier;
-import user11681.soulboundarmory.client.gui.screen.common.ExtendedScreen;
 import user11681.soulboundarmory.skill.Skill;
+import user11681.usersmanual.client.gui.screen.ExtendedScreen;
 
 public class HealingSkill extends Skill {
     public HealingSkill(final Identifier identifier) {
@@ -21,7 +21,7 @@ public class HealingSkill extends Skill {
 
     @Override
     @Environment(EnvType.CLIENT)
-    public void render(final ExtendedScreen screen, final int level, final int x, final int y, final int blitOffset) {
-        screen.renderGuiItem(PotionUtil.setPotion(Items.POTION.getStackForRender(), Potions.HEALING), x, y, blitOffset);
+    public void render(final ExtendedScreen screen, final int level, final int x, final int y, final int zOffset) {
+        screen.renderGuiItem(PotionUtil.setPotion(Items.POTION.getStackForRender(), Potions.HEALING), x, y, zOffset);
     }
 }

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import nerdhub.cardinal.components.api.ComponentType;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -25,9 +26,13 @@ import static net.minecraft.entity.EquipmentSlot.MAINHAND;
 public class SoulboundItemUtil {
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("CD407CC4-2214-4ECA-B4B6-7DCEE2DABA33");
 
-    public static ItemStorage<?> getFirstStorage(final PlayerEntity player) {
-        for (final ItemStack itemStack : player.getItemsHand()) {
-            final ItemStorage<?> component = ItemStorage.get(player, itemStack.getItem());
+    public static ItemStorage<?> getFirstStorage(final Entity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        for (final ItemStack itemStack : entity.getItemsHand()) {
+            final ItemStorage<?> component = ItemStorage.get(entity, itemStack.getItem());
 
             if (component != null) {
                 return component;
@@ -77,8 +82,8 @@ public class SoulboundItemUtil {
                 return true;
             }
 
-            for (final ComponentType<? extends SoulboundComponent> type : Components.SOULBOUND_COMPONENTS) {
-                final SoulboundComponent component = type.get(player);
+            for (final ComponentType<? extends SoulboundComponentBase> type : Components.SOULBOUND_COMPONENTS) {
+                final SoulboundComponentBase component = type.get(player);
 
                 for (final ItemStorage<?> storage : component.getStorages().values()) {
                     for (int index = 0; index < mergedInventory.size(); index++) {

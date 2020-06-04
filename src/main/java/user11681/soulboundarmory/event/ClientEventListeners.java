@@ -1,6 +1,9 @@
 package user11681.soulboundarmory.event;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -12,8 +15,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import user11681.anvil.entrypoint.ClientListenerInitializer;
 import user11681.anvil.event.Listener;
 import user11681.anvilevents.event.client.ItemTooltipEvent;
+import user11681.anvilevents.event.client.LoadResourcesEvent;
 import user11681.anvilevents.event.client.gui.hud.RenderExperienceBarEvent;
 import user11681.anvilevents.event.client.gui.screen.RenderStackTooltipEvent;
 import user11681.anvilevents.event.client.mouse.MouseScrollEvent;
@@ -25,12 +30,12 @@ import user11681.soulboundarmory.config.Configuration;
 import user11681.soulboundarmory.item.SoulboundItem;
 
 import static user11681.soulboundarmory.MainClient.CLIENT;
-import static user11681.soulboundarmory.client.gui.screen.common.ExtendedScreen.TEXT_RENDERER;
+import static user11681.usersmanual.client.gui.screen.ExtendedScreen.TEXT_RENDERER;
 
 @Environment(EnvType.CLIENT)
-public class ClientEventListeners {
-    public static final ExperienceBarOverlay OVERLAY_XP_BAR = new ExperienceBarOverlay();
-    public static final ExperienceBarOverlay TOOLTIP_XP_BAR = new ExperienceBarOverlay();
+public class ClientEventListeners implements ClientListenerInitializer {
+    public static ExperienceBarOverlay OVERLAY_BAR;
+    public static ExperienceBarOverlay TOOLTIP_BAR;
 
     @Listener
     public static void onMouseScroll(final MouseScrollEvent event) {
@@ -57,7 +62,7 @@ public class ClientEventListeners {
 
     @Listener
     public static void onRenderGameOverlay(final RenderExperienceBarEvent event) {
-        if (Configuration.instance().client.overlayExperienceBar && OVERLAY_XP_BAR.draw()) {
+        if (Configuration.instance().client.overlayExperienceBar && OVERLAY_BAR.draw()) {
             event.setFail();
         }
     }
@@ -88,7 +93,7 @@ public class ClientEventListeners {
 
                 final int row = insertion.lastIndexOf(new LiteralText("")) + prior.size();
 
-                TOOLTIP_XP_BAR.setData(row, TEXT_RENDERER.getStringWidth(tooltip.get(row - 2).asFormattedString()) - 4);
+                TOOLTIP_BAR.setData(row, TEXT_RENDERER.getStringWidth(tooltip.get(row - 2).asFormattedString()) - 4);
             }
         }
     }
@@ -96,7 +101,20 @@ public class ClientEventListeners {
     @Listener
     public static void onRenderTooltip(final RenderStackTooltipEvent.Post event) {
         if (event.getStack().getItem() instanceof SoulboundItem) {
-            TOOLTIP_XP_BAR.drawTooltip(event.getX(), event.getY(), event.getStack());
+            TOOLTIP_BAR.drawTooltip(event.getX(), event.getY(), event.getStack());
         }
+    }
+
+    @Listener
+    public static void onLoadResources(final LoadResourcesEvent.Launch event) {
+        RenderSystem.recordRenderCall(() -> {
+            OVERLAY_BAR = new ExperienceBarOverlay();
+            TOOLTIP_BAR = new ExperienceBarOverlay();
+        });
+    }
+
+    @Override
+    public Collection<Class<?>> get() {
+        return Collections.singleton(this.getClass());
     }
 }

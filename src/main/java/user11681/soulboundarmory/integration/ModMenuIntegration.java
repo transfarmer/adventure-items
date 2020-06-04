@@ -1,4 +1,4 @@
-package user11681.soulboundarmory.client;
+package user11681.soulboundarmory.integration;
 
 import io.github.prospector.modmenu.api.ConfigScreenFactory;
 import io.github.prospector.modmenu.api.ModMenuApi;

@@ -1,18 +1,25 @@
 package user11681.soulboundarmory.network.common;
 
-import nerdhub.cardinal.components.api.ComponentRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
-import user11681.soulboundarmory.component.soulbound.item.tool.PickStorage;
+import user11681.soulboundarmory.component.soulbound.item.ItemStorage;
+import user11681.soulboundarmory.registry.Registries;
 
 public abstract class ItemComponentPacket extends Packet {
-    protected PickStorage component;
+    protected ItemStorage<?> storage;
+
+    public ItemComponentPacket(final Identifier identifier) {
+        super(identifier);
+    }
 
     @Override
     public void accept(final PacketContext context, final PacketByteBuf buffer) {
+        final ExtendedPacketBuffer extendedBuffer = new ExtendedPacketBuffer(buffer.copy());
+        this.storage = ItemStorage.get(context.getPlayer(), Registries.STORAGE_TYPE.get(extendedBuffer.readIdentifier()));
+
         context.getTaskQueue().execute(() -> {
-            this.component = (PickStorage) ComponentRegistry.INSTANCE.get(buffer.readIdentifier()).get(context.getPlayer());
-            this.accept(context, (ExtendedPacketBuffer) buffer);
+            this.accept(context, extendedBuffer);
         });
     }
 }

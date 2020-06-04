@@ -15,13 +15,8 @@ public class EnchantmentStorage implements Iterable<Enchantment>, NbtSerializabl
     protected final ArrayMap<Enchantment, Integer> enchantments;
 
     public EnchantmentStorage(final Predicate<Enchantment> predicate) {
-        ArrayMap<Enchantment, Integer> enchantments = this.enchantments = new OrderedArrayMap<>(0, Registry.ENCHANTMENT);
-
-        for (final Enchantment enchantment : this) {
-            if (!predicate.test(enchantment)) {
-                enchantments.remove(enchantment);
-            }
-        }
+        this.enchantments = new OrderedArrayMap<>(() -> 0, Registry.ENCHANTMENT);
+        this.enchantments.removeIf(predicate.negate());
     }
 
     public ArrayMap<Enchantment, Integer> get() {
@@ -45,8 +40,8 @@ public class EnchantmentStorage implements Iterable<Enchantment>, NbtSerializabl
     }
 
     public void fromTag(final CompoundTag tag) {
-        final ArrayMap<Enchantment, Integer> enchantments = this.enchantments;
         final Registry<Enchantment> registry = Registry.ENCHANTMENT;
+        final ArrayMap<Enchantment, Integer> enchantments = this.enchantments;
 
         for (final String key : tag.getKeys()) {
             final Enchantment enchantment = registry.get(new Identifier(key));

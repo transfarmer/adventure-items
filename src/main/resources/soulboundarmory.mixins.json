@@ -1,6 +1,6 @@
 {
     "required": true,
-    "package": "user11681.soulboundarmory.mixin",
+    "package": "user11681.soulboundarmory.mixin.mixin",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "entity.ProjectileEntityMixin"

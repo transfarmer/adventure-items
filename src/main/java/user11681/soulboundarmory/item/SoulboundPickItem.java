@@ -24,7 +24,7 @@ import static net.minecraft.entity.EquipmentSlot.MAINHAND;
 import static net.minecraft.entity.attribute.EntityAttributeModifier.Operation.ADDITION;
 import static user11681.soulboundarmory.component.statistics.StatisticType.MINING_LEVEL;
 import static user11681.soulboundarmory.component.statistics.StatisticType.LEVEL;
-import static user11681.soulboundarmory.component.statistics.StatisticType.XP;
+import static user11681.soulboundarmory.component.statistics.StatisticType.EXPERIENCE;
 import static user11681.soulboundarmory.item.ModToolMaterials.SOULBOUND;
 
 public class SoulboundPickItem extends PickaxeItem implements SoulboundToolItem {
@@ -36,7 +36,7 @@ public class SoulboundPickItem extends PickaxeItem implements SoulboundToolItem 
     public boolean isEffectiveOn(final BlockState blockState) {
         final Material material = blockState.getMaterial();
 
-        return material == Material.METAL || material == Material.ANVIL || material == Material.STONE;
+        return material == Material.METAL || material == Material.REPAIR_STATION || material == Material.STONE;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class SoulboundPickItem extends PickaxeItem implements SoulboundToolItem 
             final PickStorage component = PickStorage.get(miner);
             final int xp = MathUtil.roundRandomly(Math.min(state.getHardness(world, pos), 5) + state.getBlock().getBlastResistance(), world.random);
 
-            if (component.addDatum(XP, xp) && !world.isClient && IConfigComponent.get(miner).getLevelupNotifications()) {
+            if (component.incrementStatistic(EXPERIENCE, xp) && !world.isClient && IConfigComponent.get(miner).getLevelupNotifications()) {
                 miner.sendMessage(new TranslatableText(Mappings.MESSAGE_LEVEL_UP.getKey(), stack.getName(), component.getDatum(LEVEL)));
             }
 

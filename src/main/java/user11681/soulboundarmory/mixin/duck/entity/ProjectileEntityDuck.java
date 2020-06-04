@@ -1,4 +1,4 @@
-package user11681.soulboundarmory.duck.entity;
+package user11681.soulboundarmory.mixin.duck.entity;
 
 public interface ProjectileEntityDuck {
     int getLife();

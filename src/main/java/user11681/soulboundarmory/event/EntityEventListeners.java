@@ -27,13 +27,13 @@ import user11681.soulboundarmory.component.entity.IEntityData;
 import user11681.soulboundarmory.component.soulbound.item.ItemStorage;
 import user11681.soulboundarmory.component.soulbound.item.StorageType;
 import user11681.soulboundarmory.component.soulbound.item.weapon.GreatswordStorage;
-import user11681.soulboundarmory.component.soulbound.player.SoulboundComponent;
+import user11681.soulboundarmory.component.soulbound.player.SoulboundComponentBase;
 import user11681.soulboundarmory.component.soulbound.player.SoulboundItemUtil;
 import user11681.soulboundarmory.config.Configuration;
 import user11681.soulboundarmory.entity.SoulboundDaggerEntity;
 import user11681.soulboundarmory.entity.SoulboundFireballEntity;
 import user11681.soulboundarmory.entity.SoulboundLightningEntity;
-import user11681.soulboundarmory.item.ModItems;
+import user11681.soulboundarmory.registry.ModItems;
 import user11681.soulboundarmory.skill.SkillContainer;
 import user11681.usersmanual.entity.EntityUtil;
 import user11681.usersmanual.item.ItemUtil;
@@ -42,9 +42,9 @@ import user11681.usersmanual.mixin.duck.entity.BossEntityDuck;
 import static user11681.soulboundarmory.component.statistics.StatisticType.CRITICAL_STRIKE_PROBABILITY;
 import static user11681.soulboundarmory.component.statistics.StatisticType.KNOCKBACK;
 import static user11681.soulboundarmory.component.statistics.StatisticType.LEVEL;
-import static user11681.soulboundarmory.component.statistics.StatisticType.XP;
-import static user11681.soulboundarmory.skill.Skills.FREEZING;
-import static user11681.soulboundarmory.skill.Skills.NOURISHMENT;
+import static user11681.soulboundarmory.component.statistics.StatisticType.EXPERIENCE;
+import static user11681.soulboundarmory.registry.Skills.FREEZING;
+import static user11681.soulboundarmory.registry.Skills.NOURISHMENT;
 
 public class EntityEventListeners {
     @Listener
@@ -61,7 +61,7 @@ public class EntityEventListeners {
 
         if (entity instanceof PlayerEntity && !entity.world.isClient) {
             final Entity source = event.getSource().getSource();
-            final SoulboundComponent instance = Components.WEAPON_COMPONENT.get(entity);
+            final SoulboundComponentBase instance = Components.WEAPON_COMPONENT.get(entity);
             final ItemStorage<?> storage;
 
             if (source instanceof SoulboundDaggerEntity) {
@@ -102,7 +102,7 @@ public class EntityEventListeners {
         if (!entity.world.isClient) {
             Entity attacker = event.getAttacker();
             ItemStorage<?> storage = null;
-            final SoulboundComponent component = Components.WEAPON_COMPONENT.get(attacker);
+            final SoulboundComponentBase component = Components.WEAPON_COMPONENT.get(attacker);
 
             if (attacker instanceof SoulboundDaggerEntity) {
                 attacker = ((SoulboundDaggerEntity) attacker).getOwner();
@@ -140,7 +140,7 @@ public class EntityEventListeners {
             final EntityAttributeInstance armor = entity.getAttributeInstance(EntityAttributes.ARMOR);
             final Entity immediateSource = event.getSource().getSource();
             final PlayerEntity player = ((PlayerEntity) attacker);
-            final SoulboundComponent component = Components.WEAPON_COMPONENT.get(attacker);
+            final SoulboundComponentBase component = Components.WEAPON_COMPONENT.get(attacker);
             final ItemStorage<?> storage;
             final Text displayName;
 
@@ -179,7 +179,7 @@ public class EntityEventListeners {
 
                 final IConfigComponent configComponent = Components.CONFIG_COMPONENT.get(player);
 
-                if (storage.addDatum(XP, (int) Math.round(xp)) && configComponent.getLevelupNotifications()) {
+                if (storage.incrementStatistic(EXPERIENCE, (int) Math.round(xp)) && configComponent.getLevelupNotifications()) {
                     attacker.sendMessage(new TranslatableText("message.soulboundarmory.levelup", displayName, storage.getDatum(LEVEL)));
                 }
 
@@ -194,7 +194,7 @@ public class EntityEventListeners {
 
         if (!fallen.world.isClient && fallen instanceof PlayerEntity) {
             final PlayerEntity player = (PlayerEntity) fallen;
-            final SoulboundComponent component = Components.WEAPON_COMPONENT.get(player);
+            final SoulboundComponentBase component = Components.WEAPON_COMPONENT.get(player);
             final GreatswordStorage storage = component.getStorage(StorageType.GREATSWORD_STORAGE);
             final double leapForce = storage.getLeapForce();
 
@@ -275,7 +275,7 @@ public class EntityEventListeners {
 
         if (!entity.world.isClient && entity instanceof PlayerEntity) {
             final PlayerEntity player = (PlayerEntity) entity;
-            final SoulboundComponent component = Components.WEAPON_COMPONENT.get(player);
+            final SoulboundComponentBase component = Components.WEAPON_COMPONENT.get(player);
             final GreatswordStorage storage = component.getStorage(StorageType.GREATSWORD_STORAGE);
             final double leapForce = storage.getLeapForce();
 

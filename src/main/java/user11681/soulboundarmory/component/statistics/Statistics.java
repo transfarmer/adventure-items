@@ -1,21 +1,23 @@
 package user11681.soulboundarmory.component.statistics;
 
-import nerdhub.cardinal.components.api.util.NbtSerializable;
-import net.minecraft.nbt.CompoundTag;
-
-import javax.annotation.Nonnull;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import nerdhub.cardinal.components.api.util.NbtSerializable;
+import net.minecraft.nbt.CompoundTag;
+import user11681.soulboundarmory.registry.Registries;
 
-public class Statistics implements NbtSerializable, Iterable<Category> {
+public class Statistics implements NbtSerializable, Iterable<Statistic> {
     protected final Map<Category, Map<StatisticType, Statistic>> categories;
 
     protected Statistics() {
         this.categories = new HashMap<>();
     }
 
-    public static Builder builder() {
+    public static Builder create() {
         return new Builder(new Statistics());
     }
 
@@ -24,7 +26,7 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
     }
 
     public Statistic get(final StatisticType type) {
-        for (final Map<StatisticType, Statistic> category : this.get().values()) {
+        for (final Map<StatisticType, Statistic> category : this.categories.values()) {
             final Statistic statistic = category.get(type);
 
             if (statistic != null) {
@@ -35,16 +37,16 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
         return null;
     }
 
-    public void put(final StatisticType name, final Number value) {
-        this.get(name).setValue(value);
+    public void put(final StatisticType type, final Number value) {
+        this.get(type).setValue(value);
     }
 
     public void put(Category category, final Map<StatisticType, Statistic> newValues) {
         this.categories.put(category, newValues);
     }
 
-    public Statistic add(final StatisticType statisticType, final Number value) {
-        final Statistic statistic = this.get(statisticType);
+    public Statistic add(final StatisticType type, final Number value) {
+        final Statistic statistic = this.get(type);
 
         statistic.add(value);
 
@@ -66,8 +68,8 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
     @Nonnull
     @Override
     public CompoundTag toTag(@Nonnull final CompoundTag tag) {
-        for (final Category category : this) {
-            tag.put(category.toString(), this.toTag(category));
+        for (final Category category : this.categories.keySet()) {
+            tag.put(category.asString(), this.toTag(category));
         }
 
         return tag;
@@ -77,7 +79,7 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
         final CompoundTag tag = new CompoundTag();
 
         for (final Statistic statistic : this.get(category).values()) {
-            tag.put(statistic.getType().toString(), statistic.toTag());
+            tag.put(statistic.getType().asString(), statistic.toTag());
         }
 
         return tag;
@@ -86,14 +88,14 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
     @Override
     public void fromTag(final CompoundTag tag) {
         for (final String key : tag.getKeys()) {
-            this.fromTag(tag.getCompound(key), Category.valueOf(key));
+            this.fromTag(tag.getCompound(key), Registries.CATEGORY.get(key));
         }
     }
 
     public void fromTag(final CompoundTag tag, final Category category) {
         if (category != null) {
-            for (final String identifier : tag.getCompound(category.toString()).getKeys()) {
-                final Statistic statistic = this.get(StatisticType.valueOf(identifier));
+            for (final String identifier : tag.getKeys()) {
+                final Statistic statistic = this.get(Registries.STATISTIC.get(identifier));
 
                 if (statistic != null) {
                     statistic.fromTag(tag.getCompound(identifier));
@@ -103,7 +105,7 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
     }
 
     public void reset() {
-        for (final Category category : this) {
+        for (final Category category : this.categories.keySet()) {
             this.reset(category);
         }
     }
@@ -116,8 +118,14 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
 
     @Nonnull
     @Override
-    public Iterator<Category> iterator() {
-        return this.categories.keySet().iterator();
+    public Iterator<Statistic> iterator() {
+        final Set<Statistic> statistics = new HashSet<>();
+
+        for (final Map<StatisticType, Statistic> category : this.categories.values()) {
+            statistics.addAll(category.values());
+        }
+
+        return statistics.iterator();
     }
 
     public static class Builder {
@@ -129,10 +137,11 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
 
         public Builder category(final Category categoryType, final StatisticType... statisticTypes) {
             final Map<StatisticType, Statistic> category = new HashMap<>();
+            final Statistics statistics = this.statistics;
 
             for (final StatisticType statisticType : statisticTypes) {
-                category.put(statisticType, new Statistic(categoryType, statisticType, 0));
-                this.statistics.put(categoryType, category);
+                category.put(statisticType, new Statistic(categoryType, statisticType));
+                statistics.put(categoryType, category);
             }
 
             return this;
@@ -146,8 +155,30 @@ public class Statistics implements NbtSerializable, Iterable<Category> {
             return this;
         }
 
-        public Builder min(final double min, final StatisticType statistic) {
-            this.statistics.get(statistic).setMin(min);
+        public Builder min(final double min, final StatisticType... types) {
+            final Statistics statistics = this.statistics;
+
+            for (final StatisticType type : types) {
+                statistics.get(type).setMin(min);
+            }
+
+            return this;
+        }
+
+        public Builder max(final double max, final Category category) {
+            for (final StatisticType type : this.statistics.get(category).keySet()) {
+                this.max(max, type);
+            }
+
+            return this;
+        }
+
+        public Builder max(final double max, final StatisticType... types) {
+            final Statistics statistics = this.statistics;
+
+            for (final StatisticType type : types) {
+                statistics.get(type).setMax(max);
+            }
 
             return this;
         }

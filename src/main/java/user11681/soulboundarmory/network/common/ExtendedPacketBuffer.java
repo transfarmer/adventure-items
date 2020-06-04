@@ -7,12 +7,21 @@ import javax.annotation.Nonnull;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 import user11681.soulboundarmory.component.soulbound.item.ItemStorage;
 import user11681.usersmanual.entity.EntityUtil;
 
 public class ExtendedPacketBuffer extends PacketByteBuf {
+    public ExtendedPacketBuffer(final PacketByteBuf buffer) {
+        super(buffer);
+    }
+
+    public ExtendedPacketBuffer(final ByteBuf buffer) {
+        super(buffer);
+    }
+
     public ExtendedPacketBuffer(final ItemStorage<?> component) {
         this();
 
@@ -20,11 +29,7 @@ public class ExtendedPacketBuffer extends PacketByteBuf {
     }
 
     public ExtendedPacketBuffer() {
-        this(Unpooled.buffer());
-    }
-
-    public ExtendedPacketBuffer(final ByteBuf wrapped) {
-        super(wrapped);
+        super(Unpooled.buffer());
     }
 
     @Override
@@ -35,7 +40,7 @@ public class ExtendedPacketBuffer extends PacketByteBuf {
     }
 
     public String readString() {
-        return super.readString(1 << 10);
+        return super.readString(1 << 15);
     }
 
     @Override
@@ -79,5 +84,24 @@ public class ExtendedPacketBuffer extends PacketByteBuf {
 
     public PlayerEntity readPlayer() {
         return (PlayerEntity) this.readEntity();
+    }
+
+    @Override
+    public ExtendedPacketBuffer writeCompoundTag(final CompoundTag tag) {
+        super.writeCompoundTag(tag);
+
+        return this;
+    }
+
+    /**
+     * This method is annotated with {@link Nonnull} to prevent IntelliJ IDEA null warnings.
+     *
+     * @return a {@link CompoundTag} if previously written; otherwise, {@code null}.
+     */
+    @Override
+    @Nonnull
+    public CompoundTag readCompoundTag() {
+        //noinspection ConstantConditions
+        return super.readCompoundTag();
     }
 }

@@ -27,7 +27,7 @@ import user11681.soulboundarmory.component.Components;
 import user11681.soulboundarmory.component.soulbound.item.StorageType;
 import user11681.soulboundarmory.component.soulbound.item.weapon.DaggerStorage;
 import user11681.soulboundarmory.component.soulbound.player.SoulboundItemUtil;
-import user11681.soulboundarmory.skill.Skills;
+import user11681.soulboundarmory.registry.Skills;
 
 import static net.minecraft.entity.projectile.ProjectileEntity.PickupPermission.ALLOWED;
 import static user11681.soulboundarmory.component.statistics.StatisticType.ATTACK_DAMAGE;

@@ -5,8 +5,9 @@ import net.minecraft.util.Identifier;
 import user11681.soulboundarmory.MainClient;
 import user11681.soulboundarmory.component.soulbound.item.ItemStorage;
 import user11681.soulboundarmory.component.soulbound.player.SoulboundItemUtil;
+import user11681.usersmanual.client.keyboard.ModKeyBinding;
 
-public class GUIKeyBinding extends ExtendedKeyBinding {
+public class GUIKeyBinding extends ModKeyBinding {
     public GUIKeyBinding(final Identifier identifier, final Type type, final int code, final String category) {
         super(identifier, type, code, category);
     }

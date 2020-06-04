@@ -21,16 +21,18 @@
         "client": [
             "user11681.soulboundarmory.MainClient"
         ],
+        "anvilClientListeners": [
+            "user11681.soulboundarmory.event.ClientEventListeners"
+        ],
         "modmenu": [
-            "user11681.soulboundarmory.client.ModMenuIntegration"
+            "user11681.soulboundarmory.integration.ModMenuIntegration"
         ]
     },
     "mixins": [
         "soulboundarmory.mixins.json"
     ],
     "depends": {
-        "fabricloader": ">=0.8.3+build.196",
-        "fabric": "*",
-        "minecraft": "1.15.2"
+        "fabricloader": "*",
+        "fabric": "*"
     }
 }

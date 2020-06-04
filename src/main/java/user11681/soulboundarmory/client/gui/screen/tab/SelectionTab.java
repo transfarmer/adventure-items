@@ -1,20 +1,20 @@
-package user11681.soulboundarmory.client.gui.screen.common;
+package user11681.soulboundarmory.client.gui.screen.tab;
 
-import java.util.Collection;
 import java.util.List;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import user11681.soulboundarmory.MainClient;
-import user11681.soulboundarmory.client.i18n.Mappings;
 import user11681.soulboundarmory.component.soulbound.item.ItemStorage;
-import user11681.soulboundarmory.component.soulbound.player.SoulboundComponent;
-import user11681.soulboundarmory.network.Packets;
+import user11681.soulboundarmory.component.soulbound.player.SoulboundComponentBase;
 import user11681.soulboundarmory.network.common.ExtendedPacketBuffer;
+import user11681.soulboundarmory.registry.Packets;
+import user11681.usersmanual.client.gui.screen.ScreenTab;
 
-public abstract class SelectionTab extends SoulboundTab {
-    public SelectionTab(final SoulboundComponent component, final List<ScreenTab> tabs) {
-        super(Mappings.MENU_SELECTION, component, tabs);
+public class SelectionTab extends SoulboundTab {
+    public SelectionTab(final Text title, final SoulboundComponentBase component, final List<ScreenTab> tabs) {
+        super(title, component, tabs);
     }
 
     @Override
@@ -26,19 +26,20 @@ public abstract class SelectionTab extends SoulboundTab {
         final int centerX = (this.width - width) / 2;
         final int ySep = 32;
 
-        final Collection<ItemStorage<?>> selection = this.component.getStorages().values();
+        final List<ItemStorage<?>> selection = this.component.getStorages().values();
 
-        selection.removeIf(component -> !storage.isUnlocked() && !component.canUnlock());
+        selection.removeIf((final ItemStorage<?> storage) -> !this.storage.isUnlocked() && !storage.canUnlock());
 
         final int top = (this.height - height - ySep * (selection.size() - 1)) / 2;
-        int n = 0;
 
-        for (final ItemStorage<?> storage : selection) {
+        for (int row = 0, size = selection.size(); row < size; row++) {
+            final ItemStorage<?> storage = selection.get(row);
+
             final Identifier identifier = storage.getType().getIdentifier();
-            final ButtonWidget button = this.addButton(new ButtonWidget(centerX, top + (n++ * ySep), width, height, storage.getName().asFormattedString(), this.selectAction(storage)));
+            final ButtonWidget button = this.addButton(new ButtonWidget(centerX, top + (row * ySep), width, height, storage.getName().asFormattedString(), this.selectAction(storage)));
 
-            if (this.displayTabs) {
-                button.active = identifier != this.component.getComponentType().getId();
+            if (this.displayTabs()) {
+                button.active = identifier != this.component.getAnyHeldItemStorage().getType().getIdentifier();
             }
         }
     }

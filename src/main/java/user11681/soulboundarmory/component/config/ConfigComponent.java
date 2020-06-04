@@ -5,9 +5,10 @@ import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import user11681.soulboundarmory.component.Components;
-import user11681.soulboundarmory.network.Packets;
+import user11681.soulboundarmory.registry.Packets;
 
 import javax.annotation.Nonnull;
+import user11681.soulboundarmory.network.common.ExtendedPacketBuffer;
 
 public class ConfigComponent implements IConfigComponent {
     protected PlayerEntity player;
@@ -18,7 +19,7 @@ public class ConfigComponent implements IConfigComponent {
         this.player = player;
 
         if (this.player.world.isClient) {
-            ClientSidePacketRegistry.INSTANCE.sendToServer(Packets.C2S_CONFIG, null);
+            ClientSidePacketRegistry.INSTANCE.sendToServer(Packets.C2S_CONFIG, new ExtendedPacketBuffer());
         }
     }
 

@@ -1,27 +1,40 @@
 package user11681.soulboundarmory.component.soulbound.player;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nonnull;
+import nerdhub.cardinal.components.api.util.sync.EntitySyncedComponent;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import user11681.soulboundarmory.component.soulbound.item.StorageType;
 import user11681.soulboundarmory.component.soulbound.item.ItemStorage;
+import user11681.soulboundarmory.component.soulbound.item.StorageType;
 import user11681.soulboundarmory.item.SoulboundItem;
+import user11681.usersmanual.collections.ArrayMap;
+import user11681.usersmanual.collections.OrderedArrayMap;
 import user11681.usersmanual.item.ItemUtil;
 
-public abstract class SoulboundComponentBase implements SoulboundComponent {
+import static user11681.soulboundarmory.component.Components.WEAPON_COMPONENT;
+
+public abstract class SoulboundComponentBase implements EntitySyncedComponent {
     protected final PlayerEntity player;
-    protected final Map<StorageType<?>, ItemStorage<?>> storages;
+    protected final ArrayMap<StorageType<?>, ItemStorage<?>> storages;
 
     protected ItemStorage<?> lastStorage;
 
     public SoulboundComponentBase(final PlayerEntity player) {
         this.player = player;
-        this.storages = new HashMap<>();
+        this.storages = new OrderedArrayMap<>();
+    }
+
+    public static SoulboundComponentBase get(final Entity entity) {
+        return WEAPON_COMPONENT.get(entity);
+    }
+
+    public static Optional<SoulboundComponentBase> maybeGet(final Entity entity) {
+        return WEAPON_COMPONENT.maybeGet(entity);
     }
 
     protected void store(final ItemStorage<?> storage) {
@@ -33,19 +46,38 @@ public abstract class SoulboundComponentBase implements SoulboundComponent {
         return this.player;
     }
 
-    @Override
     public ItemStorage<?> getStorage() {
         return this.lastStorage;
     }
 
-    @Override
+    public ItemStorage<?> getHeldItemStorage() {
+        for (final ItemStack itemStack : this.player.getItemsHand()) {
+            for (final ItemStorage<?> component : this.storages.values()) {
+                if (itemStack.getItem() == component.getItem()) {
+                    return component;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public ItemStorage<?> getAnyHeldItemStorage() {
+        for (final ItemStorage<?> component : this.storages.values()) {
+            if (component.isAnyItemEquipped()) {
+                return component;
+            }
+        }
+
+        return null;
+    }
+
     public <T extends ItemStorage<T>> T getStorage(final StorageType<T> type) {
         //noinspection unchecked
         return (T) this.storages.get(type);
     }
 
-    @Override
-    public Map<StorageType<?>, ItemStorage<?>> getStorages() {
+    public ArrayMap<StorageType<?>, ItemStorage<?>> getStorages() {
         return this.storages;
     }
 
@@ -59,7 +91,6 @@ public abstract class SoulboundComponentBase implements SoulboundComponent {
         return false;
     }
 
-    @Override
     public void tick() {
         if (this.hasSoulboundItem()) {
             final ItemStorage<?> storage = this.getStorage();
@@ -104,12 +135,18 @@ public abstract class SoulboundComponentBase implements SoulboundComponent {
 
     @Override
     public void fromTag(@Nonnull final CompoundTag tag) {
-
+        for (final ItemStorage<?> storage : this.storages.values()) {
+            storage.fromTag(tag.getCompound(storage.getType().toString()));
+        }
     }
 
     @Nonnull
     @Override
     public CompoundTag toTag(@Nonnull final CompoundTag tag) {
+        for (final ItemStorage<?> storage : this.storages.values()) {
+            tag.put(storage.getType().toString(), storage.toTag(new CompoundTag()));
+        }
+
         return tag;
     }
 }

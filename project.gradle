@@ -1,8 +1,8 @@
 version = "3.0.0"
 
 dependencies {
-    modImplementation "${project.autoConfig}"
-    include "${project.autoConfig}"
+    modImplementation "${project.autoconfig}"
+    include "${project.autoconfig}"
 
     modImplementation "${project.cardinalComponentsBase}"
     include "${project.cardinalComponentsBase}"
@@ -10,8 +10,8 @@ dependencies {
     modImplementation "${project.cardinalComponentsEntity}"
     include "${project.cardinalComponentsEntity}"
 
-    modApi "${project.clothConfig}"
-    include "${project.clothConfig}"
+    modApi "${project.clothconfig}"
+    include "${project.clothconfig}"
 
     modImplementation "${project.modmenu}"
 

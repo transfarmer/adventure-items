@@ -1,9 +1,10 @@
 package user11681.soulboundarmory.client.gui;
 
 import net.minecraft.text.TranslatableText;
+import user11681.usersmanual.client.gui.widget.ExtendedSlider;
 import user11681.soulboundarmory.config.Configuration;
 
-public class RGBASlider extends Slider {
+public class RGBASlider extends ExtendedSlider {
     protected int componentValue;
 
     public RGBASlider(final int x, final int y, final int width, final int height, final double value,

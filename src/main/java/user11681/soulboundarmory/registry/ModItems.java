@@ -1,9 +1,14 @@
-package user11681.soulboundarmory.item;
+package user11681.soulboundarmory.registry;
 
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import user11681.soulboundarmory.Main;
+import user11681.soulboundarmory.item.SoulboundDaggerItem;
+import user11681.soulboundarmory.item.SoulboundGreatswordItem;
+import user11681.soulboundarmory.item.SoulboundPickItem;
+import user11681.soulboundarmory.item.SoulboundStaffItem;
+import user11681.soulboundarmory.item.SoulboundSwordItem;
 
 public interface ModItems {
     SoulboundDaggerItem SOULBOUND_DAGGER = new SoulboundDaggerItem();

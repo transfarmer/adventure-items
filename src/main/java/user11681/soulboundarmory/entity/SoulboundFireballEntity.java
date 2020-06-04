@@ -19,7 +19,7 @@ import user11681.soulboundarmory.component.entity.IEntityData;
 import user11681.soulboundarmory.component.soulbound.item.StorageType;
 import user11681.soulboundarmory.component.soulbound.item.weapon.StaffStorage;
 import user11681.soulboundarmory.skill.SkillContainer;
-import user11681.soulboundarmory.skill.Skills;
+import user11681.soulboundarmory.registry.Skills;
 
 import static net.minecraft.util.hit.HitResult.Type.ENTITY;
 import static user11681.soulboundarmory.component.statistics.StatisticType.ATTACK_DAMAGE;

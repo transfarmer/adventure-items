@@ -1,5 +1,7 @@
 package user11681.soulboundarmory.component.soulbound.item;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -11,21 +13,20 @@ import nerdhub.cardinal.components.api.util.NbtSerializable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import user11681.soulboundarmory.Main;
 import user11681.soulboundarmory.MainClient;
-import user11681.soulboundarmory.client.gui.screen.common.ScreenTab;
-import user11681.soulboundarmory.client.gui.screen.common.SoulboundTab;
+import user11681.soulboundarmory.client.gui.screen.tab.SoulboundTab;
 import user11681.soulboundarmory.component.Components;
-import user11681.soulboundarmory.component.soulbound.player.SoulboundComponent;
+import user11681.soulboundarmory.component.soulbound.player.SoulboundComponentBase;
 import user11681.soulboundarmory.component.statistics.Category;
 import user11681.soulboundarmory.component.statistics.EnchantmentStorage;
 import user11681.soulboundarmory.component.statistics.SkillStorage;
@@ -34,11 +35,12 @@ import user11681.soulboundarmory.component.statistics.StatisticType;
 import user11681.soulboundarmory.component.statistics.Statistics;
 import user11681.soulboundarmory.config.Configuration;
 import user11681.soulboundarmory.item.SoulboundItem;
-import user11681.soulboundarmory.network.Packets;
+import user11681.soulboundarmory.registry.Packets;
 import user11681.soulboundarmory.network.common.ExtendedPacketBuffer;
 import user11681.soulboundarmory.registry.Registries;
 import user11681.soulboundarmory.skill.Skill;
 import user11681.soulboundarmory.skill.SkillContainer;
+import user11681.usersmanual.client.gui.screen.ScreenTab;
 import user11681.usersmanual.collections.ArrayMap;
 import user11681.usersmanual.item.ItemUtil;
 
@@ -48,17 +50,22 @@ import static user11681.soulboundarmory.component.statistics.Category.ATTRIBUTE;
 import static user11681.soulboundarmory.component.statistics.Category.DATUM;
 import static user11681.soulboundarmory.component.statistics.Category.ENCHANTMENT;
 import static user11681.soulboundarmory.component.statistics.Category.SKILL;
+import static user11681.soulboundarmory.component.statistics.StatisticType.ATTACK_DAMAGE;
+import static user11681.soulboundarmory.component.statistics.StatisticType.ATTACK_SPEED;
 import static user11681.soulboundarmory.component.statistics.StatisticType.ATTRIBUTE_POINTS;
+import static user11681.soulboundarmory.component.statistics.StatisticType.CRITICAL_STRIKE_PROBABILITY;
 import static user11681.soulboundarmory.component.statistics.StatisticType.ENCHANTMENT_POINTS;
+import static user11681.soulboundarmory.component.statistics.StatisticType.EXPERIENCE;
 import static user11681.soulboundarmory.component.statistics.StatisticType.LEVEL;
 import static user11681.soulboundarmory.component.statistics.StatisticType.REACH;
 import static user11681.soulboundarmory.component.statistics.StatisticType.SKILL_POINTS;
 import static user11681.soulboundarmory.component.statistics.StatisticType.SPENT_ATTRIBUTE_POINTS;
 import static user11681.soulboundarmory.component.statistics.StatisticType.SPENT_ENCHANTMENT_POINTS;
-import static user11681.soulboundarmory.component.statistics.StatisticType.XP;
 
 public abstract class ItemStorage<T> implements NbtSerializable {
-    protected final SoulboundComponent component;
+    protected static final NumberFormat FORMAT = DecimalFormat.getInstance();
+
+    protected final SoulboundComponentBase component;
     protected final boolean isClient;
     protected final Item item;
 
@@ -69,20 +76,31 @@ public abstract class ItemStorage<T> implements NbtSerializable {
     protected int boundSlot;
     protected int currentTab;
 
-    public ItemStorage(final SoulboundComponent component, final Item item) {
+    public ItemStorage(final SoulboundComponentBase component, final Item item) {
         this.component = component;
         this.isClient = component.getEntity().world.isClient;
         this.item = item;
     }
 
     public static ItemStorage<?> get(final Entity entity, final Item item) {
-        for (final ComponentType<? extends SoulboundComponent> component : Components.SOULBOUND_COMPONENTS) {
-            for (final ItemStorage<?> storage : component.get(entity).getStorages().values()) {
+        for (final SoulboundComponentBase component : Components.getComponents(entity)) {
+            for (final ItemStorage<?> storage : component.getStorages().values()) {
                 if (storage.getPlayer() == entity && storage.getItem() == item) {
                     return storage;
                 }
             }
+        }
 
+        return null;
+    }
+
+    public static ItemStorage<?> get(final Entity entity, final StorageType<?> type) {
+        for (final ComponentType<? extends SoulboundComponentBase> component : Components.SOULBOUND_COMPONENTS) {
+            for (final ItemStorage<?> storage : component.get(entity).getStorages().values()) {
+                if (storage.getType() == type) {
+                    return storage;
+                }
+            }
         }
 
         return null;
@@ -92,7 +110,7 @@ public abstract class ItemStorage<T> implements NbtSerializable {
         return this.component.getEntity();
     }
 
-    public SoulboundComponent getComponent() {
+    public SoulboundComponentBase getComponent() {
         return this.component;
     }
 
@@ -140,49 +158,96 @@ public abstract class ItemStorage<T> implements NbtSerializable {
         this.statistics.put(datum, value);
     }
 
-    public boolean addDatum(final StatisticType datum, final int amount) {
-        if (datum == XP) {
-            final int xp = this.statistics.add(XP, amount).intValue();
+    public double getAttributeTotal(StatisticType statistic) {
+        if (statistic == ATTACK_DAMAGE) {
+            double attackDamage = this.getAttribute(ATTACK_DAMAGE);
 
-            if (xp >= this.getNextLevelXP() && this.canLevelUp()) {
-                final int nextLevelXP = this.getNextLevelXP();
-
-                this.addDatum(LEVEL, 1);
-                this.addDatum(XP, -nextLevelXP);
-
-                return true;
-            } else if (xp < 0) {
-                final int currentLevelXP = this.getLevelXP(this.getDatum(LEVEL) - 1);
-
-                this.addDatum(LEVEL, -1);
-                this.addDatum(XP, currentLevelXP);
-
-                return false;
+            for (final Enchantment enchantment : this.enchantments) {
+                attackDamage += enchantment.getAttackDamage(this.getEnchantment(enchantment), EntityGroup.DEFAULT);
             }
-        } else if (datum == LEVEL) {
-            final int sign = (int) Math.signum(amount);
 
-            for (int i = 0; i < Math.abs(amount); i++) {
-                this.onLevelup(sign);
-            }
-        } else {
-            this.statistics.add(datum, amount);
+            return attackDamage;
         }
 
-        return false;
+        return this.getAttribute(statistic);
+    }
+
+    public double getAttributeRelative(final StatisticType attribute) {
+        if (attribute == ATTACK_SPEED) {
+            return this.getAttribute(ATTACK_SPEED) - 4;
+        }
+
+        if (attribute == ATTACK_DAMAGE) {
+            return this.getAttribute(ATTACK_DAMAGE) - 1;
+        }
+
+        if (attribute == REACH) {
+            return this.getAttribute(REACH) - 3;
+        }
+
+        return this.getAttribute(attribute);
     }
 
     public double getAttribute(final StatisticType statistic) {
         return this.statistics.get(statistic).doubleValue();
     }
 
+    public void incrementPoints(final StatisticType statistic, final int amount) {
+        final int sign = (int) Math.signum(amount);
 
-    public double getAttributeRelative(final StatisticType attribute) {
-        if (attribute == REACH) {
-            return this.getAttribute(REACH) - 3;
+        for (int i = 0; i < Math.abs(amount); i++) {
+            if (sign > 0 && this.getDatum(ATTRIBUTE_POINTS) > 0 || sign < 0 && this.getDatum(SPENT_ATTRIBUTE_POINTS) > 0) {
+                this.incrementStatistic(ATTRIBUTE_POINTS, -sign);
+                this.incrementStatistic(SPENT_ATTRIBUTE_POINTS, sign);
+
+                final Statistic instance = this.getStatistic(statistic);
+                final double change = sign * this.getIncrease(statistic);
+
+                if (instance.doubleValue() + change <= instance.getMin()) {
+                    instance.setValue(instance.getMin());
+                } else if (instance.doubleValue() + change >= instance.getMax()) {
+                    instance.setValue(instance.getMax());
+                } else {
+                    instance.add(change);
+                }
+            }
+        }
+    }
+
+    public boolean incrementStatistic(final StatisticType statistic, final int amount) {
+        boolean leveledUp = false;
+
+        if (statistic == EXPERIENCE) {
+            final int xp = this.statistics.add(EXPERIENCE, amount).intValue();
+
+            if (xp >= this.getNextLevelXP() && this.canLevelUp()) {
+                final int nextLevelXP = this.getNextLevelXP();
+
+                this.incrementStatistic(LEVEL, 1);
+                this.incrementStatistic(EXPERIENCE, -nextLevelXP);
+
+                leveledUp = true;
+            }
+
+            if (xp < 0) {
+                final int currentLevelXP = this.getLevelXP(this.getDatum(LEVEL) - 1);
+
+                this.incrementStatistic(LEVEL, -1);
+                this.incrementStatistic(EXPERIENCE, currentLevelXP);
+            }
+        } else if (statistic == LEVEL) {
+            final int sign = (int) Math.signum(amount);
+
+            for (int i = 0; i < Math.abs(amount); i++) {
+                this.onLevelup(sign);
+            }
+        } else {
+            this.statistics.add(statistic, amount);
         }
 
-        return this.getStatistic(attribute).doubleValue();
+        this.sync();
+
+        return leveledUp;
     }
 
     public void setAttribute(final StatisticType statistic, final double value) {
@@ -197,14 +262,14 @@ public abstract class ItemStorage<T> implements NbtSerializable {
         final int level = this.statistics.add(LEVEL, sign).intValue();
 
         if (level % Configuration.instance().levelsPerEnchantment == 0) {
-            this.addDatum(ENCHANTMENT_POINTS, sign);
+            this.incrementStatistic(ENCHANTMENT_POINTS, sign);
         }
 
         if (level % Configuration.instance().levelsPerSkillPoint == 0) {
-            this.addDatum(SKILL_POINTS, sign);
+            this.incrementStatistic(SKILL_POINTS, sign);
         }
 
-        this.addDatum(ATTRIBUTE_POINTS, sign);
+        this.incrementStatistic(ATTRIBUTE_POINTS, sign);
 
         return level;
     }
@@ -247,11 +312,11 @@ public abstract class ItemStorage<T> implements NbtSerializable {
         if (skill.canBeLearned(points)) {
             skill.learn();
 
-            this.addDatum(SKILL_POINTS, -cost);
+            this.incrementStatistic(SKILL_POINTS, -cost);
         } else if (skill.canBeUpgraded(points)) {
             skill.upgrade();
 
-            this.addDatum(SKILL_POINTS, -cost);
+            this.incrementStatistic(SKILL_POINTS, -cost);
         }
 //        }
     }
@@ -292,12 +357,12 @@ public abstract class ItemStorage<T> implements NbtSerializable {
         if (category == DATUM) {
             this.statistics.reset(DATUM);
         } else if (category == ATTRIBUTE) {
-            this.addDatum(ATTRIBUTE_POINTS, this.getDatum(SPENT_ATTRIBUTE_POINTS));
+            this.incrementStatistic(ATTRIBUTE_POINTS, this.getDatum(SPENT_ATTRIBUTE_POINTS));
             this.setDatum(SPENT_ATTRIBUTE_POINTS, 0);
         } else if (category == ENCHANTMENT) {
             this.enchantments.reset();
 
-            this.addDatum(ENCHANTMENT_POINTS, this.getDatum(SPENT_ENCHANTMENT_POINTS));
+            this.incrementStatistic(ENCHANTMENT_POINTS, this.getDatum(SPENT_ENCHANTMENT_POINTS));
             this.setDatum(SPENT_ENCHANTMENT_POINTS, 0);
         } else if (category == SKILL) {
             this.skillStorage.reset();
@@ -402,8 +467,10 @@ public abstract class ItemStorage<T> implements NbtSerializable {
         return itemStack;
     }
 
-    protected void addTooltipEntry(final List<Text> tooltip, final String text, final Object... args) {
-        tooltip.add(new TranslatableText(text, args));
+    protected String formatStatistic(final StatisticType statistic) {
+        final double value = this.getStatistic(statistic).doubleValue();
+
+        return FORMAT.format(statistic == CRITICAL_STRIKE_PROBABILITY ? value * 100 : value);
     }
 
     @Override
@@ -451,13 +518,11 @@ public abstract class ItemStorage<T> implements NbtSerializable {
 
     public abstract Text getName();
 
+    public abstract ArrayMap<Statistic, Text> getScreenAttributes();
+
     public abstract List<Text> getTooltip();
 
     public abstract Item getConsumableItem();
-
-    public abstract double getAttributeTotal(StatisticType statistic);
-
-    public abstract void addAttribute(StatisticType attribute, int amount);
 
     public abstract double getIncrease(StatisticType statistic);
 

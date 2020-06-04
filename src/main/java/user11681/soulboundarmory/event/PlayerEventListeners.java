@@ -25,18 +25,18 @@ import user11681.soulboundarmory.component.Components;
 import user11681.soulboundarmory.component.soulbound.item.ItemStorage;
 import user11681.soulboundarmory.component.soulbound.item.tool.ToolStorage;
 import user11681.soulboundarmory.component.soulbound.item.weapon.WeaponStorage;
-import user11681.soulboundarmory.component.soulbound.player.SoulboundComponent;
+import user11681.soulboundarmory.component.soulbound.player.SoulboundComponentBase;
 import user11681.soulboundarmory.component.soulbound.player.SoulboundItemUtil;
 import user11681.soulboundarmory.config.Configuration;
-import user11681.soulboundarmory.item.ModItems;
+import user11681.soulboundarmory.registry.ModItems;
 import user11681.soulboundarmory.item.SoulboundItem;
 import user11681.soulboundarmory.item.SoulboundWeaponItem;
-import user11681.soulboundarmory.network.Packets;
+import user11681.soulboundarmory.registry.Packets;
 import user11681.soulboundarmory.network.common.ExtendedPacketBuffer;
 
 import static user11681.soulboundarmory.component.statistics.StatisticType.EFFICIENCY;
 import static user11681.soulboundarmory.component.statistics.StatisticType.LEVEL;
-import static user11681.soulboundarmory.skill.Skills.PULL;
+import static user11681.soulboundarmory.registry.Skills.PULL;
 
 public class PlayerEventListeners {
     @Listener
@@ -49,7 +49,7 @@ public class PlayerEventListeners {
         final PlayerEntity player = event.getPlayer();
 
         if (!player.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
-            for (final ComponentType<? extends SoulboundComponent> type : Components.SOULBOUND_COMPONENTS) {
+            for (final ComponentType<? extends SoulboundComponentBase> type : Components.SOULBOUND_COMPONENTS) {
                 final ItemStorage<?> storage = type.get(player).getStorage();
 
                 if (storage != null && storage.getDatum(LEVEL) >= Configuration.instance().preservationLevel) {
@@ -72,9 +72,9 @@ public class PlayerEventListeners {
         final PlayerEntity original = event.getOldPlayer();
         final PlayerEntity player = event.getPlayer();
 
-        for (final ComponentType<? extends SoulboundComponent> type : Components.SOULBOUND_COMPONENTS) {
-            final SoulboundComponent originalComponent = type.get(original);
-            final SoulboundComponent currentComponent = type.get(player);
+        for (final ComponentType<? extends SoulboundComponentBase> type : Components.SOULBOUND_COMPONENTS) {
+            final SoulboundComponentBase originalComponent = type.get(original);
+            final SoulboundComponentBase currentComponent = type.get(player);
 
             currentComponent.fromTag(originalComponent.toTag(new CompoundTag()));
 
@@ -156,7 +156,7 @@ public class PlayerEventListeners {
     public static void onPlayerTick(final PlayerTickEvent.Post event) {
         final PlayerEntity player = event.getPlayer();
 
-        for (final ComponentType<? extends SoulboundComponent> type : Components.SOULBOUND_COMPONENTS) {
+        for (final ComponentType<? extends SoulboundComponentBase> type : Components.SOULBOUND_COMPONENTS) {
             type.get(player).tick();
         }
     }

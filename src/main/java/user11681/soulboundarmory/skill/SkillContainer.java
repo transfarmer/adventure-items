@@ -1,14 +1,13 @@
 package user11681.soulboundarmory.skill;
 
+import java.util.List;
+import javax.annotation.Nonnull;
 import nerdhub.cardinal.components.api.util.NbtSerializable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
-import user11681.soulboundarmory.client.gui.screen.common.ExtendedScreen;
 import user11681.soulboundarmory.component.statistics.SkillStorage;
-
-import javax.annotation.Nonnull;
-import java.util.List;
+import user11681.usersmanual.client.gui.screen.ExtendedScreen;
 
 public class SkillContainer implements Comparable<SkillContainer>, NbtSerializable {
     protected final Skill skill;
@@ -105,6 +104,7 @@ public class SkillContainer implements Comparable<SkillContainer>, NbtSerializab
     }
 
     @Environment(EnvType.CLIENT)
+    @Nonnull
     public List<String> getTooltip() {
         return this.skill.getTooltip();
     }

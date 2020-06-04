@@ -15,7 +15,7 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import user11681.soulboundarmory.component.soulbound.item.weapon.GreatswordStorage;
-import user11681.soulboundarmory.skill.Skills;
+import user11681.soulboundarmory.registry.Skills;
 
 public class SoulboundGreatswordItem extends SoulboundMeleeWeaponItem {
     public SoulboundGreatswordItem() {

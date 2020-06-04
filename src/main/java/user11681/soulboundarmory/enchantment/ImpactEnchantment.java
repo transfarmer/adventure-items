@@ -7,6 +7,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import user11681.soulboundarmory.item.StaffItem;
 
 public class ImpactEnchantment extends Enchantment {
     public ImpactEnchantment() {
@@ -35,6 +36,6 @@ public class ImpactEnchantment extends Enchantment {
 
     @Override
     public boolean isAcceptableItem(final ItemStack stack) {
-        return super.isAcceptableItem(stack);
+        return stack.getItem() instanceof StaffItem;
     }
 }

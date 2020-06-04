@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 import user11681.soulboundarmory.component.soulbound.item.tool.PickStorage;
 import user11681.soulboundarmory.component.soulbound.item.weapon.SwordStorage;
 import user11681.soulboundarmory.entity.SoulboundLightningEntity;
-import user11681.soulboundarmory.skill.Skills;
+import user11681.soulboundarmory.registry.Skills;
 
 public class SoulboundSwordItem extends SoulboundMeleeWeaponItem {
     public SoulboundSwordItem() {

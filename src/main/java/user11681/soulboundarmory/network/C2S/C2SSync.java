@@ -1,22 +1,30 @@
 package user11681.soulboundarmory.network.C2S;
 
-//public class C2SSync implements IExtendedMessage {
-//    public static final class Handler implements IExtendedMessageHandler<C2SSync> {
-//        @Override
-//        public IExtendedMessage onMessage(final C2SSync message, final MessageContext context) {
-//            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-//                final ISoulboundItemComponent component = context.getServerHandler().player.getComponent(IComponentType.get(component).getComponent(), null);
-//
-//                if (tag.hasKey("tab")) {
-//                    component.setCurrentTab(tag.getInt("tab"));
-//                }
-//
-//                if (component instanceof IWeaponComponent && tag.hasKey("spell")) {
-//                    ((IWeaponComponent) component).setSpell((tag.getInt("spell")));
-//                }
-//            });
-//
-//            return null;
-//        }
-//    }
-//}
+import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Identifier;
+import user11681.soulboundarmory.Main;
+import user11681.soulboundarmory.component.soulbound.item.weapon.StaffStorage;
+import user11681.soulboundarmory.network.common.ExtendedPacketBuffer;
+import user11681.soulboundarmory.network.common.ItemComponentPacket;
+
+public class C2SSync extends ItemComponentPacket {
+    public C2SSync() {
+        super(new Identifier(Main.MOD_ID, "server_sync"));
+    }
+
+    @Override
+    protected void accept(final PacketContext context, final ExtendedPacketBuffer buffer) {
+        context.getTaskQueue().execute(() -> {
+            final CompoundTag tag = buffer.readCompoundTag();
+
+            if (tag.contains("tab")) {
+                storage.setCurrentTab(tag.getInt("tab"));
+            }
+
+            if (storage instanceof StaffStorage && tag.contains("spell")) {
+                ((StaffStorage) storage).setSpell((tag.getInt("spell")));
+            }
+        });
+    }
+}

@@ -6,7 +6,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.world.World;
 import user11681.usersmanual.math.MathUtil;
-import user11681.soulboundarmory.duck.entity.ProjectileEntityDuck;
+import user11681.soulboundarmory.mixin.duck.entity.ProjectileEntityDuck;
 
 public abstract class ExtendedProjectile extends ProjectileEntity {
     public ExtendedProjectile(final World world) {
