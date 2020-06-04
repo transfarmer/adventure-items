@@ -154,10 +154,6 @@ public abstract class ItemStorage<T> implements NbtSerializable {
         return this.statistics.get(statistic).intValue();
     }
 
-    public void setDatum(final StatisticType datum, final int value) {
-        this.statistics.put(datum, value);
-    }
-
     public double getAttributeTotal(StatisticType statistic) {
         if (statistic == ATTACK_DAMAGE) {
             double attackDamage = this.getAttribute(ATTACK_DAMAGE);
@@ -250,8 +246,10 @@ public abstract class ItemStorage<T> implements NbtSerializable {
         return leveledUp;
     }
 
-    public void setAttribute(final StatisticType statistic, final double value) {
+    public void setStatistic(final StatisticType statistic, final Number value) {
         this.statistics.put(statistic, value);
+
+        this.sync();
     }
 
     public boolean canLevelUp() {
@@ -349,6 +347,8 @@ public abstract class ItemStorage<T> implements NbtSerializable {
         this.statistics.reset();
         this.enchantments.reset();
         this.skillStorage.reset();
+
+        this.sync();
     }
 
     public void reset(final Category category) {
@@ -358,15 +358,17 @@ public abstract class ItemStorage<T> implements NbtSerializable {
             this.statistics.reset(DATUM);
         } else if (category == ATTRIBUTE) {
             this.incrementStatistic(ATTRIBUTE_POINTS, this.getDatum(SPENT_ATTRIBUTE_POINTS));
-            this.setDatum(SPENT_ATTRIBUTE_POINTS, 0);
+            this.setStatistic(SPENT_ATTRIBUTE_POINTS, 0);
         } else if (category == ENCHANTMENT) {
             this.enchantments.reset();
 
             this.incrementStatistic(ENCHANTMENT_POINTS, this.getDatum(SPENT_ENCHANTMENT_POINTS));
-            this.setDatum(SPENT_ENCHANTMENT_POINTS, 0);
+            this.setStatistic(SPENT_ENCHANTMENT_POINTS, 0);
         } else if (category == SKILL) {
             this.skillStorage.reset();
         }
+
+        this.sync();
     }
 
     public boolean canUnlock() {

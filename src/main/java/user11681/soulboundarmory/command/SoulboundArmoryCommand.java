@@ -33,14 +33,14 @@ public class SoulboundArmoryCommand {
                 .then(literal("add")
                         .then(argument("statistic", allConstants(StatisticType.class))
                                 .then(argument("value", integer()).executes((final CommandContext<ServerCommandSource> context) -> add(context, false))
-                                        .then(argument("targets", players()).executes((final CommandContext<ServerCommandSource> context) -> add(context, true))))))
+                                        .then(argument("players", players()).executes((final CommandContext<ServerCommandSource> context) -> add(context, true))))))
                 .then(literal("set")
                         .then(argument("statistic", allConstants(StatisticType.class))
-                                .then(argument("value", integer()).executes(SoulboundArmoryCommand::set)
-                                        .then(argument("targets", players()).executes(SoulboundArmoryCommand::set)))))
+                                .then(argument("value", integer()).executes((final CommandContext<ServerCommandSource> context) -> set(context, false))
+                                        .then(argument("players", players()).executes((final CommandContext<ServerCommandSource> context) -> set(context, true))))))
                 .then(literal("reset")
-                        .then(argument("category", allConstants(Category.class, Category.class))
-                                .then(argument("targets", players())).executes(SoulboundArmoryCommand::reset)))
+                        .then(argument("category", allConstants(Category.class)).executes((final CommandContext<ServerCommandSource> context) -> reset(context, false))
+                                .then(argument("players", players()).executes((final CommandContext<ServerCommandSource> context) -> reset(context, true)))))
         );
     }
 
@@ -48,7 +48,7 @@ public class SoulboundArmoryCommand {
         final Collection<ServerPlayerEntity> players;
 
         if (hasPlayerArgument) {
-            players = EntityArgumentType.getPlayers(context, "targets");
+            players = EntityArgumentType.getPlayers(context, "players");
         } else {
             players = Collections.singleton(context.getSource().getPlayer());
         }
@@ -57,19 +57,36 @@ public class SoulboundArmoryCommand {
             getStorage(player).incrementStatistic(context.getArgument("statistic", StatisticType.class), IntegerArgumentType.getInteger(context, "value"));
         }
 
-        return 0;
+        return players.size();
     }
 
-    protected static int set(final CommandContext<ServerCommandSource> context) {
-        return 0;
-    }
+    protected static int set(final CommandContext<ServerCommandSource> context, final boolean hasPlayerArgument) throws CommandSyntaxException {
+        final Collection<ServerPlayerEntity> players;
 
-    protected static int reset(final CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        final Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "targets");
+        if (hasPlayerArgument) {
+            players = EntityArgumentType.getPlayers(context, "players");
+        } else {
+            players = Collections.singleton(context.getSource().getPlayer());
+        }
 
         for (final PlayerEntity player : players) {
-            for (final SoulboundComponentBase component : Components.getComponents(player)) {
-            }
+            getStorage(player).setStatistic(context.getArgument("statistic", StatisticType.class), IntegerArgumentType.getInteger(context, "value"));
+        }
+
+        return players.size();
+    }
+
+    protected static int reset(final CommandContext<ServerCommandSource> context, final boolean hasPlayerArgument) throws CommandSyntaxException {
+        final Collection<ServerPlayerEntity> players;
+
+        if (hasPlayerArgument) {
+            players = EntityArgumentType.getPlayers(context, "players");
+        } else {
+            players = Collections.singleton(context.getSource().getPlayer());
+        }
+
+        for (final PlayerEntity player : players) {
+            getStorage(player).reset(context.getArgument("category", Category.class));
         }
 
         return players.size();

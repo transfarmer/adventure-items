@@ -52,14 +52,16 @@ public abstract class SoulboundTab extends ScreenTab {
         this.player = MainClient.getPlayer();
         this.component = component;
         this.options = new ArrayList<>(5);
-        final List<RGBASlider> sliders = this.sliders = new ArrayList<>();
 
-        sliders.add(this.addButton(this.colorSlider(0, Configuration.instance().client.colors.red, Mappings.RED)));
-        sliders.add(this.addButton(this.colorSlider(1, Configuration.instance().client.colors.green, Mappings.GREEN)));
-        sliders.add(this.addButton(this.colorSlider(2, Configuration.instance().client.colors.blue, Mappings.BLUE)));
-        sliders.add(this.addButton(this.colorSlider(3, Configuration.instance().client.colors.alpha, Mappings.ALPHA)));
+        final List<RGBASlider> sliders = this.sliders = new ArrayList<>();
+        final Configuration.Client configuration = Configuration.instance().client;
+
+        sliders.add(this.addButton(this.colorSlider(0, configuration.colors.red, Mappings.RED)));
+        sliders.add(this.addButton(this.colorSlider(1, configuration.colors.green, Mappings.GREEN)));
+        sliders.add(this.addButton(this.colorSlider(2, configuration.colors.blue, Mappings.BLUE)));
+        sliders.add(this.addButton(this.colorSlider(3, configuration.colors.alpha, Mappings.ALPHA)));
         this.options.addAll(sliders);
-        this.options.add(this.addButton(this.optionButton(4, String.format("%s: %s", Mappings.XP_BAR_STYLE.asFormattedString(), Configuration.instance().client.style), this.cycleStyleAction(1), this.cycleStyleAction(-1))));
+        this.options.add(this.addButton(this.optionButton(4, String.format("%s: %s", Mappings.XP_BAR_STYLE, configuration.style), this.cycleStyleAction(1), this.cycleStyleAction(-1))));
     }
 
     @Override
@@ -74,7 +76,7 @@ public abstract class SoulboundTab extends ScreenTab {
             this.storage.setCurrentTab(this.index);
             this.slot = this.player.inventory.getSlotWithStack(this.component.getAnyHeldItemStorage().getItemStack());
 
-            final String text = (this.slot != storage.getBoundSlot() ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND).asFormattedString();
+            final String text = (this.slot != storage.getBoundSlot() ? Mappings.MENU_BUTTON_BIND : Mappings.MENU_BUTTON_UNBIND).toString();
             final int width = Math.max(this.tab.getWidth(), TEXT_RENDERER.getStringWidth(text) + 8);
             final int x = this.tab.endX - width;
 

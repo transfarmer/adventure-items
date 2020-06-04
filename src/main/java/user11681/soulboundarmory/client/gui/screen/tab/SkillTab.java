@@ -13,6 +13,7 @@ import net.minecraft.util.Identifier;
 import user11681.soulboundarmory.client.gui.RGBASlider;
 import user11681.soulboundarmory.client.i18n.Mappings;
 import user11681.soulboundarmory.component.soulbound.player.SoulboundComponentBase;
+import user11681.soulboundarmory.registry.Skills;
 import user11681.soulboundarmory.skill.Skill;
 import user11681.soulboundarmory.skill.SkillContainer;
 import user11681.usersmanual.client.gui.screen.ScreenTab;
@@ -173,6 +174,8 @@ public class SkillTab extends SoulboundTab {
 
         RenderSystem.color3f(color, color, color);
         skill.render(this, x, y, this.getBlitOffset());
+        TEXTURE_MANAGER.bindTexture(Skills.getDefaultTextureLocation(Skills.SHADOW_CLONE));
+        this.blit(this.width - 300, this.height - 300, 0, 0, 16, 16);
 
         this.setBlitOffset(0);
     }
